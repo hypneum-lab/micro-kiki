@@ -399,3 +399,14 @@ Notre conversion DeltaNet → CoreML (Phase 1 ANE research) s'applique directeme
 | Base 4B trop petite pour 32 spécialisations | Upgrade vers Qwen3.5-9B (5.5 Go Q4, tient RTX) |
 | Brainstacks pas testé avec Qwen3.5 | Port du code Gemma → Qwen (même API transformers) |
 | kxkm-ai inaccessible (Tailscale) | Training 100% sur Mac, deploy GGUF via NFS |
+
+## Addendum 2026-04-15 — Cognitive layer added
+
+After the initial design, a cognitive layer was added (see `docs/specs/2026-04-15-cognitive-layer-design.md`):
+
+- Training-free dispatcher (7 meta-intents derived from router)
+- Aeon memory palace (neuro-symbolic, arxiv 2601.15311)
+- CAMP + Catfish negotiator with adaptive judge
+- KnowBias + RBD anti-bias pipeline
+
+The original 32-domain + router architecture is preserved unchanged. The cognitive layer wraps it.
