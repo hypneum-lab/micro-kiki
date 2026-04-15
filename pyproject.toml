@@ -1,0 +1,38 @@
+[project]
+name = "micro-kiki"
+version = "0.1.0"
+description = "32 domain experts (MoE-LoRA) on Qwen3.5-4B base"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+
+dependencies = [
+  # Runtime deps added progressively per stack
+]
+
+[project.optional-dependencies]
+train = [
+  "torch>=2.4",
+  "transformers>=4.46",
+  "peft>=0.13",
+  "trl>=0.12",
+  "accelerate",
+  "bitsandbytes",
+  "datasets",
+]
+mlx = [
+  "mlx>=0.26",
+  "mlx-lm>=0.30",
+]
+serve = [
+  "vllm",
+  "fastapi",
+  "uvicorn",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
