@@ -28,7 +28,7 @@
       "title": "Technical report: v0.2 as MAP implementation",
       "description": "**Technical report: v0.2 as MAP implementation**\n\n- Files to touch: `docs/specs/map-validation-report.md`\n- Retrospective technical note: for each of MAP's 5 modules, identify the v0.2 component that implements the same function (Dispatcher ↔ conflict monitor, Negotiator ↔ state evaluator + coordinator, Aeon ↔ state predictor memory, etc.).\n- Include numeric results from steps 2-3.\n- Acceptance: report committed, ~500-800 lines, references steps 2-3 results, no unresolved TODOs.\n- Dependencies: steps 2, 3.",
       "priority": 4,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-5",
