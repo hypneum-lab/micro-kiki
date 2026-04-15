@@ -1,0 +1,15 @@
+[Unit]
+Description=micro-kiki MoE-LoRA serving
+After=network.target
+
+[Service]
+Type=simple
+User=kxkm
+WorkingDirectory=/home/kxkm/micro-kiki
+ExecStart=/home/kxkm/.local/bin/uv run python -m vllm.entrypoints.openai.api_server --model models/qwen3.5-4b-diffattn/ --enable-lora --max-loras 4 --max-lora-rank 16 --port 8100 --trust-remote-code
+Environment=VLLM_ALLOW_RUNTIME_LORA_UPDATING=True
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
