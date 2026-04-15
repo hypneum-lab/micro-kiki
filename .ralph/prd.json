@@ -21,7 +21,7 @@
       "title": "Write base model loader (`src/base/loader.py`)",
       "description": "**Write base model loader (`src/base/loader.py`)**\n\n   - Files to touch: `src/base/loader.py`, `src/base/__init__.py`, `tests/test_loader.py`\n   - Class `BaseModelLoader` with methods `load_bf16()`, `load_q4()`, `enable_lora_switching()` (Unsloth + PEFT hooks).\n   - Expose context manager `with_stack(adapter_name)` that hot-swaps the LoRA weights.\n   - Acceptance: `pytest tests/test_loader.py::test_load_and_switch` passes.\n   - Dependencies: step 1.",
       "priority": 3,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-4",

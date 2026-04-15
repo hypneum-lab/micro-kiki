@@ -6,8 +6,9 @@ chance to run. They rely only on the shared fixtures in
 ``tests/conftest.py`` and never hit the network or disk beyond
 ``tmp_path``.
 
-``test_loader_smoke`` is skipped until story 3 lands (loader module
-doesn't exist yet); when it does, flip the skip mark off.
+``test_loader_smoke`` was unskipped with story 3 — it now imports
+the real :mod:`src.base.loader` and constructs a loader against the
+``tmp_model_dir`` fixture (no weights actually loaded).
 """
 
 from __future__ import annotations
@@ -179,9 +180,11 @@ def test_mock_teacher_fixture(mock_teacher: FakeTeacher) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.skip(reason="loader pending step 3 (src.base.loader not yet written)")
-def test_loader_smoke(tmp_model_dir: Path) -> None:  # pragma: no cover
-    from src.base.loader import BaseModelLoader  # type: ignore[import-not-found]
+def test_loader_smoke(tmp_model_dir: Path) -> None:
+    from src.base.loader import BaseModelLoader
 
-    loader = BaseModelLoader(tmp_model_dir)
+    loader = BaseModelLoader(tmp_model_dir / "bf16")
     assert loader is not None
+    assert loader.model is None  # lazy: no actual load happened
+    assert loader.backend is None
+    assert loader.adapters == {}
