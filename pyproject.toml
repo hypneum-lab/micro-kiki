@@ -7,7 +7,12 @@ readme = "README.md"
 license = { text = "Apache-2.0" }
 
 dependencies = [
-  # Runtime deps added progressively per stack
+  "numpy>=1.26",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
 ]
 
 [project.optional-dependencies]
