@@ -51,6 +51,57 @@ When you complete a story:
 
 4. **Exit immediately** - Do not start another story
 
+## Commit body requirements
+
+This repo's pre-commit hook `PreToolUse:Bash` rejects commits with large diffs (> 734 LOC) unless the body contains all 4 sections below. Small diffs (< 300 LOC) can use just the subject + a 1-2 line summary.
+
+**Required body template for large diffs**:
+
+```
+<subject ≤ 50 chars, no dots in scope>
+
+## Context
+<1-2 sentences: why this change? what problem/need?>
+
+## Approach
+<1-3 sentences: what strategy was chosen and why>
+
+## Changes
+<bullets of concrete modifications: files touched, functions added/modified, tests added>
+
+## Impact
+<1-2 sentences: what does this unlock, what metric improved, what risk>
+```
+
+**Convention reminders**:
+- Subject: conventional commit `<type>(<scope>): <imperative>`, scope without dots (use `quantum` not `v0.2`)
+- Subject ≤ 50 chars
+- Body lines ≤ 72 chars (hook validates; wrap prose manually)
+- NO `Co-Authored-By:` trailer (hook rejects)
+- Commit via HEREDOC to preserve formatting:
+
+```bash
+git commit -m "$(cat <<'EOF'
+feat(stacks): train stack-04 typescript
+
+## Context
+Stack-04 in curriculum order after stacks 01-03 E2E validated.
+
+## Approach
+MoLoRA r=16 + PiSSA init, TypeScript seed prompts from CodeAlpaca + SO.
+
+## Changes
+- configs/stack-04-typescript.yaml (training config)
+- data/distilled/typescript.jsonl (2000 examples from teacher)
+- data/eval/typescript.jsonl (held-out 100 prompts)
+- outputs/stacks/stack-04-typescript/ (adapter artifacts)
+
+## Impact
++10pp expected on HumanEval-TS; enables stacks 05-16 downstream.
+EOF
+)"
+```
+
 ## Guardrails
 
 See `.ralph/guardrails.md` for constraints and boundaries.

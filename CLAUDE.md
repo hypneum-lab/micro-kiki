@@ -46,7 +46,12 @@
 - `docs(<area>): <short imperative>` — docs
 - `fix(<area>): <short imperative>` — bug fix
 - Subject ≤ 50 chars (pre-commit hook enforces)
+- Body lines ≤ 72 chars (hook enforces; wrap prose manually)
+- Scope without dots (use `quantum` not `v0.2`)
 - No `Co-Authored-By` trailer (hook rejects it)
+- Large diffs (> 734 LOC) require body with `## Context`,
+  `## Approach`, `## Changes`, `## Impact` sections
+  (see `.ralph/CLAUDE.md` for the template)
 
 ## External resources used
 

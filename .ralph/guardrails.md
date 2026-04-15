@@ -4,7 +4,7 @@ Constraints and boundaries for this ralph loop execution.
 
 ## Scope Boundaries
 
-This loop implements the plan at: `.claude/plans/micro-kiki-implementation.md`
+This loop implements the plan at: `.claude/plans/micro-kiki-v0.2-implementation.md`
 
 ### In Scope
 - Stories defined in prd.json
