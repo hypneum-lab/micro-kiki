@@ -4,8 +4,9 @@ Plan: micro-kiki — 32 domain experts MoE-LoRA
 Source: .claude/plans/micro-kiki-implementation.md
 Started: 2026-04-15T18:15:19Z
 Regenerated: 2026-04-15T18:25:00Z (9 patches: 4 fixes + 5 research-informed)
+Regenerated: 2026-04-15T20:56:00Z (cognitive layer: Aeon + Negotiator + KnowBias + Dispatcher, +23 steps)
 
-Stories: 0/79 complete
+Stories: 0/102 complete
 
 ---
 
