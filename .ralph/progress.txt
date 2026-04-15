@@ -1,10 +1,11 @@
 Ralph Loop Progress
 ===================
-Plan: micro-kiki Implementation Plan
+Plan: micro-kiki — 32 domain experts MoE-LoRA
 Source: .claude/plans/micro-kiki-implementation.md
-Started: 2026-04-15T17:55:17Z
+Started: 2026-04-15T18:15:19Z
+Regenerated: 2026-04-15T18:15:19Z (plan patched, stories exploded)
 
-Stories: 0/37 complete
+Stories: 0/68 complete
 
 ---
 
