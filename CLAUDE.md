@@ -13,7 +13,8 @@
 - **Dispatcher**: training-free YAML mapping from router output to 7 meta-intents
 - **Memory**: Aeon (Atlas SIMD + Trace graph), native or Qdrant/Neo4j backends
 - **Negotiator**: CAMP arbitration + Catfish dissent; adaptive judge (Qwen3.5-35B fast / Mistral-Large deep)
-- **Anti-bias**: KnowBias neuron debiasing before+after stacks + RBD runtime detector
+- **Anti-bias**: Post-hoc KnowBias double-application (neuron probing + fine-tune on merged model, twice) + RBD runtime detector. Pre-stacks debiasing deferred to v0.3 (documented tradeoff in `docs/specs/2026-04-15-cognitive-layer-design.md`).
+- **DiffAttn rollback**: step 2 has automatic fallback to vanilla Qwen3.5-4B if perplexity delta > 3% or outliers not reduced; see `docs/specs/diffattn-integration.md` for the spec.
 - **Serving**: vLLM with `VLLM_ALLOW_RUNTIME_LORA_UPDATING=True` (kxkm-ai) or mlx-lm (Mac Studio)
 
 ## Implementation plan
@@ -31,6 +32,7 @@
 - Don't train stacks in parallel on the same GPU (interference)
 - Don't skip the forgetting check framework (step 14) — activating AFTER stacks 02-03 means those two are baseline-checked retroactively
 - Don't add a future-reasoner stack — LLM 4B underperforms time-series ML; use tools layer in v0.2 instead
+- Don't skip the E2E acceptance test (step 104) before Release — it validates all components end-to-end
 
 ## Do
 

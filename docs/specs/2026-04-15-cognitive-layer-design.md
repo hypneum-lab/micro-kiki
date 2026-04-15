@@ -71,3 +71,14 @@ Several arXiv IDs in the 2601–2604 range may require verification — they wer
 - MoLoRA — 2603.15965
 
 If a paper resolves to a different ID or title, update citations in README, CLAUDE.md, and this spec.
+
+## KnowBias ordering tradeoff (post-hoc)
+
+The plan applies KnowBias **twice on the merged model** (not once before stacks + once after, as would be ideal). Rationale:
+- The unified plan was consolidated from separate v0.1 + v0.2 plans, and re-ordering KnowBias pre-stacks would require renumbering 100+ dependency references (risk of introducing bugs).
+- Fix 2B was chosen: rename Phase X to "Post-hoc KnowBias double-application + RBD runtime" to honestly reflect the order.
+- Fix 2A (pre-stacks debiasing) is deferred to v0.3 or a follow-up story if post-hoc results are insufficient.
+
+**Consequence**: all 32 stacks train on a base that is DiffAttn-modified but NOT debiased. KnowBias then runs twice on the merged model to compensate. The merged-model debiasing should still reduce aggregate bias scores ≥ 50 % (as targeted), but pre-stack debiasing would have been cleaner.
+
+**Migration path to v0.3**: rerun neuron probing on vanilla base BEFORE step 15 (first stack training), fine-tune a debiased base, then retrain all 32 stacks on it. Estimated cost: ~60-80 hours of stack retraining.

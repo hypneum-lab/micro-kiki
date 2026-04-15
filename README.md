@@ -12,7 +12,7 @@ Five tightly integrated layers that turn a small base model into a specialist te
 4. **Cognitive layer**:
    - **Aeon memory palace** (Atlas SIMD index + Trace neuro-symbolic graph) — persistent, spatial, temporal-aware memory
    - **Negotiator** (CAMP arbitration + Catfish dissent) — resolves conflicts between active stacks with adaptive judge (Qwen3.5-35B fast ↔ Mistral-Large-Opus deep)
-   - **KnowBias + RBD anti-bias** — neuron-level debiasing (before+after stacks) + runtime detector
+   - **KnowBias + RBD anti-bias** — post-hoc neuron-level debiasing (applied twice on the merged model, after all 32 stacks are trained) + RBD runtime detector. Pre-stacks debiasing is deferred to v0.3; see `docs/specs/2026-04-15-cognitive-layer-design.md` for the tradeoff rationale and migration path.
 5. **Serving**: vLLM with dynamic LoRA (kxkm-ai RTX 4090) OR mlx-lm (Mac Studio), with Apple Neural Engine triple pipeline (draft, scorer, router) as an optional accelerator
 
 ## Architecture
@@ -81,6 +81,8 @@ The design is grounded in 2025–2026 published work:
 - **RBD** (arxiv 2505.17100) — runtime reasoning-based bias detector
 - **Temporal limits** (arxiv 2601.10132) — why 4B LLM is naze at quantitative forecasting, tools layer preferred
 
+The post-hoc KnowBias ordering (applied twice on the merged model rather than once pre-stacks + once post) is a pragmatic tradeoff documented in `docs/specs/2026-04-15-cognitive-layer-design.md`; a future v0.3 can promote base debiasing to pre-stacks if eval data justifies the ~60-80 h of stack retraining.
+
 ## Structure
 
 > **Note:** this tree represents the **target layout** per the 106-step plan. Several directories (`src/memory/`, `src/cognitive/`, `deploy/`) do not exist yet — they are populated as ralph works through the plan. The current state reflects Phase I foundations only.
@@ -126,11 +128,11 @@ micro-kiki/
 - [ ] Phase VII — Apps + complements 26–32
 - [ ] Phase VIII — Aeon memory palace
 - [ ] Phase IX — Negotiator
-- [ ] Phase X — Anti-bias (KnowBias + RBD)
+- [ ] Phase X — Post-hoc KnowBias double-application + RBD runtime
 - [ ] Phase XI — Serving deployment
 - [ ] Phase XII — ANE triple pipeline (Mac-only)
-- [ ] Phase XIII — Quantum-inspired (HyQuT, QMoE, Quantum-PEFT, classical simulators)
-- [ ] Phase XIV — Release v0.2
+- [ ] Phase XIII — Quantum-inspired pre-release (CompactifAI + QTHA + TN router)
+- [ ] Phase XIV — E2E acceptance test + Release v0.2
 
 ## Execution
 
@@ -142,6 +144,8 @@ MAX_ITERATIONS=10 uv run .ralph/loop.py
 ```
 
 Each iteration picks one incomplete story, implements it, runs quality gates, commits, and exits.
+
+Phase I step 2 (Differential Attention fork) carries an automatic **rollback clause**: if the DiffAttn fork regresses perplexity by > 3% OR fails to reduce activation outliers on the full-attn layers, the pipeline falls back to vanilla Qwen3.5-4B and rewrites every `configs/stack-NN-*.yaml` to point at the vanilla base. See `docs/specs/diffattn-integration.md` for the full spec and acceptance criteria. A final end-to-end acceptance test (Phase XIV, step 104) exercises every component — base, stacks, router, cognitive layer, serving — before Release v0.2 is tagged.
 
 ## Roadmap
 
