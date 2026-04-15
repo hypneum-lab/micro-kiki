@@ -1,0 +1,5 @@
+{"prompt": "Write a multi-stage Dockerfile for a Python FastAPI app."}
+{"prompt": "Explain Docker networking modes and when to use each."}
+{"prompt": "Create a docker-compose setup with health checks and restart policies."}
+{"prompt": "How do you optimize Docker image size for production?"}
+{"prompt": "Write a Dockerfile that builds a Rust binary with Alpine as final stage."}

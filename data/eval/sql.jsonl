@@ -1,0 +1,5 @@
+{"prompt": "Write a SQL query to find the second highest salary in a table."}
+{"prompt": "Explain the difference between INNER JOIN, LEFT JOIN, and CROSS JOIN."}
+{"prompt": "Create an index strategy for a table with 10M rows queried by date range."}
+{"prompt": "Write a recursive CTE to traverse a tree structure."}
+{"prompt": "How do window functions work? Give an example with ROW_NUMBER."}

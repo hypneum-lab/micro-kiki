@@ -1,0 +1,5 @@
+{"prompt": "Implement a thread-safe singleton in modern C++."}
+{"prompt": "Explain RAII and give a practical example."}
+{"prompt": "Write a C++ template for a generic circular buffer."}
+{"prompt": "What is the difference between unique_ptr and shared_ptr?"}
+{"prompt": "Implement move semantics for a custom string class."}

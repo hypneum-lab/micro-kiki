@@ -1,0 +1,5 @@
+{"prompt": "Write a KiCad schematic symbol for a voltage regulator with 3 pins."}
+{"prompt": "Explain the s-expression format used in .kicad_sch files."}
+{"prompt": "Create a hierarchical sheet connection in KiCad schematic format."}
+{"prompt": "How do you define custom footprints in KiCad?"}
+{"prompt": "Write a KiCad PCB zone definition for a ground plane."}

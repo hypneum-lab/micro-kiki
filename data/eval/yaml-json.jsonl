@@ -1,0 +1,5 @@
+{"prompt": "Write a JSON Schema that validates a Kubernetes Deployment manifest."}
+{"prompt": "Explain YAML anchors and aliases with a practical example."}
+{"prompt": "Create a docker-compose.yaml for a 3-service app with networks."}
+{"prompt": "How do you validate YAML configuration files programmatically?"}
+{"prompt": "Write a GitHub Actions workflow YAML for CI/CD."}
