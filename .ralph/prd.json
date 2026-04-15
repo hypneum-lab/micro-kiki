@@ -42,7 +42,7 @@
       "title": "Distilled dataset generator (`src/distill/generator.py`)",
       "description": "**Distilled dataset generator (`src/distill/generator.py`)**\n\n   - Files to touch: `src/distill/generator.py`, `tests/test_generator.py`\n   - Function `generate_examples(prompts: list[str], teacher: TeacherClient, n_per_prompt: int = 1) -> Dataset`.\n   - Emits `jsonl` with `{prompt, completion, teacher_model, domain, hash}` rows.\n   - Supports resume from checkpoint (scan existing jsonl, skip already-done hashes).\n   - Acceptance: generates 10 examples from mock teacher, output jsonl valid, resume test passes.\n   - Dependencies: step 4.",
       "priority": 6,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-7",
