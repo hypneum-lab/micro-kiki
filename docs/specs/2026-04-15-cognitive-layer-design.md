@@ -50,3 +50,22 @@ Backends pluggable: native (sqlite + faiss) for dev, Qdrant + Neo4j for producti
 ## Why no future-reasoner stack
 
 Per arxiv 2601.10132, 4B-class LLMs underperform dedicated time-series ML on quantitative forecasting by a wide margin. A dedicated stack would not close the gap. Temporal awareness is a v0.2 concern and will be handled by context injection (real-time clock, calendar, news slice) plus a tools layer, not a new MoE-LoRA stack. Tracked in `docs/plans/v0.2-roadmap.md`.
+
+---
+
+## Citation note
+
+Several arXiv IDs in the 2601–2604 range may require verification — they were sourced from 2026 literature searches and may have been cited before formal publication. Before implementation of each component, verify the paper's existence and current version via arXiv search:
+
+- Aeon (memory palace) — 2601.15311
+- CAMP (arbitration) — 2604.00085
+- Catfish Agent — 2505.21503
+- KnowBias — 2601.21864
+- RBD — 2505.17100
+- Temporal limits — 2601.10132
+- OPLoRA — 2510.13003
+- LoRA-Null — 2503.02659
+- Subspace Geometry — 2603.02224
+- MoLoRA — 2603.15965
+
+If a paper resolves to a different ID or title, update citations in README, CLAUDE.md, and this spec.

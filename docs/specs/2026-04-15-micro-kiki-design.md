@@ -2,23 +2,23 @@
 
 ## Overview
 
-Fleet de 32 domaines spécialisés sur base Qwen3.5-4B, assemblés via Brainstacks (MoE-LoRA + null-space projection + meta-routeur sigmoid). Déployable sur RTX 4090 24 Go.
+Fleet of 32 specialized domains on a Qwen3.5-4B base, assembled via Brainstacks (MoE-LoRA + null-space projection + sigmoid meta-router). Deployable on RTX 4090 24 GB.
 
 ## Architecture
 
 ```
 ┌──────────────────────────────────────────────────┐
-│              META-ROUTEUR SIGMOID                 │
-│     32 sorties indépendantes par prompt           │
+│              SIGMOID META-ROUTER                  │
+│     32 independent outputs per prompt             │
 │     Input: mid-layer + last-layer hidden states   │
 │     ~2M params, 5ms overhead                      │
 └──────────┬───────────────────────────────────────┘
-           │ active les stacks pertinents (seuil 0.12)
+           │ activates relevant stacks (threshold 0.12)
            ▼
 ┌──────────────────────────────────────────────────┐
-│         BASE MODEL: Qwen3.5-4B (gelée, Q4)       │
-│         2.5 Go VRAM permanent                     │
-│         GatedDeltaNet, 262K ctx, thinking natif   │
+│         BASE MODEL: Qwen3.5-4B (frozen, Q4)      │
+│         2.5 GB VRAM permanent                     │
+│         GatedDeltaNet, 262K ctx, native thinking  │
 ├──────────────────────────────────────────────────┤
 │  Stack 1: chat-fr       │  Stack 17: embedded     │
 │  Stack 2: python        │  Stack 18: stm32        │
@@ -37,188 +37,188 @@ Fleet de 32 domaines spécialisés sur base Qwen3.5-4B, assemblés via Brainstac
 │  Stack 15: security     │  Stack 31: llm-orch      │
 │  Stack 16: reasoning    │  Stack 32: kicad-pcb     │
 └──────────────────────────────────────────────────┘
-  Chaque stack : MoE-LoRA (4 experts, rank 16, top-2)
-  ~150 Mo/stack × 32 = ~4.8 Go disque
-  2-4 stacks actifs simultanément en VRAM (~1-2 Go)
+  Each stack: MoE-LoRA (4 experts, rank 16, top-2)
+  ~150 MB/stack × 32 = ~4.8 GB disk
+  2-4 stacks active simultaneously in VRAM (~1-2 GB)
 ```
 
-## Contraintes hardware
+## Hardware constraints
 
-| Machine | VRAM | Rôle |
+| Machine | VRAM | Role |
 |---------|------|------|
-| Mac M3 Ultra 512 Go | Illimité | Training des stacks, distillation teacher |
-| RTX 4090 24 Go (kxkm-ai) | 24 Go | Inférence, training Unsloth |
+| Mac M3 Ultra 512 GB | Unlimited | Stack training, teacher distillation |
+| RTX 4090 24 GB (kxkm-ai) | 24 GB | Inference, Unsloth training |
 
-### Budget VRAM RTX 4090 (inférence)
+### RTX 4090 VRAM budget (inference)
 
-| Composant | VRAM |
+| Component | VRAM |
 |-----------|------|
-| Base Qwen3.5-4B Q4 | 2.5 Go |
-| Meta-routeur | 0.01 Go |
-| 2-4 stacks actifs | 0.6-1.2 Go |
-| KV cache (4K ctx) | ~0.5 Go |
-| **Total** | **~4-5 Go** |
-| **Marge** | **19 Go** |
+| Base Qwen3.5-4B Q4 | 2.5 GB |
+| Meta-router | 0.01 GB |
+| 2-4 active stacks | 0.6-1.2 GB |
+| KV cache (4K ctx) | ~0.5 GB |
+| **Total** | **~4-5 GB** |
+| **Headroom** | **19 GB** |
 
-## Base model : Qwen3.5-4B
+## Base model: Qwen3.5-4B
 
-### Pourquoi
+### Why
 
-| Critère | Qwen3.5-4B | Gemma 4 E4B | Nemotron Nano 4B |
-|---------|-----------|------------|-----------------|
+| Criterion | Qwen3.5-4B | Gemma 4 E4B | Nemotron Nano 4B |
+|-----------|-----------|------------|-----------------|
 | MMLU-Pro | **79.1** | 69.4 | ~65 |
 | GPQA-D | **76.2** | 58.6 | — |
-| Thinking natif | **Oui** | Non | Non |
-| 262K context | **Oui** | Non | Non |
-| Même famille que 122B | **Oui** | Non | Non |
-| French (201 langues) | **Oui** | Limité | Non |
-| Q4 VRAM | 2.5 Go | 3 Go | 2.5 Go |
+| Native thinking | **Yes** | No | No |
+| 262K context | **Yes** | No | No |
+| Same family as 122B | **Yes** | No | No |
+| French (201 languages) | **Yes** | Limited | No |
+| Q4 VRAM | 2.5 GB | 3 GB | 2.5 GB |
 | License | Apache 2.0 | Apache 2.0 | NVIDIA Open |
 
-Qwen3.5-4B gagne sur tous les critères sauf HumanEval brut (Gemma 4 E4B a 85%+). Mais avec le thinking mode et la même architecture DeltaNet que nos teachers 122B/35B, la distillation sera optimale.
+Qwen3.5-4B wins on every criterion except raw HumanEval (Gemma 4 E4B scores 85%+). But with thinking mode and the same DeltaNet architecture as our 122B/35B teachers, distillation will be optimal.
 
-## Brainstacks — adaptations pour 32 domaines
+## Brainstacks — adaptations for 32 domains
 
-### Paramètres
+### Parameters
 
-| Param | Papier (5 dom.) | Micro_KIKI (32 dom.) |
+| Param | Paper (5 dom.) | Micro_KIKI (32 dom.) |
 |-------|----------------|---------------------|
 | Base model | Gemma 3 12B | Qwen3.5-4B |
 | `h_dim` | 3840 | 3072 (Qwen3.5-4B) |
 | `ns_top_k_dirs` | 64 | **32** |
-| Espace null utilisé | 8.3% | **33%** (32×32/3072) |
+| Null-space used | 8.3% | **33%** (32×32/3072) |
 | MoE experts/stack | 4 | 4 |
 | LoRA rank | 16 | 16 |
 | Residual boost rounds | 2-3 | 1-2 |
-| Stack size | 567 Mo (12B) | **~150 Mo** (4B) |
-| Total disque | 5.67 Go | **~4.8 Go** |
-| Meta-routeur sorties | 5 | **32** |
+| Stack size | 567 MB (12B) | **~150 MB** (4B) |
+| Total disk | 5.67 GB | **~4.8 GB** |
+| Meta-router outputs | 5 | **32** |
 
-### Ordre curriculum (séquentiel, chaque domaine ne dégrade pas les précédents)
+### Curriculum order (sequential, each domain does not degrade prior ones)
 
 ```
-Phase 1 — Fondations (scaffolding)
-  1. chat-fr        : instruction-following + français
-  2. reasoning      : meta-raisonnement, thinking chains
+Phase 1 — Foundations (scaffolding)
+  1. chat-fr        : instruction-following + French
+  2. reasoning      : meta-reasoning, thinking chains
 
-Phase 2 — Coding core (logique procédurale)
-  3. python         : coding principal
+Phase 2 — Coding core (procedural logic)
+  3. python         : primary coding
   4. typescript     : web + types
-  5. cpp            : systèmes + embedded
-  6. rust           : safety + concurrence
+  5. cpp            : systems + embedded
+  6. rust           : safety + concurrency
 
-Phase 3 — Coding secondaire
+Phase 3 — Coding secondary
   7. html-css       : frontend markup
   8. shell          : scripts, DevOps
-  9. sql            : requêtes, schémas
+  9. sql            : queries, schemas
   10. yaml-json     : configs, schemas
   11. docker        : containers
   12. kicad-dsl     : netlists, footprints
   13. spice         : simulations
-  14. lua-upy       : scripting embarqué
+  14. lua-upy       : embedded scripting
 
-Phase 4 — Domaines techniques (upgrade kiki-*)
-  15. embedded      : ESP-IDF, firmware général
+Phase 4 — Technical domains (upgrade kiki-*)
+  15. embedded      : ESP-IDF, general firmware
   16. stm32         : STM32 HAL, CubeMX
-  17. iot           : protocoles, MQTT, BLE
-  18. freecad       : CAO mécanique
+  17. iot           : protocols, MQTT, BLE
+  18. freecad       : mechanical CAD
   19. platformio    : build system
-  20. power         : alimentation, régulateurs
-  21. emc           : CEM, filtrage
-  22. dsp           : traitement signal
-  23. spice-sim     : simulation circuits
-  24. electronics   : analogique, RF, composants
-  25. kicad-pcb     : routage PCB, DRC
+  20. power         : power supply, regulators
+  21. emc           : EMC, filtering
+  22. dsp           : signal processing
+  23. spice-sim     : circuit simulation
+  24. electronics   : analog, RF, components
+  25. kicad-pcb     : PCB routing, DRC
 
 Phase 5 — Applications
   26. web-frontend  : React, Vite, patterns
   27. web-backend   : FastAPI, Hono, Express
   28. music-audio   : audio DSP, TTS, instruments
   29. devops        : Docker, Tailscale, CI/CD
-  30. llm-orch      : RAG, agents, routing LLM
+  30. llm-orch      : RAG, agents, LLM routing
 
-Phase 6 — Compléments
-  31. math          : raisonnement math/physique
+Phase 6 — Complements
+  31. math          : math/physics reasoning
   32. security      : crypto, auth, OWASP
 ```
 
-## Distillation — chaîne progressive multi-teacher
+## Distillation — progressive multi-teacher chain
 
 ```
-Teachers (sur Mac 512 Go) :
-  ├── Qwen3.5-122B-A10B Opus-v3 (en training, val 0.497)
-  ├── Gemma 4 31B (18 Go bf16, rapide)
-  └── Devstral 2 123B (pour le coding)
+Teachers (on Mac 512 GB):
+  ├── Qwen3.5-122B-A10B Opus-v3 (in training, val 0.497)
+  ├── Gemma 4 31B (18 GB bf16, fast)
+  └── Devstral 2 123B (for coding)
 
-Chaîne :
-  122B → 35B → 4B (progressive, 80-88% qualité retenue)
+Chain:
+  122B → 35B → 4B (progressive, 80-88% quality retained)
 
-Par domaine :
-  1. Générer ~2K exemples spécialisés avec le teacher approprié
-  2. Dédupliquer cross-domaine
+Per domain:
+  1. Generate ~2K specialized examples with the appropriate teacher
+  2. Deduplicate cross-domain
   3. SFT via Brainstacks (inner loop + null-space)
 ```
 
-### Teachers par domaine
+### Teachers per domain
 
-| Domaines | Teacher principal | Teacher secondaire |
+| Domains | Primary teacher | Secondary teacher |
 |----------|------------------|-------------------|
 | Coders (3-14) | Devstral 2 123B | Gemma 4 31B |
-| Embedded (15-25) | 122B Opus-v3 | Données kiki-* existantes |
+| Embedded (15-25) | 122B Opus-v3 | Existing kiki-* data |
 | Reasoning/Math (1-2, 31) | 122B Opus-v3 | Opus API |
 | Web/DevOps (26-30) | Gemma 4 31B | 122B Opus-v3 |
 | Security (32) | 122B Opus-v3 | — |
 
-## Données — sources et déduplication
+## Data — sources and deduplication
 
-### Sources existantes
+### Existing sources
 
-| Source | Exemples | Domaines |
+| Source | Examples | Domains |
 |--------|----------|----------|
-| final-opus-v3-1 | 11 880 | Reasoning, général |
-| 10 LoRA kiki-* datasets | ~5 000 estimé | Embedded, hardware |
+| final-opus-v3-1 | 11,880 | Reasoning, general |
+| 10 kiki-* LoRA datasets | ~5,000 estimated | Embedded, hardware |
 | CodeFeedback | 156K | Coding |
 | OpenCodeReasoning | 735K | Python coding |
-| Magicoder-OSS | 75K | Multi-langue code |
+| Magicoder-OSS | 75K | Multi-language code |
 
-### Budget par domaine
+### Budget per domain
 
-| Type | Exemples/domaine | Total 32 domaines |
+| Tier | Examples/domain | Total 32 domains |
 |------|-----------------|-------------------|
 | Minimum viable | 500 | 16K |
-| Recommandé | 2 000 | 64K |
-| Optimal | 5 000 | 160K |
+| Recommended | 2,000 | 64K |
+| Optimal | 5,000 | 160K |
 
-### Déduplication cross-domaine
+### Cross-domain deduplication
 
-Chaque exemple va dans **1 seul domaine** (celui avec le score de pertinence le plus élevé). Pas de doublons entre stacks — le null-space projection gère le transfert cross-domaine.
+Each example goes into **exactly 1 domain** (the one with the highest relevance score). No duplicates between stacks — null-space projection handles cross-domain transfer.
 
-## Pipeline d'entraînement
+## Training pipeline
 
-### Par stack (~30 min sur Mac, ~20 min sur RTX)
+### Per stack (~30 min on Mac, ~20 min on RTX)
 
 ```
-1. Charger base Qwen3.5-4B gelée
-2. Calculer projecteur null-space des stacks frozen
-3. Ajouter stack MoE-LoRA (4 experts, rank 16, 7 projections)
-4. SFT sur ~2K exemples du domaine (~500 steps)
-5. Residual boost : round 2 si amélioration > 0.002
-6. Freeze → offload CPU/disque
-7. Évaluer tous les domaines précédents (forgetting check)
+1. Load frozen Qwen3.5-4B base
+2. Compute null-space projector of frozen stacks
+3. Add MoE-LoRA stack (4 experts, rank 16, 7 projections)
+4. SFT on ~2K domain examples (~500 steps)
+5. Residual boost: round 2 if improvement > 0.002
+6. Freeze → offload to CPU/disk
+7. Evaluate all prior domains (forgetting check)
 ```
 
-### Temps total
+### Total time
 
-| Phase | Mac seul | Mac + RTX parallèle |
+| Phase | Mac only | Mac + RTX parallel |
 |-------|----------|---------------------|
-| Distillation données (32 × 2K) | ~48h | ~48h (Mac teacher) |
+| Data distillation (32 × 2K) | ~48h | ~48h (Mac teacher) |
 | Training 32 stacks | ~16h | **~8h** |
 | Residual boost | ~8h | ~4h |
-| Meta-routeur | ~2h | ~1h |
-| Éval + itérer | ~4h | ~4h |
+| Meta-router | ~2h | ~1h |
+| Eval + iterate | ~4h | ~4h |
 | **Total** | **~78h** | **~65h** |
 
-## Meta-routeur — 32 sigmoid
+## Meta-router — 32 sigmoids
 
 ### Architecture
 
@@ -228,177 +228,177 @@ Input: 0.45 × mid_hidden + 0.55 × last_hidden (Qwen3.5-4B h_dim=3072)
 → Global attention (learned query)
 → 32 × cross-attention (domain query vectors)
 → MLP fusion (GELU, dropout 0.1)
-→ 32 sigmoid outputs avec temperature scaling
+→ 32 sigmoid outputs with temperature scaling
 ```
 
-### Entraînement (outcome discovery)
+### Training (outcome discovery)
 
-Pour chaque prompt du dataset mixte :
+For each prompt in the mixed dataset:
 1. Loss base-only
-2. Loss avec chaque stack individuel (32 forwards)
-3. Greedy search : ajouter les stacks qui réduisent la perte > 0.01
-4. Target : 80% découvert + 20% prior label
+2. Loss with each individual stack (32 forwards)
+3. Greedy search: add stacks that reduce loss by > 0.01
+4. Target: 80% discovered + 20% prior label
 5. BCE loss, 8 epochs, cosine LR
 
-### Règles d'inférence
+### Inference rules
 
-- Chat floor : 0.20 (toujours actif minimum)
-- Gate threshold : 0.12 (en dessous, stack pas chargé)
-- Max stacks simultanés : 4 (contrainte VRAM)
+- Chat floor: 0.20 (always active minimum)
+- Gate threshold: 0.12 (below, stack not loaded)
+- Max simultaneous stacks: 4 (VRAM constraint)
 
-## Export et déploiement
+## Export and deployment
 
 ### RTX 4090 (kxkm-ai)
 
 ```
-Base Q4 : models/Qwen3.5-4B-Q4.gguf (2.5 Go)
-Stacks : output/micro-kiki/stacks/ (32 × 150 Mo)
-Routeur : output/micro-kiki/router.safetensors (8 Mo)
-Inference : vLLM avec LoRA switching OU script custom
+Base Q4: models/Qwen3.5-4B-Q4.gguf (2.5 GB)
+Stacks: output/micro-kiki/stacks/ (32 × 150 MB)
+Router: output/micro-kiki/router.safetensors (8 MB)
+Inference: vLLM with LoRA switching OR custom script
 ```
 
 ### Mac Studio (local)
 
 ```
-Base bf16 : models/Qwen3.5-4B (8 Go)
-Stacks MLX : même format
-Inference : mlx-lm avec adapter switching
+Base bf16: models/Qwen3.5-4B (8 GB)
+MLX stacks: same format
+Inference: mlx-lm with adapter switching
 ```
 
-## Critères de succès
+## Success criteria
 
-| Métrique | Cible |
-|----------|-------|
-| Coding (HumanEval) | > 70% (base Qwen3.5-4B ~55%) |
+| Metric | Target |
+|--------|--------|
+| Coding (HumanEval) | > 70% (Qwen3.5-4B base ~55%) |
 | Reasoning (GPQA) | > 80% (base 76.2%) |
-| Embedded (custom eval) | Réponses correctes ESP-IDF, KiCad |
-| French (custom eval) | Fluent, pas de code-switching |
-| Zero forgetting | Delta < 0.03 sur tous les domaines précédents |
-| VRAM RTX 4090 | < 8 Go en inférence |
-| Latence routeur | < 10 ms |
-| Swap stack | < 2s |
+| Embedded (custom eval) | Correct answers on ESP-IDF, KiCad |
+| French (custom eval) | Fluent, no code-switching |
+| Zero forgetting | Delta < 0.03 on all prior domains |
+| RTX 4090 VRAM | < 8 GB at inference |
+| Router latency | < 10 ms |
+| Stack swap | < 2s |
 
-## Apple Silicon — Triple pipeline ANE+GPU+CPU (Mac uniquement)
+## Apple Silicon — ANE+GPU+CPU triple pipeline (Mac only)
 
-Sur le Mac M3 Ultra, l'ANE (Neural Engine) est libre quand le GPU fait l'inférence MoE. Trois intégrations exploitent cette ressource inutilisée.
+On the Mac M3 Ultra, the ANE (Neural Engine) is idle while the GPU runs MoE inference. Three integrations exploit this otherwise-unused resource.
 
-### Architecture triple pipeline
+### Triple pipeline architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    MAC M3 ULTRA 512 Go                        │
+│                    MAC M3 ULTRA 512 GB                        │
 │                                                               │
 │  ┌─────────────────┐  ┌──────────────────┐  ┌─────────────┐ │
 │  │   GPU METAL      │  │   ANE (32 cores)  │  │    CPU      │ │
 │  │   76 cores       │  │   ~2W, 14 tok/s   │  │  24 cores   │ │
 │  │                  │  │                    │  │             │ │
-│  │  Base Qwen3.5-4B │  │  A. Scorer GRPO   │  │  Routeur    │ │
-│  │  + 2-4 stacks    │  │  B. Draft 0.8B    │  │  sigmoid    │ │
-│  │  actifs          │  │     (speculative)  │  │  (5ms)      │ │
-│  │                  │  │  C. Meta-routeur   │  │             │ │
-│  │  Génération      │  │     + embedding    │  │  Offload    │ │
-│  │  principale      │  │                    │  │  stacks     │ │
+│  │  Base Qwen3.5-4B │  │  A. GRPO scorer   │  │  Sigmoid    │ │
+│  │  + 2-4 active    │  │  B. Draft 0.8B    │  │  router     │ │
+│  │  stacks          │  │     (speculative)  │  │  (5ms)      │ │
+│  │                  │  │  C. Meta-router    │  │             │ │
+│  │  Primary         │  │     + embedding    │  │  Stack      │ │
+│  │  generation      │  │                    │  │  offload    │ │
 │  └─────────────────┘  └──────────────────┘  └─────────────┘ │
-│         ↕ mémoire unifiée (zero-copy)  ↕                      │
+│         ↕ unified memory (zero-copy)  ↕                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### A. ANE comme scorer/filtre qualité
+### A. ANE as scorer / quality filter
 
-Pendant le training GRPO (Phase 3), le GPU génère K=4 réponses par prompt.
-L'ANE score chaque réponse en parallèle via un reward model léger.
+During GRPO training (Phase 3), the GPU generates K=4 responses per prompt.
+The ANE scores each response in parallel via a lightweight reward model.
 
 ```
-GPU : génère réponse[i+1]  ──────────────────────→
-ANE : score réponse[i]     ──→ reward = 0.85 ──→
+GPU: generates response[i+1]  ──────────────────────→
+ANE: scores response[i]       ──→ reward = 0.85 ──→
                                (14 tok/s)
 ```
 
-| Composant | Unité | Modèle |
-|-----------|-------|--------|
-| Générateur | GPU Metal | Qwen3.5-4B + stacks MoE |
-| Scorer | ANE CoreML | Qwen3.5-0.8B converti CoreML |
-| Reward head | ANE | Linear(h_dim, 1) sur le scorer |
+| Component | Unit | Model |
+|-----------|------|-------|
+| Generator | GPU Metal | Qwen3.5-4B + MoE stacks |
+| Scorer | ANE CoreML | Qwen3.5-0.8B converted to CoreML |
+| Reward head | ANE | Linear(h_dim, 1) on top of the scorer |
 
-Gain : **scoring gratuit** (0 impact sur la vitesse de génération GPU).
+Gain: **free scoring** (zero impact on GPU generation speed).
 
 ### B. Speculative decoding via ANE
 
-Un draft model Qwen3.5-0.8B (0.5 Go) tourne sur ANE. Il propose N tokens,
-le GPU (4B + stacks) vérifie en un seul forward pass.
+A draft Qwen3.5-0.8B model (0.5 GB) runs on the ANE. It proposes N tokens;
+the GPU (4B + stacks) verifies them in a single forward pass.
 
 ```
-ANE (draft 0.8B) : propose tokens [t1, t2, t3, t4, t5]  → 200+ tok/s
-GPU (4B + stacks) : vérifie [t1✓, t2✓, t3✓, t4✗]       → 1 forward
-                    accepte 3 tokens au lieu de 1
+ANE (draft 0.8B): proposes tokens [t1, t2, t3, t4, t5]  → 200+ tok/s
+GPU (4B + stacks): verifies [t1✓, t2✓, t3✓, t4✗]         → 1 forward
+                    accepts 3 tokens instead of 1
 ```
 
-| Métrique | Sans speculative | Avec speculative ANE |
-|----------|-----------------|---------------------|
-| tok/s GPU | ~30-50 | ~30-50 |
-| tok/s effectifs | ~30-50 | **~60-100** (2-3x) |
-| VRAM supplémentaire | 0 | 0 (ANE séparé) |
+| Metric | Without speculative | With ANE speculative |
+|--------|---------------------|----------------------|
+| GPU tok/s | ~30-50 | ~30-50 |
+| Effective tok/s | ~30-50 | **~60-100** (2-3x) |
+| Extra VRAM | 0 | 0 (ANE is separate) |
 
-Le draft 0.8B partage le même tokenizer que le 4B (même famille Qwen3.5).
-La conversion CoreML est prouvée (on a déjà converti le 9B DeltaNet).
+The draft 0.8B shares the same tokenizer as the 4B (same Qwen3.5 family).
+CoreML conversion is proven (we have already converted the 9B DeltaNet).
 
-### C. ANE pour meta-routeur + embedding
+### C. ANE for meta-router + embedding
 
-Le meta-routeur (2M params) et l'embedding layer sont des opérations légères
-qui peuvent tourner entièrement sur ANE, libérant le GPU pour les stacks MoE.
+The meta-router (2M params) and the embedding layer are lightweight ops
+that can run entirely on ANE, freeing the GPU for the MoE stacks.
 
 ```
-Prompt arrive
+Prompt arrives
   │
   ▼
-ANE : embedding(tokens) → hidden states          (~0.5 ms)
-ANE : meta_routeur(hidden) → 32 sigmoid scores   (~2 ms)
-CPU : sélectionne top-4 stacks, charge du SSD     (~50 ms)
+ANE: embedding(tokens) → hidden states           (~0.5 ms)
+ANE: meta_router(hidden) → 32 sigmoid scores     (~2 ms)
+CPU: selects top-4 stacks, loads from SSD         (~50 ms)
   │
   ▼
-GPU : forward(hidden, stacks actifs) → tokens     (bulk du compute)
+GPU: forward(hidden, active stacks) → tokens      (bulk of compute)
 ```
 
-Le forward GPU ne fait QUE le compute MoE lourd. Embedding + routing = gratuit sur ANE.
+The GPU forward only does the heavy MoE compute. Embedding + routing = free on ANE.
 
-### Modèles CoreML nécessaires
+### Required CoreML models
 
-| Modèle | Usage | Taille CoreML | Conversion |
-|--------|-------|--------------|------------|
-| Qwen3.5-0.8B | Draft speculative | ~1 Go | À faire (ANEMLL ou custom) |
-| Meta-routeur | Routing 32 stacks | ~8 Mo | Trivial (petit MLP) |
-| Embedding layer | Token → hidden | ~50 Mo | Trivial |
-| Reward scorer | GRPO scoring | ~1 Go | Clone du draft + reward head |
+| Model | Use | CoreML size | Conversion |
+|--------|-----|-------------|------------|
+| Qwen3.5-0.8B | Speculative draft | ~1 GB | TBD (ANEMLL or custom) |
+| Meta-router | 32-stack routing | ~8 MB | Trivial (small MLP) |
+| Embedding layer | Token → hidden | ~50 MB | Trivial |
+| Reward scorer | GRPO scoring | ~1 GB | Clone of the draft + reward head |
 
-**Note** : Le 0.8B Qwen3.5 utilise GatedDeltaNet comme le 4B/9B.
-Notre conversion DeltaNet → CoreML (Phase 1 ANE research) s'applique directement.
+**Note**: The 0.8B Qwen3.5 uses GatedDeltaNet like the 4B/9B.
+Our DeltaNet → CoreML conversion (Phase 1 ANE research) applies directly.
 
-### Quand utiliser le triple pipeline
+### When to use the triple pipeline
 
-| Scénario | GPU | ANE | CPU | Gain |
+| Scenario | GPU | ANE | CPU | Gain |
 |----------|-----|-----|-----|------|
-| Inférence standard | 4B + stacks | Draft 0.8B (spec) | Routeur | **2-3x tok/s** |
-| Training GRPO | Génère K=4 | Score réponses | Routeur | **Scoring gratuit** |
-| Training SFT | Training LoRA | Idle | — | Pas de gain |
-| Batch scoring | Idle | Score dataset | — | **14 tok/s continu** |
+| Standard inference | 4B + stacks | Draft 0.8B (spec) | Router | **2-3x tok/s** |
+| GRPO training | Generates K=4 | Scores responses | Router | **Free scoring** |
+| SFT training | LoRA training | Idle | — | No gain |
+| Batch scoring | Idle | Scores dataset | — | **14 tok/s continuous** |
 
-### Impact sur les critères de succès
+### Impact on success criteria
 
-| Métrique | Sans ANE | Avec ANE |
-|----------|----------|----------|
-| Inférence tok/s | 30-50 | **60-100** (speculative) |
-| GRPO scoring overhead | +50% temps | **~0%** (parallèle) |
-| Latence routeur | ~5 ms CPU | **~2 ms ANE** |
-| Consommation | ~20W GPU seul | ~22W (GPU+ANE) |
+| Metric | Without ANE | With ANE |
+|--------|-------------|----------|
+| Inference tok/s | 30-50 | **60-100** (speculative) |
+| GRPO scoring overhead | +50% time | **~0%** (parallel) |
+| Router latency | ~5 ms CPU | **~2 ms ANE** |
+| Power draw | ~20W GPU only | ~22W (GPU+ANE) |
 
-## Risques
+## Risks
 
-| Risque | Mitigation |
-|--------|-----------|
-| 32 domaines saturent le null-space | Réduire ns_top_k_dirs à 32 (33% espace) |
-| Base 4B trop petite pour 32 spécialisations | Upgrade vers Qwen3.5-9B (5.5 Go Q4, tient RTX) |
-| Brainstacks pas testé avec Qwen3.5 | Port du code Gemma → Qwen (même API transformers) |
-| kxkm-ai inaccessible (Tailscale) | Training 100% sur Mac, deploy GGUF via NFS |
+| Risk | Mitigation |
+|------|-----------|
+| 32 domains saturate the null-space | Drop ns_top_k_dirs to 32 (33% space) |
+| Base 4B too small for 32 specializations | Upgrade to Qwen3.5-9B (5.5 GB Q4, fits on RTX) |
+| Brainstacks untested with Qwen3.5 | Port the Gemma code → Qwen (same transformers API) |
+| kxkm-ai unreachable (Tailscale) | Training 100% on Mac, deploy GGUF via NFS |
 
 ## Addendum 2026-04-15 — Cognitive layer added
 

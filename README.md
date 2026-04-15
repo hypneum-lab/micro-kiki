@@ -83,6 +83,8 @@ The design is grounded in 2025–2026 published work:
 
 ## Structure
 
+> **Note:** this tree represents the **target layout** per the 102-step plan. Several directories (`src/memory/`, `src/cognitive/`, `deploy/`) do not exist yet — they are populated as ralph works through the plan. The current state reflects Phase I foundations only.
+
 ```
 micro-kiki/
 ├── docs/
