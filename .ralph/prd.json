@@ -56,7 +56,7 @@
       "title": "Audit data sources — write `docs/data-sources.md` (no download)",
       "description": "**Audit data sources — write `docs/data-sources.md` (no download)**\n\n   - Files to touch: `docs/data-sources.md`\n   - For each of the 32 domains (in design-doc order), add a table row listing: (a) candidate local datasets under `~/Documents/Projets/Factory 4 Life/` (especially `KIKI-models-tuning/`), (b) existing HuggingFace datasets worth considering, (c) an `availability` column checked via `ls` / `find` (CONFIRMED / TBD / GAP), (d) any notes on licensing or language.\n   - For French-language domains (chat-fr especially), explicitly reference these HF collections known to exist as of 2026:\n     - `bofenghuang/mt-bench-french` — MT-Bench translation\n     - `manu` HF user collection: FrenchBench evaluation datasets\n     - Community 'OpenAssistant-FR' may or may not have clean HF mirror — verify\n   - The data-sources.md file must list these specific HF IDs with a CONFIRMED / TBD column and licensing note.\n   - NO download or fetch from HF. This is an inventory + planning step only.\n   - Full curation of the `kiki-*` legacy datasets (actual import + dedup) is deferred to steps 37–46.\n   - Acceptance: `docs/data-sources.md` exists with a header row and 32 data rows (one per domain); ≥ 70% of domains (≥ 23) have a CONFIRMED source; each GAP row has a one-line mitigation note (synthetic via teacher, scraping, manual seed, etc.); FR HF IDs listed with CONFIRMED/TBD + license.\n   - Dependencies: none.",
       "priority": 8,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-9",
