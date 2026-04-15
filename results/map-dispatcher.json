@@ -1,0 +1,15 @@
+{
+  "agent": "V02DispatcherAgent",
+  "agreement_delta_vs_mock": 0.0,
+  "agreement_rate": 1.0,
+  "false_positive_rate": 0.0,
+  "latency_ms": 0.0008,
+  "n": 50,
+  "notes": [
+    "Conceptual model of the v0.2 Dispatcher; no runnable code on main.",
+    "Conflict = normalised Shannon entropy after 4-stack cap.",
+    "Chat-floor adjustment raises conflict when top score < 0.20.",
+    "Synthetic benchmark \u2014 not a MAP replication; descriptive only."
+  ],
+  "schema_version": "map-dispatcher-bench/1.0"
+}

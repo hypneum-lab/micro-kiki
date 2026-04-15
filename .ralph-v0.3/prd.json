@@ -7,14 +7,14 @@
       "title": "MAP paper spec + metrics harness",
       "description": "**MAP paper spec + metrics harness**\n\n- Files to touch: `docs/specs/map-paper-spec.md`, `src/eval/map_harness.py`, `tests/test_map_harness.py`\n- Distill MAP (Nature Communications 2025, s41467-025-63804-5) into a spec: 5 modules (conflict monitor, state predictor, evaluator, decomposer, coordinator), inputs/outputs, canonical benchmarks.\n- Build a metric harness that runs the same cognitive benchmarks the MAP paper uses (or closest public equivalents) and emits a JSON report with per-module scores.\n- Acceptance: spec committed; `pytest tests/test_map_harness.py` passes; harness runs end-to-end on a mock agent and produces a valid JSON report.\n- Dependencies: none.",
       "priority": 1,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-2",
       "title": "Benchmark v0.2 Dispatcher vs MAP conflict monitor",
       "description": "**Benchmark v0.2 Dispatcher vs MAP conflict monitor**\n\n- Files to touch: `src/eval/map_dispatcher_bench.py`, `results/map-dispatcher.json`\n- Run MAP's conflict-monitor benchmark against v0.2's Dispatcher (7 meta-intents, training-free YAML mapping).\n- Score: agreement rate with MAP reference conflict labels; false-positive rate; latency.\n- Acceptance: script runs, emits `results/map-dispatcher.json` with ≥ 3 metrics. Descriptive, not pass/fail.\n- Dependencies: step 1.",
       "priority": 2,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-3",
