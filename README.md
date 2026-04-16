@@ -114,29 +114,40 @@ micro-kiki/
 
 ## Status
 
-14 phases, 108 implementation stories. Tracked in `.ralph/prd.json`. **40/108 done (37%)**.
+14 phases, 108 implementation stories. Tracked in `.ralph/prd.json`. **52/108 done (48%)**.
 
 - [x] Design (2026-04-15) — see `docs/specs/`
 - [x] MoE approach research — see `docs/research/`
 - [x] Implementation plan (108 stories, 14 phases)
 - [x] Phase I — Foundations (bootstrap base + loader + teacher client + smoke)
-- [~] Phase II — Data pipeline (chat-fr distilled 1784 examples, reasoning + python seed prompts ready)
+- [x] Phase II — Data pipeline (32 domains via KIKI-Mac_tunner + chat-fr distilled 1784)
 - [ ] Phase III — First stack (chat-fr E2E) — **NEXT: training on Studio**
 - [x] Phase IV — Router v0 + dispatcher (3 stacks) — code done, training pending
-- [ ] Phase V — Curriculum coding 04–14 — seed prompts for 5/11 technical domains ready
-- [ ] Phase VI — Technical stacks 15–25
-- [ ] Phase VII — Apps + complements 26–32
+- [~] Phase V — Curriculum coding 04–14 — configs ready, data available
+- [x] Phase VI — Technical stacks 15–25 — **datasets validated** (KIKI-Mac_tunner, 219-2700 examples each)
+- [x] Phase VII — Apps + complements 26–32 — **datasets validated** (KIKI-Mac_tunner)
 - [x] Phase VIII — Aeon memory palace (atlas + trace + aeon API + backends + serving hook + compression daemon)
 - [x] Phase IX — Negotiator (judge + catfish + argument extractor + integration)
-- [~] Phase X — KnowBias + RBD (code done, bias dataset 1881/5000 in progress, fine-tune pending)
+- [~] Phase X — KnowBias + RBD (code done, bias dataset in progress, fine-tune pending)
 - [x] Phase XI — Serving deployment (vLLM dynamic LoRA + MLX server + service units)
 - [~] Phase XII — ANE triple pipeline (stubs present, CoreML conversion pending)
 - [x] Phase XIII — Quantum-inspired (CompactifAI + QTHA + TN router — all classical simulators)
 - [~] Phase XIV — E2E acceptance + Release (migration guide + VERSION done, tests pending)
 
-### Bottleneck
+### Training pipeline
 
-The remaining 68 stories are dominated by **37 GPU training stories** (32 stacks × sequential curriculum + router retrains). Estimated: ~30 min/stack × 32 = ~16h of compute on Mac Studio M3 Ultra (BF16 LoRA). All code scaffolding is complete.
+All 32 domain datasets are available on Studio via `~/KIKI-Mac_tunner/data/micro-kiki/` (classified + deduped, 219-2700 examples per domain). The `scripts/train_stack.py` auto-discovers this data. Training uses the custom MLX fork at `~/KIKI-Mac_tunner/lib/mlx_lm_fork/` for LoRA hot-swap on MoE adapters.
+
+The remaining 56 stories are dominated by **37 GPU training stories**. Estimated: ~30 min/stack × 32 = ~16h of compute on Mac Studio M3 Ultra (BF16 LoRA, CPU device_map — MPS MoE histogram bug workaround). All code scaffolding is complete.
+
+### MLX fork
+
+A custom fork of `mlx-lm` lives on Studio at `/Users/clems/KIKI-Mac_tunner/lib/mlx_lm_fork/`. Modifications vs upstream:
+- Custom LoRA hot-swap for MoE adapters (standard mlx-lm doesn't handle MoE adapter switching)
+- Modified perplexity computation for spike outputs
+- Q4_K_M GGUF export with architecture-specific patches
+
+See `docs/specs/mlx-lm-fork-reference.md` for details.
 
 ## Execution
 

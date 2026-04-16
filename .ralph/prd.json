@@ -259,77 +259,77 @@
       "title": "Curate dataset for domain-15 (embedded)",
       "description": "**Curate dataset for domain-15 (embedded)**\n\n    - Files to touch: `scripts/import_kiki_datasets.py` (create once, reused by steps 38–46), `data/distilled/embedded.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-embedded` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain embedded`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/embedded.jsonl --output data/distilled/embedded.jsonl`.\n    - Acceptance: `data/distilled/embedded.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7 (dedup); step 8 (audit).",
       "priority": 37,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-38",
       "title": "Curate dataset for domain-16 (stm32)",
       "description": "**Curate dataset for domain-16 (stm32)**\n\n    - Files to touch: `data/distilled/stm32.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-stm32` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain stm32` (reuses script from step 37).\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/stm32.jsonl --output data/distilled/stm32.jsonl`.\n    - Acceptance: `data/distilled/stm32.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7 (dedup); step 8 (audit); step 37 (previous curation step, for script reuse).",
       "priority": 38,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-39",
       "title": "Curate dataset for domain-17 (iot)",
       "description": "**Curate dataset for domain-17 (iot)**\n\n    - Files to touch: `data/distilled/iot.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-iot` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain iot`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/iot.jsonl --output data/distilled/iot.jsonl`.\n    - Acceptance: `data/distilled/iot.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 38.",
       "priority": 39,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-40",
       "title": "Curate dataset for domain-18 (freecad)",
       "description": "**Curate dataset for domain-18 (freecad)**\n\n    - Files to touch: `data/distilled/freecad.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-freecad` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain freecad`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/freecad.jsonl --output data/distilled/freecad.jsonl`.\n    - Acceptance: `data/distilled/freecad.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 39.",
       "priority": 40,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-41",
       "title": "Curate dataset for domain-19 (platformio)",
       "description": "**Curate dataset for domain-19 (platformio)**\n\n    - Files to touch: `data/distilled/platformio.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-platformio` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain platformio`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/platformio.jsonl --output data/distilled/platformio.jsonl`.\n    - Acceptance: `data/distilled/platformio.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 40.",
       "priority": 41,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-42",
       "title": "Curate dataset for domain-20 (power)",
       "description": "**Curate dataset for domain-20 (power)**\n\n    - Files to touch: `data/distilled/power.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-power` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain power`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/power.jsonl --output data/distilled/power.jsonl`.\n    - Acceptance: `data/distilled/power.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 41.",
       "priority": 42,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-43",
       "title": "Curate dataset for domain-21 (emc)",
       "description": "**Curate dataset for domain-21 (emc)**\n\n    - Files to touch: `data/distilled/emc.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-emc` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain emc`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/emc.jsonl --output data/distilled/emc.jsonl`.\n    - Acceptance: `data/distilled/emc.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 42.",
       "priority": 43,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-44",
       "title": "Curate dataset for domain-22 (dsp)",
       "description": "**Curate dataset for domain-22 (dsp)**\n\n    - Files to touch: `data/distilled/dsp.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-dsp` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain dsp`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/dsp.jsonl --output data/distilled/dsp.jsonl`.\n    - Acceptance: `data/distilled/dsp.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 43.",
       "priority": 44,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-45",
       "title": "Curate dataset for domain-23 (spice-sim)",
       "description": "**Curate dataset for domain-23 (spice-sim)**\n\n    - Files to touch: `data/distilled/spice-sim.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-spice-sim` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain spice-sim`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/spice-sim.jsonl --output data/distilled/spice-sim.jsonl`.\n    - Acceptance: `data/distilled/spice-sim.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 44.",
       "priority": 45,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-46",
       "title": "Curate dataset for domain-24 (electronics)",
       "description": "**Curate dataset for domain-24 (electronics)**\n\n    - Files to touch: `data/distilled/electronics.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-electronics` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain electronics`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/electronics.jsonl --output data/distilled/electronics.jsonl`.\n    - Acceptance: `data/distilled/electronics.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 45.",
       "priority": 46,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-47",
       "title": "Curate dataset for domain-25 (kicad-pcb)",
       "description": "**Curate dataset for domain-25 (kicad-pcb)**\n\n    - Files to touch: `data/distilled/kicad-pcb.jsonl`\n    - Source: `~/Documents/Projets/Factory 4 Life/KIKI-models-tuning/` (or HF mirror `L-electron-Rare/KIKI-models-tuning`) — specifically the `kiki-kicad-pcb` or related dataset.\n    - Run: `uv run scripts/import_kiki_datasets.py --domain kicad-pcb`\n    - After import, run dedup: `python -m src.distill.dedup --input data/raw/kicad-pcb.jsonl --output data/distilled/kicad-pcb.jsonl`.\n    - Acceptance: `data/distilled/kicad-pcb.jsonl` has ≥ 800 rows; dedup report shows < 5% cross-domain contamination.\n    - Dependencies: step 7; step 8; step 46.",
       "priority": 47,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-48",
@@ -434,7 +434,7 @@
       "title": "Generate distilled datasets for domains 26–32 (apps + complements)",
       "description": "**Generate distilled datasets for domains 26–32 (apps + complements)**\n\n    - Files to touch: `data/prompts/web-frontend.jsonl`, `data/prompts/web-backend.jsonl`, `data/prompts/music-audio.jsonl`, `data/prompts/devops.jsonl`, `data/prompts/llm-orch.jsonl`, `data/prompts/math.jsonl`, `data/prompts/security.jsonl`, plus the corresponding `data/distilled/*.jsonl`.\n    - For each domain: seed 300 prompts per domain via manual + HF sources noted in step 8's `data-sources.md`, then distill ~1.5K examples each via the appropriate teacher (Devstral for web/devops, Mistral-Large-Opus for math/security/llm-orch, kxkm Qwen35B for music-audio).\n    - Command: `uv run scripts/distill_apps_domains.py`\n    - Duration: ~3 h total (7 domains × 200 prompts × 2 s/call teacher avg).\n    - Acceptance: 7 jsonl files in `data/distilled/`, each ≥ 1500 rows; dedup pass applied.\n    - Dependencies: steps 6, 7, 8.",
       "priority": 62,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-63",
