@@ -1,0 +1,35 @@
+# micro-kiki MLX LoRA — technical
+# Domains: embedded, stm32, iot, freecad, platformio, power, emc, dsp, spice-sim, electronics, kicad-pcb
+# Rank 4, seq 2048, 200 iters
+
+model: models/qwen3.5-35b-a3b
+fine_tune_type: lora
+lora_parameters:
+  dropout: 0.0
+  scale: 2.0
+  keys:
+  - self_attn.q_proj
+  - self_attn.k_proj
+  - self_attn.v_proj
+  - self_attn.o_proj
+  rank: 4
+  alpha: 8
+num_layers: 40
+grad_checkpoint: true
+save_every: 100
+steps_per_report: 10
+steps_per_eval: 100
+val_batches: 25
+train: true
+seed: 42
+learning_rate: 2.0e-05
+max_seq_length: 2048
+batch_size: 2
+grad_accumulation_steps: 2
+iters: 200
+lr_schedule:
+  name: cosine_decay
+  warmup: 20
+  arguments:
+  - 200
+  - 1.0e-06

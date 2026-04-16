@@ -1,0 +1,526 @@
+{
+  "chat-fr": {
+    "rank": 32,
+    "alpha": 64,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 5e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj"
+    ],
+    "n_examples": 2700,
+    "targets_extra": true
+  },
+  "reasoning": {
+    "rank": 32,
+    "alpha": 64,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 5e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj"
+    ],
+    "n_examples": 2382,
+    "targets_extra": true
+  },
+  "python": {
+    "rank": 16,
+    "alpha": 32,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 5e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj"
+    ],
+    "n_examples": 2682,
+    "targets_extra": true
+  },
+  "typescript": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1728,
+    "targets_extra": false
+  },
+  "cpp": {
+    "rank": 16,
+    "alpha": 32,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 5e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj"
+    ],
+    "n_examples": 2679,
+    "targets_extra": true
+  },
+  "rust": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2295,
+    "targets_extra": false
+  },
+  "html-css": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2625,
+    "targets_extra": false
+  },
+  "shell": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2538,
+    "targets_extra": false
+  },
+  "sql": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2488,
+    "targets_extra": false
+  },
+  "yaml-json": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1338,
+    "targets_extra": false
+  },
+  "docker": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2201,
+    "targets_extra": false
+  },
+  "kicad-dsl": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1980,
+    "targets_extra": false
+  },
+  "spice": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2675,
+    "targets_extra": false
+  },
+  "lua-upy": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2001,
+    "targets_extra": false
+  },
+  "embedded": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1532,
+    "targets_extra": false
+  },
+  "stm32": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 711,
+    "targets_extra": false
+  },
+  "iot": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2700,
+    "targets_extra": false
+  },
+  "freecad": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 164,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.05,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 219,
+    "targets_extra": false
+  },
+  "platformio": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 167,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.05,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 223,
+    "targets_extra": false
+  },
+  "power": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1238,
+    "targets_extra": false
+  },
+  "emc": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1693,
+    "targets_extra": false
+  },
+  "dsp": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 953,
+    "targets_extra": false
+  },
+  "spice-sim": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 276,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.05,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 368,
+    "targets_extra": false
+  },
+  "electronics": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1900,
+    "targets_extra": false
+  },
+  "kicad-pcb": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 694,
+    "targets_extra": false
+  },
+  "web-frontend": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1022,
+    "targets_extra": false
+  },
+  "web-backend": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1565,
+    "targets_extra": false
+  },
+  "music-audio": {
+    "rank": 4,
+    "alpha": 8,
+    "iters": 397,
+    "seq": 2048,
+    "lr": 2e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 530,
+    "targets_extra": false
+  },
+  "devops": {
+    "rank": 12,
+    "alpha": 24,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 2699,
+    "targets_extra": false
+  },
+  "llm-orch": {
+    "rank": 8,
+    "alpha": 16,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 3e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj"
+    ],
+    "n_examples": 1517,
+    "targets_extra": false
+  },
+  "math": {
+    "rank": 16,
+    "alpha": 32,
+    "iters": 500,
+    "seq": 4096,
+    "lr": 5e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj"
+    ],
+    "n_examples": 2403,
+    "targets_extra": true
+  },
+  "security": {
+    "rank": 16,
+    "alpha": 32,
+    "iters": 500,
+    "seq": 2048,
+    "lr": 5e-05,
+    "dropout": 0.0,
+    "keys": [
+      "self_attn.q_proj",
+      "self_attn.k_proj",
+      "self_attn.v_proj",
+      "self_attn.o_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj"
+    ],
+    "n_examples": 2679,
+    "targets_extra": true
+  }
+}
