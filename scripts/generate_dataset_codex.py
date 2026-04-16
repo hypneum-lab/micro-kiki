@@ -77,7 +77,7 @@ def generate_one(prompt: str, retries: int = MAX_RETRIES) -> str | None:
             out_tmp = REPO_ROOT / "_codex_out.txt"
             out_tmp.unlink(missing_ok=True)
             result = subprocess.run(
-                ["codex", "exec", "-m", "o3-mini",
+                ["codex", "exec",
                  "-o", str(out_tmp), prompt],
                 capture_output=True,
                 text=True,
