@@ -1,0 +1,5 @@
+{"prompt": "Write a SPICE netlist for an RC low-pass filter with AC analysis."}
+{"prompt": "Explain the .tran, .ac, and .dc SPICE simulation commands."}
+{"prompt": "Create a SPICE model for an ideal op-amp."}
+{"prompt": "How do you simulate a buck converter in ngspice?"}
+{"prompt": "Write a SPICE subcircuit for a voltage divider."}

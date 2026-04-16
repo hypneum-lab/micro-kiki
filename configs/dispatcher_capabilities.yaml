@@ -1,0 +1,26 @@
+# Maps capability flag combinations to orchestrator actions
+
+actions:
+  search_and_respond:
+    requires: [web_search]
+    description: "Search web/papers/docs, inject results, generate response"
+
+  critique_and_respond:
+    requires: [self_critique_response]
+    description: "Generate, critique, correct, return"
+
+  agentic_task:
+    requires: [self_critique_task]
+    description: "Plan-execute-evaluate loop with up to 5 iterations"
+
+  search_critique_respond:
+    requires: [web_search, self_critique_response]
+    description: "Search, generate with sources, critique, correct"
+
+  full_agentic:
+    requires: [web_search, self_critique_task]
+    description: "Full agentic loop with web search at each step"
+
+  evaluate:
+    requires: [deep_eval]
+    description: "Run formal benchmark evaluation"

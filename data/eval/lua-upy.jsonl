@@ -1,0 +1,5 @@
+{"prompt": "Write a MicroPython script to read an I2C temperature sensor."}
+{"prompt": "Explain coroutines in Lua with a practical example."}
+{"prompt": "Create a MicroPython class for controlling a stepper motor via GPIO."}
+{"prompt": "How do you handle interrupts in MicroPython on ESP32?"}
+{"prompt": "Write a Lua script that parses a simple configuration file."}

@@ -1,0 +1,5 @@
+{"prompt": "Explain ownership and borrowing in Rust with examples."}
+{"prompt": "Write a Rust function that reads a file and counts word frequencies."}
+{"prompt": "What is the difference between Box, Rc, and Arc?"}
+{"prompt": "Implement a simple Rust trait for serialization."}
+{"prompt": "How do you handle errors idiomatically in Rust?"}
