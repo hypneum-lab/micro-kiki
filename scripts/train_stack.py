@@ -99,10 +99,18 @@ def train(domain: str, config_overrides: dict | None = None) -> dict:
 
     logger.info("Loading model (BF16)...")
     t0 = time.time()
+    # MPS doesn't support histogram for int (MoE routing bug).
+    # Force CPU on macOS — 512 GB unified RAM handles 35B BF16.
+    import platform
+    if platform.system() == "Darwin":
+        device_map = "cpu"
+        logger.info("macOS: using CPU (MPS MoE histogram bug)")
+    else:
+        device_map = "auto"
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         torch_dtype=torch.bfloat16,
-        device_map="auto",
+        device_map=device_map,
         trust_remote_code=True,
     )
     logger.info("Model loaded in %.0fs", time.time() - t0)
@@ -132,7 +140,6 @@ def train(domain: str, config_overrides: dict | None = None) -> dict:
         logging_steps=10,
         save_strategy="epoch",
         dataloader_num_workers=0,
-        dataset_num_proc=1,
         report_to="none",
     )
 
@@ -140,7 +147,7 @@ def train(domain: str, config_overrides: dict | None = None) -> dict:
         model=model,
         args=training_args,
         train_dataset=dataset,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
     )
 
     logger.info("Starting training...")

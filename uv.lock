@@ -1461,6 +1461,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
+    { name = "huggingface-hub" },
     { name = "numpy" },
     { name = "pyyaml" },
 ]
@@ -1508,6 +1509,7 @@ requires-dist = [
     { name = "fastapi", marker = "extra == 'serve'" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "httpx", marker = "extra == 'agentic'", specifier = ">=0.27" },
+    { name = "huggingface-hub", specifier = ">=0.28" },
     { name = "mlx", marker = "extra == 'mlx'", specifier = ">=0.26" },
     { name = "mlx-lm", marker = "extra == 'mlx'", specifier = ">=0.30" },
     { name = "numpy", specifier = ">=1.26" },
