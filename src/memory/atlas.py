@@ -15,6 +15,13 @@ logger = logging.getLogger(__name__)
 PAGE_SIZE = 256  # vectors per page
 
 
+@dataclass(frozen=True)
+class SearchHit:
+    """v0.3 compat: typed recall result."""
+    id: str
+    score: float
+
+
 @dataclass
 class VectorPage:
     vectors: np.ndarray  # (PAGE_SIZE, dim)
