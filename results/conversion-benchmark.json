@@ -1,0 +1,43 @@
+{
+  "config": {
+    "layer_sizes": [
+      64,
+      128,
+      128,
+      64,
+      32
+    ],
+    "n_samples": 16,
+    "seed": 42
+  },
+  "ann_baseline": {
+    "output_norm": 11.100803150907643,
+    "param_count": 35168,
+    "mac_count": 69632
+  },
+  "methods": {
+    "LAS": {
+      "cosine_similarity": 0.5993902137458322,
+      "l2_distance": 9.154318124868619,
+      "param_count": 35168,
+      "mac_count": 69632,
+      "spike_ops": 34816,
+      "energy_ratio": 0.5,
+      "wall_time_s": 0.0009282499959226698
+    },
+    "Spikingformer": {
+      "cosine_similarity": 1.0,
+      "l2_distance": 0.0,
+      "param_count": 35168,
+      "mac_count": 69632,
+      "spike_ops": 24371,
+      "energy_ratio": 0.3499971277573529,
+      "wall_time_s": 5.1291994168423116e-05
+    }
+  },
+  "comparison": {
+    "las_closer_to_ann": false,
+    "spikingformer_more_efficient": true,
+    "param_count_identical": true
+  }
+}
