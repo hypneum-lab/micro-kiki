@@ -1,0 +1,26 @@
+{
+  "stackoverflow.com": {
+    "kicad-dsl": ["kicad"],
+    "spice": ["spice", "ltspice", "ngspice", "circuit"],
+    "emc": [],
+    "stm32": ["stm32", "stm32f4", "stm32cubemx", "hal", "arm-none-eabi-gcc"],
+    "embedded": ["embedded", "firmware", "bare-metal", "rtos", "freertos", "interrupt", "dma", "arm", "cortex-m"],
+    "freecad": ["freecad", "freecad-python", "opencascade"],
+    "platformio": ["platformio", "pio"],
+    "power": [],
+    "dsp": ["dsp", "fft", "fir", "iir-filter", "digital-signal-processing", "audio-processing"],
+    "electronics": []
+  },
+  "electronics.stackexchange.com": {
+    "kicad-dsl": ["kicad", "pcb-design", "schematic", "footprint", "pcb-layout"],
+    "spice": ["spice", "ltspice", "ngspice", "simulation", "circuit-analysis"],
+    "emc": ["emc", "emi", "shielding", "grounding", "esd", "compliance"],
+    "stm32": ["stm32", "stm32f4", "stm32h7", "hal", "cubemx", "arm"],
+    "embedded": ["embedded", "microcontroller", "firmware", "rtos", "freertos", "interrupt", "dma"],
+    "freecad": [],
+    "platformio": ["platformio"],
+    "power": ["power-electronics", "smps", "buck-converter", "boost-converter", "mosfet", "dc-dc-converter"],
+    "dsp": ["dsp", "fft", "filter", "digital-signal-processing", "adc"],
+    "electronics": ["operational-amplifier", "analog", "transistors", "circuit-design", "amplifier", "voltage-regulator"]
+  }
+}
