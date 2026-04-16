@@ -36,7 +36,7 @@ CLAUDE = "/Users/clems/.local/bin/claude"
 # Rate limiting config
 DEFAULT_DELAY = 3.0        # seconds between calls (conservative)
 MAX_RETRIES = 3            # retries per prompt
-BASE_TIMEOUT = 90          # seconds, increases per retry
+BASE_TIMEOUT = 300          # seconds, increases per retry
 BACKOFF_MULTIPLIER = 2.0   # exponential backoff on failure
 TOKENS_PER_CALL = 2000     # rough estimate for budget tracking
 COOLDOWN_AFTER_ERROR = 30  # seconds after rate limit / server error
@@ -73,7 +73,7 @@ def load_prompts(domain: str, max_n: int) -> list[str]:
 def generate_one(prompt: str, retries: int = MAX_RETRIES) -> str | None:
     """Call Claude CLI with retry and adaptive timeout."""
     for attempt in range(retries):
-        timeout = BASE_TIMEOUT * (attempt + 1)  # 90, 180, 270
+        timeout = BASE_TIMEOUT * (attempt + 1)  # 300, 600, 900  # 90, 180, 270
         try:
             result = subprocess.run(
                 [CLAUDE, "--print", "-p", prompt],
