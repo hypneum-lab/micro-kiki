@@ -43,3 +43,5 @@ Stories: 13/107 complete
 [2026-04-16T02:13:22+00:00] Completed: story-77 - Aeon integration in serving pipeline
 [2026-04-16T02:13:22+00:00] Completed: story-78 - Aeon compression daemon
 [2026-04-16T02:13:22+00:00] Completed: story-94 - vLLM server with dynamic LoRA
+[2026-04-16T02:15:52+00:00] Completed: story-96 - Persistent service units
+[2026-04-16T02:15:52+00:00] Completed: story-105 - Freeze config + migration guide

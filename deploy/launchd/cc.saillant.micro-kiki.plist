@@ -19,8 +19,13 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/tmp/micro-kiki.stdout.log</string>
+    <string>/Users/clems/micro-kiki/outputs/mlx-server.log</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/micro-kiki.stderr.log</string>
+    <string>/Users/clems/micro-kiki/outputs/mlx-server.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+    </dict>
 </dict>
 </plist>

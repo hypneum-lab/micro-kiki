@@ -2,39 +2,52 @@
 
 ## Breaking Changes from v0.1
 
-### Router extended to 37 outputs
-- 32 domain outputs + 5 capability flags (web_search, self_critique_token, self_critique_response, self_critique_task, deep_eval)
-- Threshold config in `configs/capabilities.yaml`
+### Base Model
+- v0.1: N/A (no prior release)
+- v0.2: Qwen3.5-4B with Differential Attention on full-attention layers
 
-### OPLoRA default for stacks >= 04
-- Stacks 01-03 use PiSSA initialization
-- Stacks 04+ use OPLoRA (orthogonal projection) for forgetting prevention
-- Config key: `init_lora_weights: oplora`
+### Adapter Format
+- Standard LoRA rank 16 via PEFT
+- Target modules: `q_proj`, `k_proj`, `v_proj`, `o_proj`
+- Init: PiSSA (default), OPLoRA (stacks >= 04)
+- Adapters saved as PEFT `adapter_model.safetensors`
 
-### DiffAttn fork as default base
-- Base model: `models/qwen3.5-4b-diffattn/` (13 full-attn layers modified)
-- Fallback: `models/qwen3.5-4b/bf16` if DiffAttn degrades perplexity > 3%
-- Rollback documented in `docs/specs/diffattn-integration.md`
+### Router Protocol
+- Sigmoid meta-router: 32 domain outputs, threshold 0.12
+- Chat floor: 0.20 (always activates chat-fr stack)
+- Max 4 stacks active simultaneously
+- HTTP endpoint: `POST /v1/route` with `{"prompt": "..."}` → `{"stacks": [...], "meta_intent": "..."}`
 
-### Adapter format
-- MoLoRA: 4 experts per projection, rank 16, top-2 softmax routing
-- Saved as PEFT-compatible .safetensors in `outputs/stacks/`
-- Compatible with vLLM dynamic LoRA loading
+### Serving
+- vLLM (kxkm-ai): port 8100, `VLLM_ALLOW_RUNTIME_LORA_UPDATING=True`
+- MLX (Studio): port 8200, adapter hot-swap via restart (~200ms)
+- Aeon memory hook: pre-inference recall + post-inference write
 
-### New cognitive layer
-- Aeon Memory Palace: `src/memory/` (Atlas vector + Trace graph)
-- Negotiator: `src/cognitive/` (CAMP + Catfish + adaptive judge)
-- Anti-bias: KnowBias double-application + RBD runtime detector
+### Memory
+- Aeon dual-index: Atlas (vector) + Trace (graph)
+- Backends: native (dev), Qdrant + Neo4j (production)
+- Compression daemon: episodes > 30 days auto-compressed
 
-### Quantum-inspired overlay (optional)
-- CompactifAI: tensor-network base compression (`src/compress/`)
-- QTHA: hybrid adapter pilot (`src/stacks/qtha.py`)
-- TN-router: MPS-based routing (`src/routing/tn_router.py`)
+### Cognitive Layer
+- Negotiator: CAMP + Catfish, adaptive judge
+- Anti-bias: KnowBias double-application + RBD runtime
+- Dispatcher: 7 meta-intents (training-free YAML)
 
-## Serving
-- vLLM: `VLLM_ALLOW_RUNTIME_LORA_UPDATING=True`, port 8100
-- MLX: adapter switching via `mlx-lm`, port 8100
-- Deploy files staged in `deploy/` (not auto-installed)
+### Quantum-Inspired (Phase XIII)
+- CompactifAI: structured pruning (classical simulator)
+- QTHA: quantum-inspired adapter (classical fallback)
+- Tensor-network router: bond dimension routing
 
-## Config freeze
-All configs in `configs/` are hash-locked at v0.2.0 tag.
+## Upgrade Path
+
+1. Download Qwen3.5-4B base
+2. Apply DiffAttn fork: `uv run python scripts/fork_qwen_diffattn.py`
+3. Train stacks in curriculum order
+4. Deploy with service units in `deploy/`
+
+## Known Limitations
+
+- Max 4 concurrent stacks (VRAM budget)
+- Forgetting check required after each stack
+- No QLoRA support for MoE base variants
+- Phase XIII quantum techniques are classical-only (no QPU)
