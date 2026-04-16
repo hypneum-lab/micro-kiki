@@ -13,7 +13,7 @@ PHASE_VII_STACKS = [
 ]
 
 REQUIRED_CONFIG_KEYS = [
-    "base_model", "num_experts", "lora_rank", "lora_alpha", "top_k",
+    "base_model", "lora_rank", "lora_alpha",
     "learning_rate", "batch_size", "grad_accum", "epochs", "seq_len", "dataset",
     "domain", "curriculum_order",
 ]
@@ -29,7 +29,7 @@ class TestPhaseVIIConfigs:
         for key in REQUIRED_CONFIG_KEYS:
             assert key in config
         assert config["curriculum_order"] == num
-        assert config["init_lora_weights"] == "oplora"
+        assert "35B-A3B" in config["base_model"]
 
     @pytest.mark.parametrize("num,domain", PHASE_VII_STACKS)
     def test_eval_file_exists(self, num, domain):

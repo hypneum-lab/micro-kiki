@@ -3,14 +3,17 @@ from __future__ import annotations
 import pytest
 from pathlib import Path
 
-from src.stacks.trainer import load_training_config, molora_config_from_dict, StackTrainer
-from src.stacks.moe_lora import MoLoRAConfig
+from src.stacks.trainer import load_training_config, lora_config_from_dict, StackTrainer, LoRAConfig
 
 
 class TestLoadConfig:
     def test_loads_yaml(self, tmp_path):
         cfg = tmp_path / "s.yaml"
-        cfg.write_text("base_model: x\nnum_experts: 4\nlora_rank: 16\nlora_alpha: 32\ntop_k: 2\nlearning_rate: 0.0002\nbatch_size: 4\ngrad_accum: 8\nepochs: 3\nseq_len: 4096\ndataset: d.jsonl\ninit_lora_weights: pissa\n")
+        cfg.write_text(
+            "base_model: Qwen/Qwen3.5-35B-A3B\nlora_rank: 16\nlora_alpha: 32\n"
+            "learning_rate: 0.0002\nbatch_size: 4\ngrad_accum: 8\nepochs: 3\n"
+            "seq_len: 4096\ndataset: d.jsonl\n"
+        )
         config = load_training_config(cfg)
         assert config["lora_rank"] == 16
 
@@ -20,14 +23,29 @@ class TestLoadConfig:
             load_training_config(tmp_path / "bad.yaml")
 
 
+class TestLoRAConfig:
+    def test_defaults(self):
+        c = LoRAConfig()
+        assert c.rank == 16 and c.alpha == 32
+        assert "q_proj" in c.target_modules
+
+    def test_from_dict(self):
+        c = lora_config_from_dict({"lora_rank": 32, "lora_alpha": 64})
+        assert c.rank == 32 and c.alpha == 64
+
+
 class TestStackTrainer:
     def test_init(self):
-        t = StackTrainer("models/x", MoLoRAConfig(), "outputs/test")
+        t = StackTrainer(output_dir="outputs/test")
         assert t.output_dir == "outputs/test"
+        assert "35B-A3B" in t.base_model_path
 
-    def test_config_from_dict(self):
-        d = {"lora_rank": 16, "num_experts": 4, "top_k": 2, "lora_alpha": 32,
-             "base_model": "x", "dataset": "y", "learning_rate": 2e-4,
-             "batch_size": 4, "grad_accum": 8, "epochs": 3, "seq_len": 4096}
-        mc = molora_config_from_dict(d)
-        assert mc.rank == 16 and mc.num_experts == 4
+    def test_from_config(self, tmp_path):
+        cfg = tmp_path / "stack.yaml"
+        cfg.write_text(
+            "base_model: Qwen/Qwen3.5-35B-A3B\nlora_rank: 16\nlora_alpha: 32\n"
+            "learning_rate: 0.0002\nbatch_size: 4\ngrad_accum: 8\nepochs: 3\n"
+            "seq_len: 4096\ndataset: data/distilled/chat-fr.jsonl\n"
+        )
+        t = StackTrainer.from_config(cfg)
+        assert t.lora_config.rank == 16
