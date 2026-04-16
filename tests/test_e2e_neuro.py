@@ -44,15 +44,12 @@ class MockAeonSleep:
 
     def write(self, episode: MockEpisode) -> None:
         self.episodes[episode.key] = episode
-        self.index.add(
-            key=episode.key,
-            vector=episode.embedding,
-            payload=episode.payload,
-        )
+        vec = np.array(episode.embedding, dtype=np.float32)
+        self.index.insert(episode.key, vec)
 
     def recall(self, query: list[float], k: int = 10) -> list[str]:
         hits = self.index.search(query, k=k)
-        return [h.key for h in hits]
+        return [h.id for h in hits]
 
 
 def _make_embedding(key_axis: int, strength: float = 1.0) -> list[float]:

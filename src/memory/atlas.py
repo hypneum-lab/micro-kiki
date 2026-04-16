@@ -95,6 +95,26 @@ class AtlasIndex:
                 centroids.append(mean / (np.linalg.norm(mean) + 1e-8))
         self._centroids = np.array(centroids, dtype=np.float32) if centroids else None
 
+    def search(self, query, k: int = 10) -> list[SearchHit]:
+        """v0.3 compat: search returning SearchHit objects."""
+        q = np.asarray(query, dtype=np.float32)
+        results = self.recall(q, top_k=k)
+        return [SearchHit(id=rid, score=score) for rid, score in results]
+
     @property
     def total_vectors(self) -> int:
         return sum(p.count for p in self._pages)
+
+
+def time_search(index: AtlasIndex, query, k: int, repeats: int = 3) -> float:
+    """Return mean wall-clock ms for ``repeats`` searches."""
+    import time as _time
+    if repeats <= 0:
+        raise ValueError("repeats must be positive")
+    q = np.asarray(query, dtype=np.float32)
+    total = 0.0
+    for _ in range(repeats):
+        start = _time.perf_counter()
+        index.recall(q, top_k=k)
+        total += _time.perf_counter() - start
+    return (total / repeats) * 1000.0
