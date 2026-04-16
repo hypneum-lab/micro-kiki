@@ -106,7 +106,7 @@
       "title": "Q4 quantization of SpikingBrain-7B",
       "description": "**Q4 quantization of SpikingBrain-7B**\n\n    - Files to touch: `scripts/quantize_spikingbrain.py`, `models/spikingbrain-7b-q4.gguf` (gitignored), `docs/specs/spikingbrain-quant.md`\n    - Attempt llama.cpp conversion + Q4_K_M. If the spiking-specific layers break the conversion (expected: SNN layers are not in llama.cpp's op set), document the blocker and fall back to `bitsandbytes` 4-bit quant inside PyTorch (no GGUF).\n    - Target artefact size ~3.5 GB Q4_K_M (7B × 0.5 B/param).\n    - Target throughput: ≥ 10 tok/s inference on the quantized model on Studio.\n    - Acceptance: `results/spikingbrain-quant.json` with `{quant_method, size_gb, tokens_s}`; if llama.cpp fails, spec includes the specific error + fallback result.\n    - Dependencies: step 14.",
       "priority": 15,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-16",
