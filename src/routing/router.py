@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-import torch
-import torch.nn as nn
+from typing import TYPE_CHECKING
+
+# ---------------------------------------------------------------------------
+# Constants — importable without torch
+# ---------------------------------------------------------------------------
 
 CAPABILITY_NAMES = [
     "web_search",
@@ -25,9 +28,34 @@ NICHE_DOMAINS: frozenset[str] = frozenset({
     "electronics",
 })
 
+# ---------------------------------------------------------------------------
+# Optional torch import — MetaRouter requires it; constants do not
+# ---------------------------------------------------------------------------
 
-class MetaRouter(nn.Module):
-    """Sigmoid meta-router with domain + capability outputs."""
+if TYPE_CHECKING:
+    import torch
+    import torch.nn as nn
+
+try:
+    import torch
+    import torch.nn as nn
+    _TORCH_AVAILABLE = True
+    _NNModule = nn.Module
+except ImportError:  # pragma: no cover
+    _TORCH_AVAILABLE = False
+    _NNModule = object  # type: ignore[misc,assignment]
+
+
+class MetaRouter(_NNModule):  # type: ignore[misc,valid-type]
+    """Sigmoid meta-router with domain + capability outputs.
+
+    Requires torch at runtime. Use ``num_domains=11`` (default) for the
+    10-niche + base layout, or ``num_domains=32`` for legacy backward compat.
+    """
+
+    # Ordered list of niche domain names for 11-output mode (index 0-9).
+    # Index 10 is the implicit "base" output (fallback to raw 35B, no adapter).
+    _NICHE_DOMAIN_LIST: list[str] = sorted(NICHE_DOMAINS)
 
     def __init__(
         self,
@@ -39,21 +67,21 @@ class MetaRouter(nn.Module):
         self.num_domains = num_domains
         self.num_capabilities = num_capabilities
         total = num_domains + num_capabilities
-        self.linear = nn.Linear(input_dim, total)
-        self.sigmoid = nn.Sigmoid()
+        self.linear = nn.Linear(input_dim, total)  # type: ignore[name-defined]
+        self.sigmoid = nn.Sigmoid()  # type: ignore[name-defined]
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[name-defined]
         return self.sigmoid(self.linear(x))
 
-    def get_domains(self, output: torch.Tensor) -> torch.Tensor:
+    def get_domains(self, output: torch.Tensor) -> torch.Tensor:  # type: ignore[name-defined]
         return output[:, : self.num_domains]
 
-    def get_capabilities(self, output: torch.Tensor) -> torch.Tensor:
+    def get_capabilities(self, output: torch.Tensor) -> torch.Tensor:  # type: ignore[name-defined]
         return output[:, self.num_domains :]
 
     def get_active_domains(
         self,
-        output: torch.Tensor,
+        output: torch.Tensor,  # type: ignore[name-defined]
         threshold: float = 0.12,
         max_active: int = 4,
     ) -> list[list[int]]:
@@ -69,13 +97,9 @@ class MetaRouter(nn.Module):
             results.append(indices)
         return results
 
-    # Ordered list of niche domain names for 11-output mode (index 0-9).
-    # Index 10 is the implicit "base" output (fallback to raw 35B, no adapter).
-    _NICHE_DOMAIN_LIST: list[str] = sorted(NICHE_DOMAINS)
-
     def get_active_domains_named(
         self,
-        output: torch.Tensor,
+        output: torch.Tensor,  # type: ignore[name-defined]
         threshold: float = 0.12,
         max_active: int = 4,
     ) -> list[str]:
@@ -101,7 +125,7 @@ class MetaRouter(nn.Module):
 
     def get_active_capabilities(
         self,
-        output: torch.Tensor,
+        output: torch.Tensor,  # type: ignore[name-defined]
         thresholds: dict[str, float],
     ) -> dict[str, bool]:
         caps = self.get_capabilities(output)[0]
