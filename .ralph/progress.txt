@@ -50,3 +50,4 @@ Stories: 13/107 complete
 [2026-04-16T02:18:06+00:00] Validated: story-100 - ANE-resident meta-router (stub 25L)
 [2026-04-16T02:18:06+00:00] Validated: story-101 - CompactifAI base compression (65L + 6 tests)
 [2026-04-16T02:18:06+00:00] Validated: story-103 - Tensor-network router prototype (22L)
+[2026-04-16T02:25:29+00:00] Completed: story-95 - mlx-lm server for Mac Studio (196L + 20 tests)

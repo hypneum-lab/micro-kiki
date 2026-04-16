@@ -665,7 +665,7 @@
       "title": "mlx-lm server for Mac Studio (`src/serving/mlx_server.py`)",
       "description": "**mlx-lm server for Mac Studio (`src/serving/mlx_server.py`)**\n\n    - Files to touch: `src/serving/mlx_server.py`, `configs/mlx-server.json`\n    - mlx-lm with adapter switching via subprocess restart (mlx doesn't support hot-swap cleanly — accept ~200ms penalty per switch) OR via `mlx_lm.server --adapter-path` per-request.\n    - Acceptance: runs on Studio, serves 32 stacks (max 4 active), p95 first-token latency < 500 ms.\n    - Dependencies: step 70.",
       "priority": 95,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-96",

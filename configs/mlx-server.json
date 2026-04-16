@@ -1,0 +1,6 @@
+{
+  "model_path": "models/qwen3.5-35b-a3b",
+  "adapter_dir": "outputs/stacks",
+  "port": 8200,
+  "max_active_adapters": 4
+}
