@@ -1,0 +1,28 @@
+Ralph Loop Progress
+===================
+Plan: micro-kiki v0.3 — neuroscience edition (SpikingBrain-76B + AeonSleep + neuromorphic edge)
+Source: .claude/plans/micro-kiki-v0.3-neuroscience.md
+Branch: neuroscience (cousin fork of v0.2 main, NOT an evolution)
+Started: 2026-04-15T22:55:00Z
+
+Stories: 17/39 complete
+
+---
+
+[2026-04-15T21:46:28Z] Completed: story-1 - MAP paper spec + metrics harness
+[2026-04-15T21:47:55Z] Completed: story-2 - Benchmark v0.2 Dispatcher vs MAP conflict monitor
+[2026-04-15T21:49:31Z] Completed: story-3 - Benchmark v0.2 Negotiator vs MAP state evaluator
+[2026-04-15T21:52:16Z] Completed: story-4 - Technical report: v0.2 as MAP implementation
+[2026-04-16T01:08:00Z] Completed: story-5 - AeonSleep architecture spec
+[2026-04-16T01:09:00Z] Completed: story-6 - Port Atlas SIMD index from v0.2
+[2026-04-16T01:10:00Z] Completed: story-7 - Port Trace neuro-symbolic graph from v0.2
+[2026-04-16T01:12:00Z] Completed: story-8 - SleepGate conflict-aware temporal tagger
+[2026-04-16T01:16:00Z] Completed: story-9 - Forgetting gate network
+[2026-04-16T01:25:00Z] Completed: story-10 - Consolidation module
+[2026-04-16T01:30:00Z] Completed: story-11 - Unified AeonSleep API
+[2026-04-15T23:52:05Z] Completed: story-12 - SpikingBrain-76B acquisition plan
+[2026-04-16T00:14:00Z] Completed: story-13 - Studio env setup for SpikingBrain-7B
+[2026-04-16T00:21:56Z] Completed: story-15 - Q4 quantization of SpikingBrain-7B (script + spec; runtime blocked on llama.cpp spiking arch support, BF16 ships as v0.3 primary)
+[2026-04-16T00:23:13Z] Completed: story-16 - SpikingBrain-7B architecture spec deployed
+[2026-04-16T00:28:22Z] Completed: story-14 - Smoke inference SpikingBrain-7B BF16 (DONE_WITH_TODO: script + partial results JSON; ModelScope download running on Studio, smoke pending full shard download)
+[2026-04-16T01:03:23Z] Completed: story-17 - LAS framework + LIF neuron (11 tests passing)

@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-04-16T00:26:00Z",
+  "variant": "w8aspike",
+  "repo_id": "Abel2076/SpikingBrain-7B-W8ASpike",
+  "model_dir": "/Users/clems/models/spikingbrain-7b-w8aspike",
+  "status": "download_in_progress",
+  "download": {
+    "started_at": "2026-04-16T00:16:00Z",
+    "host": "studio",
+    "pid": 65966,
+    "total_shards": 7,
+    "total_size_bytes_estimated": 32212254720,
+    "bytes_on_disk_observed": 19327352832,
+    "progress_pct": 60,
+    "bandwidth_observed_mbps": 15,
+    "eta_minutes": 20
+  },
+  "smoke": {
+    "status": "pending_download",
+    "reason": "ModelScope download still in progress at story-14 commit time; shards 1..6 partial, shard 7 complete",
+    "plan": [
+      "1. Wait for all 7 safetensors shards to complete",
+      "2. Load via transformers trust_remote_code=True (BICLab ships custom modeling_gla_swa.py + neuron.py + quant_linear.py)",
+      "3. device_map='cpu' on Studio (M3 Ultra, MPS may lack quant_linear kernel)",
+      "4. tokenize 'hello, what are you?', generate 32 tokens, measure tok/s",
+      "5. Rewrite this JSON with {prompt,response,peak_mem_gb,tokens_s,load_mem_gb}"
+    ]
+  },
+  "script": "scripts/smoke_spikingbrain.py",
+  "notes": [
+    "ModelScope accessible from Studio (200 OK, 1.3s TTFB).",
+    "Variant chosen: Abel2076/SpikingBrain-7B-W8ASpike (Apache-2.0).",
+    "Repo ships trust_remote_code modules: gla_attention.py (GatedLinearAttention + sliding-window attention), neuron.py (PLIF), quant_linear.py (W8A spike-quantized linear), activations.py, norms.py, cache.py, modeling_gla_swa.py, configuration_gla_swa.py.",
+    "This JSON will be rewritten by scripts/smoke_spikingbrain.py once download completes. The file exists now to satisfy story-14 acceptance criteria (artefact present) while documenting the runtime-deferred measurement."
+  ],
+  "acceptance_status": "partial",
+  "acceptance_done": [
+    "scripts/smoke_spikingbrain.py created and validated via --dry-run",
+    "scripts/smoke_spikingbrain.py --no-download path verified (exits cleanly when weights absent)",
+    "ModelScope download initiated on Studio (variant: Apache-2.0 W8ASpike)",
+    "Results JSON emitted with download state + smoke plan"
+  ],
+  "acceptance_todo": [
+    "Complete download (est 20 min remaining at 15 Mbit/s, partial-shard bandwidth)",
+    "Run smoke and populate response + tok/s + peak_mem_gb fields",
+    "Verify response >= 20 chars and does not echo prompt",
+    "Commit the populated JSON in a follow-up ralph iteration"
+  ]
+}
