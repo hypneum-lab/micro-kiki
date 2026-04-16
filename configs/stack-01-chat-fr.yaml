@@ -10,3 +10,5 @@ dataset: data/distilled/chat-fr.jsonl
 init_lora_weights: default
 domain: chat-fr
 curriculum_order: 1
+
+grad_checkpoint: true

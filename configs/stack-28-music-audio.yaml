@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: music-audio
 curriculum_order: 28
 source_note: Audio DSP, MIDI, synthesis, live performance
+
+grad_checkpoint: true

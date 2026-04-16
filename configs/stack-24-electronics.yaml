@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: electronics
 curriculum_order: 24
 source_note: General electronics, Ohm's law, component selection
+
+grad_checkpoint: true

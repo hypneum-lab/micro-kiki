@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: security
 curriculum_order: 32
 source_note: Cybersecurity, pentesting, cryptography, OWASP
+
+grad_checkpoint: true

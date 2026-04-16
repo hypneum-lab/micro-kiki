@@ -1,7 +1,8 @@
 """Merge KIKI-Mac_tunner + HuggingFace mascarade datasets for 10 niche domains.
 
-Downloads HF datasets, converts formats, deduplicates, and writes merged
-data/merged/<domain>/train.jsonl. All examples in {"messages": [...]} format.
+Downloads HF datasets, converts formats, deduplicates, shuffles (seed 42),
+and writes merged data/merged/<domain>/train.jsonl + valid.jsonl (90/10 split).
+All examples in {"messages": [...]} format.
 
 Usage:
     uv run scripts/merge_datasets.py --all
@@ -14,6 +15,7 @@ import argparse
 import hashlib
 import json
 import logging
+import random
 import sys
 from pathlib import Path
 
@@ -271,15 +273,30 @@ def merge_domain(
     if not all_examples:
         logger.warning("[%s] No examples after merge — output will be empty", domain)
 
-    # 5. Write output
+    # 5. Shuffle and split 90/10 train/valid
+    random.seed(42)
+    random.shuffle(all_examples)
+    split_idx = int(len(all_examples) * 0.9)
+    train_examples = all_examples[:split_idx]
+    valid_examples = all_examples[split_idx:]
+    counts["train"] = len(train_examples)
+    counts["valid"] = len(valid_examples)
+    logger.info("[%s] Split: %d train, %d valid", domain, len(train_examples), len(valid_examples))
+
+    # 6. Write output
     out_dir = output_root / domain
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "train.jsonl"
-    with out_path.open("w", encoding="utf-8") as fh:
-        for ex in all_examples:
+    train_path = out_dir / "train.jsonl"
+    valid_path = out_dir / "valid.jsonl"
+    with train_path.open("w", encoding="utf-8") as fh:
+        for ex in train_examples:
+            fh.write(json.dumps(ex, ensure_ascii=False) + "\n")
+    with valid_path.open("w", encoding="utf-8") as fh:
+        for ex in valid_examples:
             fh.write(json.dumps(ex, ensure_ascii=False) + "\n")
 
-    logger.info("[%s] Written %d examples → %s", domain, after_dedup, out_path)
+    logger.info("[%s] Written %d train → %s", domain, len(train_examples), train_path)
+    logger.info("[%s] Written %d valid → %s", domain, len(valid_examples), valid_path)
     return counts
 
 

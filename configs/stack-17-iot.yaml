@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: iot
 curriculum_order: 17
 source_note: MQTT, CoAP, BLE, WiFi provisioning
+
+grad_checkpoint: true

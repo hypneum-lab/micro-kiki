@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: dsp
 curriculum_order: 22
 source_note: Digital signal processing, filters, FFT, audio
+
+grad_checkpoint: true

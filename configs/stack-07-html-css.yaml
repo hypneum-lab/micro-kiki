@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: html-css
 curriculum_order: 7
 source_note: bigcode/starcoderdata HTML/CSS
+
+grad_checkpoint: true

@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: freecad
 curriculum_order: 18
 source_note: FreeCAD scripting, Part/Assembly design
+
+grad_checkpoint: true

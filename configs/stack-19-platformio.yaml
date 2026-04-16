@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: platformio
 curriculum_order: 19
 source_note: PlatformIO build system, library management
+
+grad_checkpoint: true

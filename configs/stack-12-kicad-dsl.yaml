@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: kicad-dsl
 curriculum_order: 12
 source_note: makelife-hard KiCad files
+
+grad_checkpoint: true

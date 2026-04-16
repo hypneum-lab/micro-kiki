@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: sql
 curriculum_order: 9
 source_note: gretelai/synthetic_text_to_sql
+
+grad_checkpoint: true

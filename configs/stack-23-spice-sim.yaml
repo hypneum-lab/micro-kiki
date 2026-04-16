@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: spice-sim
 curriculum_order: 23
 source_note: SPICE simulation, circuit analysis, Monte Carlo
+
+grad_checkpoint: true

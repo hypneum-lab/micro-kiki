@@ -154,7 +154,7 @@ def load_dataset(data_path: Path) -> list[dict]:
 
 
 def train_domain(domain: str) -> None:
-    """Train one niche domain via subprocess (proven recipe)."""
+    """Train one niche domain via standard mlx_lm lora (proven recipe)."""
     import subprocess
     import yaml
 
@@ -168,7 +168,8 @@ def train_domain(domain: str) -> None:
 
     log_progress(f"START {domain} r={rank} ep={epochs} lr={lr} data={n_examples}")
 
-    # Write per-domain YAML config
+    # Write per-domain YAML config — standard mlx_lm format
+    # NOTE: only target attention projections, NOT MoE FFN layers
     config = {
         "model": str(MODEL_PATH) if MODEL_PATH.exists() else "Qwen/Qwen3.5-35B-A3B",
         "fine_tune_type": "lora",
@@ -196,19 +197,19 @@ def train_domain(domain: str) -> None:
     with open(config_path, "w") as f:
         yaml.dump(config, f, default_flow_style=False)
 
-    # Build the training command as a Python script (not subprocess CLI)
-    train_script = f'''
-import mlx.core as mx
+    # Use standard mlx_lm lora via a wrapper script that sets Metal limits.
+    # Do NOT use mlx_lm_fork — it auto-targets MoE SwitchLinear layers
+    # which causes double-LoRA application and is forbidden by architecture.
+    train_script = f'''import mlx.core as mx
 mx.set_memory_limit(460 * 1024**3)
 mx.set_cache_limit(32 * 1024**3)
-import os, sys
-os.environ["PYTHONPATH"] = "/Users/clems/KIKI-Mac_tunner/lib"
-sys.path.insert(0, "/Users/clems/KIKI-Mac_tunner/lib")
-from mlx_lm_fork.lora import main as lora_main
-sys.argv = ["lora", "-c", "{config_path}",
+import sys
+sys.argv = ["mlx_lm", "lora",
+            "--config", "{config_path}",
             "--data", "{data_path.parent}",
             "--adapter-path", "{output_dir}"]
-lora_main()
+from mlx_lm.cli import main
+main()
 '''
 
     script_path = output_dir / "_train.py"
@@ -279,7 +280,7 @@ def run_training(
     logger.info("TRAINING SUMMARY")
     ok = [(d, s) for d, s in results if s == "OK"]
     failed = [(d, s) for d, s in results if s != "OK"]
-    for d, s in skipped:
+    for d in skipped:
         print(f"  SKIP     {d}")
     for d, s in ok:
         print(f"  OK       {d}")

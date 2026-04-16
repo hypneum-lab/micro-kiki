@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: cpp
 curriculum_order: 5
 source_note: bigcode/starcoderdata C++ subset
+
+grad_checkpoint: true

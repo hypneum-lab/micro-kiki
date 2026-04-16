@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: devops
 curriculum_order: 29
 source_note: CI/CD, Terraform, Ansible, monitoring
+
+grad_checkpoint: true

@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: math
 curriculum_order: 31
 source_note: Calculus, linear algebra, statistics, proofs
+
+grad_checkpoint: true

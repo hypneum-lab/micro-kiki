@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: power
 curriculum_order: 20
 source_note: Power supply design, SMPS, LDO, battery management
+
+grad_checkpoint: true

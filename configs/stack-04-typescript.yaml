@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: typescript
 curriculum_order: 4
 source_note: bigcode/starcoderdata TS subset
+
+grad_checkpoint: true

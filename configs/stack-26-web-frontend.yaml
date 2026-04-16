@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: web-frontend
 curriculum_order: 26
 source_note: React, Vue, Svelte, CSS-in-JS, accessibility
+
+grad_checkpoint: true

@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: yaml-json
 curriculum_order: 10
 source_note: Synthetic via teacher
+
+grad_checkpoint: true

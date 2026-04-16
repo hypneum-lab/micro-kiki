@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: embedded
 curriculum_order: 15
 source_note: ESP-IDF, ARM Cortex-M, register programming
+
+grad_checkpoint: true

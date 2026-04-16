@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: kicad-pcb
 curriculum_order: 25
 source_note: KiCad PCB layout, DRC, routing strategies
+
+grad_checkpoint: true

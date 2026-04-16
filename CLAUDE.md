@@ -9,9 +9,9 @@ Switched from Qwen3.5-4B + custom MoE-LoRA to Qwen3.5-35B-A3B (native MoE, 256 e
 ## Key decisions locked in
 
 - **Base model**: Qwen3.5-35B-A3B (Apache 2.0, 262K ctx, 256 MoE experts, 3B active/token)
-- **Adapter technique**: Standard LoRA rank 64, scale 64, targeting q/k/v/o attention projections (NOT MoE FFN layers)
-- **Training**: 3-phase curriculum (seq 512→1280→4096), LR decay (8e-6→5e-6→3e-6), via MLX in KIKI-Mac_tunner
-- **Init strategy**: OPLoRA projection for forgetting prevention (stacks >= 04)
+- **Adapter technique**: Standard LoRA targeting q/k/v/o attention projections (NOT MoE FFN layers). Rank varies by domain: 4-16 (niches), 32 (foundations). Alpha = 2×rank, scale 2.0
+- **Training**: Sequential per-domain via MLX (`python -m mlx_lm lora`). LR 2e-5→5e-5. Metal limits: `mx.set_memory_limit(460GB)`, `mx.set_cache_limit(32GB)`. Max seq 2048 (niches) / 4096 (foundations)
+- **Init strategy**: OPLoRA projection for forgetting prevention (stacks >= 04, not yet wired in MLX pipeline)
 - **Quantization**: Q4_K_M for inference, BF16 for training
 - **Router**: domain classifier for adapter selection, max 4 active stacks
 - **Dispatcher**: training-free YAML mapping from router output to 7 meta-intents
@@ -23,7 +23,7 @@ Switched from Qwen3.5-4B + custom MoE-LoRA to Qwen3.5-35B-A3B (native MoE, 256 e
 
 ## Hardware
 
-- **Mac Studio M3 Ultra 512 GB**: Training (BF16 LoRA, 74 GB), teacher (480B), MLX serving
+- **Mac Studio M3 Ultra 512 GB**: Training (BF16 LoRA, ~106 GB peak for 35B-A3B), teacher (480B), MLX serving
 - **kxkm-ai RTX 4090 24 GB**: Q4 inference only
 - **Tower**: Aeon backends (Qdrant, Neo4j), Piper TTS
 

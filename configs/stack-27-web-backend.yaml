@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: web-backend
 curriculum_order: 27
 source_note: FastAPI, Express, Django, REST/GraphQL
+
+grad_checkpoint: true

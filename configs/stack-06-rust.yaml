@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: rust
 curriculum_order: 6
 source_note: bigcode/starcoderdata Rust subset
+
+grad_checkpoint: true

@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: emc
 curriculum_order: 21
 source_note: EMC compliance, shielding, grounding, filtering
+
+grad_checkpoint: true

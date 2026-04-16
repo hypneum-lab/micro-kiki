@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: spice
 curriculum_order: 13
 source_note: spice-life ngspice netlists
+
+grad_checkpoint: true

@@ -11,3 +11,5 @@ init_lora_weights: oplora
 domain: lua-upy
 curriculum_order: 14
 source_note: bigcode/starcoderdata Lua/MicroPython
+
+grad_checkpoint: true
