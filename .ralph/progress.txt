@@ -45,3 +45,8 @@ Stories: 13/107 complete
 [2026-04-16T02:13:22+00:00] Completed: story-94 - vLLM server with dynamic LoRA
 [2026-04-16T02:15:52+00:00] Completed: story-96 - Persistent service units
 [2026-04-16T02:15:52+00:00] Completed: story-105 - Freeze config + migration guide
+[2026-04-16T02:18:06+00:00] Validated: story-98 - ANE draft model (stub 27L)
+[2026-04-16T02:18:06+00:00] Validated: story-99 - ANE scorer for GRPO (stub 25L)
+[2026-04-16T02:18:06+00:00] Validated: story-100 - ANE-resident meta-router (stub 25L)
+[2026-04-16T02:18:06+00:00] Validated: story-101 - CompactifAI base compression (65L + 6 tests)
+[2026-04-16T02:18:06+00:00] Validated: story-103 - Tensor-network router prototype (22L)

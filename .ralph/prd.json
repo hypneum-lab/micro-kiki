@@ -686,28 +686,28 @@
       "title": "ANE draft model (`src/serving/ane_draft.py`)",
       "description": "**ANE draft model (`src/serving/ane_draft.py`)**\n\n    - Files to touch: `src/serving/ane_draft.py`, `models/qwen3.5-0.8b.mlpackage`\n    - Convert Qwen3.5-0.8B to CoreML (ANE-targeted), use as speculative decoder for the 4B base running on GPU (Metal Performance Shaders).\n    - Target: 2-3× decode speedup on M3 Ultra.\n    - Acceptance: benchmark before/after on 100-token generation, speedup ≥ 1.8×.\n    - Dependencies: step 95.",
       "priority": 98,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-99",
       "title": "ANE scorer for GRPO (`src/serving/ane_scorer.py`)",
       "description": "**ANE scorer for GRPO (`src/serving/ane_scorer.py`)**\n\n    - Files to touch: `src/serving/ane_scorer.py`\n    - CoreML-compiled scorer (reward model) running on ANE for RL fine-tuning pipelines (future GRPO stacks).\n    - Acceptance: scores 100 prompt-completion pairs in < 2 s on ANE; scores match GPU-ref within ±0.02.\n    - Dependencies: step 98.",
       "priority": 99,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-100",
       "title": "ANE-resident meta-router (`src/serving/ane_router.py`)",
       "description": "**ANE-resident meta-router (`src/serving/ane_router.py`)**\n\n    - Files to touch: `src/serving/ane_router.py`\n    - Compile the 2M-param router to CoreML, run on ANE (not CPU) to free CPU for decode orchestration.\n    - Acceptance: latency drops from ~5 ms (CPU) to ~1 ms (ANE); identical outputs within fp16 tolerance.\n    - Dependencies: step 70.",
       "priority": 100,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-101",
       "title": "CompactifAI base compression",
       "description": "**CompactifAI base compression**\n\n    - Files to touch: `src/compress/compactifai.py`, `src/compress/__init__.py`, `scripts/compress_base.py`, `tests/test_compactifai.py`, `configs/compactifai.yaml`\n    - Implement tensor-network truncation over self-attn (Q/K/V/O projections) and MLP (gate/up/down) layers of the **debiased, post-stacks-fused** base checkpoint. Use `quimb` for MPS/MPO decomposition and `opt_einsum` for contraction paths.\n    - Expose CLI: `uv run python scripts/compress_base.py --bond-dim 32 --input models/qwen3.5-4b-fused/bf16 --output models/qwen3.5-4b-compact/chi32`.\n    - Progressive chi schedule: produce chi in {64, 32, 16, 8} artifacts; evaluate each on HumanEval-sample + MMLU-Pro-sample.\n    - Commands:\n      - `uv add quimb opt_einsum tensornetwork`\n      - `uv run pytest tests/test_compactifai.py`\n      - `uv run python scripts/compress_base.py --bond-dim 32`\n    - Acceptance: chi=32 artifact exists at `models/qwen3.5-4b-compact/chi32/`, on-disk size <= 1 GB, loader smoke test yields non-empty response, accuracy drop on HumanEval-sample < 5 pp vs BF16 baseline.\n    - Dependencies: step 91 (post-stacks debiased base).",
       "priority": 101,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-102",
@@ -721,7 +721,7 @@
       "title": "Tensor-network router prototype",
       "description": "**Tensor-network router prototype**\n\n    - Files to touch: `src/routing/tn_router.py`, `src/routing/__init__.py`, `scripts/train_tn_router.py`, `tests/test_tn_router.py`, `configs/tn-router.yaml`\n    - Implement `TNRouter(nn.Module)` gating function using matrix product states (MPS) over embedding input; produce per-domain scores via interference amplitudes.\n    - Train on the final 32-domain router eval set (step 70). Fallback guard: if macro-F1 drops > 2 pp vs sigmoid, flag in report and do not merge into the serving path.\n    - Commands:\n      - `uv run pytest tests/test_tn_router.py`\n      - `uv run python scripts/train_tn_router.py --config configs/tn-router.yaml`\n      - `uv run python scripts/eval_router.py --router tn --compare sigmoid`\n    - Acceptance: `outputs/routers/tn-v0/` artifact exists, comparative report at `results/tn-vs-sigmoid.md`, macro-F1 delta reported (+/- vs sigmoid), decision line (\"merge\" | \"fallback\") included.\n    - Dependencies: step 70 (final sigmoid router + 32-domain eval set).",
       "priority": 103,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-104",
