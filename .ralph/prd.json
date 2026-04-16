@@ -714,7 +714,7 @@
       "title": "QTHA adapter pilot on stack-02 (reasoning) — comparative study vs MoLoRA",
       "description": "**QTHA adapter pilot on stack-02 (reasoning) — comparative study vs MoLoRA**\n\n    - Files to touch: `src/stacks/qtha.py`, `src/stacks/__init__.py`, `scripts/train_qtha_stack.py`, `tests/test_qtha.py`, `configs/qtha-stack-02.yaml`\n    - Implement `QTHAAdapter(nn.Module)`: decomposes the frozen base weights into a tensor-network factor + a trainable low-bond-dim correction. Parameter count target: ~500 K (vs 2 M MoLoRA rank-16). Training hook compatible with PEFT-style attach/detach.\n    - Reuse the stack-02 reasoning dataset (`data/dedup/02-reasoning/`). Train on RTX 4090 via Unsloth-compatible path.\n    - Eval: `win_rate_vs_base` on reasoning eval slice; compare to the v0.1-class MoLoRA stack-02 baseline (step 17).\n    - Commands:\n      - `uv run pytest tests/test_qtha.py`\n      - `uv run python scripts/train_qtha_stack.py --config configs/qtha-stack-02.yaml`\n      - `uv run python scripts/eval_stack.py --stack stack-02-reasoning-qtha --compare stack-02-reasoning`\n    - Acceptance: adapter saved to `outputs/stacks/stack-02-reasoning-qtha/`, param count logged <= 600 K, `win_rate_vs_base` >= MoLoRA stack-02 - 1 pp, comparative report at `results/qtha-vs-molora.md` with a merge/fallback decision line.\n    - Dependencies: step 17 (MoLoRA stack-02 baseline); step 101 optional (for compact base path).",
       "priority": 102,
-      "passes": false
+      "passes": true
     },
     {
       "id": "story-103",
