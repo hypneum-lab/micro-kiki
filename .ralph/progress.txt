@@ -1,12 +1,27 @@
-Ralph Loop Progress
-===================
-Plan: micro-kiki v0.2 — 32 domain experts + cognitive layer + quantum-inspired
-Source: .claude/plans/micro-kiki-v0.2-implementation.md
-Started: 2026-04-15T19:53:42Z
-Consolidated: 2026-04-15T19:53:42Z (107 stories, 14 phases)
+Ralph Loop Progress — v0.3 Neuroscience
+=============================================
+Plan: micro-kiki v0.3 — SpikingBrain + AeonSleep
+Source: .claude/plans/micro-kiki-v0.3-neuroscience.md
+Realigned: 2026-04-16T02:53:56+00:00
 
-Stories: 0/107 complete
+Stories: 17/39 complete
 
 ---
 
-[Execution log will appear below]
+[2026-04-16T02:53:56+00:00] Validated: story-1 - MAP paper spec + metrics harness
+[2026-04-16T02:53:56+00:00] Validated: story-2 - Benchmark v0.2 Dispatcher vs MAP conflict monitor
+[2026-04-16T02:53:56+00:00] Validated: story-3 - Benchmark v0.2 Negotiator vs MAP state evaluator
+[2026-04-16T02:53:56+00:00] Validated: story-4 - Technical report: v0.2 as MAP implementation
+[2026-04-16T02:53:56+00:00] Validated: story-5 - AeonSleep architecture spec
+[2026-04-16T02:53:56+00:00] Validated: story-6 - Port Atlas SIMD index from v0.2
+[2026-04-16T02:53:56+00:00] Validated: story-7 - Port Trace neuro-symbolic graph from v0.2
+[2026-04-16T02:53:56+00:00] Validated: story-8 - SleepGate conflict-aware temporal tagger
+[2026-04-16T02:53:56+00:00] Validated: story-9 - Forgetting gate network
+[2026-04-16T02:53:56+00:00] Validated: story-10 - Consolidation module
+[2026-04-16T02:53:56+00:00] Validated: story-11 - Unified AeonSleep API
+[2026-04-16T02:53:56+00:00] Validated: story-12 - SpikingBrain-7B acquisition plan
+[2026-04-16T02:53:56+00:00] Validated: story-13 - Studio env setup for SpikingBrain-7B
+[2026-04-16T02:53:56+00:00] Validated: story-14 - Smoke inference SpikingBrain-7B BF16
+[2026-04-16T02:53:56+00:00] Validated: story-15 - Q4 quantization of SpikingBrain-7B
+[2026-04-16T02:53:56+00:00] Validated: story-16 - SpikingBrain-7B architecture spec deployed
+[2026-04-16T02:53:56+00:00] Validated: story-17 - LAS framework setup on Studio
