@@ -2822,3 +2822,59 @@ git commit -m "test: Phase 14 integration smoke test"
 - [x] **Placeholder scan:** No TBD/TODO. All code blocks complete. All test assertions concrete.
 - [x] **Type consistency:** `SearchResult` used consistently across all backends, cache, indexer. `ScoredCandidate` in best_of_n. `CritiqueResult`/`CritiqueFeedback` in self_refine. `MetaRouter` methods match test expectations. `OrchestrationEngine.process()` signature consistent.
 - [x] **No spec gaps:** Story 111 (judge integration) handled within self-refine (Task 11) via the existing adaptive judge pattern from the Negotiator phase.
+
+---
+
+## Follow-up — Story 118: wire review + forgetting in AutonomousLoop
+
+**Status**: Pending. Identified after Phase 14 merge (2026-04-16) — scaffolding
+merged but integrations are stubs.
+
+**Problem**
+
+`src/ralph/autonomous.py::AutonomousLoop.run_story` receives
+`code_review: CodeReview` and `forgetting_checker: ForgettingChecker` via
+dependency injection, but neither is ever invoked:
+
+- `review_passes = 1` is hardcoded (autonomous.py, inside run_story)
+- `forgetting_ok = True` is set directly for training stories, with no
+  actual gradient-angle / win-rate check
+
+Result: Phase 14 spec §4.2 (code auto-critique, max 3 passes) and §4.3
+(forgetting check: angle < 30° AND win_rate_drop > 0.03 → rollback) are
+specified but inert in the live loop.
+
+**Tasks**
+
+1. In `run_story`, after `implement_fn` returns, invoke
+   `self._review.review_code(code, context)` in a loop up to
+   `config.max_review_passes` (=3). Re-implement on issues; track actual
+   pass count instead of the hardcoded 1.
+2. When `_is_training_story(story)` and tests pass, invoke
+   `self._forgetting.check(stack_id)` returning `(angle_deg, win_rate_drop)`.
+   If `angle < 30° AND drop > 0.03` → mark outcome failed with reason
+   `"forgetting rollback triggered"`, do NOT commit.
+3. Extend `StoryOutcome` with `forgetting_angle: float | None` and
+   `win_rate_drop: float | None` for observability.
+4. Update `tests/ralph/test_autonomous.py`:
+   - `review_code` called ≥ 1 time per story
+   - `review_code` called multiple times when critique returns issues
+   - `check` invoked only for training stories
+   - `outcome.forgetting_angle` / `win_rate_drop` populated on training
+   - Rollback path tested (angle=25, drop=0.05 → `outcome.success=False`)
+
+**Constraints** (from `.ralph/guardrails.md`)
+
+- Max 3 review passes (`config.max_review_passes` already defined)
+- Hard rollback on angle < 30° AND drop > 0.03 (spec §4.3)
+- Forgetting check non-skippable on training stories
+
+**Acceptance**
+
+- `uv run pytest tests/ralph/test_autonomous.py` green
+- Coverage `src/ralph/autonomous.py` ≥ 90%
+- No regression on Phase 14 integration smoke test
+- Commit subject: `feat(ralph): wire review + forgetting in autonomous loop`
+
+**Estimated diff**: ~80 src lines + ~60 test lines ≈ 140 LOC total.
+
