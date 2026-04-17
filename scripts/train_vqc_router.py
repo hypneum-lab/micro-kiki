@@ -2,7 +2,7 @@
 """Train the Quantum VQC Router on domain-labelled prompts.
 
 Pipeline:
-1. Load prompts from eval/ + distilled/ + codex-generated/ + hf-extra/
+1. Load prompts from eval/ + distilled/ + codex-generated/ + hf-extra/ or --data-dir
 2. Encode via TF-IDF character n-grams (no GPU, fast, portable)
 3. Reduce to n_qubits dimensions via PCA
 4. Train VQC (PennyLane parameter-shift) + linear head
@@ -10,6 +10,7 @@ Pipeline:
 
 Usage:
     python3 scripts/train_vqc_router.py
+    python3 scripts/train_vqc_router.py --data-dir data/micro-kiki --epochs 50
     python3 scripts/train_vqc_router.py --epochs 100 --lr 0.02
     python3 scripts/train_vqc_router.py --eval-only  # load weights and evaluate
 """
@@ -18,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import time
 from pathlib import Path
 
@@ -67,23 +69,63 @@ def _param_shift_one(idx, weights, features, n_qubits, n_layers, device_name):
     dq_dw = (q_plus - q_minus) / 2.0
     return idx, dq_dw
 
-# 10 niche domains (sorted) + "base" at index 10
+# ---------------------------------------------------------------------------
+# 34 niche domains (sorted) + "base" at index 34 = 35 total
+# Must match configs/micro_kiki/domains.yaml
+# ---------------------------------------------------------------------------
 NICHE_DOMAINS = sorted([
-    "dsp", "electronics", "emc", "embedded", "freecad",
-    "kicad-dsl", "platformio", "power", "spice", "stm32",
+    "chat-fr",
+    "components",
+    "cpp",
+    "devops",
+    "docker",
+    "dsp",
+    "electronics",
+    "embedded",
+    "emc",
+    "freecad",
+    "html-css",
+    "iot",
+    "kicad-dsl",
+    "kicad-pcb",
+    "llm-ops",
+    "llm-orch",
+    "lua-upy",
+    "math",
+    "ml-training",
+    "music-audio",
+    "platformio",
+    "power",
+    "python",
+    "reasoning",
+    "rust",
+    "security",
+    "shell",
+    "spice",
+    "sql",
+    "stm32",
+    "typescript",
+    "web-backend",
+    "web-frontend",
+    "yaml-json",
 ])
 ALL_DOMAINS = NICHE_DOMAINS + ["base"]
+NUM_DOMAINS = len(ALL_DOMAINS)  # 35
 DOMAIN_TO_IDX = {d: i for i, d in enumerate(ALL_DOMAINS)}
 
+# Minimum qubits: ceil(log2(NUM_DOMAINS))
+MIN_QUBITS = math.ceil(math.log2(NUM_DOMAINS))  # 6
+
 # Data source directories (relative to REPO_ROOT/data/)
-DATA_SOURCES = ["eval", "distilled", "codex-generated", "hf-extra", "merged"]
+DATA_SOURCES = ["eval", "distilled", "codex-generated", "hf-extra", "merged",
+                "final", "stackexchange", "mcp-generated"]
 
 # Domain aliases (map file/dir names to canonical niche names)
 DOMAIN_ALIASES = {
     "kicad": "kicad-dsl",
-    "kicad-pcb": "kicad-dsl",
+    "kicad-pcb": "kicad-pcb",
     "spice-sim": "spice",
-    "iot": "embedded",
+    "iot": "iot",
 }
 
 # Max examples per domain to keep training tractable for VQC
@@ -107,45 +149,31 @@ def extract_prompt(example: dict) -> str | None:
     return None
 
 
-def load_domain_prompts() -> dict[str, list[str]]:
-    """Load prompts grouped by canonical domain from all data sources."""
-    data_dir = REPO_ROOT / "data"
+def load_domain_prompts(data_dir: Path | None = None) -> dict[str, list[str]]:
+    """Load prompts grouped by canonical domain.
+
+    Args:
+        data_dir: If provided, load from ``<data_dir>/<domain>/train.jsonl``.
+                  Otherwise, scan standard data sources under REPO_ROOT/data/.
+
+    Returns:
+        Dict mapping domain name to list of prompt strings.
+    """
     domain_prompts: dict[str, list[str]] = {d: [] for d in ALL_DOMAINS}
     seen: dict[str, set[str]] = {d: set() for d in ALL_DOMAINS}
 
-    for source in DATA_SOURCES:
-        source_dir = data_dir / source
-        if not source_dir.exists():
-            continue
-
-        # Check both <domain>/train.jsonl and <domain>.jsonl patterns
-        for jsonl_path in sorted(source_dir.rglob("*.jsonl")):
-            # Determine domain from path
-            rel = jsonl_path.relative_to(source_dir)
-            parts = rel.parts
-            if len(parts) >= 2:
-                raw_domain = parts[0]  # directory name
-            else:
-                raw_domain = jsonl_path.stem  # filename without .jsonl
-
-            # Resolve aliases
-            canonical = DOMAIN_ALIASES.get(raw_domain, raw_domain)
-            if canonical not in DOMAIN_TO_IDX:
-                continue  # skip non-niche domains (chat-fr, python, etc.)
-
-            with open(jsonl_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        example = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    prompt = extract_prompt(example)
-                    if prompt and len(prompt) > 10 and prompt not in seen[canonical]:
-                        domain_prompts[canonical].append(prompt)
-                        seen[canonical].add(prompt)
+    if data_dir is not None:
+        # --data-dir mode: load <data_dir>/<domain>/train.jsonl
+        data_dir = Path(data_dir)
+        _load_from_domain_dirs(data_dir, domain_prompts, seen)
+    else:
+        # Legacy mode: scan standard data sources
+        base_data_dir = REPO_ROOT / "data"
+        for source in DATA_SOURCES:
+            source_dir = base_data_dir / source
+            if not source_dir.exists():
+                continue
+            _load_from_source(source_dir, domain_prompts, seen)
 
     # Cap per domain
     for domain in domain_prompts:
@@ -171,8 +199,98 @@ def load_domain_prompts() -> dict[str, list[str]]:
     return domain_prompts
 
 
+def _load_from_domain_dirs(
+    data_dir: Path,
+    domain_prompts: dict[str, list[str]],
+    seen: dict[str, set[str]],
+) -> None:
+    """Load from <data_dir>/<domain>/train.jsonl structure."""
+    for domain in ALL_DOMAINS:
+        if domain == "base":
+            continue  # base has no training data
+        domain_dir = data_dir / domain
+        train_file = domain_dir / "train.jsonl"
+        if not train_file.exists():
+            # Try flat file: <data_dir>/<domain>.jsonl
+            train_file = data_dir / f"{domain}.jsonl"
+        if not train_file.exists():
+            continue
+        _load_jsonl(train_file, domain, domain_prompts, seen)
+
+
+def _load_from_source(
+    source_dir: Path,
+    domain_prompts: dict[str, list[str]],
+    seen: dict[str, set[str]],
+) -> None:
+    """Load from a source directory, scanning for JSONL files."""
+    for jsonl_path in sorted(source_dir.rglob("*.jsonl")):
+        # Determine domain from path
+        rel = jsonl_path.relative_to(source_dir)
+        parts = rel.parts
+        if len(parts) >= 2:
+            raw_domain = parts[0]  # directory name
+        else:
+            raw_domain = jsonl_path.stem  # filename without .jsonl
+
+        # Resolve aliases
+        canonical = DOMAIN_ALIASES.get(raw_domain, raw_domain)
+        if canonical not in DOMAIN_TO_IDX:
+            continue  # skip unknown domains
+
+        _load_jsonl(jsonl_path, canonical, domain_prompts, seen)
+
+
+def _load_jsonl(
+    path: Path,
+    domain: str,
+    domain_prompts: dict[str, list[str]],
+    seen: dict[str, set[str]],
+) -> None:
+    """Load prompts from a single JSONL file into domain_prompts."""
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                example = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            prompt = extract_prompt(example)
+            if prompt and len(prompt) > 10 and prompt not in seen[domain]:
+                domain_prompts[domain].append(prompt)
+                seen[domain].add(prompt)
+
+
+def prepare_training_data(
+    data_dir: Path | None = None,
+    max_per_domain: int = MAX_PER_DOMAIN,
+) -> tuple[list[str], list[int], dict[str, list[str]]]:
+    """Load and prepare training data from domain-classified JSONL files.
+
+    Args:
+        data_dir: Directory containing ``<domain>/train.jsonl`` files.
+        max_per_domain: Maximum samples per domain.
+
+    Returns:
+        Tuple of (texts, labels, domain_prompts) where labels are domain indices.
+    """
+    domain_prompts = load_domain_prompts(data_dir)
+
+    texts: list[str] = []
+    labels: list[int] = []
+    for domain, prompts in domain_prompts.items():
+        idx = DOMAIN_TO_IDX[domain]
+        for p in prompts:
+            texts.append(p)
+            labels.append(idx)
+
+    return texts, labels, domain_prompts
+
+
 # ---------------------------------------------------------------------------
-# Feature extraction (TF-IDF character n-grams → PCA)
+# Feature extraction (TF-IDF character n-grams -> PCA)
 # ---------------------------------------------------------------------------
 
 def char_ngram_features(texts: list[str], n_range: tuple[int, int] = (2, 4),
@@ -248,17 +366,19 @@ def train_vqc(args: argparse.Namespace) -> None:
     """Full training pipeline."""
     from src.routing.quantum_router import QuantumRouter, QuantumRouterConfig
 
+    # Validate qubit count
+    if args.n_qubits < MIN_QUBITS:
+        logger.warning(
+            "n_qubits=%d is below minimum %d for %d domains. "
+            "Increasing to %d.",
+            args.n_qubits, MIN_QUBITS, NUM_DOMAINS, MIN_QUBITS,
+        )
+        args.n_qubits = MIN_QUBITS
+
     # 1. Load data
     logger.info("Loading domain prompts...")
-    domain_prompts = load_domain_prompts()
-
-    texts: list[str] = []
-    labels: list[int] = []
-    for domain, prompts in domain_prompts.items():
-        idx = DOMAIN_TO_IDX[domain]
-        for p in prompts:
-            texts.append(p)
-            labels.append(idx)
+    data_dir = Path(args.data_dir) if args.data_dir else None
+    texts, labels, domain_prompts = prepare_training_data(data_dir)
 
     labels_arr = np.array(labels)
     logger.info("Loaded %d prompts across %d domains:", len(texts),
@@ -279,11 +399,11 @@ def train_vqc(args: argparse.Namespace) -> None:
 
     # 3. PCA reduction to n_qubits dimensions
     n_qubits = args.n_qubits
-    logger.info("PCA reduction: %d → %d dimensions...", features.shape[1], n_qubits)
+    logger.info("PCA reduction: %d -> %d dimensions...", features.shape[1], n_qubits)
     reduced, pca_components, pca_mean = pca_reduce(features, n_qubits)
     logger.info("  Reduced: %s, variance captured by %d PCs", reduced.shape, n_qubits)
 
-    # Scale to [0, 2π] for AngleEmbedding
+    # Scale to [0, 2pi] for AngleEmbedding
     r_min, r_max = reduced.min(), reduced.max()
     if r_max - r_min > 0:
         reduced = (reduced - r_min) / (r_max - r_min) * 2 * np.pi
@@ -305,7 +425,7 @@ def train_vqc(args: argparse.Namespace) -> None:
     config = QuantumRouterConfig(
         n_qubits=n_qubits,
         n_layers=args.n_layers,
-        n_classes=len(ALL_DOMAINS),
+        n_classes=NUM_DOMAINS,
         learning_rate=args.lr,
     )
     router = QuantumRouter(config)
@@ -484,14 +604,14 @@ def _evaluate(router, X_val, y_val, all_labels, domain_prompts) -> None:
     total = len(y_val)
 
     logger.info("\n%-15s %6s %6s %8s", "Domain", "Correct", "Total", "Accuracy")
-    logger.info("─" * 45)
+    logger.info("-" * 45)
     for domain in ALL_DOMAINS:
         if domain in domain_stats:
             s = domain_stats[domain]
             acc = s["correct"] / max(s["total"], 1) * 100
             logger.info("%-15s %6d %6d %7.1f%%", domain, s["correct"], s["total"], acc)
 
-    logger.info("─" * 45)
+    logger.info("-" * 45)
     logger.info("%-15s %6d %6d %7.1f%%", "TOTAL", total_correct, total,
                 total_correct / max(total, 1) * 100)
     logger.info("\nAvg confidence: %.3f", np.mean(confidences))
@@ -509,13 +629,8 @@ def eval_only(args: argparse.Namespace) -> None:
         return
 
     # Load data
-    domain_prompts = load_domain_prompts()
-    texts: list[str] = []
-    labels: list[int] = []
-    for domain, prompts in domain_prompts.items():
-        for p in prompts:
-            texts.append(p)
-            labels.append(DOMAIN_TO_IDX[domain])
+    data_dir = Path(args.data_dir) if args.data_dir else None
+    texts, labels, domain_prompts = prepare_training_data(data_dir)
 
     # Load PCA
     pca_data = np.load(pca_path)
@@ -547,9 +662,14 @@ def _softmax(logits: np.ndarray) -> np.ndarray:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train Quantum VQC Router")
+    parser.add_argument("--data-dir", type=str, default=None,
+                        help="Directory with <domain>/train.jsonl files "
+                             "(e.g. data/micro-kiki)")
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--lr", type=float, default=0.01)
-    parser.add_argument("--n-qubits", type=int, default=4)
+    parser.add_argument("--n-qubits", type=int, default=6,
+                        help=f"Number of qubits (minimum {MIN_QUBITS} for "
+                             f"{NUM_DOMAINS} domains)")
     parser.add_argument("--n-layers", type=int, default=6)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--patience", type=int, default=10,

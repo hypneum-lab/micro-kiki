@@ -1611,6 +1611,1700 @@ COMPONENTS: list[Component] = [
         alternatives=["74HC164 (no output latch)", "MCP23S17 (I2C/SPI GPIO expander, 16-bit)", "PCA9685 (I2C PWM, 16-ch)"],
         lcsc="C5947",
     ),
+    # ===== Additional MCUs =====
+    Component(
+        name="STM32F401CCU6",
+        category="mcu",
+        manufacturer="STMicroelectronics",
+        description="ARM Cortex-M4 MCU, 84 MHz, 256 KB Flash, 64 KB SRAM, FPU",
+        specs={
+            "core": "ARM Cortex-M4F (single-precision FPU)",
+            "max_frequency": "84 MHz",
+            "flash": "256 KB",
+            "sram": "64 KB",
+            "supply_voltage": "1.7V to 3.6V",
+            "gpio_count": "36",
+            "adc_channels": "1x 12-bit ADC, 10 channels",
+            "timers": "6 (1x 32-bit, 5x 16-bit)",
+            "uart": "3 (2 USART + 1 UART)",
+            "spi": "3",
+            "i2c": "3",
+            "usb": "USB 2.0 OTG Full-speed",
+            "operating_temp": "-40 to 85 C",
+            "package": "UFQFPN-48",
+        },
+        packages=["UFQFPN-48", "WLCSP-49"],
+        interfaces=["SPI", "I2C", "UART", "USB OTG", "I2S"],
+        alternatives=["STM32F411CEU6", "GD32F303CCT6", "APM32F407VGT6"],
+        lcsc="C428058",
+    ),
+    Component(
+        name="STM32F411CEU6",
+        category="mcu",
+        manufacturer="STMicroelectronics",
+        description="ARM Cortex-M4 MCU, 100 MHz, 512 KB Flash, 128 KB SRAM, FPU",
+        specs={
+            "core": "ARM Cortex-M4F (single-precision FPU)",
+            "max_frequency": "100 MHz",
+            "flash": "512 KB",
+            "sram": "128 KB",
+            "supply_voltage": "1.7V to 3.6V",
+            "gpio_count": "36",
+            "adc_channels": "1x 12-bit ADC, 10 channels",
+            "timers": "6 (1x 32-bit, 5x 16-bit)",
+            "uart": "3",
+            "spi": "5 (I2S capable)",
+            "i2c": "3",
+            "usb": "USB 2.0 OTG Full-speed",
+            "operating_temp": "-40 to 85 C",
+            "package": "UFQFPN-48",
+        },
+        packages=["UFQFPN-48", "WLCSP-49"],
+        interfaces=["SPI", "I2C", "UART", "USB OTG", "I2S"],
+        alternatives=["STM32F401CCU6", "WeAct Studio BlackPill (dev board)"],
+        lcsc="C459792",
+    ),
+    Component(
+        name="STM32L031K6T6",
+        category="mcu",
+        manufacturer="STMicroelectronics",
+        description="ARM Cortex-M0+ ultra-low-power MCU, 32 MHz, 32 KB Flash, 8 KB SRAM",
+        specs={
+            "core": "ARM Cortex-M0+",
+            "max_frequency": "32 MHz",
+            "flash": "32 KB",
+            "sram": "8 KB",
+            "supply_voltage": "1.65V to 3.6V",
+            "gpio_count": "25",
+            "adc_channels": "1x 12-bit ADC, 10 channels",
+            "timers": "5",
+            "uart": "2 (1 USART + 1 LPUART)",
+            "spi": "1",
+            "i2c": "1",
+            "supply_current": "76 uA/MHz (run), 0.29 uA (stop mode)",
+            "operating_temp": "-40 to 85 C",
+            "package": "LQFP-32",
+        },
+        packages=["LQFP-32"],
+        interfaces=["SPI", "I2C", "UART", "LPUART"],
+        alternatives=["STM32L011K4T6", "ATSAML10", "nRF52810"],
+        lcsc="C94690",
+    ),
+    Component(
+        name="STM32F030F4P6",
+        category="mcu",
+        manufacturer="STMicroelectronics",
+        description="ARM Cortex-M0 MCU, 48 MHz, 16 KB Flash, 4 KB SRAM, ultra-cheap",
+        specs={
+            "core": "ARM Cortex-M0",
+            "max_frequency": "48 MHz",
+            "flash": "16 KB",
+            "sram": "4 KB",
+            "supply_voltage": "2.4V to 3.6V",
+            "gpio_count": "15",
+            "adc_channels": "1x 12-bit ADC, 11 channels",
+            "timers": "5",
+            "uart": "1",
+            "spi": "1",
+            "i2c": "1",
+            "operating_temp": "-40 to 85 C",
+            "package": "TSSOP-20",
+        },
+        packages=["TSSOP-20"],
+        interfaces=["SPI", "I2C", "UART"],
+        alternatives=["PY32F002AF15P6TU", "CH32V003", "STM32C011F4P6"],
+        lcsc="C23922",
+    ),
+    Component(
+        name="ESP32-C3-MINI-1-N4",
+        category="mcu",
+        manufacturer="Espressif",
+        description="RISC-V single-core MCU module, 160 MHz, Wi-Fi + BLE 5, 4 MB Flash",
+        specs={
+            "core": "RISC-V 32-bit single-core",
+            "max_frequency": "160 MHz",
+            "flash": "4 MB (in-package)",
+            "sram": "400 KB",
+            "supply_voltage": "3.0V to 3.6V",
+            "gpio_count": "22",
+            "adc_channels": "2x 12-bit SAR ADC, 6 channels",
+            "timers": "2x 54-bit general-purpose, 3x watchdog",
+            "uart": "2",
+            "spi": "3",
+            "i2c": "1",
+            "wifi": "802.11 b/g/n, 2.4 GHz",
+            "bluetooth": "BLE 5.0",
+            "operating_temp": "-40 to 85 C",
+            "package": "Module (13x16.6mm)",
+        },
+        packages=["Module 13x16.6mm"],
+        interfaces=["SPI", "I2C", "UART", "Wi-Fi", "BLE 5.0"],
+        alternatives=["ESP32-C6 (Wi-Fi 6)", "ESP32-C2 (cheaper, less RAM)", "nRF52840 (BLE only)"],
+        lcsc="C2934560",
+    ),
+    Component(
+        name="ESP32-C6-WROOM-1-N8",
+        category="mcu",
+        manufacturer="Espressif",
+        description="RISC-V dual-core MCU module, 160 MHz, Wi-Fi 6 + BLE 5 + 802.15.4, 8 MB Flash",
+        specs={
+            "core": "RISC-V 32-bit (HP core 160 MHz + LP core 20 MHz)",
+            "max_frequency": "160 MHz",
+            "flash": "8 MB (in-package)",
+            "sram": "512 KB HP + 16 KB LP",
+            "supply_voltage": "3.0V to 3.6V",
+            "gpio_count": "23",
+            "adc_channels": "1x 12-bit SAR ADC, 7 channels",
+            "uart": "2",
+            "spi": "1",
+            "i2c": "2",
+            "wifi": "802.11ax (Wi-Fi 6), 2.4 GHz",
+            "bluetooth": "BLE 5.3",
+            "thread": "IEEE 802.15.4 (Thread/Zigbee)",
+            "operating_temp": "-40 to 85 C",
+            "package": "Module (18x20mm)",
+        },
+        packages=["Module 18x20mm"],
+        interfaces=["SPI", "I2C", "UART", "Wi-Fi 6", "BLE 5.3", "Thread/Zigbee"],
+        alternatives=["ESP32-C3 (Wi-Fi 4, cheaper)", "ESP32-H2 (Thread only, no Wi-Fi)"],
+        lcsc="C5361862",
+    ),
+    Component(
+        name="ATmega32U4-AU",
+        category="mcu",
+        manufacturer="Microchip (Atmel)",
+        description="AVR 8-bit MCU, 16 MHz, 32 KB Flash, 2.5 KB SRAM, native USB",
+        specs={
+            "core": "AVR 8-bit",
+            "max_frequency": "16 MHz",
+            "flash": "32 KB",
+            "sram": "2.5 KB",
+            "eeprom": "1 KB",
+            "supply_voltage": "2.7V to 5.5V",
+            "gpio_count": "26",
+            "adc_channels": "12 (10-bit)",
+            "timers": "4 (1x 8-bit, 1x 16-bit, 1x 10-bit high-speed)",
+            "uart": "1",
+            "spi": "1",
+            "i2c": "1 (TWI)",
+            "usb": "USB 2.0 Full-speed (native, no external chip)",
+            "operating_temp": "-40 to 85 C",
+            "package": "TQFP-44",
+        },
+        packages=["TQFP-44", "QFN-44"],
+        interfaces=["SPI", "I2C", "UART", "USB"],
+        alternatives=["ATmega328P (no USB)", "RP2040 (more powerful)", "CH552G (cheaper USB)"],
+        lcsc="C44854",
+    ),
+    Component(
+        name="STM32G474RET6",
+        category="mcu",
+        manufacturer="STMicroelectronics",
+        description="ARM Cortex-M4F MCU, 170 MHz, 512 KB Flash, 128 KB SRAM, motor control",
+        specs={
+            "core": "ARM Cortex-M4F with FPU and DSP",
+            "max_frequency": "170 MHz",
+            "flash": "512 KB",
+            "sram": "128 KB",
+            "supply_voltage": "1.71V to 3.6V",
+            "gpio_count": "51",
+            "adc_channels": "5x 12-bit ADC, up to 42 channels",
+            "dac": "4x 12-bit DAC",
+            "timers": "17 timers (including advanced motor control)",
+            "uart": "5",
+            "spi": "4",
+            "i2c": "4",
+            "can": "3x FDCAN",
+            "operating_temp": "-40 to 125 C",
+            "package": "LQFP-64",
+        },
+        packages=["LQFP-64", "LQFP-48"],
+        interfaces=["SPI", "I2C", "UART", "FDCAN", "USB"],
+        alternatives=["STM32F446RE", "STM32H503RB"],
+        lcsc="C1329825",
+    ),
+    Component(
+        name="MSP430FR2355",
+        category="mcu",
+        manufacturer="Texas Instruments",
+        description="16-bit ultra-low-power MCU, 24 MHz, 32 KB FRAM, 4 KB SRAM",
+        specs={
+            "core": "MSP430 16-bit RISC",
+            "max_frequency": "24 MHz",
+            "flash": "32 KB FRAM (non-volatile, 10^15 write cycles)",
+            "sram": "4 KB",
+            "supply_voltage": "1.8V to 3.6V",
+            "gpio_count": "32",
+            "adc_channels": "1x 12-bit SAR ADC, 16 channels",
+            "dac": "2x 12-bit DAC",
+            "timers": "4 (16-bit)",
+            "uart": "2 (eUSCI)",
+            "spi": "2 (eUSCI)",
+            "i2c": "2 (eUSCI)",
+            "supply_current": "118 uA/MHz (active), 0.35 uA (standby)",
+            "operating_temp": "-40 to 105 C",
+            "package": "TSSOP-38",
+        },
+        packages=["TSSOP-38", "QFN-40"],
+        interfaces=["SPI", "I2C", "UART"],
+        alternatives=["STM32L031", "ATSAML10", "RL78/G14"],
+        lcsc="C525287",
+    ),
+    Component(
+        name="ATSAME51J20A",
+        category="mcu",
+        manufacturer="Microchip",
+        description="ARM Cortex-M4F MCU, 120 MHz, 1 MB Flash, 256 KB SRAM, CAN-FD",
+        specs={
+            "core": "ARM Cortex-M4F with FPU",
+            "max_frequency": "120 MHz",
+            "flash": "1 MB",
+            "sram": "256 KB",
+            "supply_voltage": "1.71V to 3.63V",
+            "gpio_count": "51",
+            "adc_channels": "2x 12-bit ADC, 16 channels",
+            "dac": "2x 12-bit DAC",
+            "timers": "8 (TC/TCC)",
+            "uart": "8 (SERCOM)",
+            "spi": "8 (SERCOM)",
+            "i2c": "8 (SERCOM)",
+            "can": "2x CAN-FD",
+            "operating_temp": "-40 to 85 C",
+            "package": "TQFP-64",
+        },
+        packages=["TQFP-64", "QFN-64"],
+        interfaces=["SPI", "I2C", "UART", "CAN-FD", "USB"],
+        alternatives=["STM32G474", "STM32H503", "LPC55S69"],
+        lcsc="C648277",
+    ),
+    Component(
+        name="GD32VF103CBT6",
+        category="mcu",
+        manufacturer="GigaDevice",
+        description="RISC-V MCU, 108 MHz, 128 KB Flash, 32 KB SRAM",
+        specs={
+            "core": "Bumblebee RISC-V (RV32IMAC)",
+            "max_frequency": "108 MHz",
+            "flash": "128 KB",
+            "sram": "32 KB",
+            "supply_voltage": "2.6V to 3.6V",
+            "gpio_count": "37",
+            "adc_channels": "2x 12-bit ADC, 10 channels",
+            "timers": "5",
+            "uart": "5 (3 USART + 2 UART)",
+            "spi": "3",
+            "i2c": "2",
+            "usb": "USB 2.0 Full-speed OTG",
+            "can": "2",
+            "operating_temp": "-40 to 85 C",
+            "package": "LQFP-48",
+        },
+        packages=["LQFP-48"],
+        interfaces=["SPI", "I2C", "UART", "USB", "CAN"],
+        alternatives=["STM32F103C8T6", "CH32V303CBT6"],
+        lcsc="C1331940",
+    ),
+    Component(
+        name="W806",
+        category="mcu",
+        manufacturer="WinnerMicro",
+        description="XT804 32-bit MCU, 240 MHz, 1 MB Flash, 288 KB SRAM, ultra-cheap",
+        specs={
+            "core": "CK804 (T-Head XT804) 32-bit",
+            "max_frequency": "240 MHz",
+            "flash": "1 MB",
+            "sram": "288 KB",
+            "supply_voltage": "3.3V (typ)",
+            "gpio_count": "44",
+            "adc_channels": "4 (16-bit sigma-delta)",
+            "uart": "6",
+            "spi": "2 (including QSPI)",
+            "i2c": "1",
+            "operating_temp": "-40 to 85 C",
+            "package": "QFN-56",
+        },
+        packages=["QFN-56"],
+        interfaces=["SPI", "I2C", "UART", "SDIO", "PSRAM"],
+        alternatives=["ESP32-C3", "CH32V307"],
+        lcsc="C2759865",
+    ),
+    # ===== Additional Regulators =====
+    Component(
+        name="ME6211C33M5G-N",
+        category="regulator",
+        manufacturer="Microne",
+        description="600mA LDO, 3.3V fixed output, ultra-low dropout",
+        specs={
+            "output_voltage": "3.3V (fixed)",
+            "max_output_current": "600 mA",
+            "input_voltage": "2.0V to 6.0V",
+            "dropout_voltage": "100 mV @ 100 mA",
+            "quiescent_current": "40 uA",
+            "output_noise": "45 uVrms",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOT-23-5",
+        },
+        packages=["SOT-23-5"],
+        alternatives=["AP2112K-3.3", "XC6220B331MR", "RT9013-33"],
+        lcsc="C82942",
+    ),
+    Component(
+        name="RT9013-33GB",
+        category="regulator",
+        manufacturer="Richtek",
+        description="500mA LDO, 3.3V, ultra-low noise, SOT-23-5",
+        specs={
+            "output_voltage": "3.3V (fixed)",
+            "max_output_current": "500 mA",
+            "input_voltage": "2.2V to 5.5V",
+            "dropout_voltage": "250 mV @ 500 mA",
+            "quiescent_current": "25 uA",
+            "output_noise": "15 uVrms (typ)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOT-23-5",
+        },
+        packages=["SOT-23-5"],
+        alternatives=["ME6211C33", "AP2112K-3.3", "MIC5504-3.3YM5"],
+        lcsc="C47773",
+    ),
+    Component(
+        name="MP1584EN-LF-Z",
+        category="regulator",
+        manufacturer="Monolithic Power Systems",
+        description="3A step-down converter, 28V input, 1.5 MHz switching frequency",
+        specs={
+            "output_voltage": "0.8V to VIN (adjustable)",
+            "max_output_current": "3 A",
+            "input_voltage": "4.5V to 28V",
+            "switching_frequency": "1.5 MHz (fixed)",
+            "efficiency": "Up to 92%",
+            "quiescent_current": "100 uA (typ)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-8 exposed pad",
+        },
+        packages=["SOIC-8 exposed pad"],
+        alternatives=["TPS54331", "LM2596", "LM3150"],
+        lcsc="C14259",
+    ),
+    Component(
+        name="TPS63020DSJR",
+        category="regulator",
+        manufacturer="Texas Instruments",
+        description="Buck-boost converter, 4A, 2.4 MHz, single Li-Ion to 3.3V/5V",
+        specs={
+            "output_voltage": "1.2V to 5.5V (adjustable)",
+            "max_output_current": "4 A (buck), 2 A (boost)",
+            "input_voltage": "1.8V to 5.5V",
+            "switching_frequency": "2.4 MHz (typ)",
+            "efficiency": "Up to 96%",
+            "quiescent_current": "50 uA",
+            "operating_temp": "-40 to 85 C",
+            "package": "VSON-14 (3x3mm)",
+        },
+        packages=["VSON-14 (3x3mm)"],
+        alternatives=["TPS63060 (wider input)", "LTC3113 (Analog Devices)"],
+        lcsc="C130012",
+    ),
+    Component(
+        name="HT7333-A",
+        category="regulator",
+        manufacturer="Holtek",
+        description="250mA LDO, 3.3V fixed, ultra-low quiescent current, SOT-89",
+        specs={
+            "output_voltage": "3.3V (fixed)",
+            "max_output_current": "250 mA",
+            "input_voltage": "3.6V to 12V",
+            "dropout_voltage": "300 mV @ 100 mA",
+            "quiescent_current": "4 uA (typ)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOT-89",
+        },
+        packages=["SOT-89", "TO-92"],
+        alternatives=["MCP1700-3302E", "LP5907-3.3"],
+        lcsc="C14289",
+    ),
+    Component(
+        name="MCP1700-3302E/TT",
+        category="regulator",
+        manufacturer="Microchip",
+        description="250mA LDO, 3.3V fixed, low quiescent, SOT-23",
+        specs={
+            "output_voltage": "3.3V (fixed)",
+            "max_output_current": "250 mA",
+            "input_voltage": "2.3V to 6.0V",
+            "dropout_voltage": "178 mV @ 250 mA",
+            "quiescent_current": "1.6 uA (typ)",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-23-3",
+        },
+        packages=["SOT-23-3", "TO-92"],
+        alternatives=["HT7333", "LP5907-3.3"],
+        lcsc="C39051",
+    ),
+    Component(
+        name="TPS5430DDA",
+        category="regulator",
+        manufacturer="Texas Instruments",
+        description="3A step-down converter, 36V max input, 500 kHz",
+        specs={
+            "output_voltage": "1.22V to 30V (adjustable)",
+            "max_output_current": "3 A",
+            "input_voltage": "5.5V to 36V",
+            "switching_frequency": "500 kHz (fixed)",
+            "efficiency": "Up to 95%",
+            "operating_temp": "-40 to 125 C",
+            "package": "HSOP-8 (PowerPAD)",
+        },
+        packages=["HSOP-8"],
+        alternatives=["LM2596", "TPS54331", "LM2576"],
+        lcsc="C47283",
+    ),
+    Component(
+        name="SPX3819M5-L-3-3/TR",
+        category="regulator",
+        manufacturer="MaxLinear (Sipex)",
+        description="500mA LDO, 3.3V, 16V max input, high PSRR",
+        specs={
+            "output_voltage": "3.3V (fixed)",
+            "max_output_current": "500 mA",
+            "input_voltage": "1.8V to 16V",
+            "dropout_voltage": "340 mV @ 500 mA",
+            "quiescent_current": "42 uA",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-23-5",
+        },
+        packages=["SOT-23-5"],
+        alternatives=["LM1117-3.3", "AMS1117-3.3", "AP2112K-3.3"],
+        lcsc="C9055",
+    ),
+    # ===== Additional Op-amps =====
+    Component(
+        name="LM324",
+        category="opamp",
+        manufacturer="TI / ST / ON Semi",
+        description="Quad general-purpose op-amp, single-supply, low power",
+        specs={
+            "channels": "4 (quad)",
+            "supply_voltage": "3V to 32V (single) or +/-1.5V to +/-16V (dual)",
+            "gbw": "1.2 MHz",
+            "slew_rate": "0.5 V/us",
+            "input_offset_voltage": "2 mV (typ), 7 mV (max)",
+            "input_bias_current": "45 nA (typ)",
+            "supply_current": "0.7 mA per amplifier",
+            "output_type": "Rail-to-rail output (low only, not high rail)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-14",
+        },
+        packages=["SOIC-14", "DIP-14", "TSSOP-14"],
+        alternatives=["LM358 (dual)", "TLV2374 (rail-to-rail)", "MCP6004 (CMOS)"],
+        lcsc="C7424",
+    ),
+    Component(
+        name="LMV321IDBVR",
+        category="opamp",
+        manufacturer="Texas Instruments",
+        description="Single RRIO CMOS op-amp, 1 MHz GBW, SOT-23-5",
+        specs={
+            "channels": "1 (single)",
+            "supply_voltage": "2.7V to 5.5V",
+            "gbw": "1 MHz",
+            "slew_rate": "1 V/us",
+            "input_offset_voltage": "7 mV (max)",
+            "input_bias_current": "100 pA (typ)",
+            "supply_current": "0.11 mA",
+            "output_type": "Rail-to-rail input and output",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-23-5",
+        },
+        packages=["SOT-23-5"],
+        alternatives=["MCP6001 (higher GBW)", "AD8605 (lower noise)"],
+        lcsc="C7684",
+    ),
+    Component(
+        name="OPA1612AIDR",
+        category="opamp",
+        manufacturer="Texas Instruments",
+        description="Dual ultra-low-noise audio op-amp, 80 MHz GBW, SoundPlus",
+        specs={
+            "channels": "2 (dual)",
+            "supply_voltage": "+/-2.25V to +/-18V",
+            "gbw": "80 MHz",
+            "slew_rate": "27 V/us",
+            "input_offset_voltage": "0.1 mV (typ)",
+            "input_bias_current": "10 nA (typ)",
+            "supply_current": "3.6 mA per channel",
+            "noise": "1.1 nV/rtHz @ 1 kHz",
+            "thd": "-136 dB (0.00005%) at 1 kHz, 3 Vrms",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8"],
+        alternatives=["OPA2134 (lower cost)", "NE5532 (bipolar, classic)", "LME49720 (NatSemi)"],
+        lcsc="C116506",
+    ),
+    Component(
+        name="INA219AIDR",
+        category="sensor",
+        manufacturer="Texas Instruments",
+        description="High-side current/power monitor, I2C, 26V, 12-bit ADC",
+        specs={
+            "input_voltage": "0V to 26V (bus voltage)",
+            "shunt_voltage": "+/-320 mV (max) or +/-160 mV or +/-80 mV or +/-40 mV",
+            "resolution": "12-bit ADC",
+            "i2c_address": "0x40-0x4F (16 addresses via A0/A1)",
+            "supply_voltage": "3.0V to 5.5V",
+            "supply_current": "1 mA (max)",
+            "accuracy": "+/-1% (gain error)",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8", "SOT-23-6 (INA219AIDBVR)"],
+        interfaces=["I2C"],
+        alternatives=["INA226 (16-bit)", "INA260 (integrated shunt)", "MAX9611"],
+        lcsc="C9443",
+    ),
+    # ===== Additional MOSFETs =====
+    Component(
+        name="2N7002",
+        category="mosfet",
+        manufacturer="NXP / ON Semi / various",
+        description="60V N-channel MOSFET, 300mA, SOT-23, logic-level gate",
+        specs={
+            "type": "N-channel enhancement",
+            "vds_max": "60V",
+            "id_continuous": "300 mA",
+            "rds_on": "5 Ohm @ Vgs=10V, 7.5 Ohm @ Vgs=4.5V",
+            "vgs_threshold": "1.0V (typ), 2.5V (max)",
+            "gate_charge": "750 pC (typ)",
+            "power_dissipation": "300 mW",
+            "operating_temp": "-55 to 150 C",
+            "package": "SOT-23",
+        },
+        packages=["SOT-23"],
+        alternatives=["BSS138 (similar, lower Rds)", "BSS123 (100V, 170mA)"],
+        lcsc="C8545",
+    ),
+    Component(
+        name="DMG2305UX-7",
+        category="mosfet",
+        manufacturer="Diodes Inc.",
+        description="-20V P-channel MOSFET, 4.2A, SOT-23, low Rds(on)",
+        specs={
+            "type": "P-channel enhancement",
+            "vds_max": "-20V",
+            "id_continuous": "-4.2 A",
+            "rds_on": "45 mOhm @ Vgs=-4.5V, 65 mOhm @ Vgs=-2.5V",
+            "vgs_threshold": "-0.4V (min), -0.9V (max)",
+            "gate_charge": "6.6 nC (typ)",
+            "power_dissipation": "1.4 W",
+            "operating_temp": "-55 to 150 C",
+            "package": "SOT-23",
+        },
+        packages=["SOT-23"],
+        alternatives=["AO3401A (lower Rds)", "Si2301 (lower Vgs_th)"],
+        lcsc="C154825",
+    ),
+    Component(
+        name="IRLZ44N",
+        category="mosfet",
+        manufacturer="Infineon (IR)",
+        description="55V N-channel logic-level MOSFET, 47A, TO-220, low Rds(on)",
+        specs={
+            "type": "N-channel enhancement, logic-level gate",
+            "vds_max": "55V",
+            "id_continuous": "47 A @ 25 C",
+            "rds_on": "22 mOhm @ Vgs=10V, 25 mOhm @ Vgs=5V",
+            "vgs_threshold": "1.0V (min), 2.0V (max)",
+            "gate_charge": "48 nC",
+            "power_dissipation": "110 W (with heatsink)",
+            "operating_temp": "-55 to 175 C",
+            "package": "TO-220",
+        },
+        packages=["TO-220"],
+        alternatives=["IRF540N (not logic-level)", "IRL540N", "IRLZ34N (60V, 30A)"],
+        lcsc="C49632",
+    ),
+    Component(
+        name="Si7021-A20-IM1",
+        category="sensor",
+        manufacturer="Silicon Labs",
+        description="Humidity and temperature sensor, I2C, +/-3% RH, +/-0.4 C",
+        specs={
+            "humidity_accuracy": "+/-3% RH (20-80% range)",
+            "temperature_accuracy": "+/-0.4 C (typical)",
+            "humidity_range": "0-100% RH",
+            "resolution": "12-bit RH, 14-bit temperature",
+            "i2c_address": "0x40 (fixed)",
+            "supply_voltage": "1.9V to 3.6V",
+            "supply_current": "150 uA (active), 0.06 uA (standby)",
+            "operating_temp": "-40 to 125 C",
+            "package": "DFN-6 (3x3mm)",
+        },
+        packages=["DFN-6 (3x3mm)"],
+        interfaces=["I2C"],
+        alternatives=["SHT31 (higher accuracy)", "BME280 (+ pressure)", "HDC1080 (lower cost)"],
+        lcsc="C85046",
+    ),
+    Component(
+        name="ADXL345BCCZ-RL7",
+        category="sensor",
+        manufacturer="Analog Devices",
+        description="3-axis digital accelerometer, +/-16g, I2C/SPI, 13-bit resolution",
+        specs={
+            "measurement_range": "+/-2g / +/-4g / +/-8g / +/-16g (selectable)",
+            "resolution": "Up to 13-bit (4 mg/LSB at +/-2g)",
+            "data_rate": "0.1 Hz to 3200 Hz (selectable)",
+            "i2c_address": "0x1D (ALT HIGH) or 0x53 (ALT LOW)",
+            "supply_voltage": "2.0V to 3.6V",
+            "supply_current": "23 uA (100 Hz), 0.1 uA (standby)",
+            "operating_temp": "-40 to 85 C",
+            "package": "LGA-14 (3x5mm)",
+        },
+        packages=["LGA-14 (3x5mm)"],
+        interfaces=["I2C", "SPI"],
+        alternatives=["LIS3DH (STMicro)", "MMA8451Q (NXP)", "MPU6050 (+ gyro)"],
+        lcsc="C9667",
+    ),
+    Component(
+        name="BMP390",
+        category="sensor",
+        manufacturer="Bosch Sensortec",
+        description="Barometric pressure sensor, I2C/SPI, +/-0.03 hPa relative accuracy",
+        specs={
+            "pressure_range": "300 to 1250 hPa",
+            "pressure_accuracy": "+/-0.5 hPa (absolute), +/-0.03 hPa (relative)",
+            "temperature_accuracy": "+/-0.5 C",
+            "resolution": "24-bit pressure, 24-bit temperature",
+            "i2c_address": "0x76 (SDO=GND) or 0x77 (SDO=VCC)",
+            "supply_voltage": "1.7V to 3.6V",
+            "supply_current": "3.4 uA @ 1 Hz, 0.06 uA (standby)",
+            "operating_temp": "-40 to 85 C",
+            "package": "LGA-10 (2x2mm)",
+        },
+        packages=["LGA-10 (2x2mm)"],
+        interfaces=["I2C", "SPI"],
+        alternatives=["BME280 (+ humidity)", "LPS22HB (STMicro)", "DPS310 (Infineon)"],
+        lcsc="C2660547",
+    ),
+    Component(
+        name="MAX6675ISA+T",
+        category="sensor",
+        manufacturer="Analog Devices (Maxim)",
+        description="K-type thermocouple-to-digital converter, SPI, 12-bit, 0-1024 C",
+        specs={
+            "temperature_range": "0 C to 1024 C",
+            "temperature_accuracy": "+/-3 C (typ)",
+            "resolution": "0.25 C (12-bit + sign)",
+            "conversion_time": "220 ms",
+            "supply_voltage": "3.0V to 5.5V",
+            "supply_current": "1.5 mA",
+            "operating_temp": "-20 to 85 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8"],
+        interfaces=["SPI"],
+        alternatives=["MAX31855 (wider range, -200 to 1800 C)", "MAX31856 (multiple TC types)"],
+        lcsc="C9649",
+    ),
+    Component(
+        name="ACS712ELCTR-20A-T",
+        category="sensor",
+        manufacturer="Allegro MicroSystems",
+        description="20A bidirectional Hall-effect current sensor, analog output",
+        specs={
+            "current_range": "+/-20 A",
+            "sensitivity": "100 mV/A",
+            "accuracy": "+/-1.5% (at 25 C)",
+            "bandwidth": "80 kHz",
+            "supply_voltage": "4.5V to 5.5V",
+            "supply_current": "10 mA (typ)",
+            "isolation_voltage": "2.1 kV (RMS)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8"],
+        interfaces=["Analog output (66 mV/A for 30A, 100 mV/A for 20A, 185 mV/A for 5A)"],
+        alternatives=["INA226 (shunt-based, I2C)", "TMCS1108 (TI)", "ACS758 (50A/100A)"],
+        lcsc="C10681",
+    ),
+    Component(
+        name="VEML7700",
+        category="sensor",
+        manufacturer="Vishay",
+        description="Ambient light sensor, I2C, 16-bit resolution, 0 to 120k lux",
+        specs={
+            "measurement_range": "0 to 120,000 lux",
+            "resolution": "0.0036 lux/count (min gain, max integration)",
+            "i2c_address": "0x10 (fixed)",
+            "supply_voltage": "2.5V to 3.6V",
+            "supply_current": "2 uA (typ), 0.5 uA (shutdown)",
+            "spectral_response": "Close to human eye (CIE photopic curve)",
+            "operating_temp": "-25 to 85 C",
+            "package": "QFN (2x2mm)",
+        },
+        packages=["QFN (2x2mm)"],
+        interfaces=["I2C"],
+        alternatives=["BH1750 (cheaper)", "TSL2591 (wider range)", "APDS-9960 (+ gesture)"],
+        lcsc="C2536068",
+    ),
+    Component(
+        name="LIS3DH",
+        category="sensor",
+        manufacturer="STMicroelectronics",
+        description="3-axis MEMS accelerometer, +/-16g, I2C/SPI, ultra-low power",
+        specs={
+            "measurement_range": "+/-2g / +/-4g / +/-8g / +/-16g (selectable)",
+            "resolution": "16-bit / 12-bit / 10-bit / 8-bit (selectable)",
+            "data_rate": "1 Hz to 5376 Hz",
+            "i2c_address": "0x18 (SA0=GND) or 0x19 (SA0=VCC)",
+            "supply_voltage": "1.71V to 3.6V",
+            "supply_current": "11 uA (low-power 50 Hz), 2 uA (1 Hz)",
+            "operating_temp": "-40 to 85 C",
+            "package": "LGA-16 (3x3mm)",
+        },
+        packages=["LGA-16 (3x3mm)"],
+        interfaces=["I2C", "SPI"],
+        alternatives=["ADXL345 (Analog Devices)", "MMA8451Q (NXP)", "MPU6050 (+ gyro)"],
+        lcsc="C9913",
+    ),
+    # ===== Additional Passives =====
+    Component(
+        name="4.7K 0402 Resistor",
+        category="passive",
+        manufacturer="Yageo / Uniroyal / various",
+        description="4.7K ohm chip resistor, 0402, 1/16W, 1% tolerance",
+        specs={
+            "resistance": "4.7K ohm",
+            "tolerance": "1% (F suffix)",
+            "power_rating": "1/16 W (0.0625 W)",
+            "temperature_coefficient": "+/-100 ppm/C",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603", "0805"],
+        lcsc="C25900",
+        notes="Standard I2C pull-up value for standard mode (100 kHz).",
+    ),
+    Component(
+        name="100 ohm 0402 Resistor",
+        category="passive",
+        manufacturer="Yageo / Uniroyal / various",
+        description="100 ohm chip resistor, 0402, 1/16W, 1% tolerance",
+        specs={
+            "resistance": "100 ohm",
+            "tolerance": "1%",
+            "power_rating": "1/16 W",
+            "temperature_coefficient": "+/-100 ppm/C",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603", "0805"],
+        lcsc="C25076",
+        notes="Common for series termination, current limiting.",
+    ),
+    Component(
+        name="1K 0402 Resistor",
+        category="passive",
+        manufacturer="Yageo / Uniroyal / various",
+        description="1K ohm chip resistor, 0402, 1/16W, 1% tolerance",
+        specs={
+            "resistance": "1K ohm",
+            "tolerance": "1%",
+            "power_rating": "1/16 W",
+            "temperature_coefficient": "+/-100 ppm/C",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603", "0805"],
+        lcsc="C11702",
+        notes="LED current limiting (3.3V, 2V Vf: I = 1.3 mA), MOSFET gate pull-down.",
+    ),
+    Component(
+        name="47K 0402 Resistor",
+        category="passive",
+        manufacturer="Yageo / Uniroyal / various",
+        description="47K ohm chip resistor, 0402, 1/16W, 1% tolerance",
+        specs={
+            "resistance": "47K ohm",
+            "tolerance": "1%",
+            "power_rating": "1/16 W",
+            "temperature_coefficient": "+/-100 ppm/C",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603", "0805"],
+        lcsc="C25819",
+        notes="Weak pull-up/pull-down for low power applications, voltage dividers.",
+    ),
+    Component(
+        name="5.1K 0402 Resistor",
+        category="passive",
+        manufacturer="Yageo / Uniroyal / various",
+        description="5.1K ohm chip resistor, 0402, 1/16W, 1% tolerance",
+        specs={
+            "resistance": "5.1K ohm",
+            "tolerance": "1%",
+            "power_rating": "1/16 W",
+            "temperature_coefficient": "+/-100 ppm/C",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603", "0805"],
+        lcsc="C25905",
+        notes="Required USB-C CC1/CC2 pull-down resistor for device (UFP) identification.",
+    ),
+    Component(
+        name="22pF 0402 C0G Capacitor",
+        category="passive",
+        manufacturer="Samsung / Murata / various",
+        description="22pF ceramic capacitor, 0402, C0G/NP0 dielectric, 50V",
+        specs={
+            "capacitance": "22 pF",
+            "tolerance": "+/-5% (J code)",
+            "voltage_rating": "50V",
+            "dielectric": "C0G (NP0) — Class I, ultra-stable",
+            "temperature_coefficient": "+/-30 ppm/C",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603"],
+        lcsc="C1555",
+        notes="Crystal load capacitor for 8/16 MHz crystals. C0G has no voltage derating.",
+    ),
+    Component(
+        name="1uF 0402 X5R Capacitor",
+        category="passive",
+        manufacturer="Samsung / Murata / various",
+        description="1uF ceramic capacitor, 0402, X5R dielectric, 16V",
+        specs={
+            "capacitance": "1 uF",
+            "tolerance": "+/-20% (M code)",
+            "voltage_rating": "16V",
+            "dielectric": "X5R — Class II, good stability",
+            "package": "0402 (1005 metric)",
+        },
+        packages=["0402", "0603", "0805"],
+        lcsc="C52923",
+        notes="VDDA filtering, charge pump, local bypass for sensitive analog ICs.",
+    ),
+    Component(
+        name="22uF 0805 X5R Capacitor",
+        category="passive",
+        manufacturer="Samsung / Murata / various",
+        description="22uF ceramic capacitor, 0805, X5R dielectric, 6.3V",
+        specs={
+            "capacitance": "22 uF",
+            "tolerance": "+/-20% (M code)",
+            "voltage_rating": "6.3V",
+            "dielectric": "X5R — Class II",
+            "package": "0805 (2012 metric)",
+        },
+        packages=["0805", "1206"],
+        lcsc="C45783",
+        notes="USB VBUS decoupling, LDO output cap, bulk energy storage. DC bias derating applies.",
+    ),
+    Component(
+        name="10uH Inductor CDRH6D28",
+        category="passive",
+        manufacturer="Sumida / Wurth / various",
+        description="10uH shielded power inductor, 3A saturation, 50 mOhm DCR",
+        specs={
+            "inductance": "10 uH",
+            "saturation_current": "3 A",
+            "dcr": "50 mOhm",
+            "tolerance": "+/-20%",
+            "package": "6.3x6.3x3mm (SMD shielded)",
+        },
+        packages=["6.3x6.3x3mm"],
+        lcsc="C281149",
+        notes="Suitable for TPS54331, MP1584 buck converter designs.",
+    ),
+    # ===== Additional Interface ICs =====
+    Component(
+        name="CP2102N-A02-GQFN24",
+        category="interface",
+        manufacturer="Silicon Labs",
+        description="USB-to-UART bridge, CP2102N, up to 3 Mbps, QFN-24",
+        specs={
+            "interface": "USB 2.0 Full-speed to UART",
+            "baud_rate": "Up to 3 Mbps",
+            "data_bits": "5, 6, 7, 8",
+            "gpio_count": "7 (multi-function)",
+            "supply_voltage": "3.0V to 3.6V (or USB bus powered)",
+            "supply_current": "10 mA (active), 100 uA (suspend)",
+            "operating_temp": "-40 to 85 C",
+            "package": "QFN-24 (4x4mm)",
+        },
+        packages=["QFN-24 (4x4mm)", "QFN-28 (5x5mm)"],
+        interfaces=["USB", "UART"],
+        alternatives=["CH340G (cheaper)", "FT232RL (FTDI, higher cost)", "PL2303 (Prolific)"],
+        lcsc="C97490",
+    ),
+    Component(
+        name="SN65HVD230DR",
+        category="interface",
+        manufacturer="Texas Instruments",
+        description="CAN bus transceiver, 1 Mbps, 3.3V, SOIC-8",
+        specs={
+            "protocol": "CAN 2.0 (ISO 11898-2)",
+            "data_rate": "Up to 1 Mbps",
+            "supply_voltage": "3.0V to 3.6V",
+            "standby_current": "370 uA",
+            "bus_fault_protection": "+/-12V",
+            "nodes_on_bus": "Up to 120",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8"],
+        interfaces=["CAN"],
+        alternatives=["MCP2551 (5V version)", "TJA1050 (NXP)", "VP230 (TI, lower cost)"],
+        lcsc="C12084",
+    ),
+    Component(
+        name="W5500",
+        category="interface",
+        manufacturer="WIZnet",
+        description="Hardwired TCP/IP Ethernet controller, SPI, 10/100 Mbps, 8 sockets",
+        specs={
+            "protocol": "TCP, UDP, IPv4, ICMP, ARP, IGMP, PPPoE",
+            "sockets": "8 simultaneous",
+            "data_rate": "10/100 Mbps Ethernet",
+            "spi_clock": "Up to 80 MHz",
+            "buffer": "32 KB TX + 32 KB RX (configurable per socket)",
+            "supply_voltage": "3.3V",
+            "supply_current": "132 mA (active)",
+            "operating_temp": "-40 to 85 C",
+            "package": "LQFP-48",
+        },
+        packages=["LQFP-48", "QFN-48"],
+        interfaces=["SPI", "Ethernet"],
+        alternatives=["ENC28J60 (slower, cheaper)", "LAN8720 (PHY only, needs MAC)", "ESP32 (Wi-Fi)"],
+        lcsc="C32843",
+    ),
+    Component(
+        name="MAX485ESA+T",
+        category="interface",
+        manufacturer="Analog Devices (Maxim)",
+        description="RS-485/RS-422 transceiver, half-duplex, 2.5 Mbps, 5V",
+        specs={
+            "protocol": "RS-485 / RS-422",
+            "data_rate": "Up to 2.5 Mbps",
+            "supply_voltage": "4.75V to 5.25V",
+            "supply_current": "0.3 mA (shutdown), 0.9 mA (active)",
+            "nodes_on_bus": "Up to 32 unit loads",
+            "bus_fault_protection": "-7V to +12V",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8", "DIP-8"],
+        interfaces=["RS-485"],
+        alternatives=["SP3485 (3.3V)", "MAX3485 (3.3V)", "ISL3178 (wider fault protection)"],
+        lcsc="C9012",
+    ),
+    # ===== Additional Protection =====
+    Component(
+        name="PRTR5V0U2X",
+        category="protection",
+        manufacturer="NXP",
+        description="Ultra-low capacitance double ESD protection for USB 2.0 data lines",
+        specs={
+            "esd_rating": "+/-8 kV (contact), +/-15 kV (air gap)",
+            "clamping_voltage": "5.5V @ 1A (TLP)",
+            "line_capacitance": "0.35 pF (typ)",
+            "leakage_current": "50 nA (max)",
+            "standoff_voltage": "5.5V",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOT-143B",
+        },
+        packages=["SOT-143B"],
+        alternatives=["USBLC6-2SC6", "TPD2E009 (TI)", "IP4220CZ6 (NXP)"],
+        lcsc="C12332",
+    ),
+    Component(
+        name="SRV05-4-P-T7",
+        category="protection",
+        manufacturer="ProTek Devices",
+        description="5-line ESD protection, USB 2.0 and I/O, ultra-low capacitance",
+        specs={
+            "esd_rating": "+/-30 kV (air gap), +/-25 kV (contact)",
+            "clamping_voltage": "16V @ 8A",
+            "line_capacitance": "0.85 pF (typ)",
+            "standoff_voltage": "5V",
+            "lines": "4 I/O + 1 VCC",
+            "operating_temp": "-55 to 85 C",
+            "package": "SOT-23-6",
+        },
+        packages=["SOT-23-6"],
+        alternatives=["USBLC6-2SC6 (lower cap)", "TPD4E05U06 (TI, 4-line)"],
+        lcsc="C85364",
+    ),
+    # ===== Power Management =====
+    Component(
+        name="BQ24075RGTR",
+        category="charger",
+        manufacturer="Texas Instruments",
+        description="Li-Ion/Li-Po charger, USB-compatible, 1.5A, power path, QFN-16",
+        specs={
+            "chemistry": "Li-Ion / Li-Po (single cell 4.2V)",
+            "charge_current": "Up to 1.5 A (programmable via ISET resistor)",
+            "input_voltage": "4.35V to 6.5V (USB compatible)",
+            "charge_accuracy": "+/-0.5% (voltage)",
+            "power_path": "Yes (dynamic PPM, charges battery while powering system)",
+            "precharge_current": "10% of fast charge",
+            "termination_current": "10% of fast charge",
+            "supply_current": "1.4 mA (charging), 15 uA (standby)",
+            "operating_temp": "-40 to 85 C",
+            "package": "VQFN-16 (3.5x3.5mm)",
+        },
+        packages=["VQFN-16 (3.5x3.5mm)"],
+        alternatives=["MCP73871 (Microchip, power path)", "TP4056 (simpler, no power path)", "BQ25895 (buck-boost)"],
+        lcsc="C14879",
+    ),
+    Component(
+        name="TPS2113ADRBR",
+        category="power",
+        manufacturer="Texas Instruments",
+        description="Auto-switching power mux, 2 inputs, 3A, break-before-make, SOT-23-6",
+        specs={
+            "input_voltage": "2.8V to 5.5V (each input)",
+            "max_output_current": "3 A (continuous)",
+            "rds_on": "70 mOhm (per switch)",
+            "switchover_time": "<10 us (break-before-make)",
+            "quiescent_current": "55 uA",
+            "priority": "Configurable (IN1 preferred or auto-select highest)",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-23-6",
+        },
+        packages=["SOT-23-6"],
+        alternatives=["TPS2115A (auto-select)", "LTC4414 (power path controller)", "STMPS2141 (load switch)"],
+        lcsc="C151361",
+    ),
+    # ===== Motor Drivers =====
+    Component(
+        name="A4988SETTR-T",
+        category="motor_driver",
+        manufacturer="Allegro MicroSystems",
+        description="Bipolar stepper motor driver, 2A, microstepping, QFN-28",
+        specs={
+            "motor_type": "Bipolar stepper",
+            "output_current": "2 A (peak), 1 A (RMS per phase without heatsink)",
+            "supply_voltage": "8V to 35V (motor supply)",
+            "logic_voltage": "3.0V to 5.5V",
+            "microstepping": "Full, 1/2, 1/4, 1/8, 1/16",
+            "rds_on": "0.32 Ohm (high-side + low-side)",
+            "protection": "Overcurrent, thermal shutdown, undervoltage lockout",
+            "operating_temp": "-20 to 85 C",
+            "package": "QFN-28 (5x5mm)",
+        },
+        packages=["QFN-28 (5x5mm)"],
+        alternatives=["TMC2209 (quieter, StealthChop)", "DRV8825 (2.5A, 1/32 step)", "TMC2130 (SPI config)"],
+        lcsc="C89847",
+    ),
+    Component(
+        name="L298N",
+        category="motor_driver",
+        manufacturer="STMicroelectronics",
+        description="Dual full-bridge motor driver, 2A per bridge, 46V",
+        specs={
+            "motor_type": "DC motor (dual) or bipolar stepper (single)",
+            "output_current": "2 A per bridge (3 A peak)",
+            "supply_voltage": "4.5V to 46V (motor supply)",
+            "logic_voltage": "5V",
+            "saturation_drop": "1.7V (per transistor, total ~3.4V H-bridge)",
+            "protection": "Internal clamp diodes (but external freewheeling diodes recommended)",
+            "operating_temp": "-25 to 130 C",
+            "package": "Multiwatt-15 (through-hole)",
+        },
+        packages=["Multiwatt-15"],
+        alternatives=["DRV8833 (lower dropout, SMD)", "TB6612FNG (MOSFET, 1.2A)", "L9110S (cheaper, lower current)"],
+        lcsc="C10408",
+    ),
+    # ===== Wireless/RF =====
+    Component(
+        name="nRF24L01+",
+        category="rf",
+        manufacturer="Nordic Semiconductor",
+        description="2.4 GHz transceiver, SPI, 2 Mbps, ultra-low power",
+        specs={
+            "frequency": "2.4 GHz ISM band",
+            "data_rate": "250 kbps / 1 Mbps / 2 Mbps",
+            "output_power": "0 dBm (max)",
+            "sensitivity": "-94 dBm (at 250 kbps)",
+            "supply_voltage": "1.9V to 3.6V (5V tolerant I/O)",
+            "supply_current": "11.3 mA (TX 0 dBm), 13.5 mA (RX), 900 nA (power-down)",
+            "modulation": "GFSK",
+            "range": "~100m (line of sight, 250 kbps)",
+            "operating_temp": "-40 to 85 C",
+            "package": "QFN-20 (4x4mm)",
+        },
+        packages=["QFN-20 (4x4mm)", "Module (PCB antenna)"],
+        interfaces=["SPI"],
+        alternatives=["CC2500 (TI, 2.4 GHz)", "SX1276 (LoRa, longer range)", "ESP32 (Wi-Fi/BLE)"],
+        lcsc="C11537",
+    ),
+    Component(
+        name="RFM95W-868S2",
+        category="rf",
+        manufacturer="HopeRF",
+        description="LoRa transceiver module, 868 MHz, +20 dBm, SPI, based on SX1276",
+        specs={
+            "frequency": "868 MHz (EU ISM band)",
+            "modulation": "LoRa (CSS) + FSK + OOK",
+            "output_power": "+20 dBm (max, 100 mW)",
+            "sensitivity": "-148 dBm (LoRa, SF12, BW 7.8 kHz)",
+            "data_rate": "0.018 to 37.5 kbps (LoRa), up to 300 kbps (FSK)",
+            "supply_voltage": "1.8V to 3.7V",
+            "supply_current": "120 mA (TX +20 dBm), 12 mA (RX), 0.2 uA (sleep)",
+            "range": "2-15 km (LoRa, line of sight)",
+            "operating_temp": "-40 to 85 C",
+            "package": "Module (16x16mm)",
+        },
+        packages=["Module (16x16mm)"],
+        interfaces=["SPI"],
+        alternatives=["SX1276 (bare chip)", "RFM69HCW (FSK only, lower cost)", "E22-900T22S (UART module)"],
+        lcsc="C84806",
+    ),
+    # ===== Display ICs =====
+    Component(
+        name="ST7789V",
+        category="display",
+        manufacturer="Sitronix",
+        description="TFT LCD controller, 240x320, 262K colors, SPI/Parallel",
+        specs={
+            "resolution": "240 x 320 pixels",
+            "color_depth": "262K colors (18-bit), 65K (16-bit)",
+            "interface": "SPI (4-wire) or 8/9/16/18-bit parallel",
+            "spi_clock": "Up to 62.5 MHz (SPI write)",
+            "supply_voltage": "2.4V to 3.3V (I/O), 2.6V to 3.6V (analog)",
+            "supply_current": "2 mA (standby), ~15 mA (display on)",
+            "operating_temp": "-30 to 70 C",
+            "package": "On display module",
+        },
+        packages=["On module (commonly 1.3/1.54/2.0 inch TFT)"],
+        interfaces=["SPI", "Parallel"],
+        alternatives=["ILI9341 (320x240)", "ST7735 (128x160, smaller)", "GC9A01 (round, 240x240)"],
+        lcsc="C91437",
+    ),
+    Component(
+        name="ILI9341",
+        category="display",
+        manufacturer="ILITEK",
+        description="TFT LCD controller, 240x320, 262K colors, SPI/Parallel, with GRAM",
+        specs={
+            "resolution": "240 x 320 pixels (QVGA)",
+            "color_depth": "262K colors (18-bit)",
+            "interface": "SPI (serial) or 8/16/18-bit parallel",
+            "spi_clock": "Up to 10 MHz (SPI read), ~50 MHz (SPI write typical)",
+            "gram": "172,800 bytes internal display RAM",
+            "supply_voltage": "1.65V to 3.3V (I/O)",
+            "operating_temp": "-30 to 70 C",
+            "package": "On display module",
+        },
+        packages=["On module (commonly 2.4/2.8/3.2 inch TFT)"],
+        interfaces=["SPI", "Parallel"],
+        alternatives=["ST7789V (newer, faster SPI)", "HX8357 (480x320)", "RM68140"],
+        lcsc="C50169",
+    ),
+    # ===== Audio ICs =====
+    Component(
+        name="PCM5102A",
+        category="audio",
+        manufacturer="Texas Instruments",
+        description="32-bit stereo DAC, I2S, 112 dB SNR, no external components needed",
+        specs={
+            "resolution": "32-bit",
+            "sample_rate": "8 kHz to 384 kHz",
+            "snr": "112 dB (A-weighted)",
+            "thd": "-93 dB (typ)",
+            "dynamic_range": "112 dB",
+            "supply_voltage": "3.3V (digital and analog)",
+            "supply_current": "17 mA (typ)",
+            "output": "Line-level stereo (2.1 Vrms)",
+            "operating_temp": "-25 to 85 C",
+            "package": "TSSOP-20",
+        },
+        packages=["TSSOP-20"],
+        interfaces=["I2S"],
+        alternatives=["ES9018K2M (higher end)", "WM8960 (+ ADC + headphone amp)", "MAX98357 (I2S speaker amp)"],
+        lcsc="C39838",
+    ),
+    Component(
+        name="PAM8403",
+        category="audio",
+        manufacturer="Diodes Inc.",
+        description="3W stereo Class-D audio amplifier, filterless, 5V",
+        specs={
+            "channels": "2 (stereo)",
+            "output_power": "3W per channel @ 4 ohm, 5V",
+            "supply_voltage": "2.5V to 5.5V",
+            "supply_current": "10 mA (idle), no-load",
+            "thd": "10% @ 3W",
+            "efficiency": "90% (typ)",
+            "snr": "80 dB (typ)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOP-16",
+        },
+        packages=["SOP-16"],
+        alternatives=["MAX98357A (I2S input)", "TPA3116D2 (50W)", "NS4168 (mono, I2S)"],
+        lcsc="C26480",
+    ),
+    # ===== ADC/DAC =====
+    Component(
+        name="MCP3008-I/SL",
+        category="sensor",
+        manufacturer="Microchip",
+        description="10-bit ADC, 8 channels, SPI, 200 ksps",
+        specs={
+            "resolution": "10-bit",
+            "channels": "8 (single-ended) or 4 (differential)",
+            "sample_rate": "200 ksps",
+            "supply_voltage": "2.7V to 5.5V",
+            "supply_current": "0.5 mA (typ, 5V)",
+            "reference": "VDD (internal) or external",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-16",
+        },
+        packages=["SOIC-16", "DIP-16"],
+        interfaces=["SPI"],
+        alternatives=["ADS1115 (16-bit, I2C, slower)", "MCP3208 (12-bit)", "ADS7828 (12-bit, I2C, 8-ch)"],
+        lcsc="C55770",
+    ),
+    Component(
+        name="MCP4725A0T-E/CH",
+        category="sensor",
+        manufacturer="Microchip",
+        description="12-bit DAC, I2C, single channel, with EEPROM",
+        specs={
+            "resolution": "12-bit",
+            "channels": "1",
+            "i2c_address": "0x60 (A0=GND) or 0x61 (A0=VCC)",
+            "output": "Voltage output (0 to VDD), 25 mA source",
+            "settling_time": "6 us (typ)",
+            "supply_voltage": "2.7V to 5.5V",
+            "supply_current": "210 uA (typ)",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-23-6",
+        },
+        packages=["SOT-23-6"],
+        interfaces=["I2C"],
+        alternatives=["MCP4728 (4-ch, 12-bit)", "DAC8571 (16-bit, TI)", "AD5693R (16-bit, ADI)"],
+        lcsc="C61423",
+    ),
+    # ===== Additional Memory =====
+    Component(
+        name="AT24C256C-SSHL-T",
+        category="memory",
+        manufacturer="Microchip",
+        description="256 Kbit (32 KB) I2C EEPROM, 1 MHz, 1M write cycles",
+        specs={
+            "capacity": "256 Kbit (32 KB)",
+            "interface": "I2C (up to 1 MHz)",
+            "i2c_address": "0x50-0x57 (A0/A1/A2 pins)",
+            "page_size": "64 bytes",
+            "write_cycle_time": "5 ms",
+            "endurance": "1,000,000 write cycles",
+            "data_retention": "100 years at 25 C",
+            "supply_voltage": "1.7V to 5.5V",
+            "supply_current": "2 mA (active), 1 uA (standby)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8", "SOT-23-5 (AT24C256C-MAHL-T)"],
+        interfaces=["I2C"],
+        alternatives=["W25Q128 (SPI Flash, 16 MB)", "CAT24C256 (ON Semi)", "FM24CL64B (FRAM, faster write)"],
+        lcsc="C6482",
+    ),
+    Component(
+        name="IS62WV6416DBLL-55TLI",
+        category="memory",
+        manufacturer="ISSI",
+        description="1 Mbit (64K x 16) SRAM, 55 ns, parallel interface",
+        specs={
+            "capacity": "1 Mbit (64K x 16-bit words = 128 KB)",
+            "interface": "Parallel (16-bit data, 16-bit address)",
+            "access_time": "55 ns",
+            "supply_voltage": "2.4V to 3.6V",
+            "supply_current": "18 mA (active), 4 uA (standby)",
+            "operating_temp": "-40 to 85 C",
+            "package": "TSOP-44",
+        },
+        packages=["TSOP-44"],
+        alternatives=["IS62WV12816 (2 Mbit)", "CY7C1041G (4 Mbit)", "PSRAM (QSPI, higher density)"],
+        lcsc="C32671",
+    ),
+    # ===== Additional Connectors =====
+    Component(
+        name="Micro SD Card Socket (push-push)",
+        category="connector",
+        manufacturer="Various (TE, Molex, Hirose)",
+        description="Micro SD card socket, push-push, SMD, with card detect",
+        specs={
+            "type": "Micro SD (TF card) push-push ejection",
+            "contacts": "8 (plus 1-2 card detect and/or write protect)",
+            "interface": "SPI or SDIO (4-bit)",
+            "voltage": "3.3V logic levels",
+            "current_rating": "0.5 A per contact",
+            "insertion_force": "3.5 N (max)",
+            "operating_temp": "-25 to 85 C",
+            "package": "SMD",
+        },
+        packages=["SMD"],
+        interfaces=["SPI", "SDIO"],
+        lcsc="C91145",
+    ),
+    Component(
+        name="SMA Connector (edge-mount)",
+        category="connector",
+        manufacturer="Various",
+        description="SMA female edge-mount PCB connector, 50 ohm, 6 GHz",
+        specs={
+            "type": "SMA female (jack), edge-mount",
+            "impedance": "50 ohm",
+            "frequency_range": "DC to 6 GHz",
+            "vswr": "1.3:1 (max, to 6 GHz)",
+            "current_rating": "1 A (center contact)",
+            "voltage_rating": "500 V (peak)",
+            "package": "Through-hole + SMD tabs",
+        },
+        packages=["Edge-mount PCB"],
+        lcsc="C88374",
+    ),
+    # ===== Additional Logic ICs =====
+    Component(
+        name="CD4051BE",
+        category="analog_switch",
+        manufacturer="TI / NXP / ON Semi",
+        description="8-channel analog multiplexer/demultiplexer, single-supply",
+        specs={
+            "channels": "8:1 (single-pole, 8-throw)",
+            "on_resistance": "120 Ohm (typ at VDD=5V)",
+            "supply_voltage": "3V to 20V (VDD-VSS max 20V)",
+            "signal_range": "VSS to VDD (analog signal range)",
+            "supply_current": "0.2 uA (quiescent)",
+            "bandwidth": "~10 MHz (-3 dB)",
+            "operating_temp": "-55 to 125 C",
+            "package": "DIP-16 / SOIC-16",
+        },
+        packages=["DIP-16", "SOIC-16", "TSSOP-16"],
+        alternatives=["CD4052 (dual 4:1)", "CD4053 (triple 2:1)", "ADG708 (analog mux, lower Ron)"],
+        lcsc="C176372",
+    ),
+    Component(
+        name="SN74LVC1T45DCKR",
+        category="level_shifter",
+        manufacturer="Texas Instruments",
+        description="Single-bit bidirectional voltage level translator, SOT-363",
+        specs={
+            "channels": "1 (bidirectional)",
+            "port_a_voltage": "1.65V to 3.6V",
+            "port_b_voltage": "2.3V to 5.5V",
+            "data_rate": "Up to 420 Mbps",
+            "propagation_delay": "1.8 ns (typ)",
+            "supply_current": "5 uA (quiescent)",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-363 (SC-70-6)",
+        },
+        packages=["SOT-363"],
+        alternatives=["TXB0101 (auto-direction)", "SN74LVC2T45 (dual)", "BSS138 (discrete, slower)"],
+        lcsc="C7843",
+    ),
+    Component(
+        name="PCA9685PW",
+        category="logic",
+        manufacturer="NXP",
+        description="16-channel 12-bit PWM driver, I2C, for LEDs and servos",
+        specs={
+            "channels": "16 (independently controllable)",
+            "resolution": "12-bit (4096 steps per channel)",
+            "pwm_frequency": "24 Hz to 1526 Hz (programmable)",
+            "i2c_address": "0x40-0x7F (62 addresses via A0-A5)",
+            "supply_voltage": "2.3V to 5.5V",
+            "output_current": "25 mA per pin (sink), 10 mA (source)",
+            "supply_current": "6 mA (typ, all channels on)",
+            "operating_temp": "-40 to 85 C",
+            "package": "TSSOP-28",
+        },
+        packages=["TSSOP-28"],
+        interfaces=["I2C"],
+        alternatives=["TLC5947 (24-ch, SPI, constant current)", "IS31FL3731 (matrix LED driver)"],
+        lcsc="C78616",
+    ),
+    # ===== Additional Power Components =====
+    Component(
+        name="SS34",
+        category="protection",
+        manufacturer="Various",
+        description="3A 40V Schottky barrier rectifier diode, SMA package",
+        specs={
+            "type": "Schottky rectifier",
+            "max_reverse_voltage": "40V",
+            "forward_current": "3 A",
+            "forward_voltage_drop": "0.5V @ 3A",
+            "reverse_leakage": "0.5 mA @ 40V",
+            "operating_temp": "-65 to 125 C",
+            "package": "SMA (DO-214AC)",
+        },
+        packages=["SMA (DO-214AC)"],
+        alternatives=["SS14 (1A 40V)", "SS54 (5A 40V)", "MBR340 (3A 40V, through-hole)"],
+        lcsc="C8678",
+    ),
+    Component(
+        name="BAT54S",
+        category="protection",
+        manufacturer="NXP / ON Semi / various",
+        description="Dual series Schottky diode, 30V, 200mA, SOT-23",
+        specs={
+            "type": "Dual Schottky diode (series connection, common cathode)",
+            "max_reverse_voltage": "30V",
+            "forward_current": "200 mA",
+            "forward_voltage_drop": "0.24V @ 0.1 mA, 0.8V @ 200 mA",
+            "reverse_leakage": "2 uA @ 25V",
+            "operating_temp": "-65 to 125 C",
+            "package": "SOT-23",
+        },
+        packages=["SOT-23"],
+        alternatives=["BAT54 (single)", "BAT54C (common cathode)", "1N5819 (1A, through-hole)"],
+        lcsc="C84653",
+    ),
+    # ===== More Sensors =====
+    Component(
+        name="MAX30102",
+        category="sensor",
+        manufacturer="Analog Devices (Maxim)",
+        description="Pulse oximetry and heart rate sensor, I2C, integrated LEDs and photodetector",
+        specs={
+            "measurement": "SpO2 (pulse oximetry) and heart rate",
+            "led_wavelength": "Red (660 nm) + IR (880 nm)",
+            "resolution": "18-bit ADC",
+            "sample_rate": "50 to 3200 samples/s",
+            "i2c_address": "0x57 (fixed)",
+            "supply_voltage": "1.8V (I/O) + 3.3V (LED)",
+            "supply_current": "600 uA (measurement), 0.7 uA (shutdown)",
+            "operating_temp": "-40 to 85 C",
+            "package": "OLGA-14 (5.6x3.3mm)",
+        },
+        packages=["OLGA-14 (5.6x3.3mm)"],
+        interfaces=["I2C"],
+        alternatives=["MAX30101 (green LED + IR + red)", "MAX86150 (ECG + PPG)"],
+        lcsc="C130789",
+    ),
+    Component(
+        name="APDS-9960",
+        category="sensor",
+        manufacturer="Broadcom (Avago)",
+        description="Gesture, proximity, ambient light, and color (RGBC) sensor, I2C",
+        specs={
+            "measurement": "Gesture detection, proximity, ambient light, RGBC color",
+            "gesture_range": "Up to 30 cm",
+            "proximity_range": "Up to 20 cm",
+            "light_range": "0 to 37,889 lux",
+            "i2c_address": "0x39 (fixed)",
+            "supply_voltage": "2.4V to 3.6V",
+            "supply_current": "170 uA (gesture), 790 uA (proximity), 2 uA (wait/sleep)",
+            "operating_temp": "-40 to 85 C",
+            "package": "Dual flat lead, 8-pin (3.94x2.36mm)",
+        },
+        packages=["DFN-8 (3.94x2.36mm)"],
+        interfaces=["I2C"],
+        alternatives=["VEML7700 (light only)", "VL53L0X (ToF ranging)", "PAJ7620U2 (gesture)"],
+        lcsc="C88327",
+    ),
+    Component(
+        name="TSL2591",
+        category="sensor",
+        manufacturer="AMS-OSRAM",
+        description="High dynamic range light sensor, I2C, 600M:1 lux range",
+        specs={
+            "measurement_range": "188 ulux to 88,000 lux",
+            "dynamic_range": "600,000,000:1",
+            "channels": "Full spectrum (visible + IR) + IR only",
+            "i2c_address": "0x29 (fixed)",
+            "supply_voltage": "3.3V (typ)",
+            "supply_current": "0.4 mA (active), 0.3 uA (sleep)",
+            "operating_temp": "-30 to 80 C",
+            "package": "DFN-6 (2x2.4mm)",
+        },
+        packages=["DFN-6 (2x2.4mm)"],
+        interfaces=["I2C"],
+        alternatives=["BH1750 (cheaper, lower range)", "VEML7700 (Vishay)", "OPT3001 (TI, human eye response)"],
+        lcsc="C183299",
+    ),
+    Component(
+        name="HX711",
+        category="sensor",
+        manufacturer="Avia Semiconductor",
+        description="24-bit ADC for load cells (Wheatstone bridge), 80 Hz",
+        specs={
+            "resolution": "24-bit",
+            "channels": "2 (CH_A: gain 128 or 64, CH_B: gain 32)",
+            "sample_rate": "10 Hz or 80 Hz (selectable)",
+            "input_voltage": "Differential, +/-20 mV (gain 128) or +/-40 mV (gain 64)",
+            "supply_voltage": "2.6V to 5.5V (analog), 2.6V to 5.5V (digital)",
+            "supply_current": "1.5 mA (normal), 1 uA (power-down)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOP-16",
+        },
+        packages=["SOP-16"],
+        interfaces=["Custom serial (DOUT + SCK, NOT SPI)"],
+        alternatives=["ADS1232 (TI, 24-bit, SPI)", "NAU7802 (Nuvoton, I2C)", "CS5532 (Cirrus)"],
+        lcsc="C44616",
+    ),
+    Component(
+        name="AS5600-ASOM",
+        category="sensor",
+        manufacturer="AMS-OSRAM",
+        description="12-bit magnetic rotary position sensor (encoder), I2C, contactless",
+        specs={
+            "resolution": "12-bit (4096 positions per revolution)",
+            "accuracy": "+/-1 degree (after calibration)",
+            "output": "I2C (12-bit angle) + analog (0-100% VDD) + PWM",
+            "i2c_address": "0x36 (fixed)",
+            "magnet": "Diametrically magnetized (6mm recommended)",
+            "supply_voltage": "3.0V to 3.6V",
+            "supply_current": "6.5 mA (typ)",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOIC-8",
+        },
+        packages=["SOIC-8"],
+        interfaces=["I2C", "Analog", "PWM"],
+        alternatives=["TLE5012B (Infineon, SPI, 15-bit)", "MT6701 (MagnTek, cheaper)", "MA730 (14-bit, SPI)"],
+        lcsc="C183783",
+    ),
+    # ===== Timers & Misc =====
+    Component(
+        name="DS3231SN#",
+        category="timer",
+        manufacturer="Analog Devices (Maxim)",
+        description="I2C real-time clock (RTC), TCXO, +/-2 ppm accuracy, SOIC-16",
+        specs={
+            "accuracy": "+/-2 ppm (0 to 40 C), +/-3.5 ppm (-40 to 85 C)",
+            "timekeeping": "Seconds, minutes, hours, day, date, month, year (with leap year)",
+            "alarms": "2 programmable alarms",
+            "oscillator": "Internal 32.768 kHz TCXO (no external crystal)",
+            "i2c_address": "0x68 (fixed)",
+            "supply_voltage": "2.3V to 5.5V",
+            "battery_backup": "Yes (VBAT pin for CR2032)",
+            "supply_current": "200 uA (active), 3 uA (battery timekeeping)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOIC-16W",
+        },
+        packages=["SOIC-16W"],
+        interfaces=["I2C"],
+        alternatives=["DS1307 (cheaper, lower accuracy)", "PCF8563 (NXP, I2C)", "RV-3028 (MicroCrystal, ultra-low power)"],
+        lcsc="C9868",
+    ),
+    Component(
+        name="MCP23017-E/SS",
+        category="logic",
+        manufacturer="Microchip",
+        description="16-bit I/O expander, I2C, with interrupt output",
+        specs={
+            "channels": "16 GPIO (2x 8-bit ports)",
+            "i2c_address": "0x20-0x27 (A0/A1/A2 pins)",
+            "output_current": "25 mA per pin (sink or source)",
+            "supply_voltage": "1.8V to 5.5V",
+            "supply_current": "1 mA (active), 1 uA (standby)",
+            "features": "Internal pull-ups, interrupt on change, polarity inversion",
+            "i2c_speed": "Up to 1.7 MHz",
+            "operating_temp": "-40 to 85 C",
+            "package": "SSOP-28",
+        },
+        packages=["SSOP-28", "DIP-28", "QFN-28"],
+        interfaces=["I2C"],
+        alternatives=["PCF8574 (8-bit, simpler)", "MCP23S17 (SPI version)", "PCA9555 (NXP, 16-bit)"],
+        lcsc="C47023",
+    ),
+    Component(
+        name="TCA9548APWR",
+        category="logic",
+        manufacturer="Texas Instruments",
+        description="8-channel I2C multiplexer, 400 kHz, low voltage",
+        specs={
+            "channels": "8 (downstream I2C buses)",
+            "i2c_address": "0x70-0x77 (A0/A1/A2 pins)",
+            "supply_voltage": "1.65V to 5.5V",
+            "supply_current": "10 uA (typ)",
+            "i2c_speed": "Up to 400 kHz",
+            "features": "Active-low reset, interrupt output",
+            "operating_temp": "-40 to 85 C",
+            "package": "TSSOP-24",
+        },
+        packages=["TSSOP-24", "QFN-24"],
+        interfaces=["I2C"],
+        alternatives=["TCA9548A (same die)", "PCA9548 (NXP)", "PCA9546A (4-ch)"],
+        lcsc="C130026",
+    ),
+    # ===== Additional LEDs =====
+    Component(
+        name="SK6812MINI-E",
+        category="led",
+        manufacturer="Opsco/Worldsemi",
+        description="Addressable RGBW LED, 3535 reverse-mount, WS2812B-compatible protocol",
+        specs={
+            "type": "RGBW addressable LED (4-channel)",
+            "data_rate": "800 kHz (NRZ protocol, WS2812-compatible)",
+            "supply_voltage": "3.7V to 5.3V",
+            "supply_current": "~60 mA (all white full brightness)",
+            "color_depth": "8-bit per channel (256 levels x 4 = 4 billion colors)",
+            "viewing_angle": "120 degrees",
+            "package": "3535 reverse-mount (solder pads on bottom)",
+        },
+        packages=["3535 reverse-mount"],
+        alternatives=["WS2812B (RGB only)", "APA102 (SPI, higher refresh)", "SK6812 (standard mount)"],
+        lcsc="C5149201",
+    ),
+    Component(
+        name="APA102-2020",
+        category="led",
+        manufacturer="Shenzhen LED Color",
+        description="Addressable RGB LED, 2020 package, SPI interface, 20 MHz refresh",
+        specs={
+            "type": "RGB addressable LED (SPI — separate clock + data)",
+            "data_rate": "Up to 20 MHz SPI clock",
+            "supply_voltage": "3.3V to 5.5V",
+            "supply_current": "~40 mA (all white full brightness)",
+            "color_depth": "8-bit per channel + 5-bit global brightness",
+            "refresh_rate": "Up to 20 kHz (flicker-free for cameras)",
+            "package": "2020 (2x2mm)",
+        },
+        packages=["2020"],
+        interfaces=["SPI (clock + data)"],
+        alternatives=["WS2812B (single-wire, cheaper)", "SK9822 (APA102 clone)", "SK6812 (single-wire)"],
+        lcsc="C2917362",
+    ),
+    # ===== Power Switches =====
+    Component(
+        name="AP22804AW5-7",
+        category="power",
+        manufacturer="Diodes Inc.",
+        description="Load switch, 2.1A, active-low enable, over-current protection, SOT-25",
+        specs={
+            "max_output_current": "2.1 A (continuous)",
+            "input_voltage": "2.5V to 5.5V",
+            "rds_on": "90 mOhm (typ)",
+            "enable": "Active-low",
+            "current_limit": "2.1 A (typ)",
+            "quiescent_current": "0.4 uA (disabled), 55 uA (enabled)",
+            "operating_temp": "-40 to 85 C",
+            "package": "SOT-25 (SOT-23-5)",
+        },
+        packages=["SOT-25"],
+        alternatives=["TPS2041B (TI, USB switch)", "STMPS2151 (STM, 500mA)", "SY6280 (Silergy)"],
+        lcsc="C176295",
+    ),
+    Component(
+        name="TPS22918DBVR",
+        category="power",
+        manufacturer="Texas Instruments",
+        description="Load switch, 2A, ultra-low Rds(on), controlled rise time, SOT-23-6",
+        specs={
+            "max_output_current": "2 A",
+            "input_voltage": "1.0V to 5.5V",
+            "rds_on": "52 mOhm (at 3.6V VIN)",
+            "rise_time": "Configurable (500 us typ with CT cap)",
+            "quiescent_current": "0.6 uA (disabled), 18 uA (enabled)",
+            "features": "Quick output discharge, configurable rise time",
+            "operating_temp": "-40 to 125 C",
+            "package": "SOT-23-6",
+        },
+        packages=["SOT-23-6"],
+        alternatives=["AP22804 (current limit)", "SLG59M1515V (Dialog)", "RT9742 (Richtek, 2A)"],
+        lcsc="C96320",
+    ),
 ]
 
 
@@ -3881,6 +5575,612 @@ def generate_application_qa(components: list[Component]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# High-volume combinatorial generators
+# ---------------------------------------------------------------------------
+
+
+def generate_use_case_qa(components: list[Component]) -> list[dict]:
+    """Generate 'Can I use X for Y?' and 'Which component for Y?' Q&A pairs."""
+    pairs = []
+
+    use_cases_by_category = {
+        "mcu": [
+            ("a battery-powered sensor node", lambda c: "low" in c.specs.get("supply_current", "").lower() or "ultra" in c.description.lower() or "M0" in c.specs.get("core", "")),
+            ("a motor control application", lambda c: "can" in " ".join(c.interfaces).lower() or "motor" in c.description.lower() or "pwm" in c.description.lower() or "fdcan" in " ".join(c.interfaces).lower()),
+            ("a USB HID device (keyboard/mouse)", lambda c: "usb" in " ".join(c.interfaces).lower()),
+            ("a Wi-Fi IoT project", lambda c: "wi-fi" in " ".join(c.interfaces).lower() or "wifi" in " ".join(c.interfaces).lower()),
+            ("a Bluetooth Low Energy wearable", lambda c: "ble" in " ".join(c.interfaces).lower() or "bluetooth" in " ".join(c.interfaces).lower()),
+            ("real-time audio processing", lambda c: "i2s" in " ".join(c.interfaces).lower() or "dsp" in c.description.lower()),
+            ("a beginner Arduino-style project", lambda c: "avr" in c.specs.get("core", "").lower() or "arduino" in c.description.lower() or c.name == "ATmega328P-AU"),
+            ("running FreeRTOS with a TCP/IP stack", lambda c: int(c.specs.get("flash", "0").split()[0]) >= 128 if c.specs.get("flash", "").split() else False),
+            ("a CAN bus automotive application", lambda c: "can" in " ".join(c.interfaces).lower()),
+            ("high-speed data acquisition", lambda c: "adc" in c.description.lower() or int(c.specs.get("max_frequency", "0").split()[0]) >= 100 if c.specs.get("max_frequency", "").split() else False),
+        ],
+        "regulator": [
+            ("powering an ESP32 from a Li-Ion battery (3.0-4.2V)", lambda c: "3.3" in c.specs.get("output_voltage", "") and "ldo" in c.description.lower()),
+            ("a 12V to 5V conversion at 2A", lambda c: "12" in c.specs.get("input_voltage", "") or "28" in c.specs.get("input_voltage", "") or "36" in c.specs.get("input_voltage", "")),
+            ("a noise-sensitive analog circuit", lambda c: "noise" in c.description.lower() or "noise" in str(c.specs)),
+            ("a battery-powered device needing minimal quiescent current", lambda c: "ua" in c.specs.get("quiescent_current", "").lower()),
+            ("powering 3.3V logic from a 5V USB supply", lambda c: "3.3" in c.specs.get("output_voltage", "")),
+        ],
+        "opamp": [
+            ("an audio preamplifier circuit", lambda c: "audio" in c.description.lower() or float(c.specs.get("gbw", "0").split()[0]) >= 10 if c.specs.get("gbw", "").split() else False),
+            ("a precision voltage reference buffer", lambda c: "low" in c.specs.get("input_offset_voltage", "").lower() or "precision" in c.description.lower()),
+            ("a battery-powered sensor signal conditioning", lambda c: "rail" in c.description.lower() or "rrio" in c.description.lower() or "cmos" in c.description.lower()),
+            ("an active filter at 100 kHz", lambda c: float(c.specs.get("gbw", "0").split()[0]) >= 1 if c.specs.get("gbw", "").split() else False),
+        ],
+        "mosfet": [
+            ("switching a 12V LED strip from a 3.3V MCU", lambda c: "n-channel" in c.specs.get("type", "").lower() and float(c.specs.get("vgs_threshold", "99").split("V")[0].split()[-1].replace("(", "")) <= 2.0 if c.specs.get("vgs_threshold") else False),
+            ("reverse polarity protection", lambda c: "p-channel" in c.specs.get("type", "").lower()),
+            ("a high-current motor driver H-bridge", lambda c: "n-channel" in c.specs.get("type", "").lower() and "to-220" in c.specs.get("package", "").lower()),
+            ("a logic-level load switch", lambda c: "logic" in c.specs.get("type", "").lower() or "logic" in c.description.lower()),
+            ("level shifting with a discrete MOSFET", lambda c: c.name in ("BSS138", "2N7002")),
+        ],
+        "sensor": [
+            ("a weather station (temperature, humidity, pressure)", lambda c: "bme" in c.name.lower() or ("temperature" in c.description.lower() and "humidity" in c.description.lower())),
+            ("a drone flight controller (IMU)", lambda c: "accelero" in c.description.lower() or "gyro" in c.description.lower() or "imu" in c.description.lower()),
+            ("measuring battery current consumption", lambda c: "current" in c.description.lower() or "ina" in c.name.lower()),
+            ("a precision temperature measurement (+/-0.1C)", lambda c: "tmp117" in c.name.lower() or "0.1" in c.specs.get("temperature_accuracy", "")),
+            ("a digital scale / load cell project", lambda c: "load" in c.description.lower() or "hx711" in c.name.lower()),
+            ("measuring light levels for auto-brightness", lambda c: "light" in c.description.lower() or "lux" in c.description.lower()),
+            ("a contactless rotary encoder (knob)", lambda c: "rotary" in c.description.lower() or "magnetic" in c.description.lower()),
+        ],
+    }
+
+    for comp in components:
+        cat_uses = use_cases_by_category.get(comp.category, [])
+        for use_case, matcher in cat_uses:
+            try:
+                is_suitable = matcher(comp)
+            except (ValueError, IndexError, TypeError, AttributeError):
+                is_suitable = False
+
+            q = f"Can I use the {comp.name} for {use_case}?"
+            if is_suitable:
+                a = f"Yes, the {comp.name} is suitable for {use_case}. "
+                a += f"It is a {comp.description}."
+                key_specs = [f"- {k.replace('_', ' ').title()}: {v}" for k, v in list(comp.specs.items())[:5]]
+                if key_specs:
+                    a += "\n\nRelevant specs:\n" + "\n".join(key_specs)
+                if comp.lcsc:
+                    a += f"\n\nLCSC: {comp.lcsc}"
+            else:
+                a = f"The {comp.name} may not be the best choice for {use_case}. "
+                a += f"It is a {comp.description}. "
+                # Find a better alternative from the same category
+                better = [c for c in components if c.category == comp.category and c.name != comp.name]
+                for alt in better:
+                    try:
+                        if matcher(alt):
+                            a += f"Consider the {alt.name} instead ({alt.description})."
+                            break
+                    except (ValueError, IndexError, TypeError, AttributeError):
+                        continue
+                else:
+                    a += "Check the specific requirements against the component's datasheet."
+
+            pairs.append(msg(q, a))
+
+    return pairs
+
+
+def generate_interface_qa(components: list[Component]) -> list[dict]:
+    """Generate Q&A about connecting components together."""
+    pairs = []
+
+    # For each sensor/peripheral with I2C, generate connection questions
+    for comp in components:
+        if "I2C" in comp.interfaces and comp.category in ("sensor", "memory", "display", "logic", "timer"):
+            for mcu in components:
+                if mcu.category != "mcu":
+                    continue
+                if "I2C" not in mcu.interfaces:
+                    continue
+                # Only generate for a subset to avoid explosion
+                if hash(comp.name + mcu.name) % 3 != 0:
+                    continue
+
+                q = f"How do I connect the {comp.name} to the {mcu.name} via I2C?"
+                a = f"To connect the {comp.name} to the {mcu.name} via I2C:\n\n"
+                a += f"**Wiring**:\n"
+                a += f"- {comp.name} SDA -> {mcu.name} SDA pin\n"
+                a += f"- {comp.name} SCL -> {mcu.name} SCL pin\n"
+                a += f"- {comp.name} VCC -> {comp.specs.get('supply_voltage', '3.3V').split('to')[-1].strip().split('(')[0].strip() if 'to' in comp.specs.get('supply_voltage', '') else '3.3V'}\n"
+                a += f"- {comp.name} GND -> GND\n"
+                a += f"- Pull-up resistors: 4.7K to VCC on SDA and SCL\n\n"
+                if comp.specs.get("i2c_address"):
+                    a += f"**I2C Address**: {comp.specs['i2c_address']}\n"
+                mcu_voltage = mcu.specs.get("supply_voltage", "")
+                comp_voltage = comp.specs.get("supply_voltage", "")
+                if mcu_voltage and comp_voltage:
+                    a += f"\n**Voltage compatibility**: {mcu.name} operates at {mcu_voltage}, {comp.name} operates at {comp_voltage}. "
+                    if "5" in mcu_voltage and "3.6" in comp_voltage:
+                        a += "You may need a level shifter if the MCU I/O is 5V."
+                    else:
+                        a += "These should be directly compatible at 3.3V."
+
+                pairs.append(msg(q, a))
+
+        # SPI connections
+        if "SPI" in comp.interfaces and comp.category in ("sensor", "memory", "display", "rf"):
+            for mcu in components:
+                if mcu.category != "mcu":
+                    continue
+                if "SPI" not in mcu.interfaces:
+                    continue
+                if hash(comp.name + mcu.name + "spi") % 5 != 0:
+                    continue
+
+                q = f"How do I connect the {comp.name} to the {mcu.name} via SPI?"
+                a = f"To connect the {comp.name} to the {mcu.name} via SPI:\n\n"
+                a += f"**Wiring**:\n"
+                a += f"- {comp.name} MOSI (SDI/DIN) -> {mcu.name} SPI MOSI\n"
+                a += f"- {comp.name} MISO (SDO/DOUT) -> {mcu.name} SPI MISO\n"
+                a += f"- {comp.name} SCK (SCLK) -> {mcu.name} SPI SCK\n"
+                a += f"- {comp.name} CS (NSS/SS) -> {mcu.name} GPIO (any available)\n"
+                a += f"- {comp.name} VCC -> 3.3V\n"
+                a += f"- {comp.name} GND -> GND\n\n"
+                a += f"**Notes**: Configure the {mcu.name} SPI peripheral for the correct mode (check {comp.name} datasheet for CPOL/CPHA)."
+                if comp.specs.get("spi_clock"):
+                    a += f" Maximum SPI clock: {comp.specs['spi_clock']}."
+                pairs.append(msg(q, a))
+
+    return pairs
+
+
+def generate_power_budget_qa(components: list[Component]) -> list[dict]:
+    """Generate power budget / consumption Q&A pairs."""
+    pairs = []
+
+    for comp in components:
+        current = comp.specs.get("supply_current") or comp.specs.get("quiescent_current")
+        voltage = comp.specs.get("supply_voltage", "")
+        if not current:
+            continue
+
+        q = f"What is the power consumption of the {comp.name}?"
+        a = f"The {comp.name} ({comp.description}) has the following power characteristics:\n\n"
+        a += f"- Supply voltage: {voltage}\n" if voltage else ""
+        a += f"- Current consumption: {current}\n"
+        if comp.specs.get("quiescent_current"):
+            a += f"- Quiescent/standby current: {comp.specs['quiescent_current']}\n"
+
+        # Estimate power
+        a += f"\nThis information is important for battery life calculations and power supply sizing."
+        if comp.lcsc:
+            a += f"\nLCSC: {comp.lcsc}"
+
+        pairs.append(msg(q, a))
+
+        # Sleep mode question for MCUs
+        if comp.category == "mcu" and comp.specs.get("supply_current"):
+            q2 = f"What is the sleep mode current of the {comp.name}?"
+            a2 = f"The {comp.name} current consumption details: {comp.specs.get('supply_current', 'Check datasheet')}. "
+            a2 += f"Supply voltage range: {voltage}. "
+            a2 += "For battery life estimation: Battery_capacity_mAh / sleep_current_mA = hours of standby. "
+            a2 += "A CR2032 (220 mAh) at 1 uA sleep current would last ~25 years theoretically (limited by self-discharge to ~5-8 years)."
+            pairs.append(msg(q2, a2))
+
+    return pairs
+
+
+def generate_package_qa(components: list[Component]) -> list[dict]:
+    """Generate package selection and soldering Q&A."""
+    pairs = []
+
+    soldering_difficulty = {
+        "SOT-23": ("easy", "Beginner-friendly SMD. 3 large pads, 0.95mm pitch. Hand-solderable with a standard iron and flux."),
+        "SOT-23-5": ("easy", "Very manageable SMD. 5 pads, 0.95mm pitch. Use flux and drag-soldering technique."),
+        "SOT-23-6": ("easy", "Similar to SOT-23-5. 6 pads, 0.95mm pitch."),
+        "SOIC-8": ("easy", "Great for beginners. Large pads, 1.27mm pitch. Easy drag soldering."),
+        "SOIC-16": ("easy", "Easy SMD, just more pins than SOIC-8. 1.27mm pitch. Drag solder with flux."),
+        "TSSOP": ("medium", "Moderate difficulty. 0.65mm pitch requires flux, fine tip, and steady hand. Magnification helps."),
+        "LQFP-48": ("medium", "Moderate. 0.5mm pitch, requires flux, thin solder, and patience. Check for bridges with magnification."),
+        "LQFP-64": ("medium", "Same as LQFP-48 but more pins. Drag soldering technique with plenty of flux."),
+        "QFN": ("hard", "Challenging. Pads are under the chip — requires hot air or reflow. Exposed pad needs solder paste and proper thermal connection."),
+        "DFN": ("hard", "Similar to QFN. Pads hidden underneath. Hot air or oven reflow required."),
+        "WLCSP": ("very hard", "Wafer-level chip-scale package. BGA-style balls, requires reflow oven. Not hand-solderable."),
+        "BGA": ("very hard", "Requires reflow oven or professional hot air setup. X-ray inspection recommended."),
+        "0402": ("medium", "Small (1.0 x 0.5mm). Needs fine tweezers, flux, and magnification. Not for beginners."),
+        "0603": ("easy", "Good SMD starting point (1.6 x 0.8mm). Hand-solderable with a fine tip."),
+        "0805": ("easy", "Easy to hand-solder (2.0 x 1.25mm). Great for prototyping."),
+        "DIP": ("very easy", "Through-hole, perfect for breadboards and beginners. Just insert and solder."),
+        "TO-220": ("very easy", "Large through-hole power package. Easy to solder, supports heatsinks."),
+    }
+
+    for comp in components:
+        if not comp.packages:
+            continue
+
+        for pkg in comp.packages:
+            # Match against known packages
+            pkg_key = None
+            for key in soldering_difficulty:
+                if key.lower() in pkg.lower():
+                    pkg_key = key
+                    break
+
+            if pkg_key:
+                difficulty, tips = soldering_difficulty[pkg_key]
+                q = f"How hard is it to hand-solder the {comp.name} in {pkg} package?"
+                a = f"The {comp.name} in {pkg} package is **{difficulty}** to hand-solder. {tips}"
+                if len(comp.packages) > 1:
+                    a += f"\n\nAlternative packages for {comp.name}: {', '.join(p for p in comp.packages if p != pkg)}."
+                pairs.append(msg(q, a))
+
+    return pairs
+
+
+def generate_quick_spec_qa(components: list[Component]) -> list[dict]:
+    """Generate many short, factoid-style Q&A pairs — the high-volume multiplier."""
+    pairs = []
+
+    # Category-specific question templates that produce natural questions
+    templates_by_spec: dict[str, list[tuple[str, str]]] = {
+        "supply_voltage": [
+            ("What voltage does the {name} run on?", "The {name} operates at {val}."),
+            ("What is the VCC range for the {name}?", "The {name} VCC range is {val}."),
+            ("Can the {name} run at 3.3V?", "The {name} supply voltage range is {val}. {yesno33}"),
+        ],
+        "max_frequency": [
+            ("What is the {name} clock speed?", "The {name} runs at up to {val}."),
+            ("How fast is the {name}?", "The {name} maximum clock frequency is {val}."),
+        ],
+        "flash": [
+            ("How much flash does the {name} have?", "The {name} has {val} of flash memory."),
+            ("What is the program memory size of the {name}?", "The {name} has {val} of program flash."),
+        ],
+        "sram": [
+            ("How much RAM does the {name} have?", "The {name} has {val} of SRAM."),
+        ],
+        "core": [
+            ("What CPU core does the {name} use?", "The {name} uses a {val} core."),
+            ("Is the {name} ARM-based?", "The {name} core is: {val}. {arm_yesno}"),
+        ],
+        "gpio_count": [
+            ("How many GPIOs does the {name} have?", "The {name} has {val} GPIO pins."),
+            ("How many I/O pins on the {name}?", "The {name} provides {val} general-purpose I/O pins."),
+        ],
+        "uart": [
+            ("How many UARTs does the {name} have?", "The {name} has {val} UART(s)."),
+        ],
+        "spi": [
+            ("How many SPI interfaces does the {name} have?", "The {name} has {val} SPI interface(s)."),
+        ],
+        "i2c": [
+            ("How many I2C buses does the {name} have?", "The {name} has {val} I2C bus(es)."),
+        ],
+        "output_voltage": [
+            ("What voltage does the {name} output?", "The {name} outputs {val}."),
+            ("What is the {name} output voltage?", "The {name} provides an output voltage of {val}."),
+        ],
+        "max_output_current": [
+            ("How much current can the {name} supply?", "The {name} can supply up to {val}."),
+            ("What is the {name} current rating?", "The {name} is rated for {val} output current."),
+        ],
+        "dropout_voltage": [
+            ("What is the dropout of the {name}?", "The {name} has a dropout voltage of {val}."),
+        ],
+        "rds_on": [
+            ("What is the Rds(on) of the {name}?", "The {name} Rds(on) is {val}."),
+            ("What is the on-resistance of the {name}?", "The on-state resistance of the {name} is {val}."),
+        ],
+        "vds_max": [
+            ("What is the max Vds of the {name}?", "The {name} maximum drain-source voltage is {val}."),
+            ("What voltage can the {name} handle?", "The {name} is rated for Vds(max) of {val}."),
+        ],
+        "id_continuous": [
+            ("What current can the {name} handle?", "The {name} continuous drain current is {val}."),
+        ],
+        "vgs_threshold": [
+            ("What is the gate threshold of the {name}?", "The {name} Vgs(th) is {val}."),
+            ("At what voltage does the {name} turn on?", "The {name} gate threshold voltage is {val}."),
+        ],
+        "gbw": [
+            ("What is the {name} bandwidth?", "The {name} gain-bandwidth product (GBW) is {val}."),
+        ],
+        "i2c_address": [
+            ("What I2C address does the {name} use?", "The {name} I2C address is {val}."),
+            ("What address should I use for the {name}?", "Set the I2C address to {val} for the {name}."),
+        ],
+        "temperature_accuracy": [
+            ("How accurate is the {name}?", "The {name} temperature accuracy is {val}."),
+        ],
+        "resolution": [
+            ("What resolution does the {name} have?", "The {name} resolution is {val}."),
+        ],
+        "humidity_accuracy": [
+            ("How accurate is the {name} humidity reading?", "The {name} humidity accuracy is {val}."),
+        ],
+        "switching_frequency": [
+            ("What frequency does the {name} switch at?", "The {name} switching frequency is {val}."),
+        ],
+        "efficiency": [
+            ("How efficient is the {name}?", "The {name} efficiency is {val}."),
+        ],
+        "channels": [
+            ("How many channels does the {name} have?", "The {name} has {val} channel(s)."),
+        ],
+        "operating_temp": [
+            ("What is the operating temperature range of the {name}?", "The {name} operates from {val}."),
+        ],
+        "package": [
+            ("What package is the {name}?", "The {name} comes in {val} package."),
+        ],
+    }
+
+    for comp in components:
+        for spec_key, templates in templates_by_spec.items():
+            if spec_key not in comp.specs:
+                continue
+            val = comp.specs[spec_key]
+
+            for q_tmpl, a_tmpl in templates:
+                q = q_tmpl.format(name=comp.name)
+
+                # Handle special placeholders
+                extra = {}
+                if "{yesno33}" in a_tmpl:
+                    can_33 = any(x in val for x in ["3.3", "3.0", "2.", "1."])
+                    extra["yesno33"] = "Yes, 3.3V is within range." if can_33 else "Check if 3.3V falls within the specified range."
+                if "{arm_yesno}" in a_tmpl:
+                    is_arm = "arm" in val.lower() or "cortex" in val.lower()
+                    extra["arm_yesno"] = "Yes, it is ARM-based." if is_arm else "No, it is not ARM-based."
+
+                a = a_tmpl.format(name=comp.name, val=val, **extra)
+                if comp.lcsc:
+                    a += f" (LCSC: {comp.lcsc})"
+
+                pairs.append(msg(q, a))
+
+    return pairs
+
+
+def generate_category_recommendation_qa(components: list[Component]) -> list[dict]:
+    """Generate category-level recommendation Q&A (e.g., 'best MCU for low power')."""
+    pairs = []
+
+    recommendations = [
+        # MCU recommendations
+        {
+            "q": "What is the cheapest ARM Cortex-M MCU available on LCSC?",
+            "filter": lambda c: c.category == "mcu" and "cortex" in c.specs.get("core", "").lower(),
+            "answer_prefix": "Among common ARM Cortex-M MCUs on LCSC, the cheapest options include",
+        },
+        {
+            "q": "Which MCU has the most GPIO pins?",
+            "filter": lambda c: c.category == "mcu" and c.specs.get("gpio_count"),
+            "answer_prefix": "Comparing MCU GPIO counts from our database",
+            "sort_key": lambda c: int(c.specs.get("gpio_count", "0")),
+            "sort_reverse": True,
+        },
+        {
+            "q": "Which MCU has the most flash memory?",
+            "filter": lambda c: c.category == "mcu" and c.specs.get("flash"),
+            "answer_prefix": "Comparing MCU flash sizes from our database",
+            "sort_key": lambda c: int(c.specs.get("flash", "0 KB").split()[0]) * (1024 if "MB" in c.specs.get("flash", "") else 1),
+            "sort_reverse": True,
+        },
+        {
+            "q": "What are the best low-power MCU options?",
+            "filter": lambda c: c.category == "mcu" and ("ultra-low" in c.description.lower() or "low-power" in c.description.lower() or "uA/MHz" in c.specs.get("supply_current", "")),
+            "answer_prefix": "The best low-power MCU options from our database include",
+        },
+        {
+            "q": "Which MCUs support Wi-Fi and Bluetooth?",
+            "filter": lambda c: c.category == "mcu" and ("Wi-Fi" in " ".join(c.interfaces) or "wifi" in " ".join(c.interfaces).lower()) and ("BLE" in " ".join(c.interfaces) or "Bluetooth" in " ".join(c.interfaces)),
+            "answer_prefix": "MCUs with both Wi-Fi and Bluetooth support",
+        },
+        {
+            "q": "Which MCUs support CAN bus?",
+            "filter": lambda c: c.category == "mcu" and ("CAN" in " ".join(c.interfaces) or "FDCAN" in " ".join(c.interfaces)),
+            "answer_prefix": "MCUs with CAN bus support",
+        },
+        {
+            "q": "Which MCUs have USB support?",
+            "filter": lambda c: c.category == "mcu" and ("USB" in " ".join(c.interfaces) or "usb" in c.specs.get("usb", "")),
+            "answer_prefix": "MCUs with USB support",
+        },
+        {
+            "q": "Which MCUs are RISC-V based?",
+            "filter": lambda c: c.category == "mcu" and "risc-v" in c.specs.get("core", "").lower(),
+            "answer_prefix": "RISC-V MCUs in our database",
+        },
+        # Regulator recommendations
+        {
+            "q": "What are the best LDO regulators for battery-powered projects?",
+            "filter": lambda c: c.category == "regulator" and "ldo" in c.description.lower() and c.specs.get("quiescent_current"),
+            "answer_prefix": "For battery-powered projects, you want low quiescent current. The best LDOs include",
+        },
+        {
+            "q": "What are the best step-down (buck) converters?",
+            "filter": lambda c: c.category == "regulator" and ("step-down" in c.description.lower() or "buck" in c.description.lower()),
+            "answer_prefix": "The best step-down converters from our database",
+        },
+        {
+            "q": "Which regulators have the highest efficiency?",
+            "filter": lambda c: c.category == "regulator" and c.specs.get("efficiency"),
+            "answer_prefix": "The most efficient voltage regulators include",
+        },
+        # Sensor recommendations
+        {
+            "q": "What are the best I2C sensors for environmental monitoring?",
+            "filter": lambda c: c.category == "sensor" and "I2C" in c.interfaces and ("temperature" in c.description.lower() or "humidity" in c.description.lower() or "pressure" in c.description.lower()),
+            "answer_prefix": "The best I2C environmental sensors include",
+        },
+        {
+            "q": "What are the most accurate temperature sensors available?",
+            "filter": lambda c: c.category == "sensor" and c.specs.get("temperature_accuracy"),
+            "answer_prefix": "The most accurate temperature sensors in our database",
+        },
+        {
+            "q": "What current sensors are available for power monitoring?",
+            "filter": lambda c: c.category == "sensor" and "current" in c.description.lower(),
+            "answer_prefix": "Current sensors for power monitoring include",
+        },
+        # MOSFET recommendations
+        {
+            "q": "What are the best logic-level MOSFETs for 3.3V MCUs?",
+            "filter": lambda c: c.category == "mosfet" and ("logic" in c.specs.get("type", "").lower() or float(c.specs.get("vgs_threshold", "99").split("V")[0].split(",")[0].split()[-1].replace("(", "").replace(")", "")) <= 2.0 if c.specs.get("vgs_threshold") else False),
+            "answer_prefix": "Logic-level MOSFETs suitable for 3.3V MCU control include",
+        },
+        {
+            "q": "What are the best P-channel MOSFETs for load switching?",
+            "filter": lambda c: c.category == "mosfet" and "p-channel" in c.specs.get("type", "").lower(),
+            "answer_prefix": "P-channel MOSFETs for load switching include",
+        },
+        # Op-amp recommendations
+        {
+            "q": "What are the best low-noise op-amps for audio?",
+            "filter": lambda c: c.category == "opamp" and ("audio" in c.description.lower() or "low-noise" in c.description.lower() or c.specs.get("noise")),
+            "answer_prefix": "The best low-noise op-amps for audio applications include",
+        },
+        {
+            "q": "What are the best rail-to-rail op-amps?",
+            "filter": lambda c: c.category == "opamp" and ("rail" in c.description.lower() or "rrio" in c.description.lower()),
+            "answer_prefix": "Rail-to-rail op-amps from our database include",
+        },
+    ]
+
+    for rec in recommendations:
+        matching = [c for c in components if rec["filter"](c)]
+        if not matching:
+            continue
+
+        if rec.get("sort_key"):
+            try:
+                matching.sort(key=rec["sort_key"], reverse=rec.get("sort_reverse", False))
+            except (ValueError, TypeError):
+                pass
+
+        a = rec["answer_prefix"] + ":\n\n"
+        for c in matching[:8]:  # Top 8
+            a += f"- **{c.name}**: {c.description}"
+            if c.lcsc:
+                a += f" (LCSC: {c.lcsc})"
+            a += "\n"
+
+        pairs.append(msg(rec["q"], a.strip()))
+
+    return pairs
+
+
+def generate_alternative_qa(components: list[Component]) -> list[dict]:
+    """Generate detailed cross-reference / alternative component Q&A."""
+    pairs = []
+
+    for comp in components:
+        if not comp.alternatives:
+            continue
+
+        # Standard alternatives question
+        q = f"What can I use instead of the {comp.name}?"
+        a = f"Alternatives to the {comp.name} ({comp.description}):\n\n"
+        for alt in comp.alternatives:
+            a += f"- {alt}\n"
+        a += f"\nWhen selecting an alternative, verify pin compatibility, electrical specifications, and package match for your specific application."
+        if comp.lcsc:
+            a += f"\n\nOriginal part LCSC: {comp.lcsc}"
+        pairs.append(msg(q, a))
+
+        # Pin-compatible question
+        q2 = f"Is there a drop-in replacement for the {comp.name}?"
+        a2 = f"For the {comp.name} ({comp.specs.get('package', comp.packages[0] if comp.packages else 'check datasheet')}), potential replacements include:\n\n"
+        for alt in comp.alternatives:
+            a2 += f"- {alt}\n"
+        a2 += f"\n**Important**: Always verify pin-for-pin compatibility, especially for power, ground, and NC pins. Check the alternative's datasheet for any differences in:\n"
+        a2 += "- Package footprint and pin assignment\n"
+        a2 += "- Electrical specifications (voltage, current ratings)\n"
+        a2 += "- Timing parameters\n"
+        a2 += "- Enable/shutdown pin polarity"
+        pairs.append(msg(q2, a2))
+
+    return pairs
+
+
+def generate_lcsc_sourcing_qa(components: list[Component]) -> list[dict]:
+    """Generate LCSC/sourcing Q&A from component database."""
+    pairs = []
+
+    for comp in components:
+        if not comp.lcsc:
+            continue
+
+        q = f"What is the LCSC part number for the {comp.name}?"
+        a = f"The LCSC part number for the {comp.name} is **{comp.lcsc}**.\n\n"
+        a += f"Description: {comp.description}\n"
+        if comp.specs.get("package"):
+            a += f"Package: {comp.specs['package']}\n"
+        elif comp.packages:
+            a += f"Package: {comp.packages[0]}\n"
+        a += f"Manufacturer: {comp.manufacturer}\n"
+        a += f"\nSearch on LCSC: https://www.lcsc.com/search?q={comp.lcsc}"
+        pairs.append(msg(q, a))
+
+        # Also generate a reverse lookup
+        q2 = f"What component is LCSC part number {comp.lcsc}?"
+        a2 = f"LCSC {comp.lcsc} is the **{comp.name}** — {comp.description}."
+        a2 += f"\nManufacturer: {comp.manufacturer}"
+        if comp.specs.get("package"):
+            a2 += f"\nPackage: {comp.specs['package']}"
+        pairs.append(msg(q2, a2))
+
+    return pairs
+
+
+def generate_comparison_detailed_qa(components: list[Component]) -> list[dict]:
+    """Generate detailed head-to-head comparison Q&A pairs."""
+    pairs = []
+
+    by_category: dict[str, list[Component]] = {}
+    for c in components:
+        by_category.setdefault(c.category, []).append(c)
+
+    comparison_templates = [
+        "What is the difference between the {a} and the {b}?",
+        "{a} vs {b} — which one should I choose?",
+        "Should I use the {a} or the {b} for my project?",
+    ]
+
+    for cat, comps in by_category.items():
+        if len(comps) < 2:
+            continue
+        for i, ca in enumerate(comps):
+            for cb in comps[i+1:]:
+                # Only generate for a subset to avoid explosion
+                if hash(ca.name + cb.name) % 2 != 0:
+                    continue
+
+                tmpl = comparison_templates[hash(ca.name + cb.name) % len(comparison_templates)]
+                q = tmpl.format(a=ca.name, b=cb.name)
+
+                a = f"**{ca.name}** vs **{cb.name}**:\n\n"
+                a += f"| Feature | {ca.name} | {cb.name} |\n"
+                a += f"|---------|{'---' * len(ca.name)}|{'---' * len(cb.name)}|\n"
+
+                # Compare common specs
+                all_keys = set(ca.specs.keys()) | set(cb.specs.keys())
+                important_keys = ["core", "max_frequency", "flash", "sram", "supply_voltage",
+                                  "output_voltage", "max_output_current", "dropout_voltage",
+                                  "rds_on", "vds_max", "id_continuous", "gbw", "channels",
+                                  "resolution", "temperature_accuracy", "switching_frequency",
+                                  "efficiency", "package"]
+                shown = 0
+                for key in important_keys:
+                    if key in all_keys and shown < 8:
+                        va = ca.specs.get(key, "N/A")
+                        vb = cb.specs.get(key, "N/A")
+                        if va != vb:  # Only show differences
+                            a += f"| {key.replace('_', ' ').title()} | {va} | {vb} |\n"
+                            shown += 1
+
+                a += f"\n{ca.name}: {ca.description}\n{cb.name}: {cb.description}"
+                pairs.append(msg(q, a))
+
+    return pairs
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -3894,6 +6194,11 @@ CATEGORY_GENERATORS = {
     "comparison": ("Component Comparison Q&A", lambda comps, jitx: generate_comparison_qa(comps)),
     "pinout": ("Pinout Q&A", lambda comps, jitx: generate_pinout_qa(comps)),
     "application": ("Application Notes Q&A", lambda comps, jitx: generate_application_qa(comps)),
+    "parametric": ("Parametric/Rephrased Q&A", lambda comps, jitx: generate_parametric_qa(comps)),
+    "design_pattern": ("Design Pattern Q&A", lambda comps, jitx: generate_design_pattern_qa()),
+    "troubleshooting": ("Troubleshooting Q&A", lambda comps, jitx: generate_troubleshooting_qa()),
+    "passive_value": ("Passive Value Q&A", lambda comps, jitx: generate_passive_value_qa()),
+    "pcb_design": ("PCB Design Q&A", lambda comps, jitx: generate_pcb_design_qa()),
 }
 
 

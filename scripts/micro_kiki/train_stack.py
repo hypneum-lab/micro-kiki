@@ -319,7 +319,15 @@ def train_single_stack(config_path: str, domain: str, stack_index: int) -> None:
     # ---- 5. SFT training loop ----
     print("\n[5/7] SFT training...")
     lr = float(train_cfg["learning_rate"])
-    max_steps = int(train_cfg["max_steps"])
+    # Adaptive max_steps: scale with rank (more capacity = more steps to converge)
+    base_max_steps = int(train_cfg["max_steps"])
+    if effective_rank <= 16:
+        max_steps = min(base_max_steps, 500)
+    elif effective_rank <= 32:
+        max_steps = min(base_max_steps, 1000)
+    else:
+        max_steps = base_max_steps  # 1500 for rank > 32
+    print(f"  Adaptive max_steps={max_steps} (rank={effective_rank}, base={base_max_steps})")
     warmup_steps = int(max_steps * float(train_cfg.get("warmup_ratio", 0.05)))
     batch_size = train_cfg["batch_size"]
     grad_accum = train_cfg["grad_accumulation_steps"]

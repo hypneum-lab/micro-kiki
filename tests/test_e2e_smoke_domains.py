@@ -1,9 +1,9 @@
-"""Story-19: E2E smoke test for 10 domains + base fallback.
+"""Story-19: E2E smoke test for 34 niche domains + base fallback.
 
 Verifies that:
-1. ModelRouter.select() routes each of the 10 niche domain prompts correctly.
+1. ModelRouter.select() routes each of the 34 niche domain prompts correctly.
 2. AeonPalace write + recall round-trip works for every domain.
-3. All 10 niche domains get adapter != None.
+3. All 34 niche domains get adapter != None.
 4. The base query ("What is the weather?") gets adapter == None.
 """
 from __future__ import annotations
@@ -19,19 +19,43 @@ from src.routing.router import NICHE_DOMAINS
 from src.memory.aeon import AeonPalace
 
 # ---------------------------------------------------------------------------
-# 10-domain test prompts (mirrors DOMAIN_TESTS from poc_pipeline_v2.py)
+# 34-domain test prompts (one per niche domain)
 # ---------------------------------------------------------------------------
 DOMAIN_TESTS: dict[str, str] = {
-    "kicad-dsl":   "Create a KiCad S-expression for a TQFP-48 footprint with thermal pad.",
-    "spice":       "Write a SPICE netlist for a current-mode buck converter at 500kHz.",
-    "emc":         "Design an EMI filter for USB 3.0 to meet CISPR 32 Class B.",
-    "stm32":       "Write STM32 HAL code for DMA-based ADC on 4 channels.",
-    "embedded":    "Implement a circular buffer in C for UART RX interrupt handler.",
-    "power":       "Design a 48V to 12V synchronous buck converter at 5A.",
-    "dsp":         "Implement a 256-point FFT in fixed-point Q15 for Cortex-M4.",
-    "electronics": "Design an instrumentation amplifier with gain=100 using AD620.",
-    "freecad":     "Write a FreeCAD macro for a parametric heatsink with fins.",
-    "platformio":  "Write platformio.ini for ESP32-S3 + STM32F407 multi-env build.",
+    "chat-fr":      "Explique-moi comment fonctionne un transformateur en francais.",
+    "components":   "Find a JLCPCB basic part for a 100nF 0402 MLCC capacitor.",
+    "cpp":          "Write a C++ template metaprogram for compile-time Fibonacci.",
+    "devops":       "Write a GitHub Actions workflow for CI/CD with Docker deploy.",
+    "docker":       "Create a multi-stage Dockerfile for a Python FastAPI application.",
+    "dsp":          "Implement a 256-point FFT in fixed-point Q15 for Cortex-M4.",
+    "electronics":  "Design an instrumentation amplifier with gain=100 using AD620.",
+    "embedded":     "Implement a circular buffer in C for UART RX interrupt handler.",
+    "emc":          "Design an EMI filter for USB 3.0 to meet CISPR 32 Class B.",
+    "freecad":      "Write a FreeCAD macro for a parametric heatsink with fins.",
+    "html-css":     "Create a responsive grid layout with Tailwind CSS for a dashboard.",
+    "iot":          "Write ESP-NOW peer-to-peer communication code for sensor mesh.",
+    "kicad-dsl":    "Create a KiCad S-expression for a TQFP-48 footprint with thermal pad.",
+    "kicad-pcb":    "Design a 4-layer PCB stackup with controlled impedance for USB 3.0.",
+    "llm-ops":      "Deploy a vLLM server with GGUF quantized model and KV cache tuning.",
+    "llm-orch":     "Build a RAG pipeline with Qdrant vector store and LangChain agents.",
+    "lua-upy":      "Write a MicroPython driver for I2C BME280 sensor on ESP32.",
+    "math":         "Derive the Fourier transform of a Gaussian pulse analytically.",
+    "ml-training":  "Configure LoRA fine-tuning with gradient checkpointing for a 7B model.",
+    "music-audio":  "Implement a Web Audio synthesizer with ADSR envelope and LFO.",
+    "platformio":   "Write platformio.ini for ESP32-S3 + STM32F407 multi-env build.",
+    "power":        "Design a 48V to 12V synchronous buck converter at 5A.",
+    "python":       "Write a pytest fixture with session-scoped async database connection.",
+    "reasoning":    "Solve this step by step: if 3x + 7 = 22, find x.",
+    "rust":         "Implement a lock-free concurrent queue in Rust using atomics.",
+    "security":     "Audit this Flask app for OWASP Top 10 vulnerabilities.",
+    "shell":        "Write a bash script to find and delete files older than 30 days.",
+    "spice":        "Write a SPICE netlist for a current-mode buck converter at 500kHz.",
+    "sql":          "Write a PostgreSQL query with window functions for running totals.",
+    "stm32":        "Write STM32 HAL code for DMA-based ADC on 4 channels.",
+    "typescript":   "Create a type-safe React hook for API fetching with generics.",
+    "web-backend":  "Build a FastAPI endpoint with Pydantic validation and rate limiting.",
+    "web-frontend": "Implement a React 19 component with Suspense and error boundaries.",
+    "yaml-json":    "Write an OpenAPI 3.1 schema for a REST API with JSON Schema refs.",
 }
 
 BASE_QUERY = "What is the weather?"
@@ -101,8 +125,8 @@ class TestDomainRouting:
             f"Base query should have adapter=None, got '{route.adapter}'"
         )
 
-    def test_all_10_domains_covered(self):
-        """Ensure DOMAIN_TESTS covers all 10 NICHE_DOMAINS."""
+    def test_all_34_domains_covered(self):
+        """Ensure DOMAIN_TESTS covers all 34 NICHE_DOMAINS."""
         assert set(DOMAIN_TESTS.keys()) == set(NICHE_DOMAINS), (
             f"DOMAIN_TESTS keys {set(DOMAIN_TESTS.keys())} != "
             f"NICHE_DOMAINS {set(NICHE_DOMAINS)}"
@@ -149,10 +173,10 @@ class TestMemoryRoundTrip:
 
 
 class TestFullE2ESmoke:
-    """Combined routing + memory smoke test for all 11 queries."""
+    """Combined routing + memory smoke test for all 35 queries."""
 
     def test_all_domains_e2e(self, router: ModelRouter, palace: AeonPalace):
-        """Run through all 10 domains: route, write, recall."""
+        """Run through all 34 niche domains: route, write, recall."""
         for domain, prompt in DOMAIN_TESTS.items():
             # Route
             route = router.select(prompt, domain_hint=domain)
@@ -167,8 +191,8 @@ class TestFullE2ESmoke:
                 source="test-e2e-smoke",
             )
 
-            # Recall — use top_k=20 because multiple episodes compete
-            recalled = palace.recall(prompt, top_k=20)
+            # Recall — use top_k=40 because 34 domain episodes compete
+            recalled = palace.recall(prompt, top_k=40)
             assert any(ep.id == ep_id for ep in recalled), (
                 f"Episode {ep_id} for {domain} not recalled"
             )

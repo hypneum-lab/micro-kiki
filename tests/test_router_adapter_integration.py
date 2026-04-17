@@ -47,8 +47,8 @@ class TestNicheDomainRouting:
         assert decision.model_id == "qwen35b"
         assert isinstance(decision, RouteDecision)
 
-    def test_all_10_niche_domains_exist(self) -> None:
-        assert len(NICHE_DOMAINS) == 10
+    def test_all_34_niche_domains_exist(self) -> None:
+        assert len(NICHE_DOMAINS) == 34
 
 
 # -----------------------------------------------------------------------

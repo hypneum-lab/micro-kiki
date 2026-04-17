@@ -14,18 +14,42 @@ CAPABILITY_NAMES = [
     "deep_eval",
 ]
 
-# 10 niche domain names (pivot 2026-04-16: 32 → 10 niche + 1 base = 11 outputs)
+# 34 niche domain names (2026-04-17: expanded to 35 outputs = 34 niche + 1 base)
 NICHE_DOMAINS: frozenset[str] = frozenset({
-    "kicad-dsl",
-    "spice",
-    "emc",
-    "stm32",
-    "embedded",
-    "freecad",
-    "platformio",
-    "power",
+    "chat-fr",
+    "components",
+    "cpp",
+    "devops",
+    "docker",
     "dsp",
     "electronics",
+    "embedded",
+    "emc",
+    "freecad",
+    "html-css",
+    "iot",
+    "kicad-dsl",
+    "kicad-pcb",
+    "llm-ops",
+    "llm-orch",
+    "lua-upy",
+    "math",
+    "ml-training",
+    "music-audio",
+    "platformio",
+    "power",
+    "python",
+    "reasoning",
+    "rust",
+    "security",
+    "shell",
+    "spice",
+    "sql",
+    "stm32",
+    "typescript",
+    "web-backend",
+    "web-frontend",
+    "yaml-json",
 })
 
 # ---------------------------------------------------------------------------
@@ -49,18 +73,18 @@ except ImportError:  # pragma: no cover
 class MetaRouter(_NNModule):  # type: ignore[misc,valid-type]
     """Sigmoid meta-router with domain + capability outputs.
 
-    Requires torch at runtime. Use ``num_domains=11`` (default) for the
-    10-niche + base layout, or ``num_domains=35`` for legacy backward compat.
+    Requires torch at runtime. Use ``num_domains=35`` (default) for the
+    34-niche + base layout.
     """
 
-    # Ordered list of niche domain names for 11-output mode (index 0-9).
-    # Index 10 is the implicit "base" output (fallback to raw 35B, no adapter).
+    # Ordered list of niche domain names (index 0-33).
+    # Index 34 is the implicit "base" output (fallback to raw 35B, no adapter).
     _NICHE_DOMAIN_LIST: list[str] = sorted(NICHE_DOMAINS)
 
     def __init__(
         self,
         input_dim: int = 768,
-        num_domains: int = 11,
+        num_domains: int = 35,
         num_capabilities: int = 5,
     ) -> None:
         super().__init__()

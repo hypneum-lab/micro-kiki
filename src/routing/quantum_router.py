@@ -1,6 +1,6 @@
 """Quantum VQC Router — PennyLane variational circuit for domain classification.
 
-Uses 4 qubits to classify text embeddings into 11 domain classes (10 niches + base).
+Uses 6 qubits to classify text embeddings into 35 domain classes (34 niches + base).
 Runs on classical simulator by default; QPU dispatch optional.
 
 Part of the triple-hybrid architecture:
@@ -34,11 +34,11 @@ except ImportError:  # pragma: no cover
     logger.warning("PennyLane not available — QuantumRouter disabled (install pennylane)")
 
 # ---------------------------------------------------------------------------
-# Ordered domain list (10 niches + "base" at index 10)
+# Ordered domain list (34 niches + "base" at index 34)
 # ---------------------------------------------------------------------------
 
-_NICHE_DOMAIN_LIST: list[str] = sorted(NICHE_DOMAINS)  # 10 entries
-_ALL_DOMAINS: list[str] = _NICHE_DOMAIN_LIST + ["base"]  # 11 entries
+_NICHE_DOMAIN_LIST: list[str] = sorted(NICHE_DOMAINS)  # 34 entries
+_ALL_DOMAINS: list[str] = _NICHE_DOMAIN_LIST + ["base"]  # 35 entries
 
 
 # ---------------------------------------------------------------------------
@@ -51,16 +51,17 @@ class QuantumRouterConfig:
     """Frozen configuration for the Quantum VQC Router.
 
     Args:
-        n_qubits: Number of qubits in the variational circuit (default 4).
+        n_qubits: Number of qubits in the variational circuit (default 6).
+            With 35 domains, ceil(log2(35)) = 6 qubits minimum.
         n_layers: Number of strongly-entangling layers (default 6).
-        n_classes: Number of output classes — must be 11 (10 niches + base).
+        n_classes: Number of output classes — 35 (34 niches + base).
         learning_rate: Gradient descent step size.
         device: PennyLane device name (default "default.qubit" = classical simulator).
     """
 
-    n_qubits: int = 4
+    n_qubits: int = 6
     n_layers: int = 6
-    n_classes: int = 11
+    n_classes: int = 35
     learning_rate: float = 0.01
     device: str = "default.qubit"
 

@@ -54,13 +54,13 @@ def small_embedding():
 
 
 def test_config_defaults():
-    """QuantumRouterConfig must have n_qubits=4 and n_classes=11 by default."""
+    """QuantumRouterConfig must have n_qubits=6 and n_classes=35 by default."""
     from src.routing.quantum_router import QuantumRouterConfig
 
     cfg = QuantumRouterConfig()
-    assert cfg.n_qubits == 4
+    assert cfg.n_qubits == 6
     assert cfg.n_layers == 6
-    assert cfg.n_classes == 11
+    assert cfg.n_classes == 35
     assert cfg.device == "default.qubit"
 
 
