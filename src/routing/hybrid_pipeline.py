@@ -19,12 +19,16 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pathlib import Path
+
 from src.routing.model_router import ModelRouter, RouteDecision
 
 if TYPE_CHECKING:
     from src.routing.quantum_router import QuantumRouter
     from src.serving.aeon_hook import AeonServingHook
     from src.cognitive.negotiator import Negotiator
+
+_MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "models" / "niche-embeddings"
 
 logger = logging.getLogger(__name__)
 
@@ -363,3 +367,39 @@ async def _stub_infer(
     adapter_tag = f" [{route.adapter}]" if route.adapter else ""
     suffix = f" (v{variant})" if variant else ""
     return f"[stub:{route.model_id}{adapter_tag}]{suffix} {prompt[:80]}"
+
+
+def create_hybrid_pipeline(
+    config: HybridPipelineConfig | None = None,
+    quantum_router: QuantumRouter | None = None,
+    model_router: ModelRouter | None = None,
+    negotiator: Negotiator | None = None,
+    model_path: Path | None = None,
+) -> HybridPipeline:
+    """Factory: create HybridPipeline with trained-embedding Aeon memory.
+
+    Wires ``create_aeon_palace`` from ``aeon_hook`` so callers don't need
+    to manually construct the memory stack.
+
+    Args:
+        config: Pipeline configuration (defaults applied if None).
+        quantum_router: Optional VQC router.
+        model_router: Optional classical model router.
+        negotiator: Optional CAMP negotiator.
+        model_path: Override path to embedding model directory.
+
+    Returns:
+        Fully wired HybridPipeline with Aeon memory.
+    """
+    from src.serving.aeon_hook import AeonServingHook, create_aeon_palace
+
+    palace = create_aeon_palace(model_path=model_path)
+    aeon_hook = AeonServingHook(palace)
+
+    return HybridPipeline(
+        config=config,
+        quantum_router=quantum_router,
+        model_router=model_router,
+        aeon_hook=aeon_hook,
+        negotiator=negotiator,
+    )

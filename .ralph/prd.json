@@ -356,9 +356,10 @@
     {
       "id": "story-49",
       "priority": 49,
-      "passes": false,
+      "passes": true,
       "title": "Wire embeddings into Aeon memory",
-      "description": "Replace AeonPalace._default_embed (hash-based) with the fine-tuned embedding model. Update Atlas to use real embeddings. Benchmark: recall@10 on 1000 episodes before/after. Expected: +20-30% recall accuracy on niche domain queries."
+      "description": "Replace AeonPalace._default_embed (hash-based) with the fine-tuned embedding model. Update Atlas to use real embeddings. Benchmark: recall@10 on 1000 episodes before/after. Expected: +20-30% recall accuracy on niche domain queries.",
+      "status": "done"
     },
     {
       "id": "story-50",
