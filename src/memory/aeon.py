@@ -16,22 +16,51 @@ from src.memory.trace import TraceGraph, Episode, CausalityEdge
 logger = logging.getLogger(__name__)
 
 
+def _load_st_model(model_path: str) -> tuple:
+    """Load a sentence-transformers model and return (embed_fn, dim)."""
+    from pathlib import Path
+    p = Path(model_path)
+    if not p.exists():
+        raise FileNotFoundError(
+            f"Embedding model not found at {model_path}. "
+            "Train one with: python3 scripts/train_embeddings.py --all"
+        )
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        raise ImportError(
+            "sentence-transformers is required for model_path loading. "
+            "Install with: pip install 'micro-kiki[embeddings]'"
+        )
+    model = SentenceTransformer(str(p))
+    dim = model.get_sentence_embedding_dimension()
+    logger.info("Loaded embedding model from %s (dim=%d)", p, dim)
+    def embed_fn(text: str) -> np.ndarray:
+        return model.encode(text, normalize_embeddings=True).astype(np.float32)
+    return embed_fn, dim
+
+
 class AeonPalace:
     """Unified memory palace combining vector search + episodic graph."""
 
-    def __init__(self, dim: int = 3072, embed_fn=None) -> None:
-        self._atlas = AtlasIndex(dim=dim)
+    def __init__(
+        self,
+        dim: int | None = None,
+        embed_fn=None,
+        model_path: str | None = None,
+    ) -> None:
+        if embed_fn is not None:
+            self._embed_fn = embed_fn
+            self._dim = dim or 384
+        elif model_path is not None:
+            self._embed_fn, self._dim = _load_st_model(model_path)
+        else:
+            raise ImportError(
+                "AeonPalace requires an embed_fn or model_path. "
+                "Train one with: python3 scripts/train_embeddings.py --all"
+            )
+        self._atlas = AtlasIndex(dim=self._dim)
         self._trace = TraceGraph()
-        self._embed_fn = embed_fn or self._default_embed
-        self._dim = dim
-
-    @staticmethod
-    def _default_embed(text: str) -> np.ndarray:
-        """Deterministic hash-based embedding for testing (NOT for production)."""
-        h = hashlib.sha256(text.encode()).digest()
-        rng = np.random.RandomState(int.from_bytes(h[:4], "big"))
-        vec = rng.randn(3072).astype(np.float32)
-        return vec / (np.linalg.norm(vec) + 1e-8)
 
     def write(
         self,

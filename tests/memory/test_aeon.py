@@ -2,11 +2,22 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+import hashlib
 import numpy as np
 import pytest
 from src.memory.atlas import AtlasIndex
 from src.memory.trace import TraceGraph, Episode, CausalityEdge
 from src.memory.aeon import AeonPalace
+
+
+def _mock_embed(dim: int = 64):
+    """Return a deterministic hash-based embed_fn for tests."""
+    def fn(text: str) -> np.ndarray:
+        h = hashlib.sha256(text.encode()).digest()
+        rng = np.random.RandomState(int.from_bytes(h[:4], "big"))
+        vec = rng.randn(dim).astype(np.float32)
+        return vec / (np.linalg.norm(vec) + 1e-8)
+    return fn
 
 
 class TestAtlasIndex:
@@ -67,29 +78,45 @@ class TestTraceGraph:
 
 class TestAeonPalace:
     def test_write_and_recall(self):
-        aeon = AeonPalace(dim=3072)
+        aeon = AeonPalace(dim=64, embed_fn=_mock_embed(64))
         eid = aeon.write("Test episode about MoE-LoRA", domain="ml")
         results = aeon.recall("MoE-LoRA", top_k=1)
         assert len(results) >= 1
 
     def test_write_with_links(self):
-        aeon = AeonPalace(dim=3072)
+        aeon = AeonPalace(dim=64, embed_fn=_mock_embed(64))
         e1 = aeon.write("First event", domain="test")
         e2 = aeon.write("Second event", domain="test", links=[e1])
         walked = aeon.walk(e1, max_depth=2)
         assert len(walked) >= 2
 
     def test_compress(self):
-        aeon = AeonPalace(dim=3072)
+        aeon = AeonPalace(dim=64, embed_fn=_mock_embed(64))
         old_ts = datetime.now() - timedelta(days=60)
         aeon.write("Old content that is very long " * 20, domain="test", timestamp=old_ts)
         compressed = aeon.compress(older_than=datetime.now() - timedelta(days=30))
         assert compressed == 1
 
     def test_stats(self):
-        aeon = AeonPalace(dim=3072)
+        aeon = AeonPalace(dim=64, embed_fn=_mock_embed(64))
         aeon.write("Episode 1", domain="a")
         aeon.write("Episode 2", domain="b")
         stats = aeon.stats
         assert stats["vectors"] == 2
         assert stats["episodes"] == 2
+
+
+class TestAeonPalaceEmbedFn:
+    def test_raises_without_embed_fn_or_model_path(self):
+        with pytest.raises(ImportError, match="requires an embed_fn"):
+            AeonPalace()
+
+    def test_accepts_custom_embed_fn(self):
+        fn = lambda text: np.random.randn(64).astype(np.float32)
+        aeon = AeonPalace(dim=64, embed_fn=fn)
+        eid = aeon.write("test content", domain="test")
+        assert len(eid) == 16
+
+    def test_accepts_model_path_string(self):
+        with pytest.raises(FileNotFoundError, match="not found"):
+            AeonPalace(model_path="/nonexistent/model")
