@@ -34,6 +34,39 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 import sys
 sys.path.insert(0, str(REPO_ROOT))
 
+# Number of parallel workers for parameter-shift gradients
+import os
+import multiprocessing
+_N_WORKERS = min(int(os.environ.get("VQC_WORKERS", "8")), os.cpu_count() or 1)
+
+
+def _param_shift_one(idx, weights, features, n_qubits, n_layers, device_name):
+    """Compute parameter-shift gradient for one weight index.
+
+    Runs in a separate PROCESS with its own PennyLane device + QNode
+    (PennyLane QNodes are not thread-safe, but process isolation works).
+    """
+    import pennylane as qml
+
+    dev = qml.device(device_name, wires=n_qubits)
+
+    @qml.qnode(dev)
+    def circuit(w, f):
+        qml.AngleEmbedding(f[:n_qubits], wires=range(n_qubits))
+        qml.StronglyEntanglingLayers(w, wires=range(n_qubits))
+        return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
+
+    shift = np.pi / 2
+    w_plus = weights.copy()
+    w_plus[idx] += shift
+    w_minus = weights.copy()
+    w_minus[idx] -= shift
+
+    q_plus = np.array(circuit(w_plus, features))
+    q_minus = np.array(circuit(w_minus, features))
+    dq_dw = (q_plus - q_minus) / 2.0
+    return idx, dq_dw
+
 # 10 niche domains (sorted) + "base" at index 10
 NICHE_DOMAINS = sorted([
     "dsp", "electronics", "emc", "embedded", "freecad",
@@ -278,8 +311,11 @@ def train_vqc(args: argparse.Namespace) -> None:
     router = QuantumRouter(config)
 
     # 6. Train with mini-batches for speed
-    logger.info("Training VQC: %d epochs, lr=%.4f, %d qubits, %d layers...",
-                args.epochs, args.lr, n_qubits, args.n_layers)
+    logger.info("Training VQC: %d epochs, lr=%.4f, %d qubits, %d layers, %d workers...",
+                args.epochs, args.lr, n_qubits, args.n_layers, _N_WORKERS)
+
+    # Process pool for parallel parameter-shift (each process gets its own QNode)
+    _grad_pool = multiprocessing.Pool(_N_WORKERS) if _N_WORKERS > 1 else None
     t0 = time.time()
 
     best_val_acc = 0.0
@@ -322,17 +358,29 @@ def train_vqc(args: argparse.Namespace) -> None:
                 shift = np.pi / 2
                 dl_dq = np.dot(router.linear_w, d_logits)
 
-                for idx in np.ndindex(*router.weights.shape):
-                    w_plus = router.weights.copy()
-                    w_plus[idx] += shift
-                    w_minus = router.weights.copy()
-                    w_minus[idx] -= shift
-
-                    q_plus = router.circuit(w_plus, emb)
-                    q_minus = router.circuit(w_minus, emb)
-                    dq_dw = (q_plus - q_minus) / 2.0
-                    grad = float(np.dot(dl_dq, dq_dw))
-                    router.weights[idx] -= config.learning_rate * grad
+                if _N_WORKERS > 1:
+                    # Parallel: each process gets its own QNode
+                    all_indices = list(np.ndindex(*router.weights.shape))
+                    args_list = [
+                        (idx, router.weights, emb, router.config.n_qubits,
+                         router.config.n_layers, router.config.device)
+                        for idx in all_indices
+                    ]
+                    results = _grad_pool.starmap(_param_shift_one, args_list)
+                    for idx, dq_dw in results:
+                        grad = float(np.dot(dl_dq, dq_dw))
+                        router.weights[idx] -= config.learning_rate * grad
+                else:
+                    for idx in np.ndindex(*router.weights.shape):
+                        w_plus = router.weights.copy()
+                        w_plus[idx] += shift
+                        w_minus = router.weights.copy()
+                        w_minus[idx] -= shift
+                        q_plus = router.circuit(w_plus, emb)
+                        q_minus = router.circuit(w_minus, emb)
+                        dq_dw = (q_plus - q_minus) / 2.0
+                        grad = float(np.dot(dl_dq, dq_dw))
+                        router.weights[idx] -= config.learning_rate * grad
 
         avg_loss = epoch_loss / max(len(X_train), 1)
 
@@ -372,6 +420,9 @@ def train_vqc(args: argparse.Namespace) -> None:
                 break
 
     elapsed = time.time() - t0
+    if _grad_pool is not None:
+        _grad_pool.close()
+        _grad_pool.join()
     logger.info("Training done in %.1fs, best val_acc=%.1f%%", elapsed, best_val_acc * 100)
 
     # Restore best weights
