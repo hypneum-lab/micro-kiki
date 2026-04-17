@@ -43,7 +43,7 @@ class TestPhaseVIIConfigs:
 
 class TestPhaseVIIScripts:
     def test_distill_script_exists(self):
-        assert Path("scripts/distill_apps_domains.py").exists()
+        assert Path("scripts/distill_domain.py").exists()
 
     def test_full_eval_script_exists(self):
         assert Path("scripts/run_full_eval.sh").exists()

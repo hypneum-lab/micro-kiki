@@ -215,3 +215,24 @@ models/
 wandb/
 outputs/
 .venv/
+
+# Generated examples (Claude CLI / Codex CLI output)
+examples/*.c
+examples/*.h
+examples/*.cir
+examples/*.md
+examples/*.csv
+examples/*.kicad_mod
+
+# Temp files
+_codex_out.txt
+_codex_test.txt
+*.pyc
+__pycache__/
+
+# Training outputs (large, gitignored)
+outputs/stacks/*/adapters.safetensors
+outputs/stacks/*/_train.py
+outputs/stacks/*/train_config.yaml
+outputs/stacks/*/lora_config.yaml
+outputs/*.log
