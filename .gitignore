@@ -236,3 +236,5 @@ outputs/stacks/*/_train.py
 outputs/stacks/*/train_config.yaml
 outputs/stacks/*/lora_config.yaml
 outputs/*.log
+models/niche-embeddings/model.safetensors
+models/niche-embeddings/pytorch_model.bin
