@@ -178,11 +178,14 @@ def fuse_projection(weight, adapter, prefix):
     return fused.astype(weight.dtype)
 
 
-def main():
-    base_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("models/Qwen3.5-4B")
-    adapter_path = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("output/micro-kiki/stacks/python")
-    output_dir = Path(sys.argv[3]) if len(sys.argv) > 3 else Path("output/micro-kiki/gguf/fused-model")
+def fuse_single(base_path, adapter_path, output_dir):
+    """Fuse a single MoE-LoRA adapter into a base model.
 
+    Args:
+        base_path: Path to base HF model directory.
+        adapter_path: Path to adapter stack directory (contains adapters.safetensors).
+        output_dir: Path to write the fused model.
+    """
     print(f"Base: {base_path}")
     print(f"Adapter: {adapter_path}")
     print(f"Output: {output_dir}")
@@ -234,6 +237,40 @@ def main():
         print(f"  ~/llama.cpp/build/bin/llama-quantize {output_dir.parent}/micro-kiki-v3-f16.gguf {output_dir.parent}/micro-kiki-v3-Q4_K_M.gguf Q4_K_M")
     else:
         print("  Install llama.cpp first")
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser(description="Fuse MoE-LoRA adapters (auto MLX/CUDA)")
+    ap.add_argument("base_model", help="Path to base HF model")
+    ap.add_argument("adapter", nargs="?", help="Path to single adapter stack dir")
+    ap.add_argument("output", nargs="?", help="Output dir for fused model")
+    ap.add_argument("--all-stacks", action="store_true",
+                     help="Fuse all stacks in --stacks-dir")
+    ap.add_argument("--stacks-dir", default="output/micro-kiki/stacks",
+                     help="Dir containing stack subdirs (default: output/micro-kiki/stacks)")
+    ap.add_argument("--out-dir", default="output/micro-kiki/gguf",
+                     help="Output directory for all fused models (default: output/micro-kiki/gguf)")
+    args = ap.parse_args()
+
+    if args.all_stacks:
+        stacks_dir = Path(args.stacks_dir)
+        out_base = Path(args.out_dir)
+        for stack_dir in sorted(stacks_dir.iterdir()):
+            if not stack_dir.is_dir():
+                continue
+            if not (stack_dir / "adapters.safetensors").exists():
+                continue
+            domain = stack_dir.name
+            out_dir = out_base / f"fused-{domain}"
+            print(f"\n{'='*60}")
+            print(f"Fusing: {domain}")
+            print(f"{'='*60}")
+            fuse_single(Path(args.base_model), stack_dir, out_dir)
+    else:
+        if not args.adapter or not args.output:
+            ap.error("Provide adapter and output paths, or use --all-stacks")
+        fuse_single(Path(args.base_model), Path(args.adapter), Path(args.output))
 
 
 if __name__ == "__main__":
