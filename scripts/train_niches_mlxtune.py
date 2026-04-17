@@ -47,8 +47,8 @@ LORA_TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj"]
 
 # domain: (rank, epochs, lr, seq_len, dropout)
 NICHE_DOMAINS: dict[str, tuple[int, int, float, int, float]] = {
-    "kicad-dsl":   (8,  2, 5e-5, 1024, 0.0),  # rank 8 + seq 1024 to avoid Metal OOM
-    "spice":       (8,  2, 5e-5, 1024, 0.0),  # same fix
+    "kicad-dsl":   (16, 2, 5e-5, 2048, 0.0),
+    "spice":       (16, 2, 5e-5, 2048, 0.0),
     "emc":         (12, 2, 3e-5, 2048, 0.0),
     "stm32":       (8,  2, 3e-5, 2048, 0.0),
     "embedded":    (12, 1, 3e-5, 2048, 0.0),   # huge dataset, 1 epoch
@@ -180,7 +180,7 @@ def train_domain(domain: str) -> None:
         "num_layers": 40,
         "learning_rate": lr,
         "batch_size": 1,
-        "grad_accumulation_steps": 2,  # 4 causes Metal OOM on MoE
+        "grad_accumulation_steps": 4,
         "iters": iters,
         "max_seq_length": seq_len,
         "grad_checkpoint": True,
@@ -200,14 +200,15 @@ def train_domain(domain: str) -> None:
     # Metal limits are set via environment wrapper script.
     train_script = f'''import mlx.core as mx
 mx.set_memory_limit(460 * 1024**3)
-mx.set_cache_limit(96 * 1024**3)  # x3 for MoE gradient accumulation
-from mlx_lm import lora as lora_mod
-import sys
-sys.argv = ["mlx_lm.lora",
-            "--config", "{config_path}",
+mx.set_cache_limit(32 * 1024**3)
+import os, sys
+os.environ["PYTHONPATH"] = "/Users/clems/KIKI-Mac_tunner/lib"
+sys.path.insert(0, "/Users/clems/KIKI-Mac_tunner/lib")
+from mlx_lm_fork.lora import main as lora_main
+sys.argv = ["lora", "-c", "{config_path}",
             "--data", "{data_path.parent}",
             "--adapter-path", "{output_dir}"]
-lora_mod.main()
+lora_main()
 '''
 
     script_path = output_dir / "_train.py"
