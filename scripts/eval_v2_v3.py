@@ -419,16 +419,58 @@ class SafetensorsBackend(AdapterBackend):
         )
 
 
-def _patch_moe_lora_forward(model) -> int:
-    """Monkey-patch model layers so MoE-LoRA deltas are applied during forward.
+class _MoELoRAWrappedLinear:
+    """Wrapper that replaces a nn.Linear + MoE-LoRA pair during inference.
+
+    MLX resolves __call__ through the class MRO, so monkey-patching
+    __call__ on an instance doesn't work. Instead we replace the module
+    attribute on the parent with this wrapper that acts as a callable
+    nn.Module-like object, combining base linear + MoE-LoRA delta.
+    """
+
+    def __init__(self, base_linear, moe_lora_layer):
+        self._base = base_linear
+        self._moe = moe_lora_layer
+        # Forward all attribute access to the base linear so the model
+        # can still access .weight, .bias, etc.
+        self.weight = base_linear.weight
+        if hasattr(base_linear, "bias"):
+            self.bias = base_linear.bias
+
+    def __call__(self, x):
+        base_out = self._base(x)
+        # MoE-LoRA expects 3D input (batch, seq, features)
+        if x.ndim == 2:
+            x_3d = x.reshape(1, *x.shape)
+            delta = self._moe(x_3d).reshape(x.shape[0], -1)
+        else:
+            delta = self._moe(x)
+        return base_out + delta
+
+    def __getattr__(self, name):
+        # Delegate any attribute access not found here to the base linear
+        return getattr(self._base, name)
+
+
+def _patch_moe_lora_forward(model, target_modules: list[str] | None = None) -> int:
+    """Replace linear projections with wrapped versions that add MoE-LoRA deltas.
 
     After apply_moe_lora() attaches MoELoRALayer as sibling attributes
     (e.g. mlp.gate_proj_moe_lora), the model's standard forward pass
-    does NOT use them. This function patches each Linear projection's
-    __call__ to add the MoE-LoRA delta.
+    does NOT use them. This function replaces each Linear module with
+    a _MoELoRAWrappedLinear that combines base + MoE-LoRA.
+
+    Note: MLX Module's dir() does NOT return dynamically setattr'd
+    submodules, so we use the known submodule/target names directly.
 
     Returns the number of projections patched.
     """
+    if target_modules is None:
+        target_modules = [
+            "q_proj", "k_proj", "v_proj", "o_proj",
+            "gate_proj", "up_proj", "down_proj",
+        ]
+
     patched = 0
 
     # Find the layers list (model.model.layers or model.language_model.model.layers)
@@ -440,45 +482,39 @@ def _patch_moe_lora_forward(model) -> int:
         layers = model.layers
 
     for layer in layers:
-        for sub_name in dir(layer):
+        for sub_name in ["self_attn", "mlp"]:
             sub = getattr(layer, sub_name, None)
             if sub is None:
                 continue
-            # Look for _moe_lora attributes on submodules (mlp, self_attn, etc.)
-            moe_attrs = [a for a in dir(sub) if a.endswith("_moe_lora")]
-            for moe_attr in moe_attrs:
-                moe_layer = getattr(sub, moe_attr)
-                # Derive the base projection name: "gate_proj_moe_lora" -> "gate_proj"
-                base_proj_name = moe_attr.replace("_moe_lora", "")
-                base_proj = getattr(sub, base_proj_name, None)
+            for target in target_modules:
+                moe_attr = f"{target}_moe_lora"
+                moe_layer = getattr(sub, moe_attr, None)
+                if moe_layer is None:
+                    continue
+                base_proj = getattr(sub, target, None)
                 if base_proj is None:
                     continue
 
-                # Save original __call__ and patch
-                if not hasattr(base_proj, "_original_call"):
-                    original_call = base_proj.__call__
+                # Skip if already wrapped
+                if isinstance(base_proj, _MoELoRAWrappedLinear):
+                    continue
 
-                    def make_patched(orig, moe):
-                        def patched_call(x):
-                            base_out = orig(x)
-                            # MoE-LoRA expects 3D input (batch, seq, features)
-                            if x.ndim == 2:
-                                x_3d = x.reshape(1, *x.shape)
-                                delta = moe(x_3d).reshape(x.shape[0], -1)
-                            else:
-                                delta = moe(x)
-                            return base_out + delta
-                        return patched_call
-
-                    base_proj.__call__ = make_patched(original_call, moe_layer)
-                    base_proj._original_call = original_call
-                    patched += 1
+                # Replace with wrapped version
+                wrapped = _MoELoRAWrappedLinear(base_proj, moe_layer)
+                setattr(sub, target, wrapped)
+                patched += 1
 
     return patched
 
 
-def _unpatch_moe_lora_forward(model) -> int:
-    """Reverse the monkey-patching done by _patch_moe_lora_forward."""
+def _unpatch_moe_lora_forward(model, target_modules: list[str] | None = None) -> int:
+    """Reverse the wrapping done by _patch_moe_lora_forward."""
+    if target_modules is None:
+        target_modules = [
+            "q_proj", "k_proj", "v_proj", "o_proj",
+            "gate_proj", "up_proj", "down_proj",
+        ]
+
     unpatched = 0
 
     if hasattr(model, "language_model"):
@@ -489,17 +525,15 @@ def _unpatch_moe_lora_forward(model) -> int:
         layers = model.layers
 
     for layer in layers:
-        for sub_name in dir(layer):
+        for sub_name in ["self_attn", "mlp"]:
             sub = getattr(layer, sub_name, None)
             if sub is None:
                 continue
-            moe_attrs = [a for a in dir(sub) if a.endswith("_moe_lora")]
-            for moe_attr in moe_attrs:
-                base_proj_name = moe_attr.replace("_moe_lora", "")
-                base_proj = getattr(sub, base_proj_name, None)
-                if base_proj is not None and hasattr(base_proj, "_original_call"):
-                    base_proj.__call__ = base_proj._original_call
-                    del base_proj._original_call
+            for target in target_modules:
+                proj = getattr(sub, target, None)
+                if isinstance(proj, _MoELoRAWrappedLinear):
+                    # Restore the original linear
+                    setattr(sub, target, proj._base)
                     unpatched += 1
     return unpatched
 

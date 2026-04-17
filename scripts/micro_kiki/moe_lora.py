@@ -133,8 +133,12 @@ class MoELoRALayer(nn.Module):
         h = nn.gelu(self.router_w1(x))           # (B, T, router_hidden)
         logits = self.router_w2(h)                 # (B, T, num_experts)
 
-        # Top-k selection
-        top_k_logits, indices = mx.topk(logits, k=self.top_k, axis=-1)
+        # Top-k selection — mx.topk returns values only (no indices)
+        # Use argsort to get indices, then gather the logits
+        sorted_indices = mx.argsort(logits, axis=-1)
+        # Take the last top_k (highest logits)
+        indices = sorted_indices[..., -self.top_k:]
+        top_k_logits = mx.take_along_axis(logits, indices, axis=-1)
         weights = mx.softmax(top_k_logits, axis=-1)  # normalize over selected
         return weights, indices
 
