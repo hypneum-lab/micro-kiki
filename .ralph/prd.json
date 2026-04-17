@@ -169,7 +169,8 @@
       "title": "Full cognitive layer E2E",
       "description": "End-to-end test of the complete cognitive pipeline: Aeon recall → domain router → stacks → Negotiator → Anti-bias → Aeon write. Use a 10-turn hardware design session touching at least 3 domains. Verify all layers activate correctly, no layer is bypassed silently. Acceptance: all cognitive layer components appear in trace log, session concludes without errors, final response passes spot-check.",
       "priority": 23,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-24",
