@@ -401,19 +401,10 @@ class AeonSleep:
                 size=cluster.size,
             )
             # Put the summary into the atlas so recall can hit it too.
-            self.atlas.add(
-                sid,
-                cluster.embedding,
-                payload={
-                    "text": cluster.text,
-                    "topic": cluster.topic,
-                    "size": cluster.size,
-                    "is_summary": True,
-                },
-            )
+            self.atlas.insert(sid, np.array(cluster.embedding, dtype=np.float32))
             for member in cluster.member_ids:
                 if self.graph.has_node(member):
-                    self.graph.add_edge(member, sid, kind="summary_of")
+                    self.graph.add_typed_edge(member, sid, "summary_of")
                     covered.add(member)
         return covered
 
