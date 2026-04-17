@@ -231,10 +231,36 @@ def run_residual_boost_round(
 def _project_all_grads(grads, projectors: dict):
     """Apply null-space projection to all MoE-LoRA gradients.
 
-    This is a recursive walk matching gradient keys to projector keys.
-    Only MoE-LoRA weights (keys containing '_moe_lora') are projected.
+    Matches gradients to projectors by:
+    1. Extracting the relative key suffix from the gradient path
+    2. Looking up an exact match in the projectors dict
+    3. Verifying dimensions match (guards against dynamic rank mismatches)
     """
     from micro_kiki.null_space import project_gradient
+
+    # Pre-build a lookup: normalize projector keys to their suffix
+    # e.g. "language_model.model.layers.0.mlp.down_proj_moe_lora.experts.0.lora_a"
+    #    -> "layers.0.mlp.down_proj_moe_lora.experts.0.lora_a"
+    proj_lookup = {}
+    for full_key, P in projectors.items():
+        # Normalize: strip common prefixes
+        suffix = full_key
+        for prefix_strip in ("language_model.model.", "model.language_model.", "model."):
+            if suffix.startswith(prefix_strip):
+                suffix = suffix[len(prefix_strip):]
+                break
+        proj_lookup[suffix] = P
+
+    def _normalize_grad_key(prefix):
+        """Normalize gradient tree path to match projector key format."""
+        # Gradient paths look like: model.language_model.layers.0.mlp...
+        # or just: layers.0.mlp... depending on tree structure
+        key = prefix
+        for prefix_strip in ("model.language_model.", "language_model.model.", "model."):
+            if key.startswith(prefix_strip):
+                key = key[len(prefix_strip):]
+                break
+        return key
 
     def _walk(g, prefix=""):
         if isinstance(g, dict):
@@ -242,10 +268,16 @@ def _project_all_grads(grads, projectors: dict):
         elif isinstance(g, list):
             return [_walk(v, f"{prefix}.{i}") for i, v in enumerate(g)]
         elif isinstance(g, mx.array):
-            # Check if this gradient belongs to a MoE-LoRA layer
-            for layer_name, P in projectors.items():
-                if layer_name in prefix:
+            if "_moe_lora" not in prefix:
+                return g
+            norm_key = _normalize_grad_key(prefix)
+            P = proj_lookup.get(norm_key)
+            if P is not None:
+                grad_flat_size = g.size
+                proj_dim = P.shape[-1]
+                if proj_dim == grad_flat_size:
                     return project_gradient(g, P)
+                # Dimension mismatch (dynamic rank changed tensor size) — skip
             return g
         return g
 

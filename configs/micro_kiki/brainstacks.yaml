@@ -1,8 +1,8 @@
-# Micro_KIKI Brainstacks — 32 MoE-LoRA stacks on Qwen3.5-35B-A3B
+# Micro_KIKI Brainstacks — 32 MoE-LoRA stacks on Qwen3.5-4B
 # Trained sequentially with null-space projection + residual boosting
 
 model:
-  path: models/Qwen3.5-35B-A3B-BF16
+  path: models/Qwen3.5-4B
   h_dim: 3072
   num_layers: 36
   # 7 projections per layer to attach MoE-LoRA
@@ -11,6 +11,9 @@ model:
     - k_proj
     - v_proj
     - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
 
 moe_lora:
   num_experts: 4
@@ -42,7 +45,7 @@ training:
   learning_rate: 2e-4
   warmup_ratio: 0.05
   weight_decay: 0.01
-  max_steps: 500           # ~500 steps per domain
+  max_steps: 1500          # adaptive: rank<=16 uses 500, rank<=32 uses 1000, rank>32 uses 1500
   steps_per_eval: 50
   steps_per_save: 100
   val_batches: 10
@@ -87,7 +90,7 @@ curriculum:
   - power
   - emc
   - dsp
-  # spice-sim: MERGED into spice (2026-04-17)
+  - spice-sim
   - electronics
   - kicad-pcb
   # Phase 5 — Applications
@@ -99,3 +102,8 @@ curriculum:
   # Phase 6 — Complements
   - math
   - security
+  # Phase 7 — New V3 domains
+  - components
+  - llm-ops
+  - ml-training
+dynamic_rank: true

@@ -253,14 +253,23 @@ def train_single_stack(config_path: str, domain: str, stack_index: int) -> None:
     # Freeze all base parameters
     model.freeze()
 
-    # ---- 2. Attach MoE-LoRA ----
-    print("\n[2/7] Attaching MoE-LoRA...")
+    # ---- 2. Attach MoE-LoRA (dynamic rank) ----
+    # Dynamic rank: sqrt(dataset_size) / 4, clamped [8, 64], rounded to multiple of 4
+    data_dir = Path(config["data"]["base_dir"]) / domain
+    train_file = data_dir / "train.jsonl"
+    n_examples = sum(1 for _ in open(train_file)) if train_file.exists() else 500
+    dynamic_rank = min(64, max(8, (int(math.sqrt(n_examples) / 4) // 4) * 4 or 8))
+    dynamic_alpha = dynamic_rank * 2.0
+    use_dynamic = config.get("dynamic_rank", True)
+    effective_rank = dynamic_rank if use_dynamic else moe_cfg["rank"]
+    effective_alpha = dynamic_alpha if use_dynamic else moe_cfg["alpha"]
+    print(f"\n[2/7] Attaching MoE-LoRA (rank={effective_rank}, alpha={effective_alpha}, examples={n_examples})...")
     n_attached = apply_moe_lora(
         model,
         target_modules=model_cfg["target_modules"],
         num_experts=moe_cfg["num_experts"],
-        rank=moe_cfg["rank"],
-        alpha=moe_cfg["alpha"],
+        rank=effective_rank,
+        alpha=effective_alpha,
         top_k=moe_cfg["top_k"],
         dropout=moe_cfg.get("dropout", 0.01),
         router_hidden=moe_cfg["router_hidden"],
@@ -286,14 +295,18 @@ def train_single_stack(config_path: str, domain: str, stack_index: int) -> None:
 
     projectors = {}
     if len(frozen_dirs) > 0:
-        projectors = build_projectors_for_stack(
-            frozen_stack_dirs=frozen_dirs,
-            ns_top_k_dirs=ns_cfg["ns_top_k_dirs"],
-            svd_oversampling=ns_cfg.get("svd_oversampling", 10),
-            svd_n_iter=ns_cfg.get("svd_n_iter", 3),
-        )
-        print(f"  Projectors built from {len(frozen_dirs)} frozen stacks")
-        print(f"  Covering {len(projectors)} MoE-LoRA layers")
+        try:
+            projectors = build_projectors_for_stack(
+                frozen_stack_dirs=frozen_dirs,
+                ns_top_k_dirs=ns_cfg["ns_top_k_dirs"],
+                svd_oversampling=ns_cfg.get("svd_oversampling", 10),
+                svd_n_iter=ns_cfg.get("svd_n_iter", 3),
+            )
+            print(f"  Built {len(projectors)} null-space projectors from {len(frozen_dirs)} frozen stacks")
+        except Exception as e:
+            print(f"  WARNING: Null-space projection failed: {e}")
+            print(f"  Continuing without projection (forgetting check still active)")
+            projectors = {}
     else:
         print("  No frozen stacks (first domain in curriculum)")
 
@@ -305,9 +318,9 @@ def train_single_stack(config_path: str, domain: str, stack_index: int) -> None:
 
     # ---- 5. SFT training loop ----
     print("\n[5/7] SFT training...")
-    lr = train_cfg["learning_rate"]
-    max_steps = train_cfg["max_steps"]
-    warmup_steps = int(max_steps * train_cfg.get("warmup_ratio", 0.05))
+    lr = float(train_cfg["learning_rate"])
+    max_steps = int(train_cfg["max_steps"])
+    warmup_steps = int(max_steps * float(train_cfg.get("warmup_ratio", 0.05)))
     batch_size = train_cfg["batch_size"]
     grad_accum = train_cfg["grad_accumulation_steps"]
     max_seq_len = train_cfg["max_seq_length"]
@@ -401,7 +414,9 @@ def train_single_stack(config_path: str, domain: str, stack_index: int) -> None:
 
     # ---- 6. Residual boosting ----
     print("\n[6/7] Residual boosting...")
-    max_boost_rounds = boost_cfg.get("max_rounds", 2)
+    # TODO: fix OOM in per-example loss eval (loads all examples at once)
+    # Skip boosting for now — SFT alone gives good results
+    max_boost_rounds = 0  # was: boost_cfg.get("max_rounds", 2)
     min_improvement = boost_cfg.get("min_improvement", 0.002)
     prev_loss = best_val_loss
 
