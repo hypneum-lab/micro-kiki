@@ -48,6 +48,8 @@ ALL_DOMAINS: list[str] = [
 # ---------------------------------------------------------------------------
 
 SOURCES: list[tuple[str, str]] = [
+    ("claude-cli",     "data/mcp-generated/{domain}/train.jsonl"),
+    ("codex-cli",      "data/codex-generated/{domain}/train.jsonl"),
     ("filtered",       "data/filtered/{domain}/train.jsonl"),
     ("distilled-480b", "data/distilled-480b/{domain}/train.jsonl"),
     ("merged",         "data/merged/{domain}/train.jsonl"),
