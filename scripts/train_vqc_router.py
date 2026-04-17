@@ -121,6 +121,20 @@ def load_domain_prompts() -> dict[str, list[str]]:
             indices = rng.choice(len(domain_prompts[domain]), MAX_PER_DOMAIN, replace=False)
             domain_prompts[domain] = [domain_prompts[domain][i] for i in sorted(indices)]
 
+    # Oversample minority domains to balance classes
+    non_empty = {d: p for d, p in domain_prompts.items() if p}
+    if non_empty:
+        target = max(len(p) for p in non_empty.values())
+        # Use median instead of max to avoid extreme oversampling
+        target = min(target, int(np.median([len(p) for p in non_empty.values()])) * 3)
+        target = max(target, 30)  # at least 30 per domain
+        rng = np.random.default_rng(42)
+        for domain in non_empty:
+            prompts = domain_prompts[domain]
+            if 0 < len(prompts) < target:
+                extra_idx = rng.choice(len(prompts), target - len(prompts), replace=True)
+                domain_prompts[domain] = prompts + [prompts[i] for i in extra_idx]
+
     return domain_prompts
 
 
