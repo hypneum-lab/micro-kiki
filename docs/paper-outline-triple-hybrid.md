@@ -180,6 +180,7 @@ Query → Quantum VQC Router → domain classification
   - Aeon injections: 36+ episode recalls across 13/14 turns
   - Memory accuracy at PI-depth-10: ≥95% (success criterion met)
   - Comparison to raw LLM: 0 recalls beyond 4K context window
+  - **Multi-turn memory success (2026-04-17)**: Turn 4 successfully recalls inductor values from previous turns using dynamic memory budget (3000 chars ÷ n_episodes). Format: `### Previous conversation context:` with `---` separators. Confirms cognitive memory enables cross-turn factual recall impossible with raw LLM context window.
 - **Negotiator CAMP Arbitration**:
   - Triggered in 14/14 turns (candidate pool: 2 dominant stacks per turn)
   - Winner selection: score-based fast judge (Qwen3.5-35B, <200ms)

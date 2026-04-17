@@ -419,33 +419,230 @@ class SafetensorsBackend(AdapterBackend):
         )
 
 
+def _patch_moe_lora_forward(model) -> int:
+    """Monkey-patch model layers so MoE-LoRA deltas are applied during forward.
+
+    After apply_moe_lora() attaches MoELoRALayer as sibling attributes
+    (e.g. mlp.gate_proj_moe_lora), the model's standard forward pass
+    does NOT use them. This function patches each Linear projection's
+    __call__ to add the MoE-LoRA delta.
+
+    Returns the number of projections patched.
+    """
+    patched = 0
+
+    # Find the layers list (model.model.layers or model.language_model.model.layers)
+    if hasattr(model, "language_model"):
+        layers = model.language_model.model.layers
+    elif hasattr(model, "model"):
+        layers = model.model.layers
+    else:
+        layers = model.layers
+
+    for layer in layers:
+        for sub_name in dir(layer):
+            sub = getattr(layer, sub_name, None)
+            if sub is None:
+                continue
+            # Look for _moe_lora attributes on submodules (mlp, self_attn, etc.)
+            moe_attrs = [a for a in dir(sub) if a.endswith("_moe_lora")]
+            for moe_attr in moe_attrs:
+                moe_layer = getattr(sub, moe_attr)
+                # Derive the base projection name: "gate_proj_moe_lora" -> "gate_proj"
+                base_proj_name = moe_attr.replace("_moe_lora", "")
+                base_proj = getattr(sub, base_proj_name, None)
+                if base_proj is None:
+                    continue
+
+                # Save original __call__ and patch
+                if not hasattr(base_proj, "_original_call"):
+                    original_call = base_proj.__call__
+
+                    def make_patched(orig, moe):
+                        def patched_call(x):
+                            base_out = orig(x)
+                            # MoE-LoRA expects 3D input (batch, seq, features)
+                            if x.ndim == 2:
+                                x_3d = x.reshape(1, *x.shape)
+                                delta = moe(x_3d).reshape(x.shape[0], -1)
+                            else:
+                                delta = moe(x)
+                            return base_out + delta
+                        return patched_call
+
+                    base_proj.__call__ = make_patched(original_call, moe_layer)
+                    base_proj._original_call = original_call
+                    patched += 1
+
+    return patched
+
+
+def _unpatch_moe_lora_forward(model) -> int:
+    """Reverse the monkey-patching done by _patch_moe_lora_forward."""
+    unpatched = 0
+
+    if hasattr(model, "language_model"):
+        layers = model.language_model.model.layers
+    elif hasattr(model, "model"):
+        layers = model.model.layers
+    else:
+        layers = model.layers
+
+    for layer in layers:
+        for sub_name in dir(layer):
+            sub = getattr(layer, sub_name, None)
+            if sub is None:
+                continue
+            moe_attrs = [a for a in dir(sub) if a.endswith("_moe_lora")]
+            for moe_attr in moe_attrs:
+                base_proj_name = moe_attr.replace("_moe_lora", "")
+                base_proj = getattr(sub, base_proj_name, None)
+                if base_proj is not None and hasattr(base_proj, "_original_call"):
+                    base_proj.__call__ = base_proj._original_call
+                    del base_proj._original_call
+                    unpatched += 1
+    return unpatched
+
+
 class MLXBackend(AdapterBackend):
-    """Real MLX backend for Apple Silicon eval."""
+    """Real MLX backend for Apple Silicon eval with MoE-LoRA support.
+
+    Uses the custom MoE-LoRA module from scripts/micro_kiki/moe_lora.py
+    to properly apply per-expert LoRA adapters during inference.
+    Handles Qwen3.5 thinking mode by stripping <think>...</think> tags.
+    """
+
+    # MoE-LoRA config matching brainstacks.yaml
+    MOE_LORA_CONFIG = {
+        "num_experts": 4,
+        "rank": 16,
+        "alpha": 32.0,
+        "top_k": 2,
+        "router_hidden": 64,
+    }
+
+    # Target projections for MoE-LoRA
+    TARGET_MODULES = [
+        "q_proj", "k_proj", "v_proj", "o_proj",
+        "gate_proj", "up_proj", "down_proj",
+    ]
 
     def __init__(self):
         self._model = None
         self._tokenizer = None
-        self._active_adapter = None
+        self._base_model_path: str | None = None
+        self._current_adapter_id: str | None = None
+        self._moe_lora_attached = False
+
+    def _strip_thinking(self, text: str) -> str:
+        """Strip Qwen3.5 <think>...</think> blocks from response."""
+        return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+    def _get_apply_moe_lora(self):
+        """Import apply_moe_lora from the project's micro_kiki module."""
+        try:
+            # Try importing from the project's scripts directory
+            import importlib.util
+            for scripts_dir in [
+                Path(self._base_model_path).parent.parent / "scripts",
+                PROJECT_ROOT / "scripts",
+            ]:
+                moe_path = scripts_dir / "micro_kiki" / "moe_lora.py"
+                if moe_path.exists():
+                    spec = importlib.util.spec_from_file_location(
+                        "micro_kiki.moe_lora", str(moe_path)
+                    )
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    return mod.apply_moe_lora
+        except Exception as exc:
+            logger.warning("Failed to import moe_lora: %s", exc)
+
+        # Fallback: try sys.path
+        try:
+            from micro_kiki.moe_lora import apply_moe_lora
+            return apply_moe_lora
+        except ImportError:
+            raise RuntimeError(
+                "Cannot import apply_moe_lora. Ensure scripts/micro_kiki/moe_lora.py "
+                "exists in the project or is on PYTHONPATH."
+            )
 
     def load_base_model(self, path: str) -> None:
         try:
             from mlx_lm import load
+            self._base_model_path = path
+            logger.info("Loading base model from %s ...", path)
             self._model, self._tokenizer = load(path)
+            self._model.freeze()
+            self._current_adapter_id = None
+            self._moe_lora_attached = False
+            logger.info("Base model loaded successfully")
         except ImportError:
             raise RuntimeError("mlx-lm not installed. Run: pip install mlx-lm")
 
+    def _attach_moe_lora(self) -> None:
+        """Attach MoE-LoRA layer structure to the model (once)."""
+        if self._moe_lora_attached:
+            return
+
+        apply_moe_lora = self._get_apply_moe_lora()
+
+        # Find the right submodel to attach to
+        if hasattr(self._model, "language_model"):
+            target = self._model.language_model
+        else:
+            target = self._model
+
+        cfg = self.MOE_LORA_CONFIG
+        n = apply_moe_lora(
+            target,
+            target_modules=self.TARGET_MODULES,
+            num_experts=cfg["num_experts"],
+            rank=cfg["rank"],
+            alpha=cfg["alpha"],
+            top_k=cfg["top_k"],
+            router_hidden=cfg["router_hidden"],
+        )
+        logger.info("Attached %d MoE-LoRA layers to model", n)
+        self._moe_lora_attached = True
+
     def load_adapter(self, adapter_dir: str) -> str:
-        """Load MoE-LoRA adapter weights from a stack directory."""
+        """Load MoE-LoRA adapter weights and patch the forward pass."""
         import mlx.core as mx
+
         adapter_path = Path(adapter_dir) / "adapters.safetensors"
         if not adapter_path.exists():
             raise FileNotFoundError(f"No adapter at {adapter_path}")
-        self._active_adapter = mx.load(str(adapter_path))
+
+        # Ensure MoE-LoRA structure is attached
+        self._attach_moe_lora()
+
+        # Load adapter weights (only _moe_lora keys will match)
+        logger.info("Loading adapter weights from %s ...", adapter_dir)
+        self._model.load_weights(str(adapter_path), strict=False)
+
+        # Patch forward pass to use MoE-LoRA deltas
+        n_patched = _patch_moe_lora_forward(self._model)
+        logger.info("Patched %d projections with MoE-LoRA forward", n_patched)
+
         adapter_id = Path(adapter_dir).name
+        self._current_adapter_id = adapter_id
         return adapter_id
 
     def unload_adapter(self, adapter_id: str) -> None:
-        self._active_adapter = None
+        """Unpatch MoE-LoRA forward and reload base model to clear weights."""
+        if self._current_adapter_id is not None:
+            n = _unpatch_moe_lora_forward(self._model)
+            logger.debug("Unpatched %d projections", n)
+
+            # Reload base model to clear adapter weights
+            from mlx_lm import load
+            logger.info("Reloading base model to clear adapter weights ...")
+            self._model, self._tokenizer = load(self._base_model_path)
+            self._model.freeze()
+            self._moe_lora_attached = False
+            self._current_adapter_id = None
 
     def generate(
         self,
@@ -456,14 +653,22 @@ class MLXBackend(AdapterBackend):
     ) -> str:
         from mlx_lm import generate as mlx_generate
         messages = [{"role": "user", "content": prompt}]
-        formatted = self._tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
-        )
+        try:
+            formatted = self._tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+                enable_thinking=False,
+            )
+        except TypeError:
+            # Fallback if enable_thinking is not supported
+            formatted = self._tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+            )
         response = mlx_generate(
             self._model, self._tokenizer, prompt=formatted,
-            max_tokens=max_tokens, temp=temperature, verbose=False,
+            max_tokens=max_tokens, verbose=False,
         )
-        return response
+        # Strip any residual thinking tags
+        return self._strip_thinking(response)
 
     def compute_perplexity(
         self,

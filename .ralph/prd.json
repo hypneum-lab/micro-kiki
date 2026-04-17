@@ -344,7 +344,8 @@
     {
       "id": "story-48",
       "priority": 48,
-      "passes": false,
+      "passes": true,
+      "status": "done",
       "title": "Domain-specific embedding model",
       "description": "Fine-tune embedding model (MiniLM or Qwen3-Embedding via mlx-tune EmbeddingSFTTrainer) on niche domain text. Training data: all merged datasets as positive pairs (same-domain = similar, cross-domain = dissimilar). Output: models/niche-embeddings/. Replace hash-based stub in src/memory/aeon.py."
     },
