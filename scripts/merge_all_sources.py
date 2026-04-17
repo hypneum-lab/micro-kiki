@@ -53,6 +53,7 @@ SOURCES: list[tuple[str, str]] = [
     ("filtered",       "data/filtered/{domain}/train.jsonl"),
     ("distilled-480b", "data/distilled-480b/{domain}/train.jsonl"),
     ("merged",         "data/merged/{domain}/train.jsonl"),
+    ("hf-extra",       "data/hf-extra/{domain}/train.jsonl"),
 ]
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
