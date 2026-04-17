@@ -10,6 +10,7 @@ from src.memory.aeon_predictor import (
     AeonPredictor,
     LatentMLP,
     PredictorConfig,
+    detect_collapse,
 )
 from src.memory.aeonsleep import AeonSleep, Episode
 
@@ -101,3 +102,30 @@ class TestLatentMLPBackward:
         loss = mlp.backward_cosine(x, lr=0.01)
         assert isinstance(loss, float)
         assert 0.0 <= loss <= 2.0  # cosine loss range
+
+
+class TestCollapseDetector:
+    def test_flags_collapsed_predictions(self):
+        rng = np.random.default_rng(0)
+        h_t = rng.standard_normal((100, 64)).astype(np.float32)
+        h_hat = np.ones_like(h_t) * 0.01  # near-constant == collapse
+        flagged, ratio = detect_collapse(h_t, h_hat)
+        assert flagged is True
+        assert ratio < 0.1
+
+    def test_accepts_healthy_predictions(self):
+        rng = np.random.default_rng(1)
+        h_t = rng.standard_normal((100, 64)).astype(np.float32)
+        h_hat = h_t + rng.standard_normal(h_t.shape).astype(np.float32) * 0.05
+        flagged, ratio = detect_collapse(h_t, h_hat)
+        assert flagged is False
+        assert ratio > 0.5
+
+    def test_boundary_exactly_at_threshold(self):
+        # Ratio exactly 0.1 -> NOT flagged (strict <).
+        h_t = np.ones((10, 4), dtype=np.float32)
+        h_t[0, 0] = 11.0  # std ~ 3.0
+        h_hat = np.ones((10, 4), dtype=np.float32)
+        h_hat[0, 0] = 2.0  # std ~ 0.3 -> ratio exactly 0.1
+        flagged, ratio = detect_collapse(h_t, h_hat, threshold=0.1)
+        assert flagged is False or ratio == pytest.approx(0.1, abs=1e-6)

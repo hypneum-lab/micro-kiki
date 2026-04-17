@@ -42,6 +42,24 @@ class PredictorConfig:
     seed: int = 0
 
 
+def detect_collapse(
+    h_t: np.ndarray, h_hat: np.ndarray, threshold: float = 0.1
+) -> tuple[bool, float]:
+    """Flag predictor collapse when std(h_hat) << std(h_t).
+
+    Returns (flagged, ratio). ratio = std(h_hat) / std(h_t) averaged
+    across feature dims. Flagged is True iff ratio < threshold.
+    """
+    if h_t.shape != h_hat.shape:
+        raise ValueError(f"shape mismatch {h_t.shape} vs {h_hat.shape}")
+    std_t = float(np.std(h_t))
+    std_hat = float(np.std(h_hat))
+    if std_t < 1e-9:
+        return False, 1.0
+    ratio = std_hat / std_t
+    return bool(ratio < threshold), float(ratio)
+
+
 def _relu(x: np.ndarray) -> np.ndarray:
     return np.maximum(0.0, x)
 
