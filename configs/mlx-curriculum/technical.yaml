@@ -1,5 +1,6 @@
 # micro-kiki MLX LoRA — technical
-# Domains: embedded, stm32, iot, freecad, platformio, power, emc, dsp, spice-sim, electronics, kicad-pcb
+# Domains: embedded, stm32, iot, freecad, platformio, power, emc, dsp, electronics, kicad-pcb
+# Note: spice-sim merged into spice domain (2026-04-17)
 # Rank 4, seq 2048, 200 iters
 
 model: models/qwen3.5-35b-a3b

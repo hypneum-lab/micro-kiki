@@ -10,7 +10,8 @@ import yaml
 PHASE_VI_STACKS = [
     (15, "embedded"), (16, "stm32"), (17, "iot"), (18, "freecad"),
     (19, "platformio"), (20, "power"), (21, "emc"), (22, "dsp"),
-    (23, "spice-sim"), (24, "electronics"), (25, "kicad-pcb"),
+    # (23, "spice-sim"),  # merged into spice domain (2026-04-17)
+    (24, "electronics"), (25, "kicad-pcb"),
 ]
 
 REQUIRED_CONFIG_KEYS = [

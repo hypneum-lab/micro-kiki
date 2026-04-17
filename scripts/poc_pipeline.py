@@ -108,7 +108,8 @@ class MicroKikiPipeline:
         """Simple keyword-based domain detection."""
         query_lower = query.lower()
         domain_keywords = {
-            "spice": ["spice", "netlist", "ngspice", "ltspice", ".subckt", ".model", "transient", "simulation"],
+            "spice": ["spice", "netlist", "ngspice", "ltspice", ".subckt", ".model", "transient", "simulation",
+                      "ac analysis", "dc sweep", "monte carlo", "convergence", "bode", "waveform", "parametric"],
             "kicad-dsl": ["kicad", "schematic", "footprint", "s-expression", "pcb layout", "symbol"],
             "emc": ["emc", "emi", "shielding", "cispr", "grounding", "esd", "compliance", "radiated"],
             "stm32": ["stm32", "hal_", "cubemx", "cortex-m", "stm32f", "stm32h"],

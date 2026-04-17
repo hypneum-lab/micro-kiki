@@ -69,7 +69,7 @@ ACCEPTANCE_PROMPTS = [
     {"prompt": "Explain KiCad PCB layer stack for 4-layer board", "expected_meta_intent": "research",
      "expected_stacks": ["stack-32-security"], "domain_idx": 31},
     {"prompt": "Design a buck converter 12V to 3.3V", "expected_meta_intent": "research",
-     "expected_stacks": ["stack-23-spice-sim"], "domain_idx": 22},
+     "expected_stacks": ["stack-13-spice"], "domain_idx": 12},  # spice-sim merged into spice
     # agentic — 3 prompts
     {"prompt": "Set up FreeRTOS tasks for sensor polling", "expected_meta_intent": "agentic",
      "expected_stacks": ["stack-16-stm32"], "domain_idx": 15},

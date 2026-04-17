@@ -161,7 +161,8 @@
       "title": "Anti-bias pipeline test",
       "description": "Test KnowBias double-application and RBD runtime detector on 20 bias-probe prompts from the 5,213-pair dataset. Verify: RBD flags biased responses, DeFrame re-generation is triggered on flagged responses, re-generated responses score lower on bias probe. Acceptance: bias detection precision ≥ 0.75 on held-out probe set, DeFrame reduces bias score by ≥ 20% on flagged samples.",
       "priority": 22,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-23",
@@ -182,7 +183,8 @@
       "title": "LAS convert Qwen3.5-27B → SpikingKiki-27B",
       "description": "Run Latency-Aware Spiking (LAS) conversion on Qwen3.5-27B to produce SpikingKiki-27B. Estimated ~30h on Mac Studio. Use LAS conversion scripts in `src/spiking/`. Output SNN weights to `outputs/snn/spikingkiki-27b/`. Monitor membrane potential convergence and firing rate statistics. Acceptance: conversion completes without NaN loss, firing rate histogram saved, model loadable for inference.",
       "priority": 25,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-26",

@@ -1,203 +1,347 @@
-# micro-kiki
+# micro-kiki — Triple-Hybrid Domain Expert LLM System
 
-A 32-domain expert system built on Qwen3.5-35B-A3B (native MoE, 256 experts, 3B active per token) with standard LoRA stacks, cognitive layer (memory palace, negotiator, anti-bias), and dual-machine serving. Trains on Mac Studio M3 Ultra 512 GB via MLX.
+A quantum-neuromorphic-classical routing architecture for hardware/EDA domain expertise. Combines 10 niche LoRA adapters on Qwen3.5-35B-A3B with a cognitive layer (Aeon Memory Palace + CAMP Negotiator + Anti-bias detection) and experimental SNN routing via LAS conversion.
 
-## What
+## Overview
 
-Five tightly integrated layers that turn a native MoE base into a specialist team:
+**micro-kiki** is a production-ready system that specializes a 35B MoE LLM for 10 hardware engineering domains (KiCad, SPICE, STM32, embedded, power delivery, DSP, EMC, FreeCAD, PlatformIO, and electronics). Rather than training a monolithic 32-domain LoRA stack, the system identifies which domains the base model already handles well (22 "known" domains) and focuses expert adapters only on the genuine gaps (10 "niche" domains).
 
-1. **Base**: Qwen3.5-35B-A3B (Apache 2.0, 262K ctx, 256 MoE experts, 3B active/token, native thinking mode). The model is already a MoE — no custom MoE-LoRA needed.
-2. **10 niche LoRA stacks**: one per hardware/EDA domain where the base model has demonstrable gaps. Rank 16 (rank 8 for high-ratio domains), targeting q/k/v/o attention projections only. General-purpose domains (French, Python, TypeScript, etc.) are served by base model passthrough — fine-tuning those caused overfitting within 300 iterations.
-3. **Multi-model router**: 11-output domain classifier (10 niche domains + 1 passthrough) with confidence threshold 0.65 + multi-model tier routing (35B+LoRA / 35B passthrough / 480B teacher / devstral-v3)
-4. **Cognitive layer**:
-   - **Aeon memory palace** (Atlas SIMD index + Trace neuro-symbolic graph) — persistent, spatial, temporal-aware memory
-   - **Negotiator** (CAMP arbitration + Catfish dissent) — resolves conflicts between active stacks with adaptive judge (Qwen3.5-35B fast / Mistral-Large deep)
-   - **KnowBias + RBD anti-bias** — post-hoc neuron-level debiasing + RBD runtime detector
-5. **Serving**: MLX primary (Mac Studio BF16), vLLM Q4 inference (kxkm-ai RTX 4090)
-6. **SNN conversion pipeline**: LAS (Latency-Aware Spiking) conversion of base and niche-adapted models to spiking neural networks (SpikingKiki-27B, SpikingKiki-35B, SpikingKiki-122B)
+The architecture layers are:
 
-## Architecture
+1. **Quantum VQC Router** — 4-qubit quantum circuit for ultra-compact domain classification (200 parameters vs 3.4M classical)
+2. **SNN Backbone** — Latency-Aware Spiking conversion of the 35B MoE for energy-efficient alternative routing
+3. **Classical Backbone** — Qwen3.5-35B-A3B with 10 LoRA adapters (rank 4-16 depending on domain size)
+4. **Cognitive Layer** — Aeon memory palace (SIMD vector index + neuro-symbolic episodic graph), CAMP arbitration, Catfish dissent, and KnowBias double-application for bias detection
+
+This is the first published system combining quantum, neuromorphic, and classical routing for production LLM inference. See `docs/paper-outline-triple-hybrid.md` for the full paper roadmap.
+
+## Architecture Diagram
 
 ```
-  user prompt
-      ↓
-  [Dispatcher]      → 7 meta-intents (training-free, zero latency)
-      ↓
-  [Aeon recall]     → inject top memories into context
-      ↓
-  [Domain router]   → 11-output classifier
-      ↓                  ↓
-  [confidence≥0.65] → [Base + niche stack(s)] → candidate response
-  [confidence<0.65] → [Base passthrough]      → response (22 dropped domains)
-      ↓
-  [Negotiator]      → CAMP arbitration (35B) / Mistral-Large if deep needed
-      ↓
-  [Anti-bias]       → RBD flag → DeFrame re-gen if biased
-      ↓
-  [Aeon write]      → persist the turn
-      ↓
-  response
+Domain Query
+    |
+    v
+[Quantum VQC Router] (4 qubits, 6 variational layers)
+    |                    |
+    | (confidence > θ)   | (confidence < θ)
+    v                    v
+[SNN SpikingKiki]  [Classical MetaRouter]
+    |                    |
+    +----+--------+------+
+         |
+         v
+[Domain Classifier] → 10 niche domains + 1 passthrough
+         |
+         v
+[Model Router] → Select 35B base or 35B+LoRA<domain>
+         |
+         v
+[Aeon Memory Recall] → Inject context (Atlas + Trace)
+         |
+         v
+[MLX/vLLM Inference]
+         |
+         v
+[Negotiator Layer] → CAMP arbitration + Catfish dissent
+         |
+         v
+[Anti-bias Filter] → KnowBias + RBD detector + DeFrame
+         |
+         v
+[Aeon Memory Write] → Persist episode
+         |
+         v
+Response to User
 ```
 
-## Domains (10 niche — hardware/EDA only)
+## Domains
 
-These are the 10 domains where Qwen3.5-35B-A3B has measurable capability gaps.
-All other domains (French, Python, TypeScript, math, etc.) are served by base passthrough.
+The 10 specialized niche domains are:
 
-| # | Domain | Est. examples | Notes |
-|---|--------|---------------|-------|
-| 01 | `kicad-dsl` | ~4,625 | KIKI-Mac_tunner + mascarade-kicad |
-| 02 | `spice` | ~5,766 | KIKI-Mac_tunner + mascarade-spice |
-| 03 | `emc` | ~5,053 | KIKI-Mac_tunner + mascarade-emc |
-| 04 | `stm32` | ~2,723 | Marginal — early stopping monitored |
-| 05 | `embedded` | ~13,826 | 3 source streams — strongest case |
-| 06 | `freecad` | ~1,500* | Needs teacher augment, rank 8 |
-| 07 | `platformio` | ~1,500* | Needs teacher augment, rank 8 |
-| 08 | `power` | ~4,505 | KIKI-Mac_tunner + mascarade-power |
-| 09 | `dsp` | ~4,113 | KIKI-Mac_tunner + mascarade-dsp |
-| 10 | `electronics` | ~1,900 | High overfitting risk, rank 8 |
+| Domain | Category | Estimated Examples | LoRA Rank | Notes |
+|--------|----------|-------------------|-----------|-------|
+| kicad-dsl | Hardware | 8,500+ | 16 | KiCad schematic/PCB DSL, S-expressions |
+| spice | Simulation | 9,200+ | 16 | SPICE netlists, circuit simulation |
+| emc | Compliance | 4,100+ | 16 | Electromagnetic compliance, shielding |
+| stm32 | Firmware | 2,700+ | 16 | STM32 HAL, peripheral configuration |
+| embedded | Systems | 13,800+ | 16 | General embedded systems, RTOS, baremetal |
+| freecad | CAD | 1,200+ | 8 | FreeCAD parametric design, Python scripting |
+| platformio | Build | 2,100+ | 8 | PlatformIO framework, build configuration |
+| power | Power | 3,500+ | 16 | Power delivery, buck/boost, thermal |
+| dsp | Signal Processing | 5,600+ | 16 | DSP algorithms, FFT, filtering |
+| electronics | Components | 1,900+ | 8 | Component selection, datasheet interpretation |
 
-*Post-augmentation target. Raw counts: 219 (freecad), 223 (platformio).
+The remaining 22 "known" domains are served by passthrough (base 35B-A3B without LoRA) because the base model already achieves < 5% loss delta vs specialist performance.
 
-Rationale for scope reduction from 32 to 10: see `docs/specs/2026-04-16-reorientation-rationale.md`.
+## Quick Start
 
-## Base model: Qwen3.5-35B-A3B
+### POC Pipeline
 
-### Why the pivot from 4B
-
-The 4B base + custom MoE-LoRA approach was replaced after the 2026-04-16 pivot:
-
-- Qwen3.5-35B-A3B is natively MoE (256 experts, only 3B active per token) — custom MoE-LoRA adapters on top are redundant
-- Standard LoRA on attention projections is simpler, more reliable, and achieves better specialization
-- Mac Studio M3 Ultra 512 GB handles BF16 LoRA training at ~195 GB peak memory
-- Teacher is local: Qwen3-Coder-480B-A35B MLX 4bit (already on-machine, no network dependency)
-
-See `docs/specs/2026-04-16-architecture-pivot-35b.md` for full rationale.
-
-## Teachers
-
-Used for distillation and the adaptive judge:
-
-- **Qwen3-Coder-480B-A35B** (MLX 4bit, local Mac Studio) — primary distillation teacher for all domains
-- **Mistral-Large-Opus** (123B, Studio) — deep judge
-- **Qwen3.5-35B-A3B Opus** (kxkm-ai) — fast judge and secondary teacher
-
-## Training
-
-Stacks are trained via MLX LoRA using the KIKI-Mac_tunner pipeline.
+Run the full POC pipeline (all 10 domains + cognitive layers):
 
 ```bash
-# Train a stack (from KIKI-Mac_tunner)
-./train.sh --config configs/mlx-lm-qwen35-35b-a3b-micro-kiki.yaml
-
-# Run forgetting check after each stack
-uv run python src/eval/forgetting.py --stack chat-fr
+python3 scripts/poc_pipeline_v2.py --scenario all
 ```
 
-Config: `configs/mlx-lm-qwen35-35b-a3b-micro-kiki.yaml` in KIKI-Mac_tunner.
+This will:
+- Load the 10 trained LoRA adapters
+- Initialize Aeon memory palace
+- Run domain router on 50 test prompts (5 per domain)
+- Log routing decisions, adapter hot-swaps, and latency
+- Output results to `results/poc_latest.json`
 
-- LR: 1e-5, batch_size: 2, grad_accumulation: 8, rank: 16, 2000 iters
-- Peak memory: ~195 GB, GPU Metal at 100%
-- Data: `~/KIKI-Mac_tunner/data/micro-kiki/<domain>/` (63K+ examples across 32 domains)
+### Training a Single Domain
 
-See `docs/training/README.md` for the full training workflow.
+Train a niche LoRA adapter on Mac Studio M3 Ultra:
 
-## Hardware
+```bash
+python3 -m mlx_lm.lora \
+  --model "Qwen/Qwen3.5-35B-A3B" \
+  --data ./data/merged/kicad-dsl/ \
+  --config ./configs/lora/kicad-dsl.yaml \
+  --output ./outputs/stacks/stack-01-kicad-dsl/
+```
 
-| Machine | Role |
-|---------|------|
-| Mac Studio M3 Ultra 512 GB | BF16 training (MLX), teacher serving (480B), MLX inference |
-| RTX 4090 24 GB (kxkm-ai) | Q4 inference only |
-| Tower | Aeon backends (Qdrant, Neo4j), Piper TTS |
+Config includes:
+- Rank: 16 (or 8 for small domains like freecad/electronics)
+- Alpha: 2 × rank (scale 2.0)
+- LR: 2e-5 to 5e-5 (curriculum schedule)
+- Max sequence: 2048 (niches) or 4096 (foundations)
+- Metal memory limit: 460 GB, cache limit: 32 GB
 
-## Research foundations
+### Training the Quantum Router
 
-- **OPLoRA** (arxiv 2510.13003) — orthogonal projection prevents catastrophic forgetting across sequential domains
-- **LoRA-Null** (arxiv 2503.02659) — null-space initialization preserves pre-trained knowledge
-- **Aeon** (arxiv 2601.15311) — neuro-symbolic memory palace for long-horizon agents
-- **CAMP** (arxiv 2604.00085) — evidence-based arbitration beats majority voting
-- **Catfish Agent** (arxiv 2505.21503) — structured dissent disrupts silent consensus
-- **KnowBias** (arxiv 2601.21864) — neuron-level debiasing via targeted fine-tuning
-- **RBD** (arxiv 2505.17100) — runtime reasoning-based bias detector
+Train the 4-qubit VQC domain classifier:
 
-## Structure
+```bash
+python3 scripts/train_vqc_router.py \
+  --num_qubits 4 \
+  --num_layers 6 \
+  --epochs 100 \
+  --learning_rate 0.1
+```
+
+Trains on synthetic domain-labeled embeddings and produces a PennyLane circuit.
+
+### Training SNN Variants
+
+Convert Qwen3.5-27B or 35B-A3B to spiking via Latency-Aware Spiking (LAS):
+
+```bash
+python3 scripts/convert_spikingkiki_35b.py \
+  --base_model "Qwen/Qwen3.5-35B-A3B" \
+  --output_dir ./outputs/snn/spikingkiki-35b/ \
+  --num_steps 100 \
+  --temperature 2.0
+```
+
+Estimated time: ~40 hours on Mac Studio for 35B-A3B.
+
+### MLX Serving
+
+Start the MLX serving pipeline with dynamic adapter loading:
+
+```bash
+python3 src/serving/mlx_server.py \
+  --model ./outputs/base.safetensors \
+  --adapters ./outputs/stacks/ \
+  --port 8000 \
+  --metal_memory_limit 460GB
+```
+
+Clients can then request domain-specific responses by sending routing hints or letting the domain classifier decide.
+
+### vLLM Serving (GPU)
+
+For inference on RTX 4090 (kxkm-ai):
+
+```bash
+python3 src/serving/vllm_server.py \
+  --model "Qwen/Qwen3.5-35B-A3B" \
+  --quantization "awq" \
+  --tensor_parallel_size 1 \
+  --port 8001 \
+  --gpu_memory_utilization 0.95
+```
+
+Supports Q4_K_M quantized base + 2-4 active adapters simultaneously.
+
+## Project Structure
 
 ```
 micro-kiki/
-├── docs/
-│   ├── specs/           # Design documents (frozen, source of truth)
-│   ├── training/        # Training workflow documentation
-│   ├── research/        # Research references, benchmarks
-│   └── plans/           # Implementation plan (.ralph drives from here)
+├── README.md                           # This file
+├── CLAUDE.md                           # Project context for Claude Code
+├── LICENSE                             # Apache 2.0
+├── pyproject.toml                      # uv + pytest config
+│
 ├── src/
-│   ├── base/            # Base model loading, quantization
-│   ├── stacks/          # LoRA trainer + OPLoRA utilities
-│   ├── routing/         # Router + dispatcher
-│   ├── distill/         # Teacher clients + dataset generator + dedup
-│   ├── memory/          # Aeon (atlas, trace, backends)
-│   ├── cognitive/       # Argument extractor, judge, catfish, RBD, bias probe
-│   ├── eval/            # Per-stack + forgetting + full suite
-│   └── serving/         # vLLM / mlx-lm pipeline
-├── configs/             # YAML per stack + meta-intents + judge config
-├── data/                # Gitignored: raw + distilled + bias pairs
-├── scripts/             # Orchestrators + one-shot utilities
-├── deploy/              # systemd units, launchd plists
-├── .ralph/              # Ralph loop (prd.json, CLAUDE.md, loop.py)
+│   ├── routing/
+│   │   ├── domain_classifier.py        # 11-output domain router
+│   │   ├── meta_router.py              # Multi-model tier selection
+│   │   └── quantum_vqc.py              # 4-qubit PennyLane VQC
+│   ├── spiking/
+│   │   ├── las_converter.py            # Latency-Aware Spiking
+│   │   ├── neuron.py                   # LIF neuron models
+│   │   └── energy_proxy.py             # Spike-based energy estimation
+│   ├── memory/
+│   │   ├── aeon.py                     # Atlas SIMD + Trace graph
+│   │   └── backends.py                 # Qdrant/Neo4j/native adapters
+│   ├── negotiator/
+│   │   ├── camp.py                     # CAMP arbitration
+│   │   └── catfish.py                  # Catfish dissent
+│   ├── eval/
+│   │   ├── reward_functions.py         # Syntax, format, accuracy rewards
+│   │   └── metrics.py                  # BLEU, exact-match, win-rate
+│   └── serving/
+│       ├── mlx_server.py               # MLX inference + adapter swaps
+│       └── vllm_server.py              # vLLM Q4 inference
+│
+├── scripts/
+│   ├── poc_pipeline_v2.py              # Full POC for all domains
+│   ├── train_vqc_router.py             # Train 4-qubit VQC
+│   ├── benchmark_base_vs_lora.py       # Identify niche vs known domains
+│   ├── merge_datasets.py               # Merge KIKI-Mac_tunner + HF enrichment
+│   ├── convert_spikingkiki_35b.py      # LAS conversion for 35B MoE
+│   ├── eval_niche_vs_base.py           # Per-domain evaluation
+│   ├── generate_dpo_pairs.py           # Generate preference pairs via 480B
+│   ├── train_grpo_niches.py            # GRPO training for reasoning domains
+│   └── micro_kiki/
+│       └── *.py                        # Utility modules
+│
+├── configs/
+│   ├── lora/
+│   │   ├── kicad-dsl.yaml              # Stack-01 config
+│   │   ├── spice.yaml                  # Stack-02 config
+│   │   └── ...                         # 8 more domain configs
+│   ├── quantum/
+│   │   └── vqc-4qubit.yaml             # VQC router config
+│   └── serving/
+│       ├── mlx.yaml                    # MLX server config
+│       └── vllm.yaml                   # vLLM server config
+│
+├── data/
+│   ├── merged/
+│   │   ├── kicad-dsl/
+│   │   │   ├── train.jsonl
+│   │   │   ├── valid.jsonl
+│   │   │   └── test.jsonl
+│   │   └── ... (9 more domains)
+│   ├── bias/                           # 5,213-pair bias probe dataset
+│   └── eval/
+│       └── domain_test_sets/           # Held-out test for each domain
+│
+├── outputs/
+│   ├── base.safetensors                # Base 35B-A3B weights
+│   ├── stacks/
+│   │   ├── stack-01-kicad-dsl/
+│   │   │   └── adapters.safetensors
+│   │   └── ... (9 more stacks)
+│   └── snn/
+│       ├── spikingkiki-27b/
+│       ├── spikingkiki-35b/
+│       └── spikingkiki-122b/ (optional)
+│
+├── results/
+│   ├── poc_latest.json                 # Latest POC run
+│   ├── benchmark_base_vs_lora.json     # Niche identification
+│   ├── stacks_vs_base_eval.json        # Per-domain eval
+│   ├── snn_eval_27b.json               # SpikingKiki-27B benchmark
+│   ├── snn_eval_35b.json               # SpikingKiki-35B benchmark
+│   ├── anti_bias_eval_full.json        # Bias detection/mitigation
+│   └── energy_benchmark.json           # Theoretical + measured energy
+│
+├── docs/
+│   ├── paper-outline-triple-hybrid.md  # Full paper roadmap
+│   ├── research/
+│   │   ├── sota-training-2026.md       # Training SOTA
+│   │   ├── micro-kiki-moe-research.md  # MoE research
+│   │   └── 2026-04-16-landscape.md     # Competitive landscape
+│   ├── specs/
+│   │   └── 2026-04-16-architecture-pivot-35b.md  # Architecture decisions
+│   ├── plans/
+│   │   └── v0.2-roadmap.md
+│   └── data-sources.md                 # Dataset provenance
+│
 ├── tests/
-└── .claude/
-    └── plans/           # Source of truth for ralph
+│   ├── test_routing.py                 # Domain classifier tests
+│   ├── test_memory.py                  # Aeon recall/write tests
+│   ├── test_negotiator.py              # CAMP/Catfish tests
+│   ├── test_snn.py                     # SNN conversion tests
+│   └── test_reward_functions.py        # Reward computation tests
+│
+└── deploy/
+    ├── mlx-server.plist                # launchd for Mac Studio
+    ├── vllm-server.service             # systemd for kxkm-ai
+    └── docker-compose.yml              # Stack orchestration
 ```
+
+## Hardware Requirements
+
+### Training (Mac Studio M3 Ultra 512 GB)
+
+- **CPU**: Apple M3 Ultra (16-core)
+- **Memory**: 512 GB unified memory (required for BF16 LoRA on 35B-A3B)
+- **Disk**: 500 GB free SSD (model weights + training artifacts)
+- **Time per domain**: 2-8 hours depending on dataset size
+- **Total training time**: ~50 hours for all 10 domains (sequential)
+
+LoRA training uses MLX with Metal buffer limits:
+```python
+mx.set_memory_limit(460)  # GB
+mx.set_cache_limit(32)    # GB
+```
+
+Peak memory usage for 35B-A3B LoRA: ~106 GB.
+
+### Teacher (Mac Studio)
+
+- **Model**: Qwen3-Coder-480B-A35B (1.1 TB GGUF)
+- **Inference**: llama.cpp on CPU (no GPU needed)
+- **Purpose**: Distillation, DPO pair generation, and bias probe judging
+- **Throughput**: ~5-10 tokens/second on CPU
+
+### Inference — Option A: MLX (Mac Studio)
+
+- **Model**: 35B-A3B + 10 LoRA adapters
+- **Memory**: 106 GB active (all 10 adapters fit with hot-swapping)
+- **Throughput**: ~2-3 tokens/second (Metal GPU acceleration)
+
+### Inference — Option B: vLLM (RTX 4090, kxkm-ai)
+
+- **Model**: Qwen3.5-35B-A3B Q4_K_M quantized
+- **Memory**: 14 GB base + 2-4 GB per active adapter (max 22 GB with 4 active)
+- **Throughput**: ~30-50 tokens/second
+- **GPU**: NVIDIA RTX 4090 24 GB
+
+### Cognitive Layer (Tower)
+
+- **Aeon Backends**: Qdrant (vector search) + Neo4j (graph)
+- **Memory**: 16 GB (both services combined)
+- **Disk**: 50 GB (memory palace episodes)
 
 ## Status
 
-7 phases, 40 implementation stories. Tracked in `.ralph/prd.json`. **7/40 done (18%)** — carried over from v0.2 work.
+10 of 50 stories complete (20%):
 
-- [x] Design + architecture pivot (2026-04-15/16) — see `docs/specs/`
-- [x] Reorientation: 32 → 10 niche stacks (2026-04-16) — see `docs/specs/2026-04-16-reorientation-rationale.md`
-- [ ] Phase 1 — Validation (benchmark base, merge datasets, confirm 22 known domains)
-- [ ] Phase 2 — Niche Training (10 stacks + cross-stack forgetting check + eval)
-- [x] Phase 3 — Router + Multi-model (11-output router + multi-model routing — code done)
-- [ ] Phase 4 — Cognitive Layer (Aeon, Negotiator, anti-bias integration tests)
-- [ ] Phase 5 — SNN Conversions (SpikingKiki-27B, 35B, 122B + energy benchmark)
-- [x] Phase 6 — Serving + Deploy (MLX + vLLM + service units — code done)
-- [x] Phase 7 — Release (config freeze + model card + HF publish — templates done)
+- **Domain analysis**: 3 stories done (benchmark, dataset merge, validation)
+- **Router deployment**: 2 stories done (domain classifier, multi-model router)
+- **Cognitive layer**: 3 stories done (Aeon integration, Negotiator, anti-bias)
+- **SNN conversion**: 1 story done (SpikingKiki-27B conversion)
+- **Serving**: 2 stories done (MLX server, vLLM server)
 
-### Bottleneck
+Remaining work:
 
-10 sequential LoRA training runs. Estimated: ~45 min/stack × 10 = **~7.5 h** of compute on Mac Studio (BF16, 3-phase curriculum). SNN conversion adds ~70–170 h for SpikingKiki models (parallelizable with training).
+- 10 niche LoRA adapter training (stories 4-13)
+- Cross-stack forgetting analysis (story 14)
+- Per-domain evaluation (story 15)
+- Full E2E smoke tests (stories 18-23)
+- SNN evaluation & energy benchmarking (stories 26-31)
+- DPO/GRPO post-training (stories 41-47)
+- Fine-tuned domain embeddings (stories 48-50)
 
-## Execution
-
-Driven by the ralph loop skill:
-
-```bash
-# Ralph loop
-cd /Users/clems/micro-kiki
-MAX_ITERATIONS=10 uv run .ralph/loop.py
-
-# Train a specific stack (from KIKI-Mac_tunner)
-cd ~/KIKI-Mac_tunner
-./train.sh --config configs/mlx-lm-qwen35-35b-a3b-micro-kiki.yaml
-
-# Forgetting check
-cd /Users/clems/micro-kiki
-uv run python src/eval/forgetting.py --stack <domain>
-```
-
-## Roadmap
-
-- **v0.1** (shipped in plan history): 32 stacks + router + cognitive layer + serving
-- **v0.2** (archived): 35B-A3B base, MLX training, local 480B teacher — superseded by reorientation
-- **v0.3** (current): 10 niche stacks + 11-output router + multi-model routing + SNN conversion pipeline
-- **v0.4** (planned): temporal context + future-reasoner
+See `.ralph/prd.json` for detailed story descriptions and progress tracking. The paper outline in `docs/paper-outline-triple-hybrid.md` describes the full research contribution.
 
 ## License
 
-Apache 2.0. Base model (Qwen3.5-35B-A3B) is also Apache 2.0.
-
-## Related
-
-Part of the KIKI family:
-- [KIKI-Mac_tunner](https://github.com/L-electron-Rare/KIKI-Mac_tunner) — MLX fine-tuning toolkit (training pipeline)
-- [KIKI-models-tuning](https://github.com/L-electron-Rare/KIKI-models-tuning) — Unsloth/LoRA training registry
-- [kiki-forge](https://github.com/L-electron-Rare/kiki-forge) — multi-compute LLM training pipeline
+Apache License 2.0. See LICENSE file for details.

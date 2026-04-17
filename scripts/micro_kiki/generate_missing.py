@@ -115,6 +115,12 @@ DOMAIN_SEED_PROMPTS: dict[str, list[str]] = {
         "Write a SPICE subcircuit model for a simple op-amp with gain and bandwidth parameters.",
         "Design a SPICE testbench for a buck converter with switching waveforms.",
         "Create an LTspice simulation for a crystal oscillator startup behavior.",
+        # Merged from spice-sim
+        "Set up a Monte Carlo simulation in ngspice to analyze component tolerance effects.",
+        "Create a parametric DC sweep simulation to characterize a transistor's IV curves.",
+        "Design a transient simulation for a boost converter with startup and load step response.",
+        "Implement an AC analysis simulation for a multi-stage amplifier with Bode plot extraction.",
+        "Set up a worst-case analysis for an analog filter using corner models.",
     ],
     "lua-upy": [
         "Write a MicroPython driver for an I2C temperature sensor (e.g., TMP102).",
@@ -179,13 +185,7 @@ DOMAIN_SEED_PROMPTS: dict[str, list[str]] = {
         "Write a Goertzel algorithm implementation for detecting specific DTMF frequencies.",
         "Implement a Kalman filter for sensor fusion of accelerometer and gyroscope data.",
     ],
-    "spice-sim": [
-        "Set up a Monte Carlo simulation in ngspice to analyze component tolerance effects.",
-        "Create a parametric DC sweep simulation to characterize a transistor's IV curves.",
-        "Design a transient simulation for a boost converter with startup and load step response.",
-        "Implement an AC analysis simulation for a multi-stage amplifier with Bode plot extraction.",
-        "Set up a worst-case analysis for an analog filter using corner models.",
-    ],
+    # spice-sim: MERGED into spice domain (2026-04-17)
     "electronics": [
         "Design a precision instrumentation amplifier circuit with common-mode rejection analysis.",
         "Calculate the component values for a 4th-order Chebyshev bandpass filter.",

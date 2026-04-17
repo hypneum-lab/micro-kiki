@@ -204,7 +204,7 @@
       "self_attn.v_proj",
       "self_attn.o_proj"
     ],
-    "n_examples": 2675,
+    "n_examples": 3043,
     "targets_extra": false
   },
   "lua-upy": {
@@ -349,22 +349,6 @@
       "self_attn.o_proj"
     ],
     "n_examples": 953,
-    "targets_extra": false
-  },
-  "spice-sim": {
-    "rank": 4,
-    "alpha": 8,
-    "iters": 276,
-    "seq": 2048,
-    "lr": 2e-05,
-    "dropout": 0.05,
-    "keys": [
-      "self_attn.q_proj",
-      "self_attn.k_proj",
-      "self_attn.v_proj",
-      "self_attn.o_proj"
-    ],
-    "n_examples": 368,
     "targets_extra": false
   },
   "electronics": {

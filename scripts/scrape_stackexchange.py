@@ -117,15 +117,12 @@ def _build_url(tag: str, page: int, api_key: str | None) -> str:
     return f"{API_BASE}/questions?{params}"
 
 
-def _fetch_page(
+def _fetch_json(
     client: httpx.Client,
-    tag: str,
-    page: int,
-    api_key: str | None,
+    url: str,
     delay: float,
 ) -> dict[str, Any]:
-    """Fetch one page of questions; handles 429 backoff."""
-    url = _build_url(tag, page, api_key)
+    """Fetch a single URL with retry + 429 backoff."""
     backoff = delay * 2
     for attempt in range(3):
         try:
@@ -146,6 +143,45 @@ def _fetch_page(
             if attempt == 2:
                 raise
     return {}
+
+
+def _fetch_page(
+    client: httpx.Client,
+    tag: str,
+    page: int,
+    api_key: str | None,
+    delay: float,
+) -> dict[str, Any]:
+    """Fetch one page of questions; handles 429 backoff."""
+    url = _build_url(tag, page, api_key)
+    return _fetch_json(client, url, delay)
+
+
+def _fetch_answers(
+    client: httpx.Client,
+    question_ids: list[int],
+    api_key: str | None,
+    delay: float,
+) -> dict[int, list[dict[str, Any]]]:
+    """Fetch answers for a batch of question IDs (max 100 per call).
+
+    Returns {question_id: [answer, ...]} with answer bodies included.
+    """
+    if not question_ids:
+        return {}
+    ids_str = ";".join(str(qid) for qid in question_ids)
+    params = f"order=desc&sort=votes&site={SITE}&filter=withbody&pagesize=100&page=1"
+    if api_key:
+        params += f"&key={api_key}"
+    url = f"{API_BASE}/questions/{ids_str}/answers?{params}"
+    data = _fetch_json(client, url, delay)
+
+    result: dict[int, list[dict[str, Any]]] = {}
+    for ans in data.get("items", []):
+        qid = ans.get("question_id")
+        if qid is not None:
+            result.setdefault(qid, []).append(ans)
+    return result
 
 
 def _best_answer(answers: list[dict[str, Any]], min_score: int) -> dict[str, Any] | None:
@@ -231,18 +267,32 @@ def scrape_domain(
                 if not items:
                     break
 
+                # Filter eligible questions (unseen, high score, has answers)
+                eligible: list[dict[str, Any]] = []
                 for q in items:
                     qid = q.get("question_id")
                     if qid in seen_ids:
                         continue
                     if q.get("score", 0) < min_score:
                         continue
-                    answers = q.get("answers", [])
-                    best = _best_answer(answers, min_score)
-                    if best is None:
+                    if q.get("answer_count", 0) == 0:
                         continue
-                    seen_ids.add(qid)
-                    examples.append(_to_training_example(q, best, domain))
+                    eligible.append(q)
+
+                # Fetch answers in batch (up to 100 IDs per API call)
+                if eligible:
+                    eligible_ids = [q["question_id"] for q in eligible]
+                    time.sleep(delay)
+                    answers_map = _fetch_answers(client, eligible_ids, api_key, delay)
+
+                    for q in eligible:
+                        qid = q["question_id"]
+                        answers = answers_map.get(qid, [])
+                        best = _best_answer(answers, min_score)
+                        if best is None:
+                            continue
+                        seen_ids.add(qid)
+                        examples.append(_to_training_example(q, best, domain))
 
                 has_more = data.get("has_more", False)
                 logger.debug(

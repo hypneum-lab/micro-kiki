@@ -88,7 +88,7 @@ DOMAINS=(
     power
     emc
     dsp
-    spice-sim
+    # spice-sim: MERGED into spice (2026-04-17)
     electronics
     kicad-pcb
     # Phase 5 — Applications

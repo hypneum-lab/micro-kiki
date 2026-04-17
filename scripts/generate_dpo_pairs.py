@@ -92,7 +92,14 @@ def load_prompts(domain: str, max_pairs: int) -> list[str]:
             except json.JSONDecodeError:
                 logger.warning("Bad JSON line %d in %s", lineno, data_path)
                 continue
+            # Support both flat format (prompt/instruction/input keys) and
+            # chat format (messages: [{role, content}, ...]).
             prompt = entry.get("prompt") or entry.get("instruction") or entry.get("input", "")
+            if not prompt and "messages" in entry:
+                for msg in entry["messages"]:
+                    if msg.get("role") == "user":
+                        prompt = msg.get("content", "")
+                        break
             if isinstance(prompt, str) and prompt.strip():
                 prompts.append(prompt.strip())
             if len(prompts) >= max_pairs:
@@ -168,7 +175,10 @@ async def judge_responses(
         response_a=response_a,
         response_b=response_b,
     )
-    params = GenerateParams(temperature=0.0, max_tokens=4, thinking=False)
+    params = GenerateParams(
+        temperature=0.0, max_tokens=4, thinking=False,
+        extra={"chat_template_kwargs": {"enable_thinking": False}},
+    )
     try:
         verdict = await judge_client.generate(
             judge_prompt, judge_model, params=params, use_cache=True
@@ -197,8 +207,14 @@ async def generate_pairs_for_domain(
     sft_model: str,
 ) -> list[dict[str, Any]]:
     """Generate DPO pairs for a single domain using both models + judge."""
-    sft_params = GenerateParams(temperature=0.7, max_tokens=1024)
-    judge_gen_params = GenerateParams(temperature=0.3, max_tokens=1024, thinking=False)
+    sft_params = GenerateParams(
+        temperature=0.7, max_tokens=1024, thinking=False,
+        extra={"chat_template_kwargs": {"enable_thinking": False}},
+    )
+    judge_gen_params = GenerateParams(
+        temperature=0.3, max_tokens=1024, thinking=False,
+        extra={"chat_template_kwargs": {"enable_thinking": False}},
+    )
 
     pairs: list[dict[str, Any]] = []
 
@@ -298,13 +314,20 @@ async def run(
             write_pairs(domain, pairs)
         return
 
+    from src.distill.teacher_client import TeacherCache
+
+    cache_dir = PROJECT_ROOT / "data" / "teacher_cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
     judge_client = TeacherClient(
         endpoints={DEFAULT_JUDGE_MODEL: judge_url},
-        cache_dir=str(PROJECT_ROOT / "data" / "teacher_cache"),
+        cache=TeacherCache(cache_dir / "dpo-judge-cache.sqlite"),
+        timeout_s=600.0,  # 480B CPU-only can be very slow
     )
     sft_client = TeacherClient(
         endpoints={DEFAULT_SFT_MODEL: sft_url},
-        cache_dir=str(PROJECT_ROOT / "data" / "teacher_cache"),
+        cache=TeacherCache(cache_dir / "dpo-sft-cache.sqlite"),
+        timeout_s=300.0,
     )
 
     async with judge_client, sft_client:

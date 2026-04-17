@@ -20,7 +20,7 @@ KIKI_SOURCES = {
     "power": "kiki-power",
     "emc": "kiki-emc",
     "dsp": "kiki-dsp",
-    "spice-sim": "kiki-spice-sim",
+    "spice": "kiki-spice",  # unified: includes former kiki-spice-sim
     "electronics": "kiki-electronics",
     "kicad-pcb": "kiki-kicad-pcb",
 }

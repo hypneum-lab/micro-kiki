@@ -9,6 +9,13 @@ logger = logging.getLogger(__name__)
 
 _CODE_HINTS = {"code", "coding", "debug", "firmware", "c++", "python", "rust"}
 
+# Sub-category routing: source domain -> parent domain.
+# When a sub-category domain is detected, the router first tries the parent
+# domain's stack, then falls back to the sub-category-specific adapter if available.
+SUBCATEGORY_MAP: dict[str, str] = {
+    "stm32": "embedded",
+}
+
 
 @dataclass(frozen=True)
 class RouteDecision:
@@ -43,6 +50,21 @@ class ModelRouter:
             )
 
         if domain_hint is not None and domain_hint in NICHE_DOMAINS:
+            # Sub-category routing: try parent domain stack first if configured
+            parent = SUBCATEGORY_MAP.get(domain_hint)
+            if parent and parent in NICHE_DOMAINS:
+                adapter = f"stack-{parent}"
+                logger.debug(
+                    "sub-category %s → parent %s stack (stack-%s), "
+                    "fallback to stack-%s if available",
+                    domain_hint, parent, parent, domain_hint,
+                )
+                return RouteDecision(
+                    model_id="qwen35b",
+                    adapter=adapter,
+                    reason=f"sub-category: {domain_hint} -> {parent} stack "
+                           f"(fallback: stack-{domain_hint})",
+                )
             adapter = f"stack-{domain_hint}"
             logger.debug("niche domain %s → qwen35b + %s", domain_hint, adapter)
             return RouteDecision(

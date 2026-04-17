@@ -37,7 +37,9 @@ DEFAULT_THRESHOLD = 0.3
 
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
     "kicad-dsl": ["symbol", "module", "fp_", "pad", "kicad", "schematic", "footprint"],
-    "spice": [".model", ".subckt", ".tran", ".ac", "ngspice", "netlist", "MOSFET"],
+    "spice": [".model", ".subckt", ".tran", ".ac", "ngspice", "netlist", "MOSFET",
+              "simulation", "transient", "AC analysis", "DC sweep", "Monte Carlo",
+              "convergence", "Bode", "waveform", "parametric", "step response"],
     "emc": ["CISPR", "EMI", "shielding", "grounding", "filter", "ferrite"],
     "stm32": ["HAL_", "STM32", "GPIO", "UART", "SPI", "DMA", "TIM", "CubeMX"],
     "embedded": ["interrupt", "ISR", "RTOS", "FreeRTOS", "DMA", "firmware", "peripheral"],
