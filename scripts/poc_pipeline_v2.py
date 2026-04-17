@@ -225,9 +225,18 @@ class MicroKikiPipeline:
         memories = self.memory.recall(query, top_k=3)
         memory_context = ""
         if memories:
-            memory_lines = [f"[Memory] {ep.content[:400]}" for ep in memories]
-            memory_context = "\n".join(memory_lines) + "\n\n"
-            logger.info("  [MEMORY] Recalled %d episodes", len(memories))
+            # Dynamic budget: share ~3000 chars across recalled episodes
+            budget = 3000
+            per_ep = max(200, budget // len(memories))
+            memory_lines = [ep.content[:per_ep] for ep in memories]
+            memory_context = (
+                "### Previous conversation context:\n"
+                + "\n---\n".join(memory_lines)
+                + "\n\n### Current question:\n"
+            )
+            logger.info("  [MEMORY] Recalled %d episodes (%d chars/ep)", len(memories), per_ep)
+            for ep in memories:
+                logger.info("    → %s...", ep.content[:80])
         else:
             logger.info("  [MEMORY] No relevant memories found")
 
@@ -235,7 +244,7 @@ class MicroKikiPipeline:
         response = self._infer(augmented_query, route)
 
         episode_id = self.memory.write(
-            content=f"Q: {query[:300]}\nA: {response[:600]}",
+            content=f"User: {query}\nAssistant: {response}",
             domain=domain,
             timestamp=datetime.now(),
             source="poc-pipeline-v2",
@@ -417,11 +426,17 @@ class MicroKikiPipelineV2(MicroKikiPipeline):
         memories = self.memory.recall(query, top_k=3)
         memory_context = ""
         if memories:
-            memory_lines = [f"[Memory] {ep.content[:400]}" for ep in memories]
-            memory_context = "\n".join(memory_lines) + "\n\n"
-            logger.info("  [MEMORY] Recalled %d episodes", len(memories))
+            budget = 3000
+            per_ep = max(200, budget // len(memories))
+            memory_lines = [ep.content[:per_ep] for ep in memories]
+            memory_context = (
+                "### Previous conversation context:\n"
+                + "\n---\n".join(memory_lines)
+                + "\n\n### Current question:\n"
+            )
+            logger.info("  [MEMORY] Recalled %d episodes (%d chars/ep)", len(memories), per_ep)
             for ep in memories:
-                logger.info("    → %s...", ep.content[:60])
+                logger.info("    → %s...", ep.content[:80])
         else:
             logger.info("  [MEMORY] No relevant memories found")
 
@@ -457,7 +472,7 @@ class MicroKikiPipelineV2(MicroKikiPipeline):
 
         # Step 5: Memory write
         episode_id = self.memory.write(
-            content=f"Q: {query[:300]}\nA: {response[:600]}",
+            content=f"User: {query}\nAssistant: {response}",
             domain=domain,
             timestamp=datetime.now(),
             source="poc-pipeline-v2",
