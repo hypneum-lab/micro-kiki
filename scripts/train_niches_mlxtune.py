@@ -197,19 +197,18 @@ def train_domain(domain: str) -> None:
     with open(config_path, "w") as f:
         yaml.dump(config, f, default_flow_style=False)
 
-    # Use standard mlx_lm lora via a wrapper script that sets Metal limits.
-    # Do NOT use mlx_lm_fork — it auto-targets MoE SwitchLinear layers
-    # which causes double-LoRA application and is forbidden by architecture.
+    # Use python -m mlx_lm lora directly (mlx_lm.cli.main() broken in 0.31+).
+    # Metal limits are set via environment wrapper script.
     train_script = f'''import mlx.core as mx
 mx.set_memory_limit(460 * 1024**3)
 mx.set_cache_limit(32 * 1024**3)
+from mlx_lm import lora as lora_mod
 import sys
-sys.argv = ["mlx_lm", "lora",
+sys.argv = ["mlx_lm.lora",
             "--config", "{config_path}",
             "--data", "{data_path.parent}",
             "--adapter-path", "{output_dir}"]
-from mlx_lm.cli import main
-main()
+lora_mod.main()
 '''
 
     script_path = output_dir / "_train.py"
