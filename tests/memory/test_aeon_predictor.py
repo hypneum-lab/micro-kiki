@@ -224,3 +224,29 @@ class TestAeonPredictorPredict:
         pred = AeonPredictor(palace=palace, config=PredictorConfig(dim=16))
         with pytest.raises(ValueError, match="horizon"):
             pred.predict_next(_mock_embed(16, seed=0), horizon=0)
+
+
+class TestAeonPredictorRecall:
+    def test_recall_delegates_to_palace(self):
+        palace = AeonSleep(dim=16)
+        pred = AeonPredictor(palace=palace, config=PredictorConfig(dim=16))
+        t0 = datetime(2026, 4, 17, 10, 0)
+        pred.ingest_latent("t0", _mock_embed(16, seed=1), ts=t0)
+        pred.ingest_latent(
+            "t1", _mock_embed(16, seed=2), ts=t0 + timedelta(minutes=1)
+        )
+        hits = pred.recall(_mock_embed(16, seed=1), top_k=2)
+        assert len(hits) >= 1
+        # Top hit should be t0 or t1 — both live in the atlas now.
+        assert hits[0].episode_id in {"t0", "t1"}
+
+    def test_recall_top_k_respected(self):
+        palace = AeonSleep(dim=16)
+        pred = AeonPredictor(palace=palace, config=PredictorConfig(dim=16))
+        t0 = datetime(2026, 4, 17, 10, 0)
+        for i in range(5):
+            pred.ingest_latent(
+                f"t{i}", _mock_embed(16, seed=i), ts=t0 + timedelta(minutes=i)
+            )
+        hits = pred.recall(_mock_embed(16, seed=0), top_k=3)
+        assert len(hits) == 3

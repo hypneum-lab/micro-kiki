@@ -326,6 +326,16 @@ class AeonPredictor:
             current = self.mlp.forward(current, stack)
         return current[0].astype(np.float32)
 
+    # ---------------------------------------------------------- recall
+
+    def recall(self, query_vec: np.ndarray, top_k: int = 10):
+        """Delegate to the underlying AeonSleep — backward-compat path."""
+        if query_vec.shape != (self.config.dim,):
+            raise ValueError(
+                f"query_vec.shape={query_vec.shape} != ({self.config.dim},)"
+            )
+        return self.palace.recall(query_vec.tolist(), k=top_k)
+
     # ---------------------------------------------------------- helpers
 
     def _stack_onehot(self, stack_ids: list[int]) -> np.ndarray:
