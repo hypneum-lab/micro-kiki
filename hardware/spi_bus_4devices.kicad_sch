@@ -1,0 +1,2236 @@
+(kicad_sch
+  (version 20250114)
+  (generator "codex")
+  (uuid "00000000-0000-0000-0000-000000000001")
+  (paper "A4")
+  (title_block
+    (title "SPI Bus With 4 Devices")
+    (date "2026-04-17")
+    (rev "A")
+    (comment 1 "CS1..CS4 each use a 10k pull-up to VCC so all slaves stay deselected during reset.")
+  )
+
+  (lib_symbols
+    (symbol "micro-kiki:SPI_Host_4CS"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.508)
+      )
+      (exclude_from_sim no)
+      (in_bom no)
+      (on_board no)
+      (in_pos_files no)
+      (duplicate_pin_numbers_are_jumpers no)
+      (property "Reference" "J"
+        (at 0 15.24 0)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "SPI_HOST_4CS"
+        (at 0 -15.24 0)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Description" "Generic SPI host or MCU interface with four chip-select outputs"
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (symbol "SPI_Host_4CS_0_1"
+        (rectangle
+          (start -7.62 10.16)
+          (end 7.62 -10.16)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (text "SPI HOST"
+          (at 0 0 0)
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (symbol "SPI_Host_4CS_1_1"
+        (pin output line
+          (at 10.16 7.62 180)
+          (length 2.54)
+          (name "SCLK"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin output line
+          (at 10.16 5.08 180)
+          (length 2.54)
+          (name "MOSI"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin input line
+          (at 10.16 2.54 180)
+          (length 2.54)
+          (name "MISO"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin output line
+          (at 10.16 0 180)
+          (length 2.54)
+          (name "CS1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin output line
+          (at 10.16 -2.54 180)
+          (length 2.54)
+          (name "CS2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin output line
+          (at 10.16 -5.08 180)
+          (length 2.54)
+          (name "CS3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin output line
+          (at 10.16 -7.62 180)
+          (length 2.54)
+          (name "CS4"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 12.7 270)
+          (length 2.54)
+          (name "VCC"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -12.7 90)
+          (length 2.54)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+
+    (symbol "micro-kiki:SPI_Device_Generic"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.508)
+      )
+      (exclude_from_sim no)
+      (in_bom no)
+      (on_board no)
+      (in_pos_files no)
+      (duplicate_pin_numbers_are_jumpers no)
+      (property "Reference" "U"
+        (at 0 15.24 0)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "SPI_DEVICE_GENERIC"
+        (at 0 -15.24 0)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Description" "Generic SPI slave device"
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (symbol "SPI_Device_Generic_0_1"
+        (rectangle
+          (start -7.62 10.16)
+          (end 7.62 -10.16)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (text "SPI SLAVE"
+          (at 0 0 0)
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (symbol "SPI_Device_Generic_1_1"
+        (pin input line
+          (at -10.16 5.08 0)
+          (length 2.54)
+          (name "SCLK"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin input line
+          (at -10.16 2.54 0)
+          (length 2.54)
+          (name "MOSI"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin tri_state line
+          (at -10.16 0 0)
+          (length 2.54)
+          (name "MISO"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin input line
+          (at -10.16 -5.08 0)
+          (length 2.54)
+          (name "CS"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin power_in line
+          (at 0 12.7 270)
+          (length 2.54)
+          (name "VCC"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin power_in line
+          (at 0 -12.7 90)
+          (length 2.54)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+
+    (symbol "micro-kiki:R_Pullup"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.254)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (in_pos_files yes)
+      (duplicate_pin_numbers_are_jumpers no)
+      (property "Reference" "R"
+        (at 0 0 90)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.016 1.016)
+          )
+        )
+      )
+      (property "Value" "10k"
+        (at 1.778 0 90)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Description" "Pull-up resistor"
+        (at 0 0 0)
+        (hide yes)
+        (show_name no)
+        (do_not_autoplace no)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (symbol "R_Pullup_0_1"
+        (rectangle
+          (start -0.762 1.778)
+          (end 0.762 -1.778)
+          (stroke
+            (width 0.2032)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "R_Pullup_1_1"
+        (pin passive line
+          (at 0 2.54 270)
+          (length 0.762)
+          (name ""
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -2.54 90)
+          (length 0.762)
+          (name ""
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+  )
+
+  (text "Shared SPI nets: SPI_SCLK, SPI_MOSI, SPI_MISO."
+    (at 76.2 154.94 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000002")
+  )
+
+  (text "Use the VCC label for the target logic rail (for example 3V3 or 5V)."
+    (at 76.2 151.13 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000003")
+  )
+
+  (wire
+    (pts
+      (xy 60.96 102.87) (xy 71.12 102.87)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000010")
+  )
+  (wire
+    (pts
+      (xy 60.96 100.33) (xy 71.12 100.33)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000011")
+  )
+  (wire
+    (pts
+      (xy 60.96 97.79) (xy 71.12 97.79)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000012")
+  )
+  (wire
+    (pts
+      (xy 60.96 95.25) (xy 71.12 95.25)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000013")
+  )
+  (wire
+    (pts
+      (xy 60.96 92.71) (xy 71.12 92.71)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000014")
+  )
+  (wire
+    (pts
+      (xy 60.96 90.17) (xy 71.12 90.17)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000015")
+  )
+  (wire
+    (pts
+      (xy 60.96 87.63) (xy 71.12 87.63)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000016")
+  )
+  (wire
+    (pts
+      (xy 50.8 107.95) (xy 60.96 107.95)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000017")
+  )
+  (wire
+    (pts
+      (xy 50.8 82.55) (xy 60.96 82.55)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000018")
+  )
+
+  (wire
+    (pts
+      (xy 137.16 133.35) (xy 127 133.35)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000020")
+  )
+  (wire
+    (pts
+      (xy 137.16 130.81) (xy 127 130.81)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000021")
+  )
+  (wire
+    (pts
+      (xy 137.16 128.27) (xy 127 128.27)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000022")
+  )
+  (wire
+    (pts
+      (xy 137.16 123.19) (xy 127 123.19)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000023")
+  )
+  (wire
+    (pts
+      (xy 147.32 140.97) (xy 157.48 140.97)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000024")
+  )
+  (wire
+    (pts
+      (xy 147.32 115.57) (xy 157.48 115.57)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000025")
+  )
+
+  (wire
+    (pts
+      (xy 137.16 106.68) (xy 127 106.68)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000030")
+  )
+  (wire
+    (pts
+      (xy 137.16 104.14) (xy 127 104.14)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000031")
+  )
+  (wire
+    (pts
+      (xy 137.16 101.6) (xy 127 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000032")
+  )
+  (wire
+    (pts
+      (xy 137.16 96.52) (xy 127 96.52)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000033")
+  )
+  (wire
+    (pts
+      (xy 147.32 114.3) (xy 157.48 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000034")
+  )
+  (wire
+    (pts
+      (xy 147.32 88.9) (xy 157.48 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000035")
+  )
+
+  (wire
+    (pts
+      (xy 137.16 80.01) (xy 127 80.01)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000040")
+  )
+  (wire
+    (pts
+      (xy 137.16 77.47) (xy 127 77.47)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000041")
+  )
+  (wire
+    (pts
+      (xy 137.16 74.93) (xy 127 74.93)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000042")
+  )
+  (wire
+    (pts
+      (xy 137.16 69.85) (xy 127 69.85)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000043")
+  )
+  (wire
+    (pts
+      (xy 147.32 87.63) (xy 157.48 87.63)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000044")
+  )
+  (wire
+    (pts
+      (xy 147.32 62.23) (xy 157.48 62.23)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000045")
+  )
+
+  (wire
+    (pts
+      (xy 137.16 53.34) (xy 127 53.34)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000050")
+  )
+  (wire
+    (pts
+      (xy 137.16 50.8) (xy 127 50.8)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000051")
+  )
+  (wire
+    (pts
+      (xy 137.16 48.26) (xy 127 48.26)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000052")
+  )
+  (wire
+    (pts
+      (xy 137.16 43.18) (xy 127 43.18)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000053")
+  )
+  (wire
+    (pts
+      (xy 147.32 60.96) (xy 157.48 60.96)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000054")
+  )
+  (wire
+    (pts
+      (xy 147.32 35.56) (xy 157.48 35.56)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000055")
+  )
+
+  (wire
+    (pts
+      (xy 109.22 128.27) (xy 116.84 128.27)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000060")
+  )
+  (wire
+    (pts
+      (xy 109.22 123.19) (xy 116.84 123.19)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000061")
+  )
+  (wire
+    (pts
+      (xy 109.22 101.6) (xy 116.84 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000062")
+  )
+  (wire
+    (pts
+      (xy 109.22 96.52) (xy 116.84 96.52)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000063")
+  )
+  (wire
+    (pts
+      (xy 109.22 74.93) (xy 116.84 74.93)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000064")
+  )
+  (wire
+    (pts
+      (xy 109.22 69.85) (xy 116.84 69.85)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000065")
+  )
+  (wire
+    (pts
+      (xy 109.22 48.26) (xy 116.84 48.26)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000066")
+  )
+  (wire
+    (pts
+      (xy 109.22 43.18) (xy 116.84 43.18)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00000000-0000-0000-0000-000000000067")
+  )
+
+  (label "SPI_SCLK"
+    (at 71.755 102.87 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000100")
+  )
+  (label "SPI_MOSI"
+    (at 71.755 100.33 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000101")
+  )
+  (label "SPI_MISO"
+    (at 71.755 97.79 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000102")
+  )
+  (label "SPI_CS1"
+    (at 71.755 95.25 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000103")
+  )
+  (label "SPI_CS2"
+    (at 71.755 92.71 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000104")
+  )
+  (label "SPI_CS3"
+    (at 71.755 90.17 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000105")
+  )
+  (label "SPI_CS4"
+    (at 71.755 87.63 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000106")
+  )
+  (label "VCC"
+    (at 61.595 107.95 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000107")
+  )
+  (label "GND"
+    (at 61.595 82.55 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000108")
+  )
+
+  (label "SPI_SCLK"
+    (at 126.365 133.35 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000120")
+  )
+  (label "SPI_MOSI"
+    (at 126.365 130.81 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000121")
+  )
+  (label "SPI_MISO"
+    (at 126.365 128.27 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000122")
+  )
+  (label "SPI_CS1"
+    (at 126.365 123.19 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000123")
+  )
+  (label "VCC"
+    (at 158.115 140.97 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000124")
+  )
+  (label "GND"
+    (at 158.115 115.57 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000125")
+  )
+
+  (label "SPI_SCLK"
+    (at 126.365 106.68 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000130")
+  )
+  (label "SPI_MOSI"
+    (at 126.365 104.14 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000131")
+  )
+  (label "SPI_MISO"
+    (at 126.365 101.6 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000132")
+  )
+  (label "SPI_CS2"
+    (at 126.365 96.52 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000133")
+  )
+  (label "VCC"
+    (at 158.115 114.3 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000134")
+  )
+  (label "GND"
+    (at 158.115 88.9 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000135")
+  )
+
+  (label "SPI_SCLK"
+    (at 126.365 80.01 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000140")
+  )
+  (label "SPI_MOSI"
+    (at 126.365 77.47 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000141")
+  )
+  (label "SPI_MISO"
+    (at 126.365 74.93 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000142")
+  )
+  (label "SPI_CS3"
+    (at 126.365 69.85 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000143")
+  )
+  (label "VCC"
+    (at 158.115 87.63 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000144")
+  )
+  (label "GND"
+    (at 158.115 62.23 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000145")
+  )
+
+  (label "SPI_SCLK"
+    (at 126.365 53.34 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000150")
+  )
+  (label "SPI_MOSI"
+    (at 126.365 50.8 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000151")
+  )
+  (label "SPI_MISO"
+    (at 126.365 48.26 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000152")
+  )
+  (label "SPI_CS4"
+    (at 126.365 43.18 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000153")
+  )
+  (label "VCC"
+    (at 158.115 60.96 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000154")
+  )
+  (label "GND"
+    (at 158.115 35.56 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000155")
+  )
+
+  (label "VCC"
+    (at 117.475 128.27 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000160")
+  )
+  (label "SPI_CS1"
+    (at 117.475 123.19 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000161")
+  )
+  (label "VCC"
+    (at 117.475 101.6 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000162")
+  )
+  (label "SPI_CS2"
+    (at 117.475 96.52 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000163")
+  )
+  (label "VCC"
+    (at 117.475 74.93 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000164")
+  )
+  (label "SPI_CS3"
+    (at 117.475 69.85 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000165")
+  )
+  (label "VCC"
+    (at 117.475 48.26 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000166")
+  )
+  (label "SPI_CS4"
+    (at 117.475 43.18 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "00000000-0000-0000-0000-000000000167")
+  )
+
+  (symbol
+    (lib_id "micro-kiki:SPI_Host_4CS")
+    (at 50.8 95.25 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (in_pos_files no)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000200")
+    (property "Reference" "J1"
+      (at 50.8 111.76 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "SPI_HOST"
+      (at 50.8 78.74 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 50.8 95.25 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 50.8 95.25 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Generic SPI host or MCU interface with four chip-select outputs"
+      (at 50.8 95.25 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000220")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000221")
+    )
+    (pin "3"
+      (uuid "00000000-0000-0000-0000-000000000222")
+    )
+    (pin "4"
+      (uuid "00000000-0000-0000-0000-000000000223")
+    )
+    (pin "5"
+      (uuid "00000000-0000-0000-0000-000000000224")
+    )
+    (pin "6"
+      (uuid "00000000-0000-0000-0000-000000000225")
+    )
+    (pin "7"
+      (uuid "00000000-0000-0000-0000-000000000226")
+    )
+    (pin "8"
+      (uuid "00000000-0000-0000-0000-000000000227")
+    )
+    (pin "9"
+      (uuid "00000000-0000-0000-0000-000000000228")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "J1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:SPI_Device_Generic")
+    (at 147.32 128.27 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (in_pos_files no)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000201")
+    (property "Reference" "U1"
+      (at 147.32 144.78 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "SPI_DEVICE_1"
+      (at 147.32 111.76 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 147.32 128.27 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 147.32 128.27 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Generic SPI slave device"
+      (at 147.32 128.27 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000230")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000231")
+    )
+    (pin "3"
+      (uuid "00000000-0000-0000-0000-000000000232")
+    )
+    (pin "4"
+      (uuid "00000000-0000-0000-0000-000000000233")
+    )
+    (pin "5"
+      (uuid "00000000-0000-0000-0000-000000000234")
+    )
+    (pin "6"
+      (uuid "00000000-0000-0000-0000-000000000235")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "U1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:SPI_Device_Generic")
+    (at 147.32 101.6 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (in_pos_files no)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000202")
+    (property "Reference" "U2"
+      (at 147.32 118.11 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "SPI_DEVICE_2"
+      (at 147.32 85.09 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 147.32 101.6 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 147.32 101.6 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Generic SPI slave device"
+      (at 147.32 101.6 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000240")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000241")
+    )
+    (pin "3"
+      (uuid "00000000-0000-0000-0000-000000000242")
+    )
+    (pin "4"
+      (uuid "00000000-0000-0000-0000-000000000243")
+    )
+    (pin "5"
+      (uuid "00000000-0000-0000-0000-000000000244")
+    )
+    (pin "6"
+      (uuid "00000000-0000-0000-0000-000000000245")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "U2")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:SPI_Device_Generic")
+    (at 147.32 74.93 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (in_pos_files no)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000203")
+    (property "Reference" "U3"
+      (at 147.32 91.44 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "SPI_DEVICE_3"
+      (at 147.32 58.42 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 147.32 74.93 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 147.32 74.93 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Generic SPI slave device"
+      (at 147.32 74.93 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000250")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000251")
+    )
+    (pin "3"
+      (uuid "00000000-0000-0000-0000-000000000252")
+    )
+    (pin "4"
+      (uuid "00000000-0000-0000-0000-000000000253")
+    )
+    (pin "5"
+      (uuid "00000000-0000-0000-0000-000000000254")
+    )
+    (pin "6"
+      (uuid "00000000-0000-0000-0000-000000000255")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "U3")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:SPI_Device_Generic")
+    (at 147.32 48.26 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (in_pos_files no)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000204")
+    (property "Reference" "U4"
+      (at 147.32 64.77 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "SPI_DEVICE_4"
+      (at 147.32 31.75 0)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 147.32 48.26 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 147.32 48.26 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Generic SPI slave device"
+      (at 147.32 48.26 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000260")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000261")
+    )
+    (pin "3"
+      (uuid "00000000-0000-0000-0000-000000000262")
+    )
+    (pin "4"
+      (uuid "00000000-0000-0000-0000-000000000263")
+    )
+    (pin "5"
+      (uuid "00000000-0000-0000-0000-000000000264")
+    )
+    (pin "6"
+      (uuid "00000000-0000-0000-0000-000000000265")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "U4")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:R_Pullup")
+    (at 109.22 125.73 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (in_pos_files yes)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000210")
+    (property "Reference" "R1"
+      (at 109.22 125.73 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.016 1.016)
+        )
+      )
+    )
+    (property "Value" "10k"
+      (at 111 125.73 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 109.22 125.73 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 109.22 125.73 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Pull-up resistor"
+      (at 109.22 125.73 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000270")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000271")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "R1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:R_Pullup")
+    (at 109.22 99.06 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (in_pos_files yes)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000211")
+    (property "Reference" "R2"
+      (at 109.22 99.06 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.016 1.016)
+        )
+      )
+    )
+    (property "Value" "10k"
+      (at 111 99.06 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 109.22 99.06 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 109.22 99.06 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Pull-up resistor"
+      (at 109.22 99.06 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000272")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000273")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "R2")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:R_Pullup")
+    (at 109.22 72.39 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (in_pos_files yes)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000212")
+    (property "Reference" "R3"
+      (at 109.22 72.39 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.016 1.016)
+        )
+      )
+    )
+    (property "Value" "10k"
+      (at 111 72.39 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 109.22 72.39 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 109.22 72.39 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Pull-up resistor"
+      (at 109.22 72.39 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000274")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000275")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "R3")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "micro-kiki:R_Pullup")
+    (at 109.22 45.72 0)
+    (unit 1)
+    (body_style 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (in_pos_files yes)
+    (dnp no)
+    (uuid "00000000-0000-0000-0000-000000000213")
+    (property "Reference" "R4"
+      (at 109.22 45.72 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.016 1.016)
+        )
+      )
+    )
+    (property "Value" "10k"
+      (at 111 45.72 90)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 109.22 45.72 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Datasheet" ""
+      (at 109.22 45.72 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Description" "Pull-up resistor"
+      (at 109.22 45.72 0)
+      (hide yes)
+      (show_name no)
+      (do_not_autoplace no)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (pin "1"
+      (uuid "00000000-0000-0000-0000-000000000276")
+    )
+    (pin "2"
+      (uuid "00000000-0000-0000-0000-000000000277")
+    )
+    (instances
+      (project "spi_bus_4devices"
+        (path "/00000000-0000-0000-0000-000000000001"
+          (reference "R4")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/"
+      (page "1")
+    )
+  )
+  (embedded_fonts no)
+)

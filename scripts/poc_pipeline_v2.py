@@ -203,7 +203,7 @@ class MicroKikiPipeline:
         memories = self.memory.recall(query, top_k=3)
         memory_context = ""
         if memories:
-            memory_lines = [f"[Memory] {ep.content[:100]}" for ep in memories]
+            memory_lines = [f"[Memory] {ep.content[:400]}" for ep in memories]
             memory_context = "\n".join(memory_lines) + "\n\n"
             logger.info("  [MEMORY] Recalled %d episodes", len(memories))
         else:
@@ -252,7 +252,13 @@ class MicroKikiPipelineV2(MicroKikiPipeline):
         try:
             from src.routing.quantum_router import QuantumRouter
             self.quantum_router = QuantumRouter()
-            logger.info("[V2] QuantumRouter loaded (PennyLane available)")
+            # Load trained weights if available
+            weights_path = _REPO_ROOT / "outputs" / "vqc-weights.npz"
+            if weights_path.exists():
+                self.quantum_router.load(weights_path)
+                logger.info("[V2] QuantumRouter loaded with trained weights")
+            else:
+                logger.info("[V2] QuantumRouter loaded (untrained — run train_vqc_router.py)")
         except ImportError as exc:
             logger.warning("[V2] QuantumRouter disabled: %s", exc)
 
@@ -389,7 +395,7 @@ class MicroKikiPipelineV2(MicroKikiPipeline):
         memories = self.memory.recall(query, top_k=3)
         memory_context = ""
         if memories:
-            memory_lines = [f"[Memory] {ep.content[:100]}" for ep in memories]
+            memory_lines = [f"[Memory] {ep.content[:400]}" for ep in memories]
             memory_context = "\n".join(memory_lines) + "\n\n"
             logger.info("  [MEMORY] Recalled %d episodes", len(memories))
             for ep in memories:
