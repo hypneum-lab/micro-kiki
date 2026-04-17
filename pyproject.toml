@@ -27,6 +27,9 @@ mlx = [
   "mlx>=0.26",
   "mlx-lm>=0.30",
 ]
+embeddings = [
+  "sentence-transformers>=3.0",
+]
 serve = [
   "vllm",
   "fastapi",
