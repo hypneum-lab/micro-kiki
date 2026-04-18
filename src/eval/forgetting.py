@@ -1,12 +1,14 @@
 """Forgetting check framework: win-rate delta + gradient subspace angle.
 
 Run after each stack training to detect interference with prior stacks.
-Reference: arxiv 2603.02224 (Subspace Geometry, 2026).
+Reference: arxiv 2603.02224 (Subspace Geometry, 2026), OPLoRA 2510.13003.
 
 Provides:
 - GradientSubspaceAnalyzer: SVD-based gradient subspace angle measurement
 - ForgettingEvaluator: orchestrates win-rate + angle checks across stacks
 - ForgettingReport: immutable result dataclass
+- measure_forgetting_signal(): shared helper (angle + optional win-rate)
+  used by scripts/measure_forgetting.py (CLI) and check_all_previous()
 
 Usable standalone (python -m src.eval.forgetting) or imported by
 src.ralph.forgetting_auto.ForgettingChecker.
@@ -14,14 +16,17 @@ src.ralph.forgetting_auto.ForgettingChecker.
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import logging
 import math
+import re
 import sys
+from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 if TYPE_CHECKING:
     import torch
@@ -131,12 +136,346 @@ class GradientSubspaceAnalyzer:
 
 
 # ---------------------------------------------------------------------------
-# Forgetting evaluator
+# Thresholds (locked by brainstorm-oplora.md)
 # ---------------------------------------------------------------------------
 
-# Thresholds
 ANGLE_THRESHOLD = 30.0
 WINRATE_DROP_THRESHOLD = 0.03
+
+
+# ---------------------------------------------------------------------------
+# Low-level helpers: LoRA delta extraction + angle computation
+# (shared by scripts/measure_forgetting.py CLI and measure_forgetting_signal)
+# ---------------------------------------------------------------------------
+
+PROJ_GROUPS = ("q_proj", "k_proj", "v_proj", "o_proj")
+
+# Regex matches e.g.
+#   base_model.model.model.layers.3.self_attn.q_proj.lora_A.weight
+#   model.layers.3.self_attn.q_proj.lora_a.weight
+_LORA_KEY = re.compile(
+    r"(?P<prefix>.+?)\.(?P<proj>[qkvo]_proj)\.lora_(?P<ab>[AaBb])(?:\.default)?\.weight$"
+)
+
+
+def _load_tensors(path: Path) -> dict[str, "torch.Tensor"]:
+    """Load a LoRA adapter safetensors file."""
+    from safetensors.torch import load_file
+
+    logger.debug("loading safetensors: %s", path)
+    return load_file(str(path))
+
+
+def _extract_deltas(
+    tensors: dict[str, "torch.Tensor"],
+) -> dict[str, list["torch.Tensor"]]:
+    """Group LoRA A/B pairs by projection kind and compute B @ A per layer.
+
+    Returns a mapping ``proj -> [delta_layer_0, delta_layer_1, ...]``.
+    Layers with only A or only B (malformed) are skipped with a warning.
+    """
+    a_matrices: dict[tuple[str, str], "torch.Tensor"] = {}
+    b_matrices: dict[tuple[str, str], "torch.Tensor"] = {}
+
+    for key, tensor in tensors.items():
+        m = _LORA_KEY.match(key)
+        if not m:
+            continue
+        proj = m.group("proj")
+        prefix = m.group("prefix")
+        ab = m.group("ab").lower()
+        bucket = a_matrices if ab == "a" else b_matrices
+        bucket[(prefix, proj)] = tensor
+
+    deltas: dict[str, list[Any]] = defaultdict(list)
+    for (prefix, proj), a in a_matrices.items():
+        b = b_matrices.get((prefix, proj))
+        if b is None:
+            logger.warning("missing lora_B for %s.%s; skipping", prefix, proj)
+            continue
+        # Standard LoRA: A in (r, in_features), B in (out_features, r).
+        # Delta weight = B @ A, shape (out_features, in_features).
+        delta = b.float() @ a.float()
+        deltas[proj].append(delta)
+    for (prefix, proj), _ in b_matrices.items():
+        if (prefix, proj) not in a_matrices:
+            logger.warning("missing lora_A for %s.%s; skipping", prefix, proj)
+    return deltas
+
+
+def _stack_group(deltas: Iterable["torch.Tensor"]) -> "torch.Tensor":
+    """Flatten each layer's delta to a column and stack → (n_params, n_layers)."""
+    import torch
+
+    cols = [d.reshape(-1) for d in deltas]
+    return torch.stack(cols, dim=1)
+
+
+def compute_angles(
+    prior_tensors: dict[str, "torch.Tensor"],
+    new_tensors: dict[str, "torch.Tensor"],
+    analyzer: GradientSubspaceAnalyzer | None = None,
+) -> dict[str, float]:
+    """Return a dict of per-projection angles (degrees).
+
+    Uses ``GradientSubspaceAnalyzer.compute_angle`` treating each projection
+    group's stacked per-layer deltas as the "gradient" matrix (columns =
+    samples, rows = params).
+    """
+    analyzer = analyzer or GradientSubspaceAnalyzer()
+    prior_deltas = _extract_deltas(prior_tensors)
+    new_deltas = _extract_deltas(new_tensors)
+
+    angles: dict[str, float] = {}
+    for proj in PROJ_GROUPS:
+        p_list = prior_deltas.get(proj, [])
+        n_list = new_deltas.get(proj, [])
+        if not p_list or not n_list:
+            logger.debug("no deltas for %s; skipping", proj)
+            continue
+        p_mat = _stack_group(p_list)
+        n_mat = _stack_group(n_list)
+        # Row-align if layer counts differ (truncate to min shared rows).
+        if p_mat.shape[0] != n_mat.shape[0]:
+            min_rows = min(p_mat.shape[0], n_mat.shape[0])
+            p_mat = p_mat[:min_rows]
+            n_mat = n_mat[:min_rows]
+        angle = analyzer.compute_angle(p_mat, n_mat)
+        angles[proj] = angle
+        logger.debug("%s: angle = %.3f°", proj, angle)
+    return angles
+
+
+# ---------------------------------------------------------------------------
+# Win-rate scoring
+# ---------------------------------------------------------------------------
+
+
+def _load_eval_dataset(path: Path) -> list[dict[str, str]]:
+    """Load a JSONL file of ``{prompt, reference}`` entries.
+
+    Matches the shape used by ``src/eval/stack_eval.py`` (``prompt`` key).
+    The ``reference`` key is optional; entries without it are scored only
+    against the prompt itself (used as fallback reference).
+    """
+    items: list[dict[str, str]] = []
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        items.append(json.loads(line))
+    return items
+
+
+def _containment_score(output: str, reference: str) -> float:
+    """Simple similarity score in [0, 1] based on token containment.
+
+    - 1.0 if reference is non-empty and fully contained in output
+    - fraction of reference tokens appearing in output otherwise
+    - 0.0 if reference is empty
+    """
+    if not reference:
+        return 0.0
+    out = output.lower()
+    ref = reference.lower()
+    if ref in out:
+        return 1.0
+    ref_tokens = [t for t in re.split(r"\s+", ref) if t]
+    if not ref_tokens:
+        return 0.0
+    hits = sum(1 for t in ref_tokens if t in out)
+    return hits / len(ref_tokens)
+
+
+def _resolve_generate_fn(module_path: str) -> Callable[..., str]:
+    """Resolve ``module.path:callable`` (or ``module.path.callable``) to a callable.
+
+    Raises:
+        ImportError: on failure to import module
+        AttributeError: if the attribute doesn't exist
+    """
+    if ":" in module_path:
+        mod_name, attr = module_path.split(":", 1)
+    else:
+        mod_name, _, attr = module_path.rpartition(".")
+        if not mod_name:
+            raise ValueError(
+                f"Cannot resolve callable from {module_path!r}; "
+                "use 'pkg.module:callable' form."
+            )
+    module = importlib.import_module(mod_name)
+    try:
+        return getattr(module, attr)
+    except AttributeError as exc:
+        raise AttributeError(
+            f"module {mod_name!r} has no attribute {attr!r}"
+        ) from exc
+
+
+def _compute_winrate(
+    dataset: list[dict[str, str]],
+    generate_fn: Callable[..., str],
+    adapter_path: Path,
+    threshold: float = 0.5,
+) -> float:
+    """Run ``generate_fn`` over prompts and compute the fraction passing threshold.
+
+    For each entry, we call ``generate_fn(prompt=..., adapter=adapter_path)``
+    and score containment of ``reference`` in the response. The win-rate is
+    the fraction of prompts with score ≥ ``threshold``.
+
+    If ``generate_fn`` does not accept an ``adapter`` keyword, it is called
+    positionally with the prompt alone (useful for mocked closures in tests).
+    """
+    if not dataset:
+        return 0.0
+
+    wins = 0
+    for entry in dataset:
+        prompt = entry.get("prompt", "")
+        reference = entry.get("reference", prompt)
+        try:
+            output = generate_fn(prompt=prompt, adapter=adapter_path)
+        except TypeError:
+            # Mock closures that only take the prompt.
+            output = generate_fn(prompt)
+        score = _containment_score(output, reference)
+        if score >= threshold:
+            wins += 1
+    return wins / len(dataset)
+
+
+# ---------------------------------------------------------------------------
+# measure_forgetting_signal — shared helper (CLI + check_all_previous)
+# ---------------------------------------------------------------------------
+
+
+def measure_forgetting_signal(
+    prior_adapter_path: Path,
+    new_adapter_path: Path,
+    eval_dataset: Path | str | None = None,
+    generate_fn: Callable[..., str] | str | None = None,
+    winrate_baseline: float | None = None,
+    *,
+    angle_threshold: float = ANGLE_THRESHOLD,
+    winrate_drop_threshold: float = WINRATE_DROP_THRESHOLD,
+    winrate_score_threshold: float = 0.5,
+) -> dict[str, Any]:
+    """Compute forgetting signal (angle + optional win-rate) between two adapters.
+
+    This is the shared math used by ``scripts/measure_forgetting.py`` (CLI)
+    and by ``ForgettingEvaluator.check_all_previous`` (library path).
+
+    Args:
+        prior_adapter_path: Path to prior stack ``adapter_model.safetensors``.
+        new_adapter_path: Path to newly-trained adapter.
+        eval_dataset: Optional path to a JSONL file with ``{prompt, reference}``
+            entries. Required to compute the win-rate half of the gate.
+        generate_fn: Either a callable ``fn(prompt=..., adapter=...) -> str``
+            or a string ``"pkg.module:callable"`` resolved via ``importlib``.
+            Required to compute win-rate.
+        winrate_baseline: Reference win-rate from the prior adapter. Required
+            to compute ``winrate_drop``.
+        angle_threshold: Degrees below which the angle is considered unsafe.
+        winrate_drop_threshold: Fractional drop above which win-rate signals
+            regression.
+        winrate_score_threshold: Per-prompt score cutoff used when counting
+            wins (passed through to ``_compute_winrate``).
+
+    Returns:
+        Dict with the JSON-ready fields:
+          - ``angle_degrees_mean`` (float or NaN)
+          - ``angle_degrees_per_layer`` (dict[str, float])
+          - ``winrate_measured`` (float or None)
+          - ``winrate_baseline`` (float or None)
+          - ``winrate_drop`` (float or None)
+          - ``gate_status`` ("pass" | "fail" | "angle_only_partial")
+          - ``warning`` (str or None)
+          - ``note`` (str, context)
+    """
+    prior_tensors = _load_tensors(Path(prior_adapter_path))
+    new_tensors = _load_tensors(Path(new_adapter_path))
+    angles = compute_angles(prior_tensors, new_tensors)
+
+    if not angles:
+        return {
+            "angle_degrees_mean": float("nan"),
+            "angle_degrees_per_layer": {},
+            "winrate_measured": None,
+            "winrate_baseline": None,
+            "winrate_drop": None,
+            "warning": "no matching LoRA layers found in either adapter",
+            "gate_status": "angle_only_partial",
+            "note": "Win-rate half not measured; run paired eval for full gate.",
+        }
+
+    import numpy as np
+
+    mean_angle = float(np.mean(list(angles.values())))
+    per_layer = {k: float(v) for k, v in angles.items()}
+
+    # Angle-only path (phase 1a behaviour): no win-rate inputs → partial gate.
+    winrate_inputs_provided = (
+        eval_dataset is not None
+        and generate_fn is not None
+        and winrate_baseline is not None
+    )
+    if not winrate_inputs_provided:
+        warning: str | None = None
+        if mean_angle < angle_threshold:
+            warning = "angle below threshold"
+        return {
+            "angle_degrees_mean": mean_angle,
+            "angle_degrees_per_layer": per_layer,
+            "winrate_measured": None,
+            "winrate_baseline": None,
+            "winrate_drop": None,
+            "warning": warning,
+            "gate_status": "angle_only_partial",
+            "note": "Win-rate half not measured; run paired eval for full gate.",
+        }
+
+    # Full gate path (phase 1b): compute win-rate, apply AND-logic rollback.
+    if isinstance(generate_fn, str):
+        gen_callable = _resolve_generate_fn(generate_fn)
+    else:
+        gen_callable = generate_fn
+
+    dataset = _load_eval_dataset(Path(eval_dataset))
+    measured = _compute_winrate(
+        dataset=dataset,
+        generate_fn=gen_callable,
+        adapter_path=Path(new_adapter_path),
+        threshold=winrate_score_threshold,
+    )
+    baseline = float(winrate_baseline)
+    drop = baseline - measured
+
+    angle_bad = mean_angle < angle_threshold
+    winrate_bad = drop > winrate_drop_threshold
+    gate_status = "fail" if (angle_bad and winrate_bad) else "pass"
+    warning_bits = []
+    if angle_bad:
+        warning_bits.append(f"angle {mean_angle:.2f}° < {angle_threshold}°")
+    if winrate_bad:
+        warning_bits.append(f"winrate_drop {drop:.3f} > {winrate_drop_threshold}")
+    warning = "; ".join(warning_bits) or None
+
+    return {
+        "angle_degrees_mean": mean_angle,
+        "angle_degrees_per_layer": per_layer,
+        "winrate_measured": float(measured),
+        "winrate_baseline": baseline,
+        "winrate_drop": float(drop),
+        "warning": warning,
+        "gate_status": gate_status,
+        "note": "Full gate: angle<30° AND winrate_drop>0.03 → fail.",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Forgetting evaluator
+# ---------------------------------------------------------------------------
 
 
 class ForgettingEvaluator:
@@ -247,15 +586,36 @@ class ForgettingEvaluator:
         new_stack_id: str,
         eval_data_dir: Path | None = None,
         results: list[dict] | None = None,
+        *,
+        adapter_path_fn: Callable[[str], Path] | None = None,
+        new_adapter_path: Path | None = None,
+        generate_fn: Callable[..., str] | str | None = None,
+        winrate_baselines: dict[str, float] | None = None,
     ) -> list[ForgettingReport]:
         """Run forgetting check for each previously-trained stack.
+
+        Two modes:
+
+        1. **Pre-computed** (legacy): pass ``results=[...]`` with dicts
+           containing ``stack_id``, ``angle``, ``winrate_base``,
+           ``winrate_adapted``. Each entry becomes one report.
+
+        2. **Automatic** (phase 1b): pass ``adapter_path_fn`` (maps
+           ``stack_id`` → safetensors path) and ``new_adapter_path``;
+           optionally ``generate_fn`` + ``winrate_baselines`` +
+           ``eval_data_dir`` to also compute the win-rate half.
+           For each prior stack, ``measure_forgetting_signal`` is called
+           and the resulting dict is folded into a ``ForgettingReport``.
 
         Args:
             trained_stacks: list of stack IDs trained before new_stack_id
             new_stack_id: the newly-trained stack
             eval_data_dir: directory containing {stack_id}.jsonl files
-            results: pre-computed list of dicts with keys
-                     (stack_id, angle, winrate_base, winrate_adapted)
+            results: pre-computed list of dicts (mode 1)
+            adapter_path_fn: (mode 2) ``stack_id -> Path`` resolver
+            new_adapter_path: (mode 2) path to the new adapter's safetensors
+            generate_fn: (mode 2) optional win-rate generation callable
+            winrate_baselines: (mode 2) map ``stack_id -> baseline_winrate``
 
         Returns:
             List of ForgettingReport, one per prior stack.
@@ -263,7 +623,7 @@ class ForgettingEvaluator:
         reports: list[ForgettingReport] = []
 
         if results is not None:
-            # Use pre-computed measurements
+            # Mode 1: pre-computed measurements.
             for entry in results:
                 report = self._make_report(
                     stack_id=entry["stack_id"],
@@ -274,14 +634,66 @@ class ForgettingEvaluator:
                 )
                 reports.append(report)
         else:
-            # Iterate over prior stacks
+            # Mode 2: automatic measurement via measure_forgetting_signal.
+            if adapter_path_fn is None or new_adapter_path is None:
+                raise ValueError(
+                    "check_all_previous automatic mode requires "
+                    "adapter_path_fn and new_adapter_path. For pre-computed "
+                    "measurements pass results=[...] instead."
+                )
+
+            baselines = winrate_baselines or {}
+            eval_dir = Path(eval_data_dir) if eval_data_dir else None
+
             for stack_id in trained_stacks:
-                eval_path = (eval_data_dir or Path("data/eval")) / f"{stack_id}.jsonl"
-                # In production, measurements would come from the evaluator
-                # and analyzer. For now, raise if no pre-computed data.
-                raise NotImplementedError(
-                    f"Automatic measurement for {stack_id} not yet wired. "
-                    "Pass results= with pre-computed measurements."
+                prior_path = Path(adapter_path_fn(stack_id))
+                eval_dataset = (
+                    eval_dir / f"{stack_id}.jsonl" if eval_dir else None
+                )
+                if eval_dataset is not None and not eval_dataset.exists():
+                    eval_dataset = None
+                baseline = baselines.get(stack_id)
+
+                signal = measure_forgetting_signal(
+                    prior_adapter_path=prior_path,
+                    new_adapter_path=Path(new_adapter_path),
+                    eval_dataset=eval_dataset if generate_fn else None,
+                    generate_fn=generate_fn,
+                    winrate_baseline=baseline,
+                    angle_threshold=self._angle_threshold,
+                    winrate_drop_threshold=self._winrate_drop_threshold,
+                )
+
+                # Map the signal dict into a ForgettingReport. When win-rate
+                # wasn't computed, record zeros so the dataclass stays
+                # populated and `passed` is driven solely by the signal's
+                # gate_status (angle_only_partial → passed=True).
+                wr_measured = signal.get("winrate_measured")
+                wr_baseline = signal.get("winrate_baseline")
+                wr_drop = signal.get("winrate_drop")
+                gate_status = signal.get("gate_status", "angle_only_partial")
+
+                if wr_measured is None or wr_baseline is None:
+                    winrate_base_val = 0.0
+                    winrate_adapted_val = 0.0
+                    winrate_drop_val = 0.0
+                else:
+                    winrate_base_val = float(wr_baseline)
+                    winrate_adapted_val = float(wr_measured)
+                    winrate_drop_val = float(wr_drop or 0.0)
+
+                should_rollback = gate_status == "fail"
+                reports.append(
+                    ForgettingReport(
+                        stack_id=stack_id,
+                        new_stack_id=new_stack_id,
+                        angle=float(signal.get("angle_degrees_mean", 0.0)),
+                        winrate_base=winrate_base_val,
+                        winrate_adapted=winrate_adapted_val,
+                        winrate_drop=winrate_drop_val,
+                        passed=not should_rollback,
+                        should_rollback=should_rollback,
+                    )
                 )
 
         any_rollback = any(r.should_rollback for r in reports)
