@@ -3,7 +3,7 @@
 # micro-kiki
 
 ## Purpose
-micro-kiki is a 32-domain expert system built on the Qwen3.5-35B-A3B MoE base (256 experts, 3B active per token) via standard LoRA adapters applied only to attention projections (q/k/v/o). On top of the adapter layer sits a cognitive stack: sigmoid meta-router + YAML dispatcher, Aeon memory palace (Atlas SIMD + Trace graph), CAMP/Catfish negotiator, and KnowBias+RBD anti-bias. Training runs sequentially per domain via MLX on a Mac Studio M3 Ultra 512 GB; inference runs on MLX (Mac) or vLLM Q4 (kxkm-ai RTX 4090). Distillation uses Qwen3-Coder-480B-A35B MLX 4bit as a local teacher. Version 0.2.0-dev.
+micro-kiki is a 35-domain expert system built on the Qwen3.5-35B-A3B MoE base (256 experts, 3B active per token) via standard LoRA adapters applied only to attention projections (q/k/v/o). On top of the adapter layer sits a cognitive stack: sigmoid meta-router + YAML dispatcher, Aeon memory palace (Atlas SIMD + Trace graph), CAMP/Catfish negotiator, and KnowBias+RBD anti-bias. Training runs sequentially per domain via MLX on a Mac Studio M3 Ultra 512 GB; inference runs on MLX (Mac) or vLLM Q4 (kxkm-ai RTX 4090). Distillation uses Qwen3-Coder-480B-A35B MLX 4bit as a local teacher. Version 0.2.0-dev.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ micro-kiki is a 32-domain expert system built on the Qwen3.5-35B-A3B MoE base (2
 query
   |
   v
-[routing/]          --> 37-output sigmoid (32 domain + 5 capability)
+[routing/]          --> 35-output sigmoid (34 niche domain + 1 base; capabilities served separately)
   |                    thresholds: 0.12 general, 0.20 chat-mode, max 4 stacks
   v
 [orchestrator/]     --> dispatcher maps router output to 7 meta-intents

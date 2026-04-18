@@ -14,7 +14,7 @@ Inference-server adapters that expose Qwen3.5-35B-A3B (or the legacy 4B base) wi
 | `switchable.py` | `SwitchableModel` — PEFT-based in-process hot-swap runtime. `apply_stacks(names)` caches a merged key tuple to skip no-op switches. Hard cap `MAX_ACTIVE_STACKS = 4`. Uses `peft.PeftModel.load_adapter` / `set_adapter`. |
 | `aeon_hook.py` | `AeonServingHook` — `pre_inference(prompt, top_k=8)` prepends `[Memory] <content>` lines from `AeonPalace.recall`; `post_inference(prompt, response, domain, turn_id)` writes `Q: ... A: ...` back into the palace. All failures log and degrade to the unaugmented prompt. |
 | `ane_draft.py` | `ANEDraftModel` — Qwen3.5-0.8B on Apple Neural Engine via `coremltools.models.MLModel` for speculative decoding. Stub — `predict_next_tokens` returns `[]` pending CoreML export. |
-| `ane_router.py` | `ANERouter` — meta-router compiled to CoreML running on ANE (not CPU). Stub — `route` returns `[0.0] * 37` pending export. Note: hardcoded 37 outputs is pre-pivot. |
+| `ane_router.py` | `ANERouter` — meta-router compiled to CoreML running on ANE (not CPU). Stub — `route` returns `[0.0] * 37` pending export. TODO: reconcile `37` vs the current 35-way `MetaRouter` head when wiring the real CoreML export. |
 | `ane_scorer.py` | `ANEScorer` — CoreML reward model on ANE for GRPO/RL scoring. Stub. |
 
 ## For AI Agents

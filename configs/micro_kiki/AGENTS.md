@@ -4,14 +4,14 @@
 # configs/micro_kiki
 
 ## Purpose
-Project-level configs that describe the 32-domain micro_kiki system as a whole, rather than any individual training run. `domains.yaml` is the single source of truth for what "a domain" means (keywords, regex patterns, teacher model, example target, curriculum phase, existing data sources). `brainstacks.yaml` is the legacy MoE-LoRA (custom) hyperparameter set — retained for reference and for the null-space / residual-boost pipeline in `scripts/micro_kiki/train_stack.py`, but superseded for training by the MLX-native configs in `../mlx-per-domain/` and `../mlx-curriculum/` after the 2026-04-16 pivot.
+Project-level configs that describe the 35-domain micro_kiki system as a whole, rather than any individual training run. `domains.yaml` is the single source of truth for what "a domain" means (keywords, regex patterns, teacher model, example target, curriculum phase, existing data sources). `brainstacks.yaml` is the legacy MoE-LoRA (custom) hyperparameter set — retained for reference and for the null-space / residual-boost pipeline in `scripts/micro_kiki/train_stack.py`, but superseded for training by the MLX-native configs in `../mlx-per-domain/` and `../mlx-curriculum/` after the 2026-04-16 pivot.
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
-| `domains.yaml` | 32-domain taxonomy (~14 KB). Per domain: `phase`, `teacher`, `teacher_secondary?`, `target`, `keywords[]`, `patterns[]` (regex), `existing_sources[]` (data paths). Also top-level: `version`, `target_per_domain`, `valid_ratio`, `chat_format`, `thinking_tags`. |
-| `brainstacks.yaml` | Legacy MoE-LoRA config (4 experts, top-2, rank 16, rsLoRA, null-space projection rank 32, residual boost 2 rounds). Contains the canonical `curriculum:` list — 6 phases, 32 ordered domains. Still read by `scripts/micro_kiki/train_stack.py` and `null_space.py` / `residual_boost.py`. |
+| `domains.yaml` | 35-domain taxonomy (~14 KB). Per domain: `phase`, `teacher`, `teacher_secondary?`, `target`, `keywords[]`, `patterns[]` (regex), `existing_sources[]` (data paths). Also top-level: `version`, `target_per_domain`, `valid_ratio`, `chat_format`, `thinking_tags`. **Drift note (2026-04-18):** remote currently ships 34 domain entries here vs 35 in `brainstacks.yaml:curriculum` (`spice-sim` legacy slug); validator surfaces this gap. |
+| `brainstacks.yaml` | Legacy MoE-LoRA config (4 experts, top-2, rank 16, rsLoRA, null-space projection rank 32, residual boost 2 rounds). Contains the canonical `curriculum:` list — 6 phases, 35 ordered domains. Still read by `scripts/micro_kiki/train_stack.py` and `null_space.py` / `residual_boost.py`. |
 
 ### `domains.yaml` schema shape
 
@@ -49,7 +49,7 @@ domains:
 
 ### Testing Requirements
 
-- `yaml.safe_load` both files and assert 32 entries in `domains.yaml:domains` and 32 entries in `brainstacks.yaml:curriculum`.
+- `yaml.safe_load` both files and assert the domain count matches across `domains.yaml:domains`, `brainstacks.yaml:curriculum`, and the router output dimension (currently 35; see `scripts/validate_domains.py`).
 - Regex `patterns` MUST compile under Python `re` — malformed regex silently drops classification signal (`scripts/micro_kiki/classify_domains.py` logs but continues).
 - `valid_ratio * target_per_domain` must be >= `val_batches` in the MLX configs (currently 25) — otherwise eval batches will be undersized.
 

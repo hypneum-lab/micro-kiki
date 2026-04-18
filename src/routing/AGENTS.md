@@ -9,18 +9,18 @@ Routing layer that selects which 35B-A3B + LoRA-adapter combination answers a qu
 ## Key Files
 | File | Description |
 |------|-------------|
-| `router.py` | `MetaRouter` (torch.nn.Module) — sigmoid head over 11 domain outputs (10 niches + "base") and 5 capability outputs (web_search, self_critique_{token,response,task}, deep_eval). Threshold 0.12, max 4 active stacks. Exposes `NICHE_DOMAINS` frozenset and `CAPABILITY_NAMES` as torch-free constants. |
+| `router.py` | `MetaRouter` (torch.nn.Module) — sigmoid head over 35 domain outputs (34 niches + "base") and 5 capability outputs (web_search, self_critique_{token,response,task}, deep_eval). Threshold 0.12, max 4 active stacks. Exposes `NICHE_DOMAINS` frozenset and `CAPABILITY_NAMES` as torch-free constants. An 11-output backward-compat path (`num_domains=11`) is still exercised by `tests/routing/test_router_11.py`. |
 | `model_router.py` | `ModelRouter.select(query, domain_hint, require_deep)` → `RouteDecision(model_id, adapter, reason)`. Priority: deep-reasoning → qwen480b; niche hint → qwen35b + `stack-<domain>`; code hint (`_CODE_HINTS = {code, coding, debug, firmware, c++, python, rust}`) → devstral; else qwen35b base. |
 | `quantum_router.py` | `QuantumRouter` — 4-qubit PennyLane VQC with `AngleEmbedding` + `StronglyEntanglingLayers` (6 layers) + classical linear head to 11 classes. `route(embedding)` returns `RouteDecision`. Parameter-shift-rule training in `train(embeddings, labels, epochs)`. `save/load` to `.npz`. Raises `ImportError` at init if PennyLane missing. |
 | `tn_router.py` | `TNRouterConfig` + `estimate_tn_router_params` — MPS-chain tensor-network router scaffolding; not yet a full module. |
 | `hybrid_pipeline.py` | `HybridPipeline.route_and_infer(query, context)` orchestrates quantum → classical fallback → Aeon pre-inject → stub inference → optional Negotiator → Aeon post-inject. `HybridPipelineConfig` toggles quantum/memory/negotiator with a `quantum_confidence_threshold` (default 0.7). Ships `_stub_infer` — replace with MLX/vLLM dispatch for production. |
 | `dispatcher.py` | `MetaIntent` enum + `load_intent_mapping` (reads `configs/meta_intents.yaml`) + `validate_mapping` (exactly-one-bucket-per-domain) + `dispatch(router_logits, mapping)` → `DispatchResult`. Training-free. |
-| `CLAUDE.md` | Existing project notes — 32 sigmoid outputs (pre-pivot), threshold 0.12 general / 0.20 chat-floor, max 4 active stacks, retest every 4 stacks. Updated reality: pivot dropped to 11 outputs (10 niches + base). |
+| `CLAUDE.md` | Project notes — 35 sigmoid outputs (34 niches + base), threshold 0.12 general / 0.20 chat-floor, max 4 active stacks, retest every 4 stacks. |
 
 ## For AI Agents
 
 ### Working In This Directory
-- **Respect the pivot**: `NICHE_DOMAINS` is now a 10-element frozenset (kicad-dsl, spice, emc, stm32, embedded, freecad, platformio, power, dsp, electronics). Index 10 is the implicit "base" output. Legacy 32-domain mode is only reachable via `MetaRouter(num_domains=32)` for backward compat.
+- **Respect the 2026-04-17 expansion**: `NICHE_DOMAINS` is a 34-element frozenset. Index 34 is the implicit "base" output, total 35. Legacy 32-domain and 11-output modes remain reachable via `MetaRouter(num_domains=32|11)` for backward compat.
 - **Max 4 active stacks** is enforced in `MetaRouter.get_active_domains` via `topk` — honour the project-level "Don't route > 4 stacks simultaneously" rule.
 - **Sigmoid, not softmax**: domains are not mutually exclusive (`CLAUDE.md` explicitly forbids softmax in `router.py`). Only the QuantumRouter's classical head uses softmax because it outputs a single class.
 - **Confidence encoding contract**: `QuantumRouter.route` stamps `"conf=0.xxx"` inside the `RouteDecision.reason` string. `hybrid_pipeline._extract_confidence` parses exactly 5 chars after `conf=`. Don't change the format without updating both sides.

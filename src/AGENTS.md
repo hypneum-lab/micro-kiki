@@ -4,7 +4,7 @@
 # src
 
 ## Purpose
-The installable Python package for micro-kiki (hatch packages `src` directly, so imports read `src.routing`, `src.memory`, etc.). It implements the full cognitive stack: base model loading, 32 LoRA stacks, meta-router + dispatcher, negotiator / anti-bias cognitive layer, Aeon memory palace, orchestrator, distillation, evaluation & forgetting, and the MLX / vLLM serving surfaces. A few loose `.h` files (`spi_mmio.h`, `uart_ring.h`) are embedded-C side-material used by hardware-oriented tests.
+The installable Python package for micro-kiki (hatch packages `src` directly, so imports read `src.routing`, `src.memory`, etc.). It implements the full cognitive stack: base model loading, 35 LoRA stacks, meta-router + dispatcher, negotiator / anti-bias cognitive layer, Aeon memory palace, orchestrator, distillation, evaluation & forgetting, and the MLX / vLLM serving surfaces. A few loose `.h` files (`spi_mmio.h`, `uart_ring.h`) are embedded-C side-material used by hardware-oriented tests.
 
 ## Key Files
 | File | Description |
@@ -18,7 +18,7 @@ The installable Python package for micro-kiki (hatch packages `src` directly, so
 |-----------|---------|
 | `base/` | Qwen3.5-35B-A3B loader + DiffAttention patch (`diff_attention.py`) |
 | `stacks/` | Trainer + OPLoRA init + QTHA + legacy `moe_lora.py` (attention-only LoRA) |
-| `routing/` | Meta-router (sigmoid 37), dispatcher, hybrid & quantum routers |
+| `routing/` | Meta-router (sigmoid 35), dispatcher, hybrid & quantum routers |
 | `orchestrator/` | Engine + HTTP bridge for request flow |
 | `cognitive/` | Negotiator (CAMP+Catfish), antibias/KnowBias, RBD, forgetting_gate, judge, sleep_tagger, consolidation, bias_probe, argument_extractor |
 | `memory/` | Aeon palace (Atlas SIMD + Trace graph), aeonsleep, Qdrant/Neo4j backends |
@@ -44,7 +44,7 @@ The installable Python package for micro-kiki (hatch packages `src` directly, so
 `tests/` mirrors this layout one-to-one (`tests/routing/`, `tests/cognitive/`, `tests/memory/`, etc.). Every new module gets a smoke test. Mock heavy objects — never load the real 35B in unit tests.
 
 ### Common Patterns
-- Router output: 32 domain sigmoids + 5 capability sigmoids = 37 total (see `configs/capabilities.yaml`).
+- Router output: 35 domain sigmoids (34 niches + 1 base); capability sigmoids (5) are served separately (see `configs/capabilities.yaml`).
 - Dispatcher is training-free: YAML mapping from router logits to 7 meta-intents (`quick-reply`, `reasoning`, `coding`, `creative`, `research`, `agentic`, `tool-use`).
 - Forgetting gate: angle between base and adapted gradient subspaces + win-rate on held-out; rollback if `angle_deg < 30 AND win_rate_delta < -0.03`.
 - Teacher client targets local MLX 4bit 480B — no network dependency expected.
