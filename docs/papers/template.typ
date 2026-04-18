@@ -17,7 +17,8 @@
   numbering: "— 1 —",
   number-align: center,
 )
-#set text(font: ("New Computer Modern", "Latin Modern Roman", "Times"), size: 10.5pt, lang: "en")
+#let doc-lang = sys.inputs.at("lang", default: "en")
+#set text(font: ("New Computer Modern", "Latin Modern Roman", "Times"), size: 10.5pt, lang: doc-lang)
 #set par(justify: true, leading: 0.68em, first-line-indent: 0em)
 #set heading(numbering: "1.1")
 

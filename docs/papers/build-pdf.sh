@@ -6,8 +6,12 @@ NAME="$(basename "${INPUT%.md}")"
 OUTPUT="${2:-$SCRIPT_DIR/pdf/${NAME}.pdf}"
 TMPTYP="/tmp/mk-paper-${NAME}.typ"
 mkdir -p "$(dirname "$OUTPUT")"
+# Auto-detect language from filename suffix: *-fr.md → French, else English
+LANG="en"
+if [[ "$NAME" == *-fr ]]; then LANG="fr"; fi
+
 pandoc "$INPUT" -t typst -o "${TMPTYP}.body"
 { cat "$SCRIPT_DIR/template.typ"; echo; cat "${TMPTYP}.body"; } > "$TMPTYP"
-typst compile "$TMPTYP" "$OUTPUT" 2>&1
+typst compile --input lang="$LANG" "$TMPTYP" "$OUTPUT" 2>&1
 echo "wrote $OUTPUT ($(du -h "$OUTPUT" | cut -f1))"
 rm -f "${TMPTYP}.body" "$TMPTYP"
