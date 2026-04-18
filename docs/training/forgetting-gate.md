@@ -31,8 +31,13 @@ informational, not gating.
 ```json
 {
   "angle_degrees_mean": 72.3,
-  "angle_degrees_per_layer": {
-    "q_proj": 71.8, "k_proj": 74.1, "v_proj": 70.9, "o_proj": 72.4
+  "angle_degrees_per_module": {
+    "self_attn.q_proj": 71.8,
+    "self_attn.k_proj": 74.1,
+    "self_attn.v_proj": 70.9,
+    "self_attn.o_proj": 72.4,
+    "linear_attn.in_proj_qkv": 83.2,
+    "mlp.switch_mlp.down_proj": 45.7
   },
   "warning": null,
   "gate_status": "angle_only_partial",
@@ -40,8 +45,11 @@ informational, not gating.
 }
 ```
 
-- `angle_degrees_mean` — mean over `{q,k,v,o}_proj` groups.
-- `angle_degrees_per_layer` — per-projection breakdown.
+- `angle_degrees_mean` — mean over all module groups present in both adapters.
+- `angle_degrees_per_module` — per-module-kind breakdown (grouped across
+  layers). Covers every module the adapter was trained on, including
+  `self_attn.{q,k,v,o}_proj`, `linear_attn.*`, and MoE
+  (`mlp.{gate,shared_expert,switch_mlp,shared_expert_gate}.*`).
 - `warning` — `"angle below threshold"` when mean `< 30°`, else `null`.
 - `gate_status` — always `"angle_only_partial"` in phase 1a.
 

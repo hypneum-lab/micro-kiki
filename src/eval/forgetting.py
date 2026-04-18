@@ -190,14 +190,59 @@ def apply_and_gate(
 # (shared by scripts/measure_forgetting.py CLI and measure_forgetting_signal)
 # ---------------------------------------------------------------------------
 
+# Legacy: PEFT-style q/k/v/o-only grouping. Kept for backward-compat imports
+# but no longer used to filter — the gate now groups by the actual module key
+# discovered in the adapter (see ``_parse_lora_key``).
 PROJ_GROUPS = ("q_proj", "k_proj", "v_proj", "o_proj")
 
-# Regex matches e.g.
-#   base_model.model.model.layers.3.self_attn.q_proj.lora_A.weight
-#   model.layers.3.self_attn.q_proj.lora_a.weight
-_LORA_KEY = re.compile(
-    r"(?P<prefix>.+?)\.(?P<proj>[qkvo]_proj)\.lora_(?P<ab>[AaBb])(?:\.default)?\.weight$"
+# Match the ``.lora_{a,b}`` suffix with all known adapter flavours:
+#   PEFT:    ``.lora_A.weight`` / ``.lora_A.default.weight``
+#   MLX-LM:  ``.lora_a`` (no ``.weight`` suffix, lowercase)
+_LORA_SUFFIX = re.compile(
+    r"\.lora_(?P<ab>[AaBb])(?:\.default)?(?:\.weight)?$"
 )
+
+# Used to split ``<layer_prefix>.layers.<N>.<module_key>`` so the same
+# ``module_key`` (e.g. ``self_attn.q_proj``) groups across layers.
+_LAYER_SPLIT = re.compile(r"layers\.\d+\.")
+
+
+def _parse_lora_key(key: str) -> tuple[str, str, str] | None:
+    """Extract ``(layer_prefix, module_key, ab)`` from a LoRA adapter tensor name.
+
+    Supports both PEFT (``base_model.model.layers.N.self_attn.q_proj.lora_A.weight``)
+    and MLX-LM (``language_model.model.layers.N.linear_attn.in_proj_qkv.lora_a``)
+    conventions. Returns ``None`` if the key is not a LoRA tensor.
+
+    - ``layer_prefix``: everything up to and including ``layers.<N>.`` — used
+      as the unique identifier that pairs lora_A with lora_B of the same layer.
+      When there is no ``layers.<N>.`` segment, we fall back to the parent of
+      the module path (still unique per layer in practice).
+    - ``module_key``: the module path relative to the layer (e.g.
+      ``self_attn.q_proj``, ``linear_attn.in_proj_qkv``, ``mlp.switch_mlp.down_proj``).
+    - ``ab``: lower-cased ``"a"`` or ``"b"``.
+    """
+    m = _LORA_SUFFIX.search(key)
+    if not m:
+        return None
+    ab = m.group("ab").lower()
+    body = key[: m.start()]
+    layer_m = _LAYER_SPLIT.search(body)
+    if layer_m is not None:
+        layer_prefix = body[: layer_m.end()]
+        module_key = body[layer_m.end():]
+    else:
+        # No ``layers.<N>.`` segment — treat everything except the final
+        # module name as the prefix. This is rare but keeps pairing correct
+        # for adapters that don't follow the decoder-layers convention.
+        parent, _, leaf = body.rpartition(".")
+        if not leaf:
+            return None
+        layer_prefix = parent
+        module_key = leaf
+    if not module_key:
+        return None
+    return layer_prefix, module_key, ab
 
 
 def _load_tensors(path: Path) -> dict[str, "torch.Tensor"]:
@@ -208,40 +253,116 @@ def _load_tensors(path: Path) -> dict[str, "torch.Tensor"]:
     return load_file(str(path))
 
 
+def _compose_delta(
+    a: "torch.Tensor", b: "torch.Tensor"
+) -> "torch.Tensor | None":
+    """Compose a LoRA A/B pair into ``Δ = B·A`` handling both conventions.
+
+    Orientations supported:
+
+    - **PEFT** (``peft.LoraConfig``): ``A`` is ``(r, in_features)`` and
+      ``B`` is ``(out_features, r)``. Delta is ``B @ A``.
+    - **MLX-LM**: ``A`` is ``(in_features, r)`` and ``B`` is
+      ``(r, out_features)``. Delta is ``A @ B`` (equivalent to
+      ``B.T @ A.T`` in PEFT shape). Detected by matching inner dim on the
+      opposite axes.
+    - **MLX-LM MoE switch_mlp**: A is ``(n_experts, r, in_features)`` or
+      ``(n_experts, in_features, r)`` and B is the matching 3D tensor.
+      Expert dim is folded into the "layer" axis so each expert contributes
+      an independent per-layer delta to the subspace.
+
+    Returns ``None`` if the shapes are not compatible under any known
+    convention.
+    """
+    import torch
+
+    a_f = a.float()
+    b_f = b.float()
+
+    # 3D (MoE switch_mlp): stack per-expert deltas.
+    if a_f.ndim == 3 and b_f.ndim == 3 and a_f.shape[0] == b_f.shape[0]:
+        deltas: list[torch.Tensor] = []
+        for i in range(a_f.shape[0]):
+            d = _compose_delta(a_f[i], b_f[i])
+            if d is None:
+                return None
+            deltas.append(d)
+        # Return a single tensor shape (n_experts, out, in); caller flattens.
+        return torch.stack(deltas, dim=0)
+
+    if a_f.ndim != 2 or b_f.ndim != 2:
+        return None
+
+    # PEFT convention: A=(r,in), B=(out,r), delta = B @ A.
+    if b_f.shape[1] == a_f.shape[0]:
+        return b_f @ a_f
+    # MLX convention: A=(in,r), B=(r,out), delta = A @ B.
+    if a_f.shape[1] == b_f.shape[0]:
+        return a_f @ b_f
+    return None
+
+
 def _extract_deltas(
     tensors: dict[str, "torch.Tensor"],
 ) -> dict[str, list["torch.Tensor"]]:
-    """Group LoRA A/B pairs by projection kind and compute B @ A per layer.
+    """Group LoRA A/B pairs by module-kind and compute per-layer deltas.
 
-    Returns a mapping ``proj -> [delta_layer_0, delta_layer_1, ...]``.
+    Returns a mapping ``module_key -> [delta_layer_0, delta_layer_1, ...]``.
+    ``module_key`` is the module path relative to the decoder layer (e.g.
+    ``self_attn.q_proj``, ``linear_attn.in_proj_qkv``,
+    ``mlp.switch_mlp.down_proj``) so the same kind of module groups across
+    layers even when tensor names differ in layer index or top-level prefix.
+
+    Supports PEFT (``.lora_A.weight`` / ``.lora_A.default.weight``) and
+    MLX-LM (``.lora_a`` with no ``.weight`` suffix) conventions, including
+    3D MoE tensors (``switch_mlp.*`` with per-expert stacks) — see
+    :func:`_compose_delta`.
+
     Layers with only A or only B (malformed) are skipped with a warning.
     """
     a_matrices: dict[tuple[str, str], "torch.Tensor"] = {}
     b_matrices: dict[tuple[str, str], "torch.Tensor"] = {}
 
     for key, tensor in tensors.items():
-        m = _LORA_KEY.match(key)
-        if not m:
+        parsed = _parse_lora_key(key)
+        if parsed is None:
             continue
-        proj = m.group("proj")
-        prefix = m.group("prefix")
-        ab = m.group("ab").lower()
+        layer_prefix, module_key, ab = parsed
         bucket = a_matrices if ab == "a" else b_matrices
-        bucket[(prefix, proj)] = tensor
+        bucket[(layer_prefix, module_key)] = tensor
 
     deltas: dict[str, list[Any]] = defaultdict(list)
-    for (prefix, proj), a in a_matrices.items():
-        b = b_matrices.get((prefix, proj))
+    for (layer_prefix, module_key), a in a_matrices.items():
+        b = b_matrices.get((layer_prefix, module_key))
         if b is None:
-            logger.warning("missing lora_B for %s.%s; skipping", prefix, proj)
+            logger.warning(
+                "missing lora_B for %s%s; skipping", layer_prefix, module_key
+            )
             continue
-        # Standard LoRA: A in (r, in_features), B in (out_features, r).
-        # Delta weight = B @ A, shape (out_features, in_features).
-        delta = b.float() @ a.float()
-        deltas[proj].append(delta)
-    for (prefix, proj), _ in b_matrices.items():
-        if (prefix, proj) not in a_matrices:
-            logger.warning("missing lora_A for %s.%s; skipping", prefix, proj)
+        delta = _compose_delta(a, b)
+        if delta is None:
+            logger.warning(
+                "incompatible A/B shapes for %s%s (A=%s, B=%s); skipping",
+                layer_prefix,
+                module_key,
+                tuple(a.shape),
+                tuple(b.shape),
+            )
+            continue
+        # 3D MoE delta (n_experts, out, in): averaging over experts keeps
+        # memory bounded on models with hundreds of experts (Qwen3.5-A3B has
+        # 256). The mean-expert delta is a reasonable per-layer stand-in for
+        # the gate's angle measurement — per-expert forgetting would need
+        # its own metric.
+        if delta.ndim == 3:
+            deltas[module_key].append(delta.mean(dim=0))
+        else:
+            deltas[module_key].append(delta)
+    for (layer_prefix, module_key) in b_matrices.keys():
+        if (layer_prefix, module_key) not in a_matrices:
+            logger.warning(
+                "missing lora_A for %s%s; skipping", layer_prefix, module_key
+            )
     return deltas
 
 
@@ -258,22 +379,31 @@ def compute_angles(
     new_tensors: dict[str, "torch.Tensor"],
     analyzer: GradientSubspaceAnalyzer | None = None,
 ) -> dict[str, float]:
-    """Return a dict of per-projection angles (degrees).
+    """Return a dict of per-module angles (degrees).
 
-    Uses ``GradientSubspaceAnalyzer.compute_angle`` treating each projection
+    Uses ``GradientSubspaceAnalyzer.compute_angle`` treating each module
     group's stacked per-layer deltas as the "gradient" matrix (columns =
-    samples, rows = params).
+    samples, rows = params). Module keys are discovered dynamically from
+    the adapter contents (see ``_extract_deltas``); this covers all
+    attention projections (``self_attn.{q,k,v,o}_proj``), linear-attention
+    blocks (``linear_attn.{in_proj_a,in_proj_b,in_proj_qkv,in_proj_z,out_proj}``),
+    MoE gates and shared/switch expert projections found in modern MoE
+    adapters (e.g. Qwen3.5-35B-A3B trained via MLX-LM).
     """
     analyzer = analyzer or GradientSubspaceAnalyzer()
     prior_deltas = _extract_deltas(prior_tensors)
     new_deltas = _extract_deltas(new_tensors)
 
+    # Intersect module keys present in both adapters — a missing module on
+    # one side cannot contribute to an angle measurement.
+    shared_keys = sorted(set(prior_deltas) & set(new_deltas))
+
     angles: dict[str, float] = {}
-    for proj in PROJ_GROUPS:
-        p_list = prior_deltas.get(proj, [])
-        n_list = new_deltas.get(proj, [])
+    for module_key in shared_keys:
+        p_list = prior_deltas.get(module_key, [])
+        n_list = new_deltas.get(module_key, [])
         if not p_list or not n_list:
-            logger.debug("no deltas for %s; skipping", proj)
+            logger.debug("no deltas for %s; skipping", module_key)
             continue
         p_mat = _stack_group(p_list)
         n_mat = _stack_group(n_list)
@@ -282,9 +412,15 @@ def compute_angles(
             min_rows = min(p_mat.shape[0], n_mat.shape[0])
             p_mat = p_mat[:min_rows]
             n_mat = n_mat[:min_rows]
+        # Column-align too: subspace angle requires matching sample count;
+        # truncate to min shared layers when layer counts differ.
+        if p_mat.shape[1] != n_mat.shape[1]:
+            min_cols = min(p_mat.shape[1], n_mat.shape[1])
+            p_mat = p_mat[:, :min_cols]
+            n_mat = n_mat[:, :min_cols]
         angle = analyzer.compute_angle(p_mat, n_mat)
-        angles[proj] = angle
-        logger.debug("%s: angle = %.3f°", proj, angle)
+        angles[module_key] = angle
+        logger.debug("%s: angle = %.3f°", module_key, angle)
     return angles
 
 
@@ -427,7 +563,7 @@ def measure_forgetting_signal(
     Returns:
         Dict with the JSON-ready fields:
           - ``angle_degrees_mean`` (float or NaN)
-          - ``angle_degrees_per_layer`` (dict[str, float])
+          - ``angle_degrees_per_module`` (dict[str, float])
           - ``winrate_measured`` (float or None)
           - ``winrate_baseline`` (float or None)
           - ``winrate_drop`` (float or None)
@@ -442,7 +578,7 @@ def measure_forgetting_signal(
     if not angles:
         return {
             "angle_degrees_mean": float("nan"),
-            "angle_degrees_per_layer": {},
+            "angle_degrees_per_module": {},
             "winrate_measured": None,
             "winrate_baseline": None,
             "winrate_drop": None,
@@ -454,7 +590,7 @@ def measure_forgetting_signal(
     import numpy as np
 
     mean_angle = float(np.mean(list(angles.values())))
-    per_layer = {k: float(v) for k, v in angles.items()}
+    per_module = {k: float(v) for k, v in angles.items()}
 
     # Angle-only path (phase 1a behaviour): no win-rate inputs → partial gate.
     winrate_inputs_provided = (
@@ -468,7 +604,7 @@ def measure_forgetting_signal(
             warning = "angle below threshold"
         return {
             "angle_degrees_mean": mean_angle,
-            "angle_degrees_per_layer": per_layer,
+            "angle_degrees_per_module": per_module,
             "winrate_measured": None,
             "winrate_baseline": None,
             "winrate_drop": None,
@@ -506,7 +642,7 @@ def measure_forgetting_signal(
 
     return {
         "angle_degrees_mean": mean_angle,
-        "angle_degrees_per_layer": per_layer,
+        "angle_degrees_per_module": per_module,
         "winrate_measured": float(measured),
         "winrate_baseline": baseline,
         "winrate_drop": float(drop),

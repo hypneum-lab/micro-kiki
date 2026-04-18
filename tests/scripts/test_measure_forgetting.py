@@ -300,6 +300,164 @@ def test_full_gate_pass_low_drop(tmp_path: Path, monkeypatch) -> None:
     assert report["winrate_drop"] <= 0.03
 
 
+# ---------------------------------------------------------------------------
+# MLX-LM-style adapters (no .weight suffix, non-q/k/v/o module paths)
+# ---------------------------------------------------------------------------
+
+
+def _mlx_adapter_tensors(
+    module_key: str,
+    b: torch.Tensor,
+    a: torch.Tensor,
+    *,
+    layer: int = 0,
+) -> dict[str, torch.Tensor]:
+    """Build a single-layer MLX-LM adapter dict for ``module_key``.
+
+    MLX-LM keys look like:
+        language_model.model.layers.N.<module_key>.lora_a
+        language_model.model.layers.N.<module_key>.lora_b
+    with NO ``.weight`` suffix and lowercase ``lora_{a,b}``.
+    """
+    base = f"language_model.model.layers.{layer}.{module_key}"
+    # Clone to defeat storage sharing — safetensors rejects aliased tensors.
+    return {
+        f"{base}.lora_a": a.detach().clone().contiguous(),
+        f"{base}.lora_b": b.detach().clone().contiguous(),
+    }
+
+
+def test_mlx_style_keys_matched(tmp_path: Path) -> None:
+    """MLX-LM keys (no .weight, lowercase) are picked up by the regex.
+
+    Verifies both the regex matches and that the resulting delta is grouped
+    under the expected ``module_key`` — including a non-{q,k,v,o} module
+    (``linear_attn.in_proj_a``) that the pre-fix code silently ignored.
+    """
+    from src.eval.forgetting import _extract_deltas, _parse_lora_key
+
+    # Direct regex check — MLX-style variants.
+    assert _parse_lora_key(
+        "language_model.model.layers.0.linear_attn.in_proj_a.lora_a"
+    ) == (
+        "language_model.model.layers.0.",
+        "linear_attn.in_proj_a",
+        "a",
+    )
+    assert _parse_lora_key(
+        "language_model.model.layers.12.self_attn.q_proj.lora_b"
+    ) == (
+        "language_model.model.layers.12.",
+        "self_attn.q_proj",
+        "b",
+    )
+    # And PEFT variants still match (back-compat).
+    assert _parse_lora_key(
+        "base_model.model.layers.3.self_attn.q_proj.lora_A.weight"
+    ) == (
+        "base_model.model.layers.3.",
+        "self_attn.q_proj",
+        "a",
+    )
+    assert _parse_lora_key(
+        "base_model.model.layers.3.self_attn.q_proj.lora_A.default.weight"
+    ) == (
+        "base_model.model.layers.3.",
+        "self_attn.q_proj",
+        "a",
+    )
+    # Non-LoRA keys return None.
+    assert _parse_lora_key("some.random.weight") is None
+    assert _parse_lora_key("language_model.model.embed_tokens.weight") is None
+
+    # _extract_deltas on an MLX adapter: `linear_attn.in_proj_a` must appear
+    # as a module key (this was NOT captured by the old PEFT-only regex).
+    b = torch.tensor([[1.0], [0.0]])
+    a = torch.tensor([[1.0, 0.0]])
+    tensors = _mlx_adapter_tensors("linear_attn.in_proj_a", b, a, layer=5)
+    deltas = _extract_deltas(tensors)
+    assert "linear_attn.in_proj_a" in deltas
+    assert len(deltas["linear_attn.in_proj_a"]) == 1
+
+
+def test_non_qkvo_modules_captured(tmp_path: Path) -> None:
+    """MLX adapter with MoE + linear-attn modules yields per-module angles.
+
+    Covers modules the old PEFT-only regex ignored:
+    ``mlp.switch_mlp.down_proj``, ``linear_attn.in_proj_qkv``,
+    ``mlp.shared_expert.gate_proj``. Verifies they appear in the
+    per-module breakdown produced by ``measure_forgetting_signal``.
+    """
+    mod = _load_script_module()
+
+    # Prior vs new: orthogonal per-module directions in 4×4 flattened space.
+    # Use distinct per-layer deltas so the stacked column space has full rank
+    # (rank-1 replicated columns produce degenerate QR padding that breaks
+    # the subspace-angle interpretation).
+    # All matrices below are (2,2) so flattened deltas live in R^4.
+    def _delta_pair(idx: int, kind: str) -> tuple[torch.Tensor, torch.Tensor]:
+        # kind="prior": deltas span the first two canonical axes.
+        # kind="new":   deltas span the last two canonical axes (orthogonal).
+        if kind == "prior":
+            ones_at = [(0, 0), (0, 1)][idx]
+        else:
+            ones_at = [(1, 0), (1, 1)][idx]
+        b = torch.zeros(2, 1)
+        b[ones_at[0], 0] = 1.0
+        a = torch.zeros(1, 2)
+        a[0, ones_at[1]] = 1.0
+        return b, a
+
+    prior_tensors: dict[str, torch.Tensor] = {}
+    new_tensors: dict[str, torch.Tensor] = {}
+    for layer_idx, layer in enumerate((0, 1)):
+        for module_key in (
+            "mlp.switch_mlp.down_proj",
+            "linear_attn.in_proj_qkv",
+            "mlp.shared_expert.gate_proj",
+        ):
+            b_p, a_p = _delta_pair(layer_idx, "prior")
+            b_n, a_n = _delta_pair(layer_idx, "new")
+            prior_tensors.update(
+                _mlx_adapter_tensors(module_key, b_p, a_p, layer=layer)
+            )
+            new_tensors.update(
+                _mlx_adapter_tensors(module_key, b_n, a_n, layer=layer)
+            )
+
+    prior_path = tmp_path / "prior.safetensors"
+    new_path = tmp_path / "new.safetensors"
+    save_file(prior_tensors, str(prior_path))
+    save_file(new_tensors, str(new_path))
+
+    out_path = tmp_path / "report.json"
+    rc = mod.main(
+        [
+            "--prior-adapter",
+            str(prior_path),
+            "--new-adapter",
+            str(new_path),
+            "--output",
+            str(out_path),
+        ]
+    )
+    assert rc == 0
+    report = json.loads(out_path.read_text())
+
+    # All three modules must be present in the per-module breakdown —
+    # previously none of these would have matched the PEFT-only regex.
+    per_module = report["angle_degrees_per_module"]
+    assert "mlp.switch_mlp.down_proj" in per_module, per_module
+    assert "linear_attn.in_proj_qkv" in per_module, per_module
+    assert "mlp.shared_expert.gate_proj" in per_module, per_module
+    # Orthogonal A vs B → each per-module angle should be ~90°.
+    for module_key, angle in per_module.items():
+        assert angle > 85.0, (module_key, angle)
+
+    # JSON must use the new field name; old name must be gone.
+    assert "angle_degrees_per_layer" not in report
+
+
 def test_partial_winrate_flags_rejected(tmp_path: Path) -> None:
     """Providing only some win-rate flags → exit 2 (CLI misuse)."""
     mod = _load_script_module()
