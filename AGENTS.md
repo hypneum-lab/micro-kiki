@@ -40,7 +40,6 @@ query
 | `MIGRATION.md` | v0.1 -> v0.2 -> v0.3 migration guide |
 | `pyproject.toml` | hatchling build, Python 3.11+, optional extras: `train`, `mlx`, `serve`, `agentic`, `dev` |
 | `VERSION` | `0.2.0-dev` |
-| `train_micro_kiki_v3_gpu.py` | Top-level v3 GPU training entrypoint (4090 prototyping) |
 
 ## Subdirectories
 | Directory | Purpose | AGENTS.md |
@@ -58,7 +57,8 @@ query
 | `data/` | Datasets and distilled JSONL — data-only, no AGENTS.md |
 | `outputs/` | Training outputs (adapters, checkpoints) — data-only, no AGENTS.md |
 | `output/` | Legacy output dir — data-only, no AGENTS.md |
-| `results/` | Eval result JSON — data-only, no AGENTS.md |
+| `results/` | Eval result JSON — data-only, no AGENTS.md. `results/legacy/` holds pre-pivot eval artifacts (`stack-01-eval*.json`, `e2e-smoke.json`) |
+| `scripts/legacy/` | Archived pre-pivot drivers (Qwen3.5-4B era + GPU prototyping). Reference-only, NOT on the 35B-A3B path |
 
 ## For AI Agents
 
@@ -75,6 +75,15 @@ query
 - `UNSLOTH_COMPILE_DISABLE=1` before any training on the Mac Studio.
 - Python 3.11+, ruff + black, line length 100, loguru for logging (no `print()`).
 - Commits: `feat|fix|docs(<area>): <imperative>`, subject <= 50 chars, no `Co-Authored-By` trailer (pre-commit hook rejects it).
+
+### CI invariants (validators)
+Four standalone scripts act as fail-fast gates over configs and source; run them locally before pushing config or `src/` changes:
+- `scripts/validate_domains.py` — 32-domain list must match across `configs/micro_kiki/domains.yaml`, `configs/micro_kiki/brainstacks.yaml`, and `configs/mlx-per-domain/*.yaml`.
+- `scripts/validate_rank_schema.py` — LoRA `rank ∈ {4, 8, 12, 16, 32}` and `alpha == 2 × rank` per per-domain config.
+- `scripts/validate_curriculum_order.py` — foundations (rank 32) precede every niche in the curriculum.
+- `scripts/validate_no_pre_pivot.py` — no `Qwen3.5-4B` / `Qwen3-4B` / `[0.0] * 32` identifier leaks into `src/**/*.py` (docs are exempt).
+
+Forgetting gate: `scripts/measure_forgetting.py` is the phase-1a angle-only CLI (informational, always exit 0). Operator reference: `docs/training/forgetting-gate.md`. Design + roadmap: `.omc/brainstorm-oplora.md`.
 
 ### Testing Requirements
 ```bash

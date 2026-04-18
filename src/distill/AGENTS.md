@@ -36,7 +36,7 @@ Produces per-domain training data by calling the local Qwen3-Coder-480B-A35B tea
 ## Dependencies
 
 ### Internal
-- Consumed by `scripts/distill_fast.py`, `scripts/distill_niche.py`, and the stack trainer in `src/stacks/`.
+- Consumed by `scripts/distill_domain.py` and the stack trainer in `src/stacks/`. Older fast/niche variants live in `scripts/legacy/` (pre-pivot).
 - Output feeds `src/eval/stack_eval.py` (held-out slices) and forgetting-check eval sets.
 
 ### External

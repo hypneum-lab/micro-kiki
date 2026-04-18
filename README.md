@@ -74,6 +74,17 @@ uv run python scripts/poc_pipeline_v2.py --scenario all
 
 Loads trained adapters, initializes Aeon, routes 50 test prompts, logs routing decisions + latencies to `results/poc_latest.json`.
 
+### Config gates (run before pushing config/`src/` changes)
+
+```bash
+python scripts/validate_domains.py            # 32-domain list consistency
+python scripts/validate_rank_schema.py        # rank ∈ {4,8,12,16,32} · alpha = 2·rank
+python scripts/validate_curriculum_order.py   # foundations before niches
+python scripts/validate_no_pre_pivot.py       # no Qwen3.5-4B leaks in src/
+```
+
+Forgetting angle (OPLoRA phase 1a, informational): `python scripts/measure_forgetting.py --prior-adapter ... --new-adapter ...` — see `docs/training/forgetting-gate.md`.
+
 ### Train a single domain (Mac Studio only)
 
 Training is owned by the sibling repo — this README shows the driver only:

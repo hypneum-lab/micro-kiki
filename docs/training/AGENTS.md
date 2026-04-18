@@ -11,6 +11,7 @@ Operator-facing training runbook for the MLX LoRA pipeline on Mac Studio M3 Ultr
 | File | Description |
 |------|-------------|
 | `README.md` | Training workflow guide. Covers: prereqs (venv, Metal wired-limit sysctl, base weights), data layout, 3-phase curriculum table, run commands, switching domain, key parameters table (rank 64 / scale 64 / batch 1 / grad-accum 16 / checkpointing on), constraints ("batch 4 hangs GPU", "LR > 2e-4 diverges"), observed metrics per phase, forgetting check, curriculum order (Phases I–VI), output tree, distillation for sparse domains. |
+| `forgetting-gate.md` | Operator reference for the OPLoRA phase-1a angle CLI (`scripts/measure_forgetting.py`): usage, output schema, interpretation bands, and the phase-1b win-rate gap that's still deferred. |
 
 ## For AI Agents
 

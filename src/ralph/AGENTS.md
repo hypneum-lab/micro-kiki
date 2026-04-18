@@ -45,7 +45,7 @@ Autonomous story-driven development loop: for every story in the queue, **resear
 ### Internal
 - `src.ralph.research.StoryResearcher` depends on `src.search.base.SearchBackend` (uses Exa + Scholar concrete backends).
 - `AutonomousLoop` composes `StoryResearcher`, `CodeReview`, `ForgettingChecker` via constructor injection.
-- Typically driven by `scripts/run_pipeline.sh` / `scripts/run_eval_*.py` at the top level; `implement_fn` is usually a wrapper around `src.serving.*` generation.
+- Historically driven by `scripts/legacy/run_pipeline.sh` / `scripts/legacy/run_eval_*.py` (pre-pivot drivers, archived); `implement_fn` is usually a wrapper around `src.serving.*` generation.
 
 ### External
 - stdlib only: `asyncio`, `json`, `logging`, `re`, `dataclasses`, `pathlib`, `datetime`, `typing.Callable`, `typing.Awaitable`.

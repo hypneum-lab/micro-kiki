@@ -18,6 +18,7 @@ pytest suite for micro-kiki. Directory layout mirrors `src/` (`tests/routing/`, 
 | `test_convert_spikingkiki.py`, `test_diff_attention.py`, `test_spikingformer.py`, `test_lif_neuron.py`, `test_las_*.py`, `test_qtha.py` | v0.3 neuroscience branch tests |
 | `test_mlx_server.py`, `test_vllm_server.py`, `test_integration_http.py`, `test_integration_phase14.py` | Serving + HTTP surface |
 | `test_generator.py`, `test_dedup.py`, `test_loader.py`, `test_download.py`, `test_quality_filter.py`, `test_scrape_stackexchange.py`, `test_generate_codex.py` | Distillation + dataset pipeline |
+| `test_validate_domains.py`, `test_validate_rank_schema.py`, `test_validate_curriculum_order.py`, `test_validate_no_pre_pivot.py` | CI-gate validators mirroring `scripts/validate_*.py` (domain-list drift, rank/alpha schema, curriculum order, pre-pivot identifier sweep) |
 | `test_reward_functions.py` | DPO/GRPO reward shaping |
 | `test_teacher_client.py` | Qwen3-Coder-480B teacher client |
 | `test_dispatcher.py`, `test_stack_eval.py`, `test_moe_lora.py`, `test_oplora.py`, `test_trainer.py`, `test_switchable.py`, `test_phase_*.py`, `test_sleep_tagger.py`, `test_hierarchical_timer.py`, `test_smoke.py` | Unit-level coverage |
@@ -30,6 +31,7 @@ pytest suite for micro-kiki. Directory layout mirrors `src/` (`tests/routing/`, 
 | `memory/` | `test_aeon.py` |
 | `routing/` | `test_hybrid_pipeline.py`, `test_model_router.py`, `test_quantum_router.py`, `test_router_11.py`, `test_router_37.py` (37 = 32 domains + 5 capabilities) |
 | `orchestrator/`, `critique/`, `compress/`, `search/`, `ralph/` | Per-subsystem tests (see their `src/` counterparts) |
+| `scripts/` | Tests for standalone script CLIs: `test_measure_forgetting.py` (OPLoRA angle CLI), `test_eval_aeon_predictor.py`, `test_train_embeddings.py` |
 
 ## For AI Agents
 
