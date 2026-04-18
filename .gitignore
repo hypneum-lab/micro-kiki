@@ -238,3 +238,4 @@ models/niche-embeddings/pytorch_model.bin
 .superpowers/
 models/text-jepa/*.pt
 docs/papers/pdf/
+.DS_Store
