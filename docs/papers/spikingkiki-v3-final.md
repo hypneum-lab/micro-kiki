@@ -496,7 +496,7 @@ The energy estimates in this paper should be interpreted as theoretical bounds. 
 
 ### 8.5 Future Work
 
-**Triple-Hybrid Quantum-Neuromorphic-Classical Architecture.** A companion architecture integrates a 4-qubit VQC (72 parameters, PennyLane) as a quantum routing layer for domain classification. Preliminary results show 86.8% validation accuracy on unbalanced training and 53% on balanced curriculum at epoch 5, with confidence scaling from uniform ~0.09 to 0.815 by epoch 12. The VQC achieves a 47x parameter reduction versus classical sigmoid routing (72 vs 3.4M parameters). The full triple-hybrid pipeline routes high-confidence queries (> 0.30) through the SNN pathway and falls back to classical inference otherwise, creating a complete spectrum from quantum-enhanced routing to neuromorphic computation to classical serving. This architecture is the first to combine quantum, neuromorphic, and classical computing for LLM domain routing. QPU deployment on IonQ Aria is planned for H2 2026, where problem instances with 100+ domain classes may begin to demonstrate quantum advantage in the routing layer.
+**Triple-Hybrid Quantum-Neuromorphic-Classical Architecture.** A companion architecture integrates a 6-qubit VQC (~108 parameters, PennyLane) as a quantum routing layer for domain classification into 35 classes (34 niches + base). Early experiments with a reduced 4-qubit variant (72 parameters) showed 86.8% validation accuracy on unbalanced training and 53% on balanced curriculum at epoch 5, with confidence scaling from uniform ~0.09 to 0.815 by epoch 12. The production 6-qubit VQC achieves a 31,000x parameter reduction versus classical sigmoid routing (~108 vs 3.4M parameters). The full triple-hybrid pipeline routes high-confidence queries through the SNN pathway and falls back to classical inference otherwise, creating a complete spectrum from quantum-enhanced routing to neuromorphic computation to classical serving. This architecture is the first to combine quantum, neuromorphic, and classical computing for LLM domain routing. QPU deployment on IonQ Aria is planned for H2 2026, where problem instances with 100+ domain classes may begin to demonstrate quantum advantage in the routing layer.
 
 **Neuromorphic Hardware Deployment.** BrainChip Akida Mini PCIe provides a physical platform for SNN inference benchmarking. The LAS-converted SpikingKiki model would run on Akida's event-driven neuromorphic processor, where AC operations consume ~10x less energy than GPU MAC. Intel Loihi 2 is an alternative target.
 
@@ -521,6 +521,20 @@ SpikingKiki demonstrates the feasibility of combining MoE-LoRA domain specializa
 The V3 dataset (489K examples, 35 domains, 3 source types) and the finding that LoRA efficacy inversely correlates with base model domain knowledge inform a practical minimal-adapter strategy: train only for underrepresented domains, skip well-covered ones. V3 evaluation validates this: the electronics domain achieved the largest gain (-0.55 val_loss, from 2.14 to 1.59) from targeted data enrichment, while spice-sim regressed (+1.51, from 1.84 to 3.34) due to noisy data, supporting a hybrid adapter selection strategy (V2 for regressed niches, V3 for improved domains). The GGUF Q4_K_M quantized model (2.5 GB) enables practical deployment on consumer hardware.
 
 Full-scale LAS conversion results and neuromorphic hardware benchmarks remain as near-term evaluation targets. The companion triple-hybrid architecture, integrating quantum VQC routing with the SpikingKiki SNN backbone and classical inference, represents a longer-term research direction toward hardware-diverse AI systems spanning cloud, edge, and quantum computing.
+
+---
+
+## 10. Discussion: Neuromorphic Substrate for JEPA-style World Models
+
+**Observation.** LAS conversion yields energy-efficient SNN inference on massive-scale MoE language models, but the wider spiking-network community has largely treated SNNs as classifiers or sequence predictors rather than as substrates for *latent world models*. The Joint Embedding Predictive Architecture (JEPA) family, most recently V-JEPA 2 [13] and LeJEPA [14], operates on a set of properties that SNNs share natively: temporal dynamics, sparsity, event-driven computation, and a natural separation between an encoder and a lightweight predictor. SpikingKiki demonstrates that the encoder half of this equation can already be run as a spike-driven MoE, which suggests an under-explored bridge between neuromorphic hardware and LeCun's Advanced Machine Intelligence (AMI) program [15].
+
+**Hypothesis.** A future architecture could train a JEPA predictor directly on top of an LAS-converted MoE backbone, combining: (i) V-JEPA 2's L1 masked-position loss in latent space [13]; (ii) LeJEPA's SIGReg isotropic-Gaussian regularization, which removes the need for EMA teachers, stop-gradient tricks, and collapse-prevention heuristics [14]; (iii) the SNN's native temporal coding as the sequence-dynamics primitive; and (iv) the LAS-convertible MoE structure for scalable expert routing. The DINOv3 line of work [16] shows that centering-based SSL can stabilize very large encoders without teacher networks, further supporting the case that the "no heuristics" philosophy of LeJEPA is compatible with spike-driven encoders whose internal statistics are already rate-normalized by construction.
+
+**Energy argument.** At the 72% activation sparsity and ~0.28 spike rate observed in SpikingBrain-7B [4], and the 3x operation-level energy reduction projected for dense 7B inference, we expect the energy profile of a JEPA *predictor* head (typically 20-30M parameters, analogous to V-JEPA 2's 22M-parameter predictor on a 1B encoder [13]) to be dominated by the encoder cost. A JEPA-style forward on our 35B-A3B spiking backbone should therefore inherit the same 44-66% operation reduction, extrapolating to roughly 5-10x total energy reduction on Akida/Loihi-class hardware. This is a concrete, falsifiable target for follow-up work rather than a claimed result.
+
+**Compatibility sketch.** The existing SpikingKiki stack maps onto a JEPA training recipe with minimal changes: the encoder path is unchanged and reuses the LAS-converted SpikingMistralBlock and SpikingMoELayer; a predictor head is a small MLP on pooled spike counts; training applies a SIGReg-style loss [14] on the encoder embeddings for collapse prevention, obviating the EMA teacher required by earlier JEPA variants. The Aeon cognitive layer (Section 3.4) would then act as a long-horizon memory module alongside the world-model predictor, mirroring the Short-Term Memory role in AMI's modular diagram [15].
+
+**Relevance to AMI and caveats.** We position this SNN+JEPA combination as a candidate *Perception + World Model* substrate for AMI [15], complementing Aeon's Short-Term Memory role, but we stop short of claiming AMI membership: what we describe is an enabling substrate, not a full implementation. Four honest caveats apply. (i) We have not implemented this JEPA+SNN combination; no training or evaluation results are reported here. (ii) The 5-10x energy figure is extrapolation from SpikingBrain-7B [4] plus the LAS projections in Section 6.4, not measurement. (iii) Meta has published LeJEPA [14] and V-JEPA 2 [13], but a spiking variant from the same group has not appeared at the time of writing. (iv) This section is a research agenda, and we expect the SIGReg + spike-count interaction, in particular, to require empirical study before any of the above claims can be validated.
 
 ---
 
@@ -549,6 +563,14 @@ Full-scale LAS conversion results and neuromorphic hardware benchmarks remain as
 [11] RBD (2025). Runtime Bias Detection for Language Model Inference. *arXiv preprint* arXiv:2505.17100.
 
 [12] Gao, Z., et al. (2025). MoLA: Higher Layers Need More LoRA Experts. *Proceedings of NAACL 2025*.
+
+[13] Assran, M., Bardes, A., Fan, D., Garrido, Q., Howes, R., et al. (2025). V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning. *arXiv preprint* arXiv:2506.09985.
+
+[14] Balestriero, R., & LeCun, Y. (2025). LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics. *arXiv preprint* arXiv:2511.08544.
+
+[15] LeCun, Y. (2022). A Path Towards Autonomous Machine Intelligence. *Open Review* (Version 0.9.2, June 2022).
+
+[16] Simeoni, O., Vo, H. V., Seitzer, M., Baldassarre, F., Oquab, M., et al. (2025). DINOv3. *arXiv preprint* arXiv:2508.10104.
 
 ---
 

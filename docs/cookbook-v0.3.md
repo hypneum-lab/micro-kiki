@@ -1,5 +1,9 @@
 # SpikingKiki v0.3 Cookbook
 
+> **Scope note (2026-04-18).** This cookbook documents the **v0.3 neuroscience branch** — Atlas SIMD vector index, LASConverter (ANN→SNN), AeonSleep episodic memory. The **current production path** (see root `README.md`) is the 35-domain LoRA runtime on Qwen 3.5-35B-A3B, where SNN conversion is no longer in the inference chain. Keep this cookbook as reference for the research subsystem; do not use it as the entrypoint for new work unless you're on the neuroscience branch.
+
+---
+
 Three worked examples for the v0.3 neuroscience branch.
 
 ## Example A: AeonSleep Standalone
