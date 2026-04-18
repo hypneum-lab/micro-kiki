@@ -78,8 +78,14 @@ def _load_real_stream(
     backbone_dir: Path,
     seq_len: int,
     seed: int,
+    stream_mode: str = "interleaved",
 ) -> tuple[list[np.ndarray], list[int]]:
-    """Load N samples per domain, embed via MiniLM, interleave by round-robin."""
+    """Load N samples per domain, embed via MiniLM.
+
+    stream_mode:
+      - "interleaved": round-robin interleave domains (topic-switched stream)
+      - "within-topic": concatenate per-domain streams (realistic per-topic conversation)
+    """
     from sentence_transformers import SentenceTransformer
 
     print(f"loading backbone from {backbone_dir}...")
@@ -114,28 +120,35 @@ def _load_real_stream(
         per_domain_texts[dom] = texts
         print(f"  {dom}: {len(texts)} samples")
 
-    # Round-robin interleave across domains to create realistic topic-shifting stream
     rng = np.random.default_rng(seed)
     stream_texts: list[str] = []
     stream_stacks: list[int] = []
-    # Build index pools per domain
-    pools = {d: list(range(len(per_domain_texts[d]))) for d in domains}
-    # Shuffle each pool
-    for d in domains:
-        rng.shuffle(pools[d])
 
-    # Round-robin consume until all empty
-    while any(pools.values()):
-        # Shuffle domain order to add diversity
+    if stream_mode == "within-topic":
+        # Concatenate per-domain streams in shuffled order (each domain runs contiguously)
         dom_order = list(domains)
         rng.shuffle(dom_order)
         for d in dom_order:
-            if pools[d]:
-                idx = pools[d].pop(0)
+            pool = list(range(len(per_domain_texts[d])))
+            rng.shuffle(pool)
+            for idx in pool:
                 stream_texts.append(per_domain_texts[d][idx])
                 stream_stacks.append(domains.index(d))
-
-    print(f"interleaved stream: {len(stream_texts)} turns across {len(domains)} domains")
+        print(f"within-topic stream: {len(stream_texts)} turns, {len(dom_order)} contiguous blocks")
+    else:
+        # Default: round-robin interleave (topic-switched stream)
+        pools = {d: list(range(len(per_domain_texts[d]))) for d in domains}
+        for d in domains:
+            rng.shuffle(pools[d])
+        while any(pools.values()):
+            dom_order = list(domains)
+            rng.shuffle(dom_order)
+            for d in dom_order:
+                if pools[d]:
+                    idx = pools[d].pop(0)
+                    stream_texts.append(per_domain_texts[d][idx])
+                    stream_stacks.append(domains.index(d))
+        print(f"interleaved stream: {len(stream_texts)} turns across {len(domains)} domains")
 
     # Embed via MiniLM
     print("computing embeddings...")
@@ -163,6 +176,9 @@ def main() -> int:
     ap.add_argument("--batch-size", type=int, default=32)
     ap.add_argument("--use-centering", action="store_true")
     ap.add_argument("--use-layernorm-delta", action="store_true")
+    ap.add_argument("--stream-mode", choices=["interleaved", "within-topic"],
+                    default="interleaved",
+                    help="Stream topology: interleaved (topic-switched) or within-topic (contiguous blocks)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
@@ -177,6 +193,7 @@ def main() -> int:
         backbone_dir=Path(args.backbone),
         seq_len=32,
         seed=args.seed,
+        stream_mode=args.stream_mode,
     )
     if not stream:
         print("no samples loaded", file=sys.stderr)
