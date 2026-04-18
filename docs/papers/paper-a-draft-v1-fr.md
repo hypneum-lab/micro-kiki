@@ -174,10 +174,14 @@ La condition L3, combinant LayerNorm(delta) *et* centrage par moyenne mobile, es
 
 La voie Configurator est validée sur des embeddings conversationnels réels. Le Tableau 3 rapporte l'expérience de classification 10 domaines avec un VQC router sur MiniLM-L6 (384 dim) vs des représentations compressées Text-JEPA (128 dim). Les chiffres viennent du rapport de complétion du PoC A.
 
-| Représentation | Dim | Précision de routage VQC | Ratio de compression | Rétention |
+| Représentation | Dim | Précision de routage VQC | Ratio de compression | Rétention (même budget) |
 |----------------|-----|--------------------------|----------------------|-----------|
-| MiniLM-L6 (non compressé) | 384 | 0.925 | 1.0× | — |
-| **Text-JEPA (compressé)** | **128** | **0.900** | **3.0×** | **97 %** |
+| MiniLM-L6 (non compressé, budget Task 14) | 384 | 0.925 | 1.0× | — |
+| **Text-JEPA (compressé, budget Task 14)** | **128** | **0.900** | **3.0×** | **97 %** |
+| MiniLM-L6 (non compressé, budget Task 15.5) | 384 | 0.19 | 1.0× | — |
+| **Text-JEPA (compressé, budget Task 15.5)** | **64** | **0.18** | **6.0×** | **95 %** |
+
+**Caveat important sur les nombres absolus.** Les Tasks 14 et 15.5 sont des runs d'entraînement VQC indépendants avec des seeds et splits train/test différents ; leurs précisions absolues (0.925 vs 0.19 pour la baseline) ne sont **pas directement comparables entre runs**. Ce qui EST comparable au sein de chaque run est le *ratio de rétention* (précision Text-JEPA divisée par précision baseline au même budget) : 97 % à 3× compression (Task 14) et 95 % à 6× compression (Task 15.5). Le constat cohérent entre les deux runs est que **la compression Text-JEPA préserve une précision de routage proche de la baseline par rapport à l'embedding non compressé au même budget VQC**, que le budget donne une baseline forte (0.925) ou faible (0.19). Nous ne revendiquons **pas** "6× compression à 0.9 de précision" — cette combinaison n'a pas été démontrée et nécessiterait de reproduire le régime de budget Task 14 avec un student dim=64, travail futur.
 
 Le compresseur Text-JEPA conserve 97 % de la précision de routage downstream tout en compressant l'entrée du Configurator par 3×. C'est un win pratique pour le serving : les embeddings compressés réduisent le coût de préparation d'état VQC (moins de features angle-encoded), réduisent la bande passante mémoire pour le router, et raccourcissent la distance entre l'espace latent d'Aeon et l'entrée du Configurator. Le résultat est scopé à 10 domaines (pas aux 35 complets) ; la validation à pleine échelle sur le router de production est pending. [Task 15 pending — <VERIFY: micro-kiki Task 15 status>.]
 

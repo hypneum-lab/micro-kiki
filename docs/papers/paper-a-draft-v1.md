@@ -172,10 +172,14 @@ Condition L3, combining LayerNorm(delta) *and* running-mean centering, is catast
 
 The Configurator path is validated on real conversational embeddings. Table 3 reports the 10-domain classification experiment with a VQC router on top of MiniLM-L6 (384 dim) vs Text-JEPA compressed (128 dim) representations. Numbers are from the PoC A completion report.
 
-| Representation | Dim | VQC Routing Accuracy | Compression Ratio | Retention |
+| Representation | Dim | VQC Routing Accuracy | Compression Ratio | Retention (same-budget) |
 |----------------|-----|----------------------|-------------------|-----------|
-| MiniLM-L6 (uncompressed) | 384 | 0.925 | 1.0× | — |
-| **Text-JEPA (compressed)** | **128** | **0.900** | **3.0×** | **97%** |
+| MiniLM-L6 (uncompressed, Task 14 budget) | 384 | 0.925 | 1.0× | — |
+| **Text-JEPA (compressed, Task 14 budget)** | **128** | **0.900** | **3.0×** | **97%** |
+| MiniLM-L6 (uncompressed, Task 15.5 budget) | 384 | 0.19 | 1.0× | — |
+| **Text-JEPA (compressed, Task 15.5 budget)** | **64** | **0.18** | **6.0×** | **95%** |
+
+**Important caveat on absolute numbers.** Task 14 and Task 15.5 are independent VQC training runs with different stochastic seeds and train/test splits; their absolute accuracies (0.925 vs 0.19 for the baseline) are NOT directly comparable across runs. What IS comparable within each run is the *retention ratio* (Text-JEPA accuracy divided by baseline accuracy at the same budget): 97% at 3× compression (Task 14) and 95% at 6× compression (Task 15.5). The consistent finding across both runs is that **Text-JEPA compression preserves near-baseline routing accuracy relative to the uncompressed embedding at the same VQC budget**, whether the budget yields a strong baseline (0.925) or a weak one (0.19). We do not claim "6× compression at 0.9 accuracy" — that combination has not been demonstrated and would require reproducing the Task 14 budget regime with a dim=64 student, which is future work.
 
 The Text-JEPA compressor retains 97% of the downstream routing accuracy while compressing the Configurator's input by 3×. This is a practical win for serving: compressed embeddings reduce VQC state-preparation cost (fewer angle-encoded features), reduce memory bandwidth for the router, and shorten the distance between Aeon's latent space and the Configurator's input. The result is scoped to 10 domains (not the full 35); full-scale validation on the production router is pending. [Task 15 pending — <VERIFY: micro-kiki Task 15 status>.]
 
