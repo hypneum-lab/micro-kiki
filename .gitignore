@@ -238,3 +238,4 @@ outputs/stacks/*/lora_config.yaml
 outputs/*.log
 models/niche-embeddings/model.safetensors
 models/niche-embeddings/pytorch_model.bin
+.superpowers/
