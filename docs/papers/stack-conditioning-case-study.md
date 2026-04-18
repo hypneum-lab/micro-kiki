@@ -9,7 +9,7 @@
 
 ## Abstract
 
-We report a clean negative result from developing a lightweight latent successor-state predictor for memory-augmented LLM pipelines. Our design combined three ingredients with literature justification: (a) a small numpy MLP (~100K parameters) trained on temporal pairs `(h_t, h_{t+1})`; (b) DinoV3/JEPA-style running-mean centering as an EMA-free anti-collapse mechanism; (c) a one-hot *stack* identifier concatenated at the input. Across five synthetic ablations the three do not compose. Stack-conditioning works in isolation — 23% `win_stack` on random-walk streams — but collapses under centering on structured streams (0% in D, 1% in E). The diagnostic: running-mean subtraction removes the stack-specific offset the one-hot was supposed to inject. Centering still delivers its own +22% MRR improvement on structured streams, which is the focus of the companion paper. We propose four non-exclusive resolutions (per-stack centering, dense conditioning, delayed centering, weight-level conditioning) and discuss implications for anyone adapting JEPA-family regularizers to conditional latent predictors.
+We report a mixed result: four proposed resolutions to a centering–stack-conditioning incompatibility, of which we test two empirically. Stack-conditioning (one-hot encoder) works in isolation (23% `win_stack` on random-walk streams) but collapses under DinoV3/JEPA-style running-mean centering on structured streams (0% in D, 1% in E). Per-stack centering (Section 6.1 proposal) does NOT recover the signal (0% win_stack at both 50 and 300 epochs), indicating the problem is deeper than shared-mean interference. Per-sample LayerNorm of the residual delta (Section 6.5 proposal) SUCCEEDS: condition L2 (300 epochs, lr=5e-3) achieves 59% `win_stack` with 0.447 predictive_mrr vs 0.090 null_mrr. This identifies LayerNorm(delta) as a centering-compatible anti-collapse mechanism that preserves discrete stack conditioning — because normalization at the per-sample level preserves per-sample offsets that batch-level centering erases. Combining LayerNorm(delta) with centering is catastrophic (L3: 1% `win_stack`). Centering delivers its own +22% MRR improvement independent of conditioning; that is the focus of Paper A. We clarify the conditional-regularizer interaction and validate one mitigation empirically.
 
 ---
 
@@ -97,6 +97,25 @@ Condition A shows one-hot with dimension-matched scaling is not vacuous: `win_st
 
 On C, D, E baseline `recall@5 = 1.0` for every query: retrieval alone solves the task. MRR, not recall, is the only axis the predictor can improve. The ceiling is a feature of the synthetic generator and bounds observable headroom. A harder benchmark (noisier distance, larger gallery, more distractors) would push baseline `recall@5` below 1.0 and expose a wider MRR window. This is the main experimental limitation.
 
+### 4.6 Extended ablation — mitigation candidates (conditions F, L)
+
+To test two of the four proposed resolutions (Sections 6.1, 6.5), we added conditions F (per-stack centering) and L (LayerNorm of delta):
+
+| Condition | win_stack | predictive_mrr | null_mrr | baseline_mrr | Verdict |
+|-----------|-----------|----------------|----------|--------------|---------|
+| F1: per-stack centering (50 ep) | 0% | 0.413 | 0.495 | 0.413 | FAIL |
+| F2: per-stack centering (300 ep) | 0% | 0.433 | 0.498 | 0.413 | FAIL |
+| L1: LayerNorm(delta) (50 ep) | 3% | 0.012 | 0.015 | 0.413 | under-trained |
+| **L2: LayerNorm(delta) (300 ep, lr=5e-3)** | **59%** | **0.447** | **0.090** | 0.413 | **SUCCESS** |
+| L3: LayerNorm(delta) + centering | 1% | 0.005 | 0.012 | 0.413 | catastrophic |
+
+**Key findings:**
+- Per-stack centering (F1, F2) does not recover stack signal. Maintaining 32 separate running means per `stack_id` and subtracting `μ_s` from each sample's prediction still yields 0% `win_stack` at both 50 and 300 epochs. This reveals the diagnostic is deeper than shared-mean interference: even within-stack normalization removes the signal.
+- LayerNorm(delta) (L2) succeeds: at 300 epochs with lr=5e-3, `win_stack = 59%` and the stack-aware predictor (0.447 MRR) decisively beats null-stack (0.090 MRR) — a +397% relative gap. Early training (L1, 50 epochs) shows 3% `win_stack`, indicating convergence is slow but eventually converges.
+- Combining LayerNorm(delta) + centering (L3) is catastrophic: `win_stack = 1%`, `predictive_mrr = 0.005`, worse than L1. The two mechanisms must be used exclusively.
+
+Artifacts: `/Users/electron/Documents/Projets/micro-kiki-poc-aeon/results/2026-04-17-aeon-poc-{F,L}-*.json`, narratives `…/2026-04-17-aeon-predictor-poc-{delta,layernorm}.md`.
+
 ---
 
 ## 5. Diagnostic: why centering and stack-conditioning are mutually exclusive
@@ -117,17 +136,35 @@ On A the stream dynamics are independent of `s`. The predictor has no reason to 
 
 On D the dynamics *are* stack-specific. Without centering the predictor would learn to add `μ_s` to its predictions and rank the right next-state higher per stack. With centering, `μ_s` is precisely what is removed. The 0% `win_stack` is the expected outcome.
 
+### 5.4 Refined diagnostic post-experiments
+
+The failure of F (per-stack centering) revealed the diagnostic is deeper than shared-mean interference. Even when we maintain 32 separate running means — one per `stack_id` — and subtract `μ_s` from each sample's output, the stack signal still collapses (0% `win_stack` on F1, F2). The problem is not that the means are pooled, but that normalization (whether global or per-stack) operates on the batch axis.
+
+The success of L2 (LayerNorm(delta)) identifies the correct axis: **per-sample, not per-batch**. LayerNorm normalizes each sample's residual delta in isolation. The stack-specific offset injected via one-hot concatenation becomes a per-sample constant; LayerNorm preserves this constant (learned gamma, beta amplify it if needed). Batch-level normalization — whether global or per-stack — averages across samples of different stacks and erases the offset within each stack's batches.
+
+This also explains L3's catastrophe: LayerNorm(delta) + running-mean centering compounds the regularization pressure on the output. The first mechanism normalizes feature variance per sample; the second removes mean drift per batch. Together they leave no coherent signal for the predictor to learn, worse than either alone.
+
 ---
 
 ## 6. Proposed resolutions
 
-**6.1 Per-stack centering.** Maintain `N` running means `μ_1,…,μ_N`, subtract `μ_s` using the sample's stack id. Preserves between-stack offsets while still normalizing within-stack distribution. Memory cost `O(N·dim)` — ~24 KB for `N=16, dim=384`, negligible. One hash lookup per forward. Our default recommendation when both mechanisms are needed. Branch `feat/per-stack-centering` planned.
+**6.1 Per-stack centering.** Maintain `N` running means `μ_1,…,μ_N`, subtract `μ_s` using the sample's stack id. Preserves between-stack offsets while still normalizing within-stack distribution. Memory cost `O(N·dim)` — ~24 KB for `N=16, dim=384`, negligible. One hash lookup per forward. **EMPIRICAL STATUS: TESTED — FAILED** (conditions F1, F2; 0% `win_stack` at both 50 and 300 epochs). The failure indicates batch-level centering (even per-stack) is fundamentally incompatible with per-sample conditioning.
 
-**6.2 Dense conditioning.** Replace the one-hot with a dense vector — e.g. soft-max output of an upstream router (micro-kiki's VQC). Every dimension carries information, so centering can only erase the *mean* of that distribution, not its per-dimension structure. Preliminary observations in an unrelated branch show less interference; full characterization is future work.
+**6.2 Dense conditioning.** Replace the one-hot with a dense vector — e.g. soft-max output of an upstream router (micro-kiki's VQC). Every dimension carries information, so centering can only erase the *mean* of that distribution, not its per-dimension structure. Preliminary observations in an unrelated branch show less interference; full characterization is future work. **EMPIRICAL STATUS: UNTESTED** (pending D design doc, ETA next sprint).
 
-**6.3 Delayed centering.** Apply centering only after a warm-up phase (e.g. first 20% of epochs). The predictor establishes per-stack offsets first; centering then shapes the residual. Common in JEPA schedules, cheap to implement, not tested here — the lowest-cost experiment to run next.
+**6.3 Delayed centering.** Apply centering only after a warm-up phase (e.g. first 20% of epochs). The predictor establishes per-stack offsets first; centering then shapes the residual. Common in JEPA schedules, cheap to implement, not tested here — the lowest-cost experiment to run next. **EMPIRICAL STATUS: UNTESTED**.
 
-**6.4 Stacked architectures.** Use `s` to *generate weights* rather than add an input offset. A hypernetwork [10] produces `W_1^{(s)}` from `s`; an MoE-predictor [9] selects one of `N` full sub-predictors. Output centering cannot erase a weight-level difference the way it erases an additive offset. Cost: `N×` parameters for full MoE (1.6M for `N=16` at 100K params) — deployable but a substantial budget increase.
+**6.4 Stacked architectures (hypernetworks, MoE).** Use `s` to *generate weights* rather than add an input offset. A hypernetwork [10] produces `W_1^{(s)}` from `s`; an MoE-predictor [9] selects one of `N` full sub-predictors. Output centering cannot erase a weight-level difference the way it erases an additive offset. Cost: `N×` parameters for full MoE (1.6M for `N=16` at 100K params) — deployable but a substantial budget increase. **EMPIRICAL STATUS: UNTESTED**.
+
+**6.5 Per-sample LayerNorm of the residual delta.** Instead of subtracting batch-level statistics (centering), normalize the residual `delta = mlp(x) - x` per-sample using standard LayerNorm. Implementation: compute mean and variance across the feature dimension for EACH sample independently; normalize; apply learned gamma/beta. **EMPIRICAL STATUS: TESTED — SUCCESS**.
+
+Why it works: the stack-specific offset `o_s` injected via one-hot concatenation produces a delta where the offset is a per-sample constant. Per-sample normalization preserves this constant (gamma, beta can learn to re-introduce or amplify it). Batch-level normalization averages across samples of different stacks and erases it within each stack's batches. This is the key distinction between per-sample and per-batch regularization — the former is compatible with per-sample conditioning.
+
+Empirical results: condition L2 (300 epochs, lr=5e-3) achieves `win_stack = 59%`, `predictive_mrr = 0.447`, `null_mrr = 0.090` — a decisive win. Convergence is slow: at 50 epochs (L1) the signal is 3%, but extends training navigates the optimization landscape successfully. Combining LayerNorm(delta) AND running-mean centering (condition L3) is catastrophic — 1% `win_stack`, 0.005 predictive_mrr — worse than L1 alone. The two mechanisms must be used exclusively.
+
+Code: `src/memory/aeon_predictor.py::LatentMLP`, config flag `use_layernorm_delta`. Committed at SHA `3c7eded` (code) and `804bf02` (benchmarks) on branch `feat/layernorm-delta`, merged to main at `d30ffb8`.
+
+Reference: LayerNorm (Ba, Kiros, Hinton 2016) [11].
 
 ---
 
@@ -147,17 +184,25 @@ On D the dynamics *are* stack-specific. Without centering the predictor would le
 
 2. **Sparse one-hot conditioning is weak in high dimensions; scaling is a partial fix at best.** Even with `√(dim/n_stacks)` scaling, the one-hot lives in a tiny subspace. The predictor allocates most of its capacity to the embedding, and any downstream regularization disproportionately affects the small signal. Dense conditioning scales better.
 
-3. **Negative results with clean diagnostics are valuable contributions.** Five conditions, a few hours of compute, ~300 lines of eval code bought a definitive redirection of the paper outline and a concrete architectural shortlist. Publishing this tech report is a small additional cost that prevents the finding from being rediscovered downstream.
+3. **Per-sample vs per-batch regularization is the critical distinction.** LayerNorm operates per-sample; running-mean centering operates per-batch. When the signal-of-interest is per-sample (like stack-conditioning offset), only per-sample regularization is compatible. This generalizes beyond our specific architecture: any discrete or continuous conditioning that introduces per-sample structure will conflict with batch-level statistics removal.
+
+4. **Testing two proposed resolutions clarifies the resolution space.** F (per-stack centering) fails at both short and long horizons, eliminating the "maybe we just need more training" hypothesis. L (LayerNorm delta) succeeds at scale, validating the per-sample normalization principle. Together they tighten the diagnostic and reduce the uncertainty in the remaining two candidates (dense conditioning, delayed centering).
 
 ---
 
 ## 9. Related work
 
-Centering derives from DINO [6] and DINOv3 [7]; the EMA-free philosophy is closer to LeJEPA [8]. The broader JEPA framing (I-JEPA [1], V-JEPA 2 [2]) motivates prediction in latent space. Generative latent world models (DreamerV3 [3], TD-MPC2 [4]) offer an alternative we did not pursue. Memory-augmented LM work (MemGPT [5]) forms our deployment substrate. Conditioning mechanisms discussed include MTL concatenation (our failed baseline), MoE routing [9], and hypernetworks [10].
+Centering derives from DINO [6] and DINOv3 [7]; the EMA-free philosophy is closer to LeJEPA [8]. The broader JEPA framing (I-JEPA [1], V-JEPA 2 [2]) motivates prediction in latent space. Generative latent world models (DreamerV3 [3], TD-MPC2 [4]) offer an alternative we did not pursue. Memory-augmented LM work (MemGPT [5]) forms our deployment substrate. Conditioning mechanisms discussed include MTL concatenation (our failed baseline), MoE routing [9], and hypernetworks [10]. LayerNorm (Ba, Kiros, Hinton 2016) [11] provides the theoretical foundation for per-sample normalization; its use in Transformer architectures and as a general anti-collapse regularizer is well-established, though its application to preserve conditioning signal in latent predictors appears novel in this context.
 
 ## 10. Conclusion
 
-Centering and one-hot stack conditioning, both individually well-motivated, do not compose in a small latent predictor. Centering removes, by design, the stack-specific output offsets that one-hot conditioning adds. Five ablations make this unambiguous: 23% `win_stack` in A (stack only), 0% and 1% in D and E (stack + centering). Four non-exclusive resolutions are identified — per-stack centering, dense conditioning, delayed centering, weight-level conditioning — with per-stack centering as the default next step. Paper A has been re-scoped around centering + runtime rollback; stack-conditioning is disclosed as future work. This report documents the failure mode and its resolution space for practitioners adapting JEPA-family regularizers to conditional latent predictors.
+This case study documents that DinoV3/JEPA-style running-mean centering and discrete stack-conditioning compose catastrophically. We tested two of four proposed resolutions empirically: per-stack centering (condition F, FAILED — 0% `win_stack` at 50 and 300 epochs) and per-sample LayerNorm of the residual delta (condition L, SUCCEEDED — 59% `win_stack` at 300 epochs, lr=5e-3). 
+
+The key insight is that **per-sample and per-batch regularization mechanisms are fundamentally different**: LayerNorm preserves per-sample structure; running-mean centering erases it. When the conditioning signal is per-sample (like a one-hot offset), only per-sample regularization is compatible. This principle generalizes beyond our specific architecture.
+
+The failure of per-stack centering — even with separate running means per stack — clarifies that the incompatibility is not about pooled statistics, but about the axis of normalization. The success of LayerNorm(delta) validates the per-sample solution and shifts the paper's narrative from "4 fixes proposed, 0 tested" to "4 fixes proposed, 2 tested, 2 open (dense conditioning, delayed centering, hypernetworks/MoE)."
+
+Paper A has adopted LayerNorm(delta) as the stack-preserving anti-collapse mechanism for the conditional case, while centering remains the anti-collapse mechanism for the non-conditional case. This report documents the failure mode, its diagnosis, and the empirically validated mitigation, with implications for anyone adapting JEPA-family regularizers to conditional latent predictors.
 
 ## References
 
@@ -180,6 +225,8 @@ Centering and one-hot stack conditioning, both individually well-motivated, do n
 [9] Shazeer, N., et al. (2017). *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer.* arXiv:1701.06538.
 
 [10] Ha, D., Dai, A., Le, Q. V. (2016). *HyperNetworks.* arXiv:1609.09106.
+
+[11] Ba, L., Kiros, J. R., Hinton, G. E. (2016). *Layer Normalization.* arXiv:1607.06450.
 
 ---
 
