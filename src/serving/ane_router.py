@@ -22,4 +22,6 @@ class ANERouter:
         """Route via ANE — returns 37 sigmoid scores."""
         if self._model is None:
             raise RuntimeError("Call load() first")
+        # TODO: verify width after 35-domain expansion (37 = pre-pivot 32 + 5
+        # capabilities; post-expansion may need 34+5 = 39 or different layout).
         return [0.0] * 37  # Placeholder — wired during CoreML export
