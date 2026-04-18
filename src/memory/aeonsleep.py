@@ -229,25 +229,26 @@ class AeonSleep:
         hits = self.atlas.search(query, k=k)
         out: list[RecallHit] = []
         for hit in hits:
-            node = self.graph.get_node(hit.key) if self.graph.has_node(hit.key) else None
-            meta = self._episode_meta.get(hit.key, {})
-            if hit.key in self._episode_meta:
-                self._episode_meta[hit.key]["access"] = (
+            node = self.graph.get_node(hit.id) if self.graph.has_node(hit.id) else None
+            meta = self._episode_meta.get(hit.id, {})
+            if hit.id in self._episode_meta:
+                self._episode_meta[hit.id]["access"] = (
                     int(meta.get("access", 0)) + 1
                 )
             ts = node.ts if node is not None else None
             kind = node.kind if node is not None else "raw"
-            topic = (node.attrs.get("topic") if node else hit.payload.get("topic"))
-            text = (node.attrs.get("text") if node else hit.payload.get("text", ""))
+            topic = (node.attrs.get("topic") if node else None)
+            text = (node.attrs.get("text") if node else "")
+            payload = dict(node.attrs) if node else {}
             out.append(
                 RecallHit(
-                    episode_id=hit.key,
+                    episode_id=hit.id,
                     text=text or "",
                     score=hit.score,
                     ts=ts,
                     topic=topic,
                     kind=kind or "raw",
-                    payload=dict(hit.payload),
+                    payload=payload,
                 )
             )
         return out
