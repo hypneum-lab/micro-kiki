@@ -68,6 +68,55 @@ be harmless if win-rate on prior domains is unchanged. The full gate
 (angle **AND** win-rate drop) requires the paired eval wiring in
 `src/eval/forgetting.py::check_all_previous` — see phase 1b.
 
+## Pairwise sweep across a fleet of adapters
+
+`scripts/run_forgetting_sweep.py` runs `measure_forgetting_signal()` for
+every ordered pair `(prior, new)` in a directory of adapters and emits a
+single JSON matrix. Useful for cross-checking N post-pivot adapters at
+once without N² manual invocations.
+
+```bash
+python scripts/run_forgetting_sweep.py \
+    --adapters-dir /path/to/lora-qwen36-35b \
+    --output results/forgetting-matrix.json
+```
+
+Each immediate subdirectory containing `adapters.safetensors` is treated
+as one adapter (subdir name → adapter label). Output shape:
+
+```json
+{
+  "adapters": ["chat-fr", "python", ...],
+  "pairs": [
+    {
+      "prior": "chat-fr",
+      "new": "python",
+      "angle_degrees_mean": 78.4,
+      "angle_degrees_per_module": { "self_attn.q_proj": 80.1, ... },
+      "gate_status": "angle_only_partial"
+    },
+    ...
+  ],
+  "flags": {
+    "any_pair_below_30": false,
+    "min_mean_angle": 66.56,
+    "worst_pair": ["typescript", "python"],
+    "angle_threshold_degrees": 30.0
+  }
+}
+```
+
+- **Exit 0** — every pair's mean angle ≥ 30°.
+- **Exit 1** — at least one pair fell below 30° (worst pair surfaced in
+  `flags.worst_pair`, minimum in `flags.min_mean_angle`). Treat as a
+  forgetting-risk signal; run the full phase 1b win-rate gate on the
+  flagged pair before accepting the new stack.
+- **Exit 2** — fewer than two adapters discovered (CLI misuse).
+
+Progress logs go to stderr via stdlib `logging`, so the script runs on
+the Mac Studio training venv (torch/safetensors/numpy only — no
+`loguru` dependency).
+
 ## Reference
 
 Full protocol, alternatives considered, and roadmap:
