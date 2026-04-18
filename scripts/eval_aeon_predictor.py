@@ -49,6 +49,7 @@ class EvalResult:
     stream_type: str
     use_centering: bool
     per_stack_centering: bool
+    use_layernorm_delta: bool
 
 
 def _unit(v: np.ndarray) -> np.ndarray:
@@ -123,6 +124,8 @@ def main() -> int:
     ap.add_argument("--stream", type=str, default="random-walk",
                     choices=["random-walk", "stack-structured"],
                     help="Stream generator: random-walk (current) or stack-structured (stack-specific transitions)")
+    ap.add_argument("--use-layernorm-delta", action="store_true",
+                    help="Enable LayerNorm(delta) normalization in LatentMLP")
     args = ap.parse_args()
 
     rng = np.random.default_rng(args.seed)
@@ -139,6 +142,7 @@ def main() -> int:
         use_centering=args.use_centering,
         centering_momentum=args.centering_momentum,
         per_stack_centering=args.per_stack_centering,
+        use_layernorm_delta=args.use_layernorm_delta,
     )
     pred = AeonPredictor(palace=palace, config=cfg)
     palace.attach_predictor(pred)
@@ -227,6 +231,7 @@ def main() -> int:
         stream_type=args.stream,
         use_centering=args.use_centering,
         per_stack_centering=args.per_stack_centering,
+        use_layernorm_delta=args.use_layernorm_delta,
     )
 
     payload = asdict(result)
