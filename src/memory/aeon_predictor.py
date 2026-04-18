@@ -370,4 +370,7 @@ class AeonPredictor:
                 continue  # unknown stack -> all zeros (null condition)
             idx = sid % self.config.n_stacks
             out[i, idx] = 1.0
-        return out
+        # Amplify the stack signal so it isn't washed out by a high-dim x.
+        # Ratio calibrated so stack column L2 ~ sqrt(dim)/sqrt(n_stacks).
+        scale = float(np.sqrt(self.config.dim / max(self.config.n_stacks, 1)))
+        return (out * scale).astype(np.float32)

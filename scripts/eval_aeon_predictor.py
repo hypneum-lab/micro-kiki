@@ -67,11 +67,15 @@ def _build_stream(n_turns: int, dim: int, seed: int) -> list[np.ndarray]:
 def _build_stack_structured_stream(
     n_turns: int, dim: int, n_stacks: int, seed: int
 ) -> tuple[list[np.ndarray], list[int]]:
-    """Stream where each stack has its OWN transition rule.
+    """Stream where stack[i] governs the transition stream[i] -> stream[i+1].
 
     Stack k applies a deterministic rotation/shift in latent space.
     This creates stack-specific dynamics so the predictor can leverage stack_id.
-    Returns (stream, stack_ids_parallel).
+
+    Returns (stream, transition_stacks) where len(transition_stacks) == n_turns - 1
+    and transition_stacks[i] is the stack that governs stream[i] -> stream[i+1].
+    At query time (in eval), we use transition_stacks[i] to inform MLP of the
+    correct stack context for predicting the next turn.
     """
     rng = np.random.default_rng(seed)
     # Per-stack random direction vectors (the "drift" for each stack).
@@ -80,16 +84,16 @@ def _build_stack_structured_stream(
         for _ in range(n_stacks)
     ]
     stream = [_unit(rng.standard_normal(dim).astype(np.float32))]
-    stacks: list[int] = [int(rng.integers(0, n_stacks))]
+    transition_stacks: list[int] = []
     for _ in range(n_turns - 1):
-        # Pick stack for this turn (random per turn — mimics routing).
+        # Pick stack for this transition (random per transition — mimics routing).
         sid = int(rng.integers(0, n_stacks))
         # Apply stack-specific drift + small noise.
         drift = 0.3 * directions[sid]
         noise = 0.1 * rng.standard_normal(dim).astype(np.float32)
         stream.append(_unit(stream[-1] + drift + noise))
-        stacks.append(sid)
-    return stream, stacks
+        transition_stacks.append(sid)
+    return stream, transition_stacks
 
 
 def _reciprocal_rank(hit_ids: list[str], gold: str) -> float:
@@ -136,10 +140,12 @@ def main() -> int:
     palace.attach_predictor(pred)
 
     if args.stream == "stack-structured":
-        stream, preset_stacks = _build_stack_structured_stream(
+        stream, transition_stacks = _build_stack_structured_stream(
             args.n_turns, args.dim, n_stacks=16, seed=args.seed
         )
-        stream_stack_ids = preset_stacks  # use preset, not random
+        # For ingest: first element has no incoming transition (use 0).
+        # Rest use the transition that generated them: [0] + transition_stacks.
+        stream_stack_ids = [0] + transition_stacks
     else:
         stream = _build_stream(args.n_turns, args.dim, seed=args.seed)
         stream_stack_ids = [int(rng.integers(0, 16)) for _ in stream]
