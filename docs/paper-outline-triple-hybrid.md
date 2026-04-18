@@ -1,3 +1,7 @@
+> **Scope note (2026-04-18).** This is the paper outline for the **v0.3 research PoC** — a 10-domain triple-hybrid (Quantum VQC + SNN + Classical) exploration. The **current production direction** in micro-kiki is the 35-domain sigmoid-router runtime on Qwen 3.5-35B-A3B (see top-level `README.md` and `CLAUDE.md`). The SNN and VQC layers documented here are research artifacts, not active runtime components. Preserved for paper provenance and reproducibility.
+
+---
+
 # Paper Outline: Hybrid Quantum-Neuromorphic-Classical Routing for Domain-Expert LLM Inference
 
 ## Title options
