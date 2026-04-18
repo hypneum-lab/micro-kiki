@@ -1,0 +1,30 @@
+# Text-JEPA training config (PoC defaults)
+backbone: "models/niche-embeddings"
+domains:
+  - dsp
+  - electronics
+  - emc
+  - embedded
+  - freecad
+  - kicad-dsl
+  - platformio
+  - power
+  - spice
+  - stm32
+max_per_domain: 1000
+seq_len: 32
+input_dim: 384
+hidden_dim: 256
+latent_dim: 128
+predictor_hidden: 32
+batch_size: 16
+epochs: 3
+lr: 1.0e-3
+ema_momentum: 0.99
+mask_ratio: 0.4
+min_span: 3
+max_span: 5
+collapse_floor: 0.01
+collapse_patience: 2
+seed: 42
+output: "models/text-jepa/student.pt"
