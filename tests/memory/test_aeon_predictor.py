@@ -250,3 +250,48 @@ class TestAeonPredictorRecall:
             )
         hits = pred.recall(_mock_embed(16, seed=0), top_k=3)
         assert len(hits) == 3
+
+
+class TestStackConditioning:
+    def test_two_stacks_learn_different_targets(self):
+        """Same h_t but stacks 0 and 1 learn opposite shifts."""
+        palace = AeonSleep(dim=16)
+        cfg = PredictorConfig(
+            dim=16, hidden=16, n_stacks=4, cold_start_threshold=4
+        )
+        pred = AeonPredictor(palace=palace, config=cfg)
+        t0 = datetime(2026, 4, 17, 10, 0)
+
+        rng = np.random.default_rng(0)
+        # Alternate stack 0 (shift-right) and stack 1 (shift-left) pairs.
+        for i in range(40):
+            h = rng.standard_normal(16).astype(np.float32)
+            h /= np.linalg.norm(h) + 1e-8
+            pred.ingest_latent(
+                f"t{i}", h, ts=t0 + timedelta(minutes=i), stack_id=i % 2
+            )
+
+        # Train long enough that the two stacks separate.
+        pred.fit_on_buffer(lr=0.05, epochs=200, batch_size=8)
+
+        probe = rng.standard_normal(16).astype(np.float32)
+        probe /= np.linalg.norm(probe) + 1e-8
+        out_s0 = pred.predict_next(probe, horizon=1, stack_id=0)
+        out_s1 = pred.predict_next(probe, horizon=1, stack_id=1)
+        assert not np.allclose(out_s0, out_s1, atol=1e-3), (
+            "stack 0 and stack 1 should produce distinguishable outputs"
+        )
+
+    def test_unknown_stack_uses_null_condition(self):
+        palace = AeonSleep(dim=16)
+        pred = AeonPredictor(palace=palace, config=PredictorConfig(dim=16, cold_start_threshold=2))
+        t0 = datetime(2026, 4, 17, 10, 0)
+        for i in range(4):
+            pred.ingest_latent(
+                f"t{i}", _mock_embed(16, seed=i),
+                ts=t0 + timedelta(minutes=i), stack_id=None,
+            )
+        pred.fit_on_buffer(epochs=10, batch_size=4)
+        # stack_id=None should not raise and should not produce NaN.
+        out = pred.predict_next(_mock_embed(16, seed=99), stack_id=None)
+        assert not np.any(np.isnan(out))
