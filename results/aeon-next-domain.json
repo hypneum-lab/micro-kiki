@@ -1,0 +1,14 @@
+{
+  "baseline_acc": 0.0,
+  "predictive_acc": 0.1,
+  "top3_predictive_acc": 0.33,
+  "switch_detection_rate": 1.0,
+  "false_switch_rate": 0.0,
+  "n_queries": 100,
+  "n_switches_in_eval": 100,
+  "n_domains": 10,
+  "elapsed_seconds": 10.692035913467407,
+  "final_train_loss": 0.24685887016099076,
+  "use_layernorm_delta": true,
+  "dim": 384
+}
