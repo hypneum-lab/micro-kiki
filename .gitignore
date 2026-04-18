@@ -102,8 +102,6 @@ ipython_config.py
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
 #   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
 #poetry.lock
 #poetry.toml
@@ -228,7 +226,6 @@ examples/*.kicad_mod
 _codex_out.txt
 _codex_test.txt
 *.pyc
-__pycache__/
 
 # Training outputs (large, gitignored)
 outputs/stacks/*/adapters.safetensors
@@ -239,3 +236,4 @@ outputs/*.log
 models/niche-embeddings/model.safetensors
 models/niche-embeddings/pytorch_model.bin
 .superpowers/
+models/text-jepa/*.pt

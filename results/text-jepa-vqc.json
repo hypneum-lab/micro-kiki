@@ -1,0 +1,28 @@
+{
+  "baseline": {
+    "accuracy": 0.925,
+    "n_test": 80,
+    "n_params": 20,
+    "latent_dim": 384
+  },
+  "text_jepa": {
+    "accuracy": 0.9,
+    "n_test": 80,
+    "n_params": 20,
+    "latent_dim": 128
+  },
+  "domains": [
+    "dsp",
+    "electronics",
+    "emc",
+    "embedded",
+    "freecad",
+    "kicad-dsl",
+    "platformio",
+    "power",
+    "spice",
+    "stm32"
+  ],
+  "n_samples": 500,
+  "reduction_factor": "max-per-domain reduced to 50 (from 1000) due to VQC parameter-shift gradient wall-clock time"
+}
