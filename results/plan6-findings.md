@@ -98,3 +98,27 @@ needs to be main-track:
    VQC training" frame — this is the real contribution: making VQC research
    cheap enough to iterate on.
 3. **Do real-projection experiments** before submitting anywhere.
+
+## Update (2026-04-19, later): learned projection rescues the architecture
+
+Added optional `input_dim` to `TorchVQCRouter` — inserts a learned linear layer
+`(input_dim → n_qubits)` followed by `π·tanh`, trained jointly. This replaces
+the naive `features[:n_qubits]` truncation with a class-discriminative projection.
+
+Results on 10-class real data (500 samples, 400 train, 100 test, 300 epochs):
+
+| Config | Test acc (trunc) | Test acc (+ proj) | Δ |
+|---|---|---|---|
+| nq=4, nl=6 | 0.090 | **0.300** | **+21 pt** (3× chance) |
+| nq=6, nl=6 | 0.070 | 0.190 | +12 pt |
+| nq=8, nl=6 | 0.110 | 0.200 | +9 pt |
+
+**The architecture is rescued.** Best is counter-intuitively the smallest qubit
+count (nq=4 + proj = 0.300) — more qubits optimizer-harder on 400 samples, and
+the extra capacity overfits (train 0.40 / test 0.30 for nq=4+proj already).
+
+This is the **honest main-track-publishable contribution**: torch-native batched
+VQC + learned projection makes quantum classifier research on real embeddings
+tractable, at 3000× speedup vs PennyLane. The "97% retention" claim in Paper A
+is still invalid — but the direction (VQC + compression) is alive again under
+a proper framing.

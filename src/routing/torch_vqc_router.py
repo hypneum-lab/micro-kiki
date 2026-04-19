@@ -34,17 +34,33 @@ class TorchVQCRouter(nn.Module):
         n_classes: int = 35,
         lr: float = 0.01,
         seed: int = 42,
+        input_dim: int | None = None,
     ) -> None:
         super().__init__()
         self.n_qubits = n_qubits
         self.n_layers = n_layers
         self.n_classes = n_classes
         self.lr = lr
+        self.input_dim = input_dim
 
         # Match QuantumRouter init: vqc weights uniform on [0, 2π)
         rng = np.random.default_rng(seed)
         w_init = rng.uniform(0.0, 2 * math.pi, size=(n_layers, n_qubits, 3))
         self.vqc_weights = nn.Parameter(torch.from_numpy(w_init).double())
+
+        # Optional learned projection: (input_dim,) → (n_qubits,)
+        # Without projection: circuit sees features[:n_qubits] only — severe
+        # information bottleneck on high-dim embeddings. With projection: the
+        # layer learns which n_qubits-D subspace carries class-discriminative signal.
+        if input_dim is not None:
+            rng_p = np.random.default_rng(seed + 2)
+            scale = 1.0 / math.sqrt(input_dim)
+            pw_init = rng_p.uniform(-scale, scale, size=(n_qubits, input_dim))
+            self.projection_w = nn.Parameter(torch.from_numpy(pw_init).double())
+            self.projection_b = nn.Parameter(torch.zeros(n_qubits, dtype=torch.float64))
+        else:
+            self.projection_w = None
+            self.projection_b = None
 
         # Classical head: normal(0, 0.1) init, zero bias (match QuantumRouter)
         rng2 = np.random.default_rng(seed + 1)
@@ -56,6 +72,10 @@ class TorchVQCRouter(nn.Module):
         """Compute logits for a (B, feat_dim) batch of embeddings."""
         if features.dim() == 1:
             features = features.unsqueeze(0)
+        if self.projection_w is not None:
+            # Project (B, input_dim) → (B, n_qubits), bound to [-π, π] for rotations
+            features = features @ self.projection_w.T + self.projection_b
+            features = math.pi * torch.tanh(features)
         qubits = torch_vqc_forward(
             features, self.vqc_weights, n_qubits=self.n_qubits, n_layers=self.n_layers
         )
