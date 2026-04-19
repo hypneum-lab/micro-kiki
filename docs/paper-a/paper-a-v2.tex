@@ -58,8 +58,6 @@ Ratio: $\sim$$3300\times$. Measured on an Apple M5 laptop, reproducible via the 
 
 \paragraph{Apple GPU note.} Moving to Metal Performance Shaders (MPS) on an M3 Ultra was 5$\times$ \emph{slower} than CPU for our 64-D state vector: dispatch overhead dominates compute at this scale. The $3000\times$ speedup is entirely from (i) autograd replacing parameter-shift and (ii) batching on CPU.
 
-\section{Information-Capacity Framework}\label{sec:bound}
-
 \input{c5-info-bound}
 
 \section{Classifier Ablation (C1, C3)}\label{sec:c1}
