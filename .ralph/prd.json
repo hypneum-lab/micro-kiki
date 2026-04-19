@@ -336,16 +336,18 @@
     {
       "id": "story-43",
       "priority": 43,
-      "passes": false,
+      "passes": true,
       "title": "DPO training 10 niches on Studio",
-      "description": "Run scripts/train_dpo_niches.py --all on Studio M3 Ultra. Sequential, ~30 min per domain. Eval: compare DPO vs SFT-only on 50 eval prompts per domain. Expected: +5-10% quality on structured outputs (SPICE netlists, KiCad S-expressions)."
+      "description": "Run scripts/train_dpo_niches.py --all on Studio M3 Ultra. Sequential, ~30 min per domain. Eval: compare DPO vs SFT-only on 50 eval prompts per domain. Expected: +5-10% quality on structured outputs (SPICE netlists, KiCad S-expressions).",
+      "status": "done"
     },
     {
       "id": "story-44",
       "priority": 44,
-      "passes": false,
+      "passes": true,
       "title": "DPO eval: SFT vs SFT+DPO comparison",
-      "description": "Benchmark SFT-only vs SFT+DPO adapters on all 10 niches. 480B as judge. Output: results/dpo-eval.json with per-domain accuracy delta. If DPO doesn't improve, document why and keep SFT-only."
+      "description": "Benchmark SFT-only vs SFT+DPO adapters on all 10 niches. 480B as judge. Output: results/dpo-eval.json with per-domain accuracy delta. If DPO doesn't improve, document why and keep SFT-only.",
+      "status": "done"
     },
     {
       "id": "story-45",
@@ -366,9 +368,10 @@
     {
       "id": "story-47",
       "priority": 47,
-      "passes": false,
+      "passes": true,
       "title": "GRPO training 4 reasoning domains",
-      "description": "Run GRPO on spice, emc, embedded, power (domains requiring multi-step reasoning). Compare: SFT → SFT+DPO → SFT+DPO+GRPO chain. Expected: better chain-of-thought on design problems."
+      "description": "Run GRPO on spice, emc, embedded, power (domains requiring multi-step reasoning). Compare: SFT → SFT+DPO → SFT+DPO+GRPO chain. Expected: better chain-of-thought on design problems.",
+      "status": "done"
     },
     {
       "id": "story-48",
