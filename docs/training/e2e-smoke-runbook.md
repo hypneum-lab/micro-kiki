@@ -136,3 +136,34 @@ Follow-up (optional, not urgent):
   `adapter` payload, then wire `measure_forgetting.py` to call two hosts
   (one per adapter) for the win-rate eval.
 - Or submit a PR to `mlx-examples` upstream adding `/v1/load_adapter`.
+
+
+### Operator setup — two servers, one per adapter
+
+The production flow pairs with `MLX_ADAPTER_HOST_MAP`:
+
+```bash
+# On Studio, spawn one server per adapter (2 * ~70 GB fits 512 GB):
+.venv/bin/mlx_lm.server --model models/Qwen3.6-35B-A3B \
+    --adapter-path output/micro-kiki/lora-qwen36-35b/chat-fr \
+    --host 0.0.0.0 --port 8000 &
+
+.venv/bin/mlx_lm.server --model models/Qwen3.6-35B-A3B \
+    --adapter-path output/micro-kiki/lora-qwen36-35b/reasoning \
+    --host 0.0.0.0 --port 8001 &
+
+# On the eval host, wire the map + run the full gate:
+export MLX_ADAPTER_HOST_MAP='{"chat-fr":"http://studio:8000",
+                              "reasoning":"http://studio:8001"}'
+
+python scripts/measure_forgetting.py \
+    --prior-adapter .../chat-fr/adapters.safetensors \
+    --new-adapter   .../reasoning/adapters.safetensors \
+    --eval-dataset data/micro-kiki/chat-fr/eval.jsonl \
+    --generate-fn-module src.serving.mlx_client:generate \
+    --winrate-baseline-score 0.6 --output results/gate.json
+```
+
+`src/serving/mlx_client.py::_resolve_host` picks the right host for each
+adapter by matching the path stem (`chat-fr`, `reasoning`, …) against
+the map keys. Missing entries fall back to `MLX_HOST` / `DEFAULT_HOST`.

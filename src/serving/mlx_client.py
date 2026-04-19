@@ -40,9 +40,66 @@ DEFAULT_MODEL = os.environ.get("MLX_MODEL", "qwen3.6-35b")
 DEFAULT_TIMEOUT = 30.0
 MAX_RETRIES = 3
 
-# Module-level singleton used by the sync :func:`generate` entry point
-# so that repeated calls from ``_compute_winrate`` reuse one client.
-_CLIENT: "MLXClient | None" = None
+
+def _load_host_map() -> dict[str, str]:
+    """Parse ``MLX_ADAPTER_HOST_MAP`` env var → ``{adapter_key: host_url}``.
+
+    Enables the "two servers, one per adapter" production flow used by
+    the forgetting gate: ``mlx_lm.server`` 0.31.2 does not hot-swap
+    adapters per request, so each adapter must be served by its own
+    long-running process on a distinct port. The operator spawns the
+    servers, sets ``MLX_ADAPTER_HOST_MAP`` to map adapter identifiers
+    to their URLs, and the sync :func:`generate` entry point routes
+    automatically.
+
+    Example::
+
+        export MLX_ADAPTER_HOST_MAP='{"chat-fr":"http://studio:8000",
+                                      "reasoning":"http://studio:8001"}'
+
+    Empty or malformed → empty dict (falls back to ``DEFAULT_HOST``).
+    """
+    raw = os.environ.get("MLX_ADAPTER_HOST_MAP", "").strip()
+    if not raw:
+        return {}
+    import json
+
+    try:
+        parsed = json.loads(raw)
+        if isinstance(parsed, dict):
+            return {str(k): str(v) for k, v in parsed.items()}
+    except json.JSONDecodeError:
+        logger.warning("MLX_ADAPTER_HOST_MAP is not valid JSON, ignoring")
+    return {}
+
+
+def _resolve_host(adapter: str | None) -> str:
+    """Pick the host URL for the given adapter identifier.
+
+    1. Env-var map (``MLX_ADAPTER_HOST_MAP``) — match by full adapter
+       key, then by basename (``.../chat-fr/adapters.safetensors`` →
+       ``chat-fr``).
+    2. Fall back to ``DEFAULT_HOST`` / ``MLX_HOST``.
+    """
+    if adapter is None:
+        return DEFAULT_HOST
+    host_map = _load_host_map()
+    if not host_map:
+        return DEFAULT_HOST
+    if adapter in host_map:
+        return host_map[adapter]
+    # Try basename variants: ".../stacks/chat-fr/adapters.safetensors" → "chat-fr"
+    from pathlib import Path
+
+    stem_candidates = {Path(adapter).stem, Path(adapter).parent.name}
+    for key, url in host_map.items():
+        if key in stem_candidates:
+            return url
+    return DEFAULT_HOST
+
+
+# Per-host singleton cache (one ``MLXClient`` per host URL).
+_CLIENTS: "dict[str, MLXClient]" = {}
 
 
 class MLXClient:
@@ -181,18 +238,28 @@ class MLXClient:
 async def agenerate(
     prompt: str,
     adapter: str | None = None,
+    *,
+    host: str | None = None,
     **kwargs: Any,
 ) -> str:
-    """Async module-level entry point (for async callers)."""
-    global _CLIENT
-    if _CLIENT is None:
-        _CLIENT = MLXClient()
-    return await _CLIENT.generate(prompt, adapter=adapter, **kwargs)
+    """Async module-level entry point.
+
+    ``host`` override takes precedence over the ``MLX_ADAPTER_HOST_MAP``
+    routing; when neither is set we fall back to ``DEFAULT_HOST``.
+    """
+    resolved = host or _resolve_host(adapter)
+    client = _CLIENTS.get(resolved)
+    if client is None:
+        client = MLXClient(host=resolved)
+        _CLIENTS[resolved] = client
+    return await client.generate(prompt, adapter=adapter, **kwargs)
 
 
 def generate(
     prompt: str,
     adapter: str | None = None,
+    *,
+    host: str | None = None,
     **kwargs: Any,
 ) -> str:
     """Sync entry point for ``--generate-fn-module src.serving.mlx_client:generate``.
@@ -208,7 +275,7 @@ def generate(
         running = None
 
     if running is None:
-        return asyncio.run(agenerate(prompt, adapter=adapter, **kwargs))
+        return asyncio.run(agenerate(prompt, adapter=adapter, host=host, **kwargs))
 
     # Already inside an event loop — run the coroutine on a fresh one
     # in a worker thread. This path is mostly defensive; the forgetting
@@ -217,7 +284,7 @@ def generate(
     loop = asyncio.new_event_loop()
     try:
         return loop.run_until_complete(
-            agenerate(prompt, adapter=adapter, **kwargs)
+            agenerate(prompt, adapter=adapter, host=host, **kwargs)
         )
     finally:
         loop.close()

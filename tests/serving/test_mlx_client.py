@@ -172,3 +172,41 @@ async def test_client_error_not_retried(
         await client.generate("ping")
 
     assert calls["n"] == 1
+
+
+def test_resolve_host_no_map_uses_default(monkeypatch):
+    monkeypatch.delenv("MLX_ADAPTER_HOST_MAP", raising=False)
+    monkeypatch.setenv("MLX_HOST", "http://default:9000")
+    from importlib import reload
+    import src.serving.mlx_client as m
+    reload(m)
+    assert m._resolve_host("anything") == "http://default:9000"
+    assert m._resolve_host(None) == "http://default:9000"
+
+
+def test_resolve_host_with_map_exact_key(monkeypatch):
+    monkeypatch.setenv("MLX_ADAPTER_HOST_MAP", '{"chat-fr":"http://a:1","reasoning":"http://b:2"}')
+    monkeypatch.setenv("MLX_HOST", "http://default:9000")
+    from importlib import reload
+    import src.serving.mlx_client as m
+    reload(m)
+    assert m._resolve_host("chat-fr") == "http://a:1"
+    assert m._resolve_host("reasoning") == "http://b:2"
+    assert m._resolve_host("unknown") == "http://default:9000"
+
+
+def test_resolve_host_with_map_basename_match(monkeypatch):
+    monkeypatch.setenv("MLX_ADAPTER_HOST_MAP", '{"chat-fr":"http://a:1"}')
+    from importlib import reload
+    import src.serving.mlx_client as m
+    reload(m)
+    assert m._resolve_host("/path/to/chat-fr/adapters.safetensors") == "http://a:1"
+
+
+def test_resolve_host_malformed_json_falls_back(monkeypatch):
+    monkeypatch.setenv("MLX_ADAPTER_HOST_MAP", "not-json{")
+    monkeypatch.setenv("MLX_HOST", "http://fallback:1")
+    from importlib import reload
+    import src.serving.mlx_client as m
+    reload(m)
+    assert m._resolve_host("anything") == "http://fallback:1"
