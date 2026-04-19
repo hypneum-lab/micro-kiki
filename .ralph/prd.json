@@ -320,9 +320,10 @@
     {
       "id": "story-41",
       "priority": 41,
-      "passes": false,
+      "passes": true,
       "title": "DPO preference pairs via 480B judge",
-      "description": "Generate preference pairs (chosen/rejected) for each niche domain using the 480B teacher as judge. For each SFT-trained domain, generate 500 prompts → 2 responses (480B + SFT model), 480B judges which is better. Output: data/dpo/<domain>/train.jsonl with {prompt, chosen, rejected}. Script: scripts/generate_dpo_pairs.py. Uses llama.cpp CPU 480B on port 8481."
+      "description": "Generate preference pairs (chosen/rejected) for each niche domain using the 480B teacher as judge. For each SFT-trained domain, generate 500 prompts → 2 responses (480B + SFT model), 480B judges which is better. Output: data/dpo/<domain>/train.jsonl with {prompt, chosen, rejected}. Script: scripts/generate_dpo_pairs.py. Uses llama.cpp CPU 480B on port 8481.",
+      "status": "done"
     },
     {
       "id": "story-42",
