@@ -205,6 +205,74 @@ override.
 populated even in angle-only mode; they never force a non-zero exit
 on their own (AND-logic with the win-rate drop is preserved).
 
+## Adapter health sanity
+
+Before running the forgetting gate at all, check that each new adapter
+actually *trained* — the 2026-04-19 pre-pivot MoE-LoRA audit
+(`docs/research/2026-04-19-prepivot-moe-lora-audit.md`) found 35
+adapters with every `lora_B` tensor stuck at zero-init, which makes
+every forgetting angle trivially 0° and hides weeks of wasted GPU.
+
+```bash
+# single adapter
+python scripts/validate_adapter_health.py path/to/adapter.safetensors
+
+# entire fleet (recursive)
+python scripts/validate_adapter_health.py --adapters-dir output/lora-qwen36-35b
+```
+
+Exit `1` means *every* `lora_B` tensor has Frobenius norm below
+`--epsilon` (default `1e-6`). The default is chosen so numerical
+noise from an honestly-trained adapter always clears it while a
+pristine zero-init adapter cannot; pass `--epsilon 1e-4` if you
+need a stricter floor (e.g. catching near-zero adapters whose
+gradient path *did* fire but barely).
+
+CI enforces this as a smoke check in `.github/workflows/validators.yml`.
+
+## Running full gate on Mac Studio
+
+The win-rate half of the gate requires a real base model loaded on
+the Mac Studio MLX-LM server (`studio:8000`, see
+`src/serving/AGENTS.md`). `src/serving/mlx_client.py` (async httpx
+with exponential retry on 5xx / `ConnectError`) exposes a sync
+`generate()` that plugs into `--generate-fn-module`.
+
+Prerequisites:
+
+- SSH chain reachable: `ssh grosmac -> ssh studio`.
+- MLX-LM server running on `studio:8000` with the base model loaded
+  and the target adapter hot-swappable (subprocess restart on swap
+  is acceptable — the client does not assume in-process hot-swap).
+- Held-out eval JSONL in `data/eval/<stack>/heldout.jsonl` shaped as
+  `{"prompt": ..., "reference": ...}` (one entry per line).
+
+Concrete invocation from the repo root on the Studio venv:
+
+```bash
+ssh grosmac "ssh studio 'cd ~/micro-kiki && \
+    python scripts/measure_forgetting.py \
+      --prior-adapter output/stacks/stack-03-cpp/adapters.safetensors \
+      --new-adapter   output/stacks/stack-04-rust/adapters.safetensors \
+      --eval-dataset  data/eval/stack-03-cpp/heldout.jsonl \
+      --generate-fn-module src.serving.mlx_client:generate \
+      --winrate-baseline-score 0.82 \
+      --output results/forgetting-stack04-vs-stack03.json'"
+```
+
+Override the server target with the `MLX_HOST` / `MLX_MODEL`
+environment variables (defaults `http://studio:8000` and
+`qwen3.6-35b`). Expected JSON fields:
+
+- `gate_status_aggregate` — `pass` / `fail` (no longer
+  `angle_only_partial` once the three win-rate flags are set).
+- `gate_status_per_module` — same shape, stricter (any non-ignored
+  module below 30° AND drop > 0.03).
+- `winrate_measured` / `winrate_drop` — the win-rate half computed
+  against `--winrate-baseline-score`.
+- `angle_degrees_mean` / `angle_degrees_per_module` — unchanged
+  from the angle-only output.
+
 ## Reference
 
 Full protocol, alternatives considered, and roadmap:

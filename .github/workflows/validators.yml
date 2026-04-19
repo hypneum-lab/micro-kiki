@@ -17,13 +17,25 @@ jobs:
           python-version: '3.11'
           cache: pip
       - name: install deps
-        run: pip install pyyaml pytest pytest-asyncio
+        run: pip install pyyaml pytest pytest-asyncio safetensors numpy
       - name: run validators
         run: |
           python scripts/validate_domains.py
           python scripts/validate_rank_schema.py
           python scripts/validate_curriculum_order.py
           python scripts/validate_no_pre_pivot.py
+      - name: run adapter health validator (smoke)
+        run: |
+          python -c "
+          from safetensors.numpy import save_file
+          import numpy as np
+          tensors = {
+              'language_model.model.layers.0.self_attn.q_proj.lora_a': np.random.rand(128, 8).astype(np.float32),
+              'language_model.model.layers.0.self_attn.q_proj.lora_b': np.random.rand(8, 128).astype(np.float32),
+          }
+          save_file(tensors, '/tmp/smoke.safetensors')
+          "
+          python scripts/validate_adapter_health.py /tmp/smoke.safetensors
       - name: run validator tests
         run: python -m pytest tests/test_validate_*.py -v
 
