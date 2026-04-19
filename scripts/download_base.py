@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Download + verify + quantize Qwen3.5-4B base model.
+"""Download + verify + quantize Qwen3.5-35B-A3B base model.
 
-Downloads the Qwen3.5-4B weights from HuggingFace into a target dir,
-verifies every shard against the sha256 map in
-``model.safetensors.index.json`` (when present), does a quick transformers
-load + 1-token generate smoke test, then optionally produces a Q4_K_M GGUF
-via llama.cpp.
+Downloads the Qwen3.5-35B-A3B weights from HuggingFace into a target dir,
+verifies every shard referenced by ``model.safetensors.index.json`` is
+present, does a quick transformers load + 1-token generate smoke test,
+then optionally produces a Q4_K_M GGUF via llama.cpp.
 
 Designed to be idempotent: a re-run with the same ``--target-dir`` skips
 already-downloaded files (delegated to ``huggingface_hub``'s cache /
@@ -13,11 +12,15 @@ symlinks) and re-verifies them.
 
 Usage:
     python scripts/download_base.py \\
-        --target-dir /home/kxkm/models/qwen3.5-4b \\
+        --target-dir /home/kxkm/models/qwen3.5-35b-a3b \\
         [--skip-quantize] \\
         [--llama-cpp /home/kxkm/llama.cpp]
 
 Exit code 0 on full success, non-zero on any verify / smoke failure.
+
+Note: ``verify_safetensors_index`` is the source of truth for shard
+integrity; no hard-coded byte total is used (35B-A3B shard layout can
+vary by upstream re-release).
 """
 from __future__ import annotations
 
@@ -31,7 +34,7 @@ import sys
 import time
 from pathlib import Path
 
-REPO_ID = "Qwen/Qwen3.5-4B"
+REPO_ID = "Qwen/Qwen3.5-35B-A3B"
 BF16_SUBDIR = "bf16"
 ALLOW_PATTERNS = [
     "*.safetensors",
@@ -44,10 +47,6 @@ ALLOW_PATTERNS = [
     "vocab.json",
     "LICENSE",
 ]
-EXPECTED_BF16_BYTES = 9_342_907_469  # from HF siblings metadata
-SIZE_TOLERANCE = 0.05  # ±5 %
-
-
 def log(msg: str) -> None:
     print(f"[download_base] {msg}", flush=True)
 
@@ -76,39 +75,16 @@ def snapshot(target: Path) -> Path:
     return Path(local)
 
 
-def verify_download(bf16_path: str, q4_path: str) -> dict:
-    """Quick existence + size check for both bf16 dir and Q4 GGUF."""
-    bf16 = Path(bf16_path)
-    q4 = Path(q4_path)
-    bf16_exists = bf16.is_dir()
-    q4_exists = q4.is_file()
-    bf16_ok = False
-    if bf16_exists:
-        total = sum(f.stat().st_size for f in bf16.rglob("*") if f.is_file())
-        bf16_ok = total > EXPECTED_BF16_BYTES * (1 - SIZE_TOLERANCE)
-    return {
-        "bf16_exists": bf16_exists,
-        "q4_exists": q4_exists,
-        "bf16_ok": bf16_ok,
-    }
-
-
 def verify_sizes(local: Path) -> int:
-    """Sum shard sizes, check against expected total within tolerance."""
+    """Sum shard sizes, log the total. 35B-A3B has no fixed reference byte
+    count (upstream re-releases change shard layout) — real integrity is
+    covered by ``verify_safetensors_index``.
+    """
     total = 0
     for p in sorted(local.rglob("*")):
         if p.is_file():
             total += p.stat().st_size
-    ratio = total / EXPECTED_BF16_BYTES
-    log(
-        f"total bytes = {total:,} "
-        f"(expected {EXPECTED_BF16_BYTES:,}, ratio {ratio:.3f})"
-    )
-    if abs(ratio - 1.0) > SIZE_TOLERANCE:
-        raise RuntimeError(
-            f"size mismatch: {total} vs expected {EXPECTED_BF16_BYTES} "
-            f"(tolerance ±{SIZE_TOLERANCE * 100:.0f}%)"
-        )
+    log(f"total bytes = {total:,}")
     return total
 
 
@@ -214,7 +190,7 @@ def main() -> int:
     ap.add_argument(
         "--target-dir",
         default=os.environ.get(
-            "MICRO_KIKI_BASE_DIR", "/home/kxkm/models/qwen3.5-4b"
+            "MICRO_KIKI_BASE_DIR", "/home/kxkm/models/qwen3.5-35b-a3b"
         ),
         help="root dir; bf16 saved at <target>/bf16/, q4 at <target>-q4.gguf",
     )

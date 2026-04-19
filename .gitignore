@@ -239,3 +239,10 @@ models/niche-embeddings/pytorch_model.bin
 models/text-jepa/*.pt
 docs/papers/pdf/
 .DS_Store
+
+# Agent / tooling state (OMC sessions, project memory, runtime scratch)
+.omc/
+
+# Unsloth compiled kernel cache (regenerated per run)
+unsloth_compiled_cache/
+>>>>>>> 00928aeb7eec8139fd39941434a1f253c60172b8
