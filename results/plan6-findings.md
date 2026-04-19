@@ -122,3 +122,22 @@ VQC + learned projection makes quantum classifier research on real embeddings
 tractable, at 3000× speedup vs PennyLane. The "97% retention" claim in Paper A
 is still invalid — but the direction (VQC + compression) is alive again under
 a proper framing.
+
+## Update 2 (2026-04-19, evening): 3-axis rescue ablation
+
+36 runs on Studio (~5 min) over {data=50 vs 500/dom} × {wd=0, 1e-4, 1e-3} × {linear vs MLP proj} × 3 seeds, 10 classes, nq=4, nl=6, 300 epochs.
+
+**Headlines**:
+- **Best single run: 0.390 test_acc** (50/dom + wd=1e-4 + linear + seed 0). Train=0.435, gap=0.045 — not memorizing.
+- **Median: 0.250**, range 0.170–0.390. Huge seed-to-seed variance → optimization landscape rugged.
+- **Linear always beats MLP** by 7.2 pt mean (likely `π·tanh` saturates MLP hidden units).
+- **10× more data adds only 3.8 pt** mean — 4-qubit info channel is the real bottleneck.
+- **wd=1e-4 linear is the sweet spot** (0.304 mean across data sizes).
+
+**Upper bound estimate**: 4× chance (~0.40) appears to be the ceiling for this architecture on 10-class routing. A classical linear probe on MiniLM would hit 0.7-0.8. The VQC is NOT competitive classically — but is a rigorous quantum-ML benchmark now.
+
+**Final recommendation for Paper A**:
+- Contribution #1 (methodological): torch-native batched VQC @ 3000× over PennyLane.
+- Contribution #2 (architectural): learned projection rescues VQC from uselessness on arbitrary pretrained embeddings.
+- Contribution #3 (empirical): thorough ablation showing linear proj + small wd is optimal, MLP and more data give diminishing returns due to information-capacity ceiling at 4 qubits.
+- **Drop any "competitive with classical" claim**. Frame as "enabling rigorous quantum-classifier research" rather than "winning".
