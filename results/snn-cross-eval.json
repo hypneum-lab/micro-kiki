@@ -1,0 +1,122 @@
+{
+  "story": "story-30",
+  "title": "Cross-eval all SNN variants",
+  "timestamp": "2026-04-19T14:02:19Z",
+  "variants": {
+    "SpikingKiki-27B": {
+      "label": "SpikingKiki-27B",
+      "total_params_B": 26.89,
+      "active_params_B": 16.32,
+      "num_layers": 30,
+      "num_experts": 16,
+      "fully_convertible_pct": 12.2,
+      "partially_convertible_pct": 79.7,
+      "not_convertible_pct": 8.1,
+      "spike_to_mac_ratio": 0.014609,
+      "ann_energy_uJ": 65032.913,
+      "snn_cmos_energy_uJ": 182.034,
+      "snn_neuromorphic_energy_uJ": 10.113,
+      "cmos_saving_pct": 99.7,
+      "neuromorphic_saving_pct": 100.0,
+      "cmos_ratio": 357.26,
+      "neuromorphic_ratio": 6430.61,
+      "efficiency_score": 2.2254
+    },
+    "SpikingKiki-35B": {
+      "label": "SpikingKiki-35B",
+      "total_params_B": 1086.89,
+      "active_params_B": "N/A",
+      "num_layers": 94,
+      "num_experts": 256,
+      "fully_convertible_pct": 0.96,
+      "partially_convertible_pct": 98.84,
+      "not_convertible_pct": 0.2,
+      "spike_to_mac_ratio": 0.012649,
+      "ann_energy_uJ": 266998.435,
+      "snn_cmos_energy_uJ": 570.375,
+      "snn_neuromorphic_energy_uJ": 31.687,
+      "cmos_saving_pct": 99.8,
+      "neuromorphic_saving_pct": 100.0,
+      "cmos_ratio": 468.11,
+      "neuromorphic_ratio": 8425.99,
+      "efficiency_score": 0.0553
+    }
+  },
+  "comparison_table": {
+    "total_params_B": {
+      "SpikingKiki-27B": 26.89,
+      "SpikingKiki-35B": 1086.89
+    },
+    "active_params_B": {
+      "SpikingKiki-27B": 16.32,
+      "SpikingKiki-35B": "N/A"
+    },
+    "num_layers": {
+      "SpikingKiki-27B": 30,
+      "SpikingKiki-35B": 94
+    },
+    "num_experts": {
+      "SpikingKiki-27B": 16,
+      "SpikingKiki-35B": 256
+    },
+    "fully_convertible_pct": {
+      "SpikingKiki-27B": 12.2,
+      "SpikingKiki-35B": 0.96
+    },
+    "partially_convertible_pct": {
+      "SpikingKiki-27B": 79.7,
+      "SpikingKiki-35B": 98.84
+    },
+    "not_convertible_pct": {
+      "SpikingKiki-27B": 8.1,
+      "SpikingKiki-35B": 0.2
+    },
+    "spike_to_mac_ratio": {
+      "SpikingKiki-27B": 0.014609,
+      "SpikingKiki-35B": 0.012649
+    },
+    "ann_energy_uJ": {
+      "SpikingKiki-27B": 65032.913,
+      "SpikingKiki-35B": 266998.435
+    },
+    "snn_cmos_energy_uJ": {
+      "SpikingKiki-27B": 182.034,
+      "SpikingKiki-35B": 570.375
+    },
+    "snn_neuromorphic_energy_uJ": {
+      "SpikingKiki-27B": 10.113,
+      "SpikingKiki-35B": 31.687
+    },
+    "cmos_saving_pct": {
+      "SpikingKiki-27B": 99.7,
+      "SpikingKiki-35B": 99.8
+    },
+    "neuromorphic_saving_pct": {
+      "SpikingKiki-27B": 100.0,
+      "SpikingKiki-35B": 100.0
+    },
+    "cmos_ratio": {
+      "SpikingKiki-27B": 357.26,
+      "SpikingKiki-35B": 468.11
+    },
+    "neuromorphic_ratio": {
+      "SpikingKiki-27B": 6430.61,
+      "SpikingKiki-35B": 8425.99
+    },
+    "efficiency_score": {
+      "SpikingKiki-27B": 2.2254,
+      "SpikingKiki-35B": 0.0553
+    }
+  },
+  "best_efficiency": {
+    "winner": "SpikingKiki-27B",
+    "score": 2.2254,
+    "rationale": "SpikingKiki-27B achieves the best energy/quality tradeoff with efficiency score 2.2254 (99.7% CMOS saving, 12.2% fully convertible)"
+  },
+  "analysis": {
+    "convertibility_comparison": "Both variants have nearly identical convertibility percentages because the architecture (attention, MoE structure) is the same; only layer count differs. The SwiGLU bottleneck affects both equally.",
+    "energy_scaling": "Energy per token scales linearly with layer count. The 27B variant has proportionally fewer layers, giving lower absolute energy but the same per-layer energy profile.",
+    "quality_vs_efficiency": "The 27B variant is more energy-efficient per parameter, but the 35B has more capacity (94 vs fewer layers). For deployment, the tradeoff depends on task complexity: simple tasks favor 27B (cheaper), complex tasks favor 35B (smarter).",
+    "recommendation": "For energy-constrained deployments (edge, neuromorphic), the 27B variant offers better efficiency per parameter. For quality-first deployments, the 35B is preferred. Both benefit equally from the hybrid SwiGLU conversion strategy."
+  }
+}

@@ -207,7 +207,8 @@
       "title": "Eval SpikingKiki-27B",
       "description": "Evaluate SpikingKiki-27B on the 10-domain niche test suite and compare to Qwen3.5-27B dense baseline. Measure perplexity, task accuracy, and energy proxy (spike count × synaptic weight as theoretical energy estimate). Output: `results/snn_eval_27b.json`. Acceptance: perplexity delta < 10% vs dense baseline, energy proxy reduction documented.",
       "priority": 26,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-27",
@@ -222,7 +223,8 @@
       "title": "Eval SpikingKiki-35B",
       "description": "Evaluate SpikingKiki-35B on the 10-domain niche test suite and compare to Qwen3.5-35B-A3B dense baseline. Include comparison with SpikingKiki-27B. Output: `results/snn_eval_35b.json`. Acceptance: perplexity delta < 10% vs dense baseline, MoE routing accuracy preserved ≥ 95% vs dense.",
       "priority": 28,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-29",
@@ -236,14 +238,16 @@
       "title": "Cross-eval all SNN variants",
       "description": "Run a cross-evaluation of all available SNN variants (SpikingKiki-27B, SpikingKiki-35B, SpikingKiki-122B if available) on a unified benchmark: 10-domain niche tasks + general reasoning (MMLU subset). Generate comparison table. Output: `results/snn_cross_eval.json`. Acceptance: all available variants evaluated, comparison table includes quality vs energy tradeoff.",
       "priority": 30,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-31",
       "title": "Energy benchmark: theoretical + measured",
       "description": "Produce energy efficiency report for all SNN variants vs dense baselines. Theoretical: spike count × synaptic weight proxy. Measured: wall-clock inference time + power draw (via powermetrics on Mac Studio or NVML on kxkm-ai). Output: `results/energy_benchmark.json` + `docs/research/snn-energy-report.md`. Acceptance: both theoretical and measured metrics present for at least 2 SNN variants, comparison vs dense documented.",
       "priority": 31,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-32",

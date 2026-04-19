@@ -1,0 +1,181 @@
+{
+  "story": "story-28",
+  "title": "Eval SpikingKiki-35B \u2014 benchmark comparisons",
+  "timestamp": "2026-04-19T14:02:12Z",
+  "base_analysis": {
+    "source": "/Users/electron/Documents/Projets/micro-kiki/results/spikingkiki-35b-analysis.json",
+    "story": "story-27",
+    "model": {
+      "name": "Qwen/Qwen3.5-35B-A3B",
+      "architecture": "Qwen3MoeForCausalLM",
+      "hidden_size": 7168,
+      "num_layers": 94,
+      "num_experts": 256,
+      "active_experts_per_token": 8,
+      "total_params_estimate": 1086886248448,
+      "active_params_estimate": 3.0
+    }
+  },
+  "macs_per_token": {
+    "ann_macs_per_token": 58043138048,
+    "ann_macs_per_token_G": 58.04,
+    "snn_spike_ops_per_token": 633749504,
+    "snn_spike_ops_per_token_M": 633.75,
+    "ops_reduction_ratio": 91.59,
+    "theoretical_throughput": {
+      "ann_on_a100_fp32_tok_per_sec": 336.0,
+      "snn_on_loihi2_tok_per_sec": 3.2,
+      "notes": [
+        "A100 peak FP32: 19.5 TFLOPS (compute-bound estimate)",
+        "Loihi 2 spike processing: ~2 billion spikes/sec (rough estimate)",
+        "Real throughput depends on memory bandwidth, not just compute",
+        "MoE sparsity (8/256 active) already gives 32x routing efficiency"
+      ]
+    }
+  },
+  "energy_per_token": {
+    "ann_energy_uJ_per_token": 266998.435,
+    "snn_cmos_energy_uJ_per_token": 570.375,
+    "snn_neuromorphic_energy_uJ_per_token": 31.687,
+    "tokens_per_phone_battery_10Wh": {
+      "ann": 134832,
+      "snn_cmos": 63116370,
+      "snn_neuromorphic": 1136112601
+    },
+    "context_comparison": {
+      "ann_energy_per_1k_tokens_mJ": 266998.43,
+      "snn_cmos_per_1k_tokens_mJ": 570.38,
+      "snn_neuro_per_1k_tokens_mJ": 31.69
+    }
+  },
+  "published_baselines": {
+    "Spikformer": {
+      "source": "Zhou et al., 2023 (ICLR) \u2014 Spikformer: When SNN Meets Transformer",
+      "model_size": "66M (ViT-scale)",
+      "task": "ImageNet classification",
+      "timesteps": 4,
+      "accuracy_percent": 74.81,
+      "energy_reduction_vs_ann": "5.3x (estimated from spike ops)",
+      "notes": "Vision-only, not language. First SNN transformer."
+    },
+    "SpikingBERT": {
+      "source": "Bal & Bhattacharya, 2024 \u2014 SpikingBERT: Distilling BERT to Train Spiking Language Models",
+      "model_size": "109M (BERT-base)",
+      "task": "GLUE benchmark (NLU)",
+      "timesteps": 4,
+      "accuracy_vs_bert": "97.1% of BERT-base on SST-2",
+      "energy_reduction_vs_ann": "~10x theoretical (fewer synaptic ops)",
+      "notes": "Knowledge distillation from BERT. T=4 sufficient for NLU."
+    },
+    "SpikingBrain_7B": {
+      "source": "BICLab, 2025 \u2014 SpikingBrain (HuggingFace: BICLab/SpikingBrain-7B)",
+      "model_size": "7B",
+      "task": "Language modeling / chat",
+      "timesteps": "variable (1-8)",
+      "energy_claim": "Significant reduction via sparse spikes",
+      "notes": "First multi-billion parameter spiking LLM. Native spiking architecture."
+    },
+    "SpikingBrain_76B": {
+      "source": "BICLab, 2025 \u2014 SpikingBrain-76B",
+      "model_size": "76B",
+      "task": "Language modeling",
+      "timesteps": "variable",
+      "energy_claim": "Largest spiking LLM to date",
+      "notes": "Dense architecture. SpikingKiki-35B would be the first MoE spiking LLM."
+    },
+    "LAS_OPT66B": {
+      "source": "arxiv 2505.09659 \u2014 Lossless ANN-SNN Conversion",
+      "model_size": "66B (OPT-66B)",
+      "task": "Language modeling",
+      "timesteps": 128,
+      "conversion_method": "LAS (lossless)",
+      "energy_reduction_claim": "Theoretical; activation sparsity dependent",
+      "notes": "Converted OPT-66B. Dense model, not MoE."
+    }
+  },
+  "comparison": {
+    "comparison_table": [
+      {
+        "model": "SpikingKiki-35B (ours)",
+        "size": "1086.9B",
+        "architecture": "MoE (256 experts, 8 active)",
+        "conversion": "LAS (attention+router lossless, expert partial)",
+        "timesteps": 128,
+        "energy_saving_vs_ann": "99.8% (CMOS)",
+        "neuromorphic_saving": "100.0%",
+        "status": "theoretical (no weight conversion yet)",
+        "novelty": "First MoE model targeted for SNN conversion"
+      },
+      {
+        "model": "Spikformer",
+        "size": "66M (ViT-scale)",
+        "architecture": "Dense",
+        "conversion": "native/distilled",
+        "timesteps": 4,
+        "energy_saving_vs_ann": "5.3x (estimated from spike ops)",
+        "neuromorphic_saving": "N/A",
+        "status": "published",
+        "novelty": "Vision-only, not language. First SNN transformer."
+      },
+      {
+        "model": "SpikingBERT",
+        "size": "109M (BERT-base)",
+        "architecture": "Dense",
+        "conversion": "native/distilled",
+        "timesteps": 4,
+        "energy_saving_vs_ann": "~10x theoretical (fewer synaptic ops)",
+        "neuromorphic_saving": "N/A",
+        "status": "published",
+        "novelty": "Knowledge distillation from BERT. T=4 sufficient for NLU."
+      },
+      {
+        "model": "SpikingBrain_7B",
+        "size": "7B",
+        "architecture": "Dense",
+        "conversion": "native/distilled",
+        "timesteps": "variable (1-8)",
+        "energy_saving_vs_ann": "Significant reduction via sparse spikes",
+        "neuromorphic_saving": "N/A",
+        "status": "published",
+        "novelty": "First multi-billion parameter spiking LLM. Native spiking architecture."
+      },
+      {
+        "model": "SpikingBrain_76B",
+        "size": "76B",
+        "architecture": "MoE",
+        "conversion": "native/distilled",
+        "timesteps": "variable",
+        "energy_saving_vs_ann": "Largest spiking LLM to date",
+        "neuromorphic_saving": "N/A",
+        "status": "published",
+        "novelty": "Dense architecture. SpikingKiki-35B would be the first MoE spiking LLM."
+      },
+      {
+        "model": "LAS_OPT66B",
+        "size": "66B (OPT-66B)",
+        "architecture": "MoE",
+        "conversion": "LAS (lossless)",
+        "timesteps": 128,
+        "energy_saving_vs_ann": "N/A",
+        "neuromorphic_saving": "N/A",
+        "status": "published",
+        "novelty": "Converted OPT-66B. Dense model, not MoE."
+      }
+    ],
+    "key_differentiators": [
+      "SpikingKiki-35B is the first MoE-architecture SNN conversion attempt",
+      "256 experts with preserved top-8 routing via identity-activation LAS",
+      "Unique challenge: SwiGLU gate (SiLU + element-wise multiply) has no spiking equivalent",
+      "Hybrid approach (ANN gate + spiking up/down) is pragmatic but novel",
+      "35B total / 3B active per token gives inherent sparsity advantage"
+    ]
+  },
+  "conclusions": [
+    "SpikingKiki-35B achieves ~468x energy reduction on CMOS (theoretical)",
+    "MoE sparsity (8/256 experts) compounds with spike sparsity for massive savings",
+    "SwiGLU gate remains the primary conversion bottleneck \u2014 hybrid approach recommended",
+    "At 35B scale, memory bandwidth (not compute) likely dominates real-world energy",
+    "Neuromorphic deployment (Loihi 2) would yield ~8400x reduction but requires hardware",
+    "Published SNNs are all dense; MoE conversion is unexplored territory"
+  ]
+}

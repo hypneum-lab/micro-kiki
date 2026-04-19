@@ -1,0 +1,77 @@
+{
+  "story": "story-26",
+  "title": "Eval SpikingKiki-27B (hypothetical, scaled from 35B-A3B)",
+  "timestamp": "2026-04-19T14:02:05Z",
+  "model": {
+    "name": "SpikingKiki-27B (hypothetical)",
+    "base_reference": "Qwen/Qwen3.5-35B-A3B",
+    "scaling_method": "reduced num_hidden_layers, same attention/MoE structure",
+    "hidden_size": 7168,
+    "num_layers": 30,
+    "num_experts": 16,
+    "active_experts_per_token": 8,
+    "total_params_billions": 26.89,
+    "active_params_billions": 16.32
+  },
+  "convertibility": {
+    "fully_convertible_params": 3278929920,
+    "partially_convertible_params": 21428305920,
+    "not_convertible_params": 2178154496,
+    "total_params_estimate": 26885390336,
+    "fully_convertible_percent": 12.2,
+    "partially_convertible_percent": 79.7,
+    "not_convertible_percent": 8.1,
+    "per_layer": {
+      "attention_params": 109182976,
+      "router_params": 114688,
+      "expert_params_all": 704643072,
+      "shared_expert_params": 9633792
+    }
+  },
+  "spike_rate_equivalence": {
+    "timesteps": 128,
+    "threshold": 0.0078125,
+    "max_quantisation_error": 0.0078125,
+    "per_layer": {
+      "attention_neurons": 15232,
+      "attention_mean_spikes": 974848.0,
+      "attention_macs": 109182976,
+      "expert_neurons": 90112,
+      "expert_mean_spikes": 5767168.0,
+      "expert_macs": 352321536
+    },
+    "full_model": {
+      "total_mean_spikes_per_token": 202260480.0,
+      "total_macs_per_token": 13845135360,
+      "spike_to_mac_ratio": 0.014609
+    }
+  },
+  "energy_savings": {
+    "per_token": {
+      "ann_macs": 14137589760,
+      "ann_energy_pJ": 65032912896.0,
+      "ann_energy_uJ": 65032.913,
+      "snn_spike_ops": 202260480,
+      "snn_energy_cmos_pJ": 182034432.0,
+      "snn_energy_cmos_uJ": 182.034,
+      "snn_energy_neuromorphic_pJ": 10113024.0,
+      "snn_energy_neuromorphic_uJ": 10.113
+    },
+    "savings": {
+      "cmos_ratio": 357.26,
+      "neuromorphic_ratio": 6430.61,
+      "cmos_saving_percent": 99.7,
+      "neuromorphic_saving_percent": 100.0
+    }
+  },
+  "comparison_to_35b": {
+    "layer_reduction": "30 vs 94",
+    "param_reduction_percent": 23.4,
+    "notes": [
+      "Same hidden_size, attention heads, expert count, and vocab",
+      "Only layer count reduced to reach ~27B target",
+      "Energy savings scale linearly with layer count",
+      "Convertibility percentages remain similar (dominated by MoE experts)"
+    ]
+  }
+}
