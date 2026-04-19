@@ -1,0 +1,146 @@
+{
+  "base": [
+    {
+      "domain": "chat-fr",
+      "val_ppl": 5.18,
+      "avg_keyword_rate": 0.167,
+      "avg_resp_len": 1304,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "reasoning",
+      "val_ppl": 2.52,
+      "avg_keyword_rate": 0.2,
+      "avg_resp_len": 894,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "python",
+      "val_ppl": 3.28,
+      "avg_keyword_rate": 0.2,
+      "avg_resp_len": 1260,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "embedded",
+      "val_ppl": 4.76,
+      "avg_keyword_rate": 0.2,
+      "avg_resp_len": 1113,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "electronics",
+      "val_ppl": 5.6,
+      "avg_keyword_rate": 0.233,
+      "avg_resp_len": 1061,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "components",
+      "val_ppl": 9.63,
+      "avg_keyword_rate": 0.4,
+      "avg_resp_len": 969,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "shell",
+      "val_ppl": 6.79,
+      "avg_keyword_rate": 0.2,
+      "avg_resp_len": 1143,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "spice",
+      "val_ppl": 5.02,
+      "avg_keyword_rate": 0.267,
+      "avg_resp_len": 1163,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "docker",
+      "val_ppl": 4.87,
+      "avg_keyword_rate": 0.433,
+      "avg_resp_len": 1125,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "power",
+      "val_ppl": 4.33,
+      "avg_keyword_rate": 0.367,
+      "avg_resp_len": 1126,
+      "degenerate_pct": 0
+    }
+  ],
+  "adapter": [
+    {
+      "domain": "chat-fr",
+      "val_ppl": 3.75,
+      "avg_keyword_rate": 0.133,
+      "avg_resp_len": 1293,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "reasoning",
+      "val_ppl": 2.18,
+      "avg_keyword_rate": 0.267,
+      "avg_resp_len": 920,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "python",
+      "val_ppl": 3.01,
+      "avg_keyword_rate": 0.333,
+      "avg_resp_len": 1256,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "embedded",
+      "val_ppl": 3.88,
+      "avg_keyword_rate": 0.167,
+      "avg_resp_len": 1140,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "electronics",
+      "val_ppl": 4.94,
+      "avg_keyword_rate": 0.233,
+      "avg_resp_len": 1152,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "components",
+      "val_ppl": 9.37,
+      "avg_keyword_rate": 0.467,
+      "avg_resp_len": 1020,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "shell",
+      "val_ppl": 6.01,
+      "avg_keyword_rate": 0.133,
+      "avg_resp_len": 1145,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "spice",
+      "val_ppl": 4.56,
+      "avg_keyword_rate": 0.3,
+      "avg_resp_len": 1164,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "docker",
+      "val_ppl": 4.07,
+      "avg_keyword_rate": 0.433,
+      "avg_resp_len": 1172,
+      "degenerate_pct": 0
+    },
+    {
+      "domain": "power",
+      "val_ppl": 4.07,
+      "avg_keyword_rate": 0.267,
+      "avg_resp_len": 1055,
+      "degenerate_pct": 0
+    }
+  ]
+}
