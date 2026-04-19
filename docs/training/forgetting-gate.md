@@ -230,6 +230,29 @@ gradient path *did* fire but barely).
 
 CI enforces this as a smoke check in `.github/workflows/validators.yml`.
 
+### Audit 2026-04-19: full adapter sweep
+
+`scripts/sweep_adapter_health.py` walks a directory and emits structured
+per-adapter JSON (same health logic as `validate_adapter_health.py`,
+but batched). Results for every MLX adapter on Mac Studio are in
+`results/adapter-health-sweep.json`:
+
+- **Post-pivot `output/micro-kiki/lora-qwen36-35b/`**: 35/35 final
+  `adapters.safetensors` healthy (+28/28 intermediate checkpoints).
+- **Pre-pivot `output/micro-kiki/stacks-v3-r16/`**: 35/35 final
+  adapters degenerate (every `lora_B` tensor at exact zero, 512/512
+  per adapter).
+- **Surprises: none.** Both 2026-04-19 empirical predictions hold
+  across the full fleet.
+
+Run again with:
+
+```bash
+python scripts/sweep_adapter_health.py \
+    --adapters-dir <dir> \
+    --output results/<label>.json
+```
+
 ## Running full gate on Mac Studio
 
 The win-rate half of the gate requires a real base model loaded on
