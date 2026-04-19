@@ -14,7 +14,7 @@ from __future__ import annotations
 try:
     import mlx.core as mx
     mx.set_memory_limit(460 * 1024**3)   # 460 GB
-    mx.set_cache_limit(32 * 1024**3)     # 32 GB — forces buffer recycling
+    mx.set_cache_limit(96 * 1024**3)  # x3 for MoE     # 32 GB — forces buffer recycling
 except ModuleNotFoundError:
     pass  # mlx not installed; --help / --dry-run still work
 
@@ -200,7 +200,7 @@ def train_domain(domain: str) -> None:
     # Metal limits are set via environment wrapper script.
     train_script = f'''import mlx.core as mx
 mx.set_memory_limit(460 * 1024**3)
-mx.set_cache_limit(32 * 1024**3)
+mx.set_cache_limit(96 * 1024**3)  # x3 for MoE
 import os, sys
 os.environ["PYTHONPATH"] = "/Users/clems/KIKI-Mac_tunner/lib"
 sys.path.insert(0, "/Users/clems/KIKI-Mac_tunner/lib")

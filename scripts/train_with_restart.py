@@ -52,7 +52,7 @@ def make_train_script(
 
     return f'''import mlx.core as mx
 mx.set_memory_limit(460 * 1024**3)
-mx.set_cache_limit(32 * 1024**3)
+mx.set_cache_limit(96 * 1024**3)  # x3 for MoE buffer recycling
 import os, sys
 os.environ["PYTHONPATH"] = "/Users/clems/KIKI-Mac_tunner/lib"
 sys.path.insert(0, "/Users/clems/KIKI-Mac_tunner/lib")
