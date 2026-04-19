@@ -400,6 +400,7 @@ def save_results(results: dict):
 
 
 def main(argv: list[str] | None = None) -> int:
+    global RESULTS_PATH
     parser = argparse.ArgumentParser(
         description="Evaluate all domain LoRA stacks vs base model.",
     )
@@ -425,7 +426,6 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    global RESULTS_PATH
     RESULTS_PATH = Path(args.output)
 
     logging.basicConfig(
