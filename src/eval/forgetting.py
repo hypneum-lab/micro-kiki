@@ -321,27 +321,55 @@ _LORA_SUFFIX = re.compile(
 # ``module_key`` (e.g. ``self_attn.q_proj``) groups across layers.
 _LAYER_SPLIT = re.compile(r"layers\.\d+\.")
 
+# Pre-pivot MoE-LoRA keys embed the expert index via ``.experts.N`` inside
+# the module path (e.g. ``mlp.down_proj_moe_lora.experts.3.lora_a``). The
+# post-pivot standard LoRA adapters never contain this segment. Stripping
+# ``.experts.N`` from the module path groups per-expert adapters under a
+# single ``module_key`` so ``_extract_deltas`` can fold them together.
+_EXPERT_RE = re.compile(r"\.experts\.(\d+)")
 
-def _parse_lora_key(key: str) -> tuple[str, str, str] | None:
-    """Extract ``(layer_prefix, module_key, ab)`` from a LoRA adapter tensor name.
 
-    Supports both PEFT (``base_model.model.layers.N.self_attn.q_proj.lora_A.weight``)
-    and MLX-LM (``language_model.model.layers.N.linear_attn.in_proj_qkv.lora_a``)
-    conventions. Returns ``None`` if the key is not a LoRA tensor.
+def _parse_lora_key(key: str) -> tuple[str, str, str, int | None] | None:
+    """Extract ``(layer_prefix, module_key, ab, expert_idx)`` from a LoRA key.
+
+    Supports three adapter flavours:
+
+    - **PEFT standard LoRA**: ``base_model.model.layers.N.self_attn.q_proj.lora_A.weight``
+    - **MLX-LM standard LoRA**: ``language_model.model.layers.N.linear_attn.in_proj_qkv.lora_a``
+    - **Pre-pivot MoE-LoRA** (``src/stacks/moe_lora.py``): keys embed a
+      per-expert index as ``.experts.<N>`` inside the module path, e.g.
+      ``base_model.model.layers.K.mlp.down_proj_moe_lora.experts.3.lora_a``.
+      The returned ``module_key`` has the ``.experts.N`` segment stripped so
+      per-expert adapters group together (``mlp.down_proj_moe_lora``).
+
+    Returns ``None`` if the key is not a LoRA tensor.
 
     - ``layer_prefix``: everything up to and including ``layers.<N>.`` — used
       as the unique identifier that pairs lora_A with lora_B of the same layer.
       When there is no ``layers.<N>.`` segment, we fall back to the parent of
       the module path (still unique per layer in practice).
-    - ``module_key``: the module path relative to the layer (e.g.
-      ``self_attn.q_proj``, ``linear_attn.in_proj_qkv``, ``mlp.switch_mlp.down_proj``).
+    - ``module_key``: the module path relative to the layer with any
+      ``.experts.<N>`` segment stripped (e.g. ``self_attn.q_proj``,
+      ``mlp.down_proj_moe_lora``).
     - ``ab``: lower-cased ``"a"`` or ``"b"``.
+    - ``expert_idx``: ``int`` for pre-pivot MoE-LoRA, ``None`` otherwise.
+
+    Router head weights (``.router_w1.weight`` / ``.router_w2.weight``) are
+    plain learned tensors with no ``.lora_{a,b}`` suffix and are naturally
+    skipped by the suffix regex.
     """
     m = _LORA_SUFFIX.search(key)
     if not m:
         return None
     ab = m.group("ab").lower()
     body = key[: m.start()]
+    # Strip ``.experts.<N>`` (MoE-LoRA) from the body before layer/module
+    # splitting so per-expert keys collapse to a single module_key bucket.
+    expert_idx: int | None = None
+    em = _EXPERT_RE.search(body)
+    if em is not None:
+        expert_idx = int(em.group(1))
+        body = body[: em.start()] + body[em.end():]
     layer_m = _LAYER_SPLIT.search(body)
     if layer_m is not None:
         layer_prefix = body[: layer_m.end()]
@@ -357,7 +385,7 @@ def _parse_lora_key(key: str) -> tuple[str, str, str] | None:
         module_key = leaf
     if not module_key:
         return None
-    return layer_prefix, module_key, ab
+    return layer_prefix, module_key, ab, expert_idx
 
 
 def _load_tensors(path: Path) -> dict[str, "torch.Tensor"]:
@@ -433,46 +461,75 @@ def _extract_deltas(
     3D MoE tensors (``switch_mlp.*`` with per-expert stacks) — see
     :func:`_compose_delta`.
 
+    For pre-pivot MoE-LoRA adapters (keys containing ``.experts.<N>``),
+    the per-module delta is the mean across experts: each expert's
+    ``B@A`` is computed separately and then averaged to produce one
+    per-layer delta, keeping the output shape identical to plain LoRA.
+
     Layers with only A or only B (malformed) are skipped with a warning.
     """
-    a_matrices: dict[tuple[str, str], "torch.Tensor"] = {}
-    b_matrices: dict[tuple[str, str], "torch.Tensor"] = {}
+    # For MoE-LoRA we need to keep per-expert A/B matrices separate so we
+    # can compose each expert's delta, then average across experts per
+    # (layer_prefix, module_key). Standard LoRA has ``expert_idx=None``
+    # which degenerates to a single-element per-expert dict.
+    a_matrices: dict[tuple[str, str], dict[int | None, "torch.Tensor"]] = defaultdict(dict)
+    b_matrices: dict[tuple[str, str], dict[int | None, "torch.Tensor"]] = defaultdict(dict)
 
     for key, tensor in tensors.items():
         parsed = _parse_lora_key(key)
         if parsed is None:
             continue
-        layer_prefix, module_key, ab = parsed
+        layer_prefix, module_key, ab, expert_idx = parsed
         bucket = a_matrices if ab == "a" else b_matrices
-        bucket[(layer_prefix, module_key)] = tensor
+        bucket[(layer_prefix, module_key)][expert_idx] = tensor
 
     deltas: dict[str, list[Any]] = defaultdict(list)
-    for (layer_prefix, module_key), a in a_matrices.items():
-        b = b_matrices.get((layer_prefix, module_key))
-        if b is None:
+    for (layer_prefix, module_key), a_by_expert in a_matrices.items():
+        b_by_expert = b_matrices.get((layer_prefix, module_key))
+        if b_by_expert is None:
             logger.warning(
                 "missing lora_B for %s%s; skipping", layer_prefix, module_key
             )
             continue
-        delta = _compose_delta(a, b)
-        if delta is None:
-            logger.warning(
-                "incompatible A/B shapes for %s%s (A=%s, B=%s); skipping",
-                layer_prefix,
-                module_key,
-                tuple(a.shape),
-                tuple(b.shape),
-            )
+        per_expert: list[Any] = []
+        for expert_idx, a in a_by_expert.items():
+            b = b_by_expert.get(expert_idx)
+            if b is None:
+                logger.warning(
+                    "missing lora_B for %s%s (expert=%s); skipping",
+                    layer_prefix,
+                    module_key,
+                    expert_idx,
+                )
+                continue
+            delta = _compose_delta(a, b)
+            if delta is None:
+                logger.warning(
+                    "incompatible A/B shapes for %s%s (A=%s, B=%s); skipping",
+                    layer_prefix,
+                    module_key,
+                    tuple(a.shape),
+                    tuple(b.shape),
+                )
+                continue
+            # 3D MoE delta (n_experts, out, in) — from MLX-LM switch_mlp.*
+            # tensors (distinct from pre-pivot MoE-LoRA). Average over the
+            # expert dimension to keep memory bounded on models with
+            # hundreds of experts (Qwen3.5-A3B has 256).
+            if delta.ndim == 3:
+                delta = delta.mean(dim=0)
+            per_expert.append(delta)
+        if not per_expert:
             continue
-        # 3D MoE delta (n_experts, out, in): averaging over experts keeps
-        # memory bounded on models with hundreds of experts (Qwen3.5-A3B has
-        # 256). The mean-expert delta is a reasonable per-layer stand-in for
-        # the gate's angle measurement — per-expert forgetting would need
-        # its own metric.
-        if delta.ndim == 3:
-            deltas[module_key].append(delta.mean(dim=0))
+        if len(per_expert) == 1:
+            deltas[module_key].append(per_expert[0])
         else:
-            deltas[module_key].append(delta)
+            # MoE-LoRA: average per-expert deltas to produce one delta per
+            # (layer, module) — keeps the output shape identical to plain
+            # LoRA so downstream angle math is unchanged.
+            import torch
+
+            deltas[module_key].append(torch.stack(per_expert, dim=0).mean(dim=0))
     for (layer_prefix, module_key) in b_matrices.keys():
         if (layer_prefix, module_key) not in a_matrices:
             logger.warning(

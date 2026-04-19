@@ -336,13 +336,15 @@ def test_mlx_style_keys_matched(tmp_path: Path) -> None:
     """
     from src.eval.forgetting import _extract_deltas, _parse_lora_key
 
-    # Direct regex check — MLX-style variants.
+    # Direct regex check — MLX-style variants. The 4th tuple element is
+    # the MoE-LoRA expert index; ``None`` for plain LoRA.
     assert _parse_lora_key(
         "language_model.model.layers.0.linear_attn.in_proj_a.lora_a"
     ) == (
         "language_model.model.layers.0.",
         "linear_attn.in_proj_a",
         "a",
+        None,
     )
     assert _parse_lora_key(
         "language_model.model.layers.12.self_attn.q_proj.lora_b"
@@ -350,6 +352,7 @@ def test_mlx_style_keys_matched(tmp_path: Path) -> None:
         "language_model.model.layers.12.",
         "self_attn.q_proj",
         "b",
+        None,
     )
     # And PEFT variants still match (back-compat).
     assert _parse_lora_key(
@@ -358,6 +361,7 @@ def test_mlx_style_keys_matched(tmp_path: Path) -> None:
         "base_model.model.layers.3.",
         "self_attn.q_proj",
         "a",
+        None,
     )
     assert _parse_lora_key(
         "base_model.model.layers.3.self_attn.q_proj.lora_A.default.weight"
@@ -365,6 +369,7 @@ def test_mlx_style_keys_matched(tmp_path: Path) -> None:
         "base_model.model.layers.3.",
         "self_attn.q_proj",
         "a",
+        None,
     )
     # Non-LoRA keys return None.
     assert _parse_lora_key("some.random.weight") is None
@@ -378,6 +383,87 @@ def test_mlx_style_keys_matched(tmp_path: Path) -> None:
     deltas = _extract_deltas(tensors)
     assert "linear_attn.in_proj_a" in deltas
     assert len(deltas["linear_attn.in_proj_a"]) == 1
+
+
+def test_moe_lora_key_parsing() -> None:
+    """Pre-pivot MoE-LoRA keys (``.experts.<N>.lora_{a,b}``) parse correctly.
+
+    The module_key must strip the ``.experts.N`` segment so per-expert keys
+    group under a single module bucket; ``expert_idx`` must be the integer
+    extracted from the key.
+    """
+    from src.eval.forgetting import _parse_lora_key
+
+    # Expert 0 / lora_a.
+    assert _parse_lora_key(
+        "base_model.model.layers.7.mlp.down_proj_moe_lora.experts.0.lora_a"
+    ) == (
+        "base_model.model.layers.7.",
+        "mlp.down_proj_moe_lora",
+        "a",
+        0,
+    )
+    # Expert 3 / lora_b (same module, different expert → same module_key).
+    assert _parse_lora_key(
+        "base_model.model.layers.7.mlp.down_proj_moe_lora.experts.3.lora_b"
+    ) == (
+        "base_model.model.layers.7.",
+        "mlp.down_proj_moe_lora",
+        "b",
+        3,
+    )
+    # PEFT ``.weight`` suffix + MoE-LoRA path.
+    assert _parse_lora_key(
+        "base_model.model.layers.12.mlp.up_proj_moe_lora.experts.5.lora_A.weight"
+    ) == (
+        "base_model.model.layers.12.",
+        "mlp.up_proj_moe_lora",
+        "a",
+        5,
+    )
+    # Router head weights have no ``.lora_{a,b}`` suffix → parser returns None.
+    assert _parse_lora_key(
+        "base_model.model.layers.7.mlp.router_w1.weight"
+    ) is None
+    assert _parse_lora_key(
+        "base_model.model.layers.7.mlp.router_w2.weight"
+    ) is None
+
+
+def test_moe_lora_delta_averaged() -> None:
+    """Per-module MoE-LoRA delta is the mean of per-expert B@A deltas.
+
+    Build a synthetic 2-expert, single-layer adapter where the two experts
+    produce distinct deltas; verify ``_extract_deltas`` collapses them to
+    the elementwise mean under a single module_key.
+    """
+    from src.eval.forgetting import _extract_deltas
+
+    # Expert 0: B@A = [[1, 0], [0, 0]]
+    a0 = torch.tensor([[1.0, 0.0]])
+    b0 = torch.tensor([[1.0], [0.0]])
+    # Expert 1: B@A = [[0, 0], [0, 1]] (orthogonal to expert 0)
+    a1 = torch.tensor([[0.0, 1.0]])
+    b1 = torch.tensor([[0.0], [1.0]])
+
+    prefix = "base_model.model.layers.0.mlp.down_proj_moe_lora"
+    tensors: dict[str, torch.Tensor] = {
+        f"{prefix}.experts.0.lora_A.weight": a0.contiguous(),
+        f"{prefix}.experts.0.lora_B.weight": b0.contiguous(),
+        f"{prefix}.experts.1.lora_A.weight": a1.contiguous(),
+        f"{prefix}.experts.1.lora_B.weight": b1.contiguous(),
+    }
+
+    deltas = _extract_deltas(tensors)
+
+    # Both experts must collapse to a single module_key (the .experts.N
+    # segment is stripped during parsing).
+    assert list(deltas.keys()) == ["mlp.down_proj_moe_lora"], deltas
+    # One layer, so one delta matrix under the module_key.
+    assert len(deltas["mlp.down_proj_moe_lora"]) == 1
+    observed = deltas["mlp.down_proj_moe_lora"][0]
+    expected = (b0 @ a0 + b1 @ a1) / 2.0
+    assert torch.allclose(observed, expected, atol=1e-6), (observed, expected)
 
 
 def test_non_qkvo_modules_captured(tmp_path: Path) -> None:
