@@ -45,7 +45,11 @@ Response
 - **Base** — `Qwen/Qwen3.6-35B-A3B` (Apache 2.0, 262 K context). (Earlier drafts referenced Qwen3.5; superseded 2026-04-18 per real `adapter_config.json`.)
 - **Teacher** — `Qwen3-Coder-480B-A35B` MLX 4-bit (1.1 TB local Mac Studio).
 - **Adapter surface** — standard LoRA via `mlx_lm lora` on **17 module kinds** per layer: `linear_attn.{in_proj_a,in_proj_b,in_proj_qkv,in_proj_z,out_proj}` (GLA hybrid), `self_attn.{q,k,v,o}_proj`, `mlp.gate` + `mlp.shared_expert_gate` (MoE routers), `mlp.shared_expert.{down,gate,up}_proj`, `mlp.switch_mlp.{down,gate,up}_proj`. (Prior "attention-only, never MoE FFN" rule superseded 2026-04-18 — empirical forgetting test chat-fr↔reasoning mean 79.4° with all modules above 30°.)
-- **Rank budget** — tiers `{4, 8, 12, 16, 32}` (4/8 narrow niches, 12 coding-secondary/technical, 16 broad niches, 32 foundations). MLX `scale = 20.0` (direct BA multiplier, not the PEFT `alpha/rank` convention).
+- **Rank** — r=16 for all domains, alpha=16 (1:1 ratio per arXiv 2602.04998 "vanilla LoRA r=16 suffices when LR is tuned"; LR optimal ∝ r^(-1/2) per arXiv 2602.06204). Previous tiered ranks {4,8,12,16,32} superseded. 1.03B trainable params (2.96% of 35B).
+- **Layers** — 32/40 optimal. 8 layers undertrained; 40 layers overfits (V3 chat-fr 1.304).
+- **Learning rate** — 1e-5 (MLX quantized/BF16). Iters: 1000 foundations, 500 coding, 100-200 niches.
+- **Metal optimization** — `mx.set_memory_limit(460GB)` + `mx.set_cache_limit(32GB)` required to prevent GPU Hang on M3 Ultra. Peak mem ~107 GB.
+- **DoRA** — NOT supported on Qwen3.6 MoE (SwitchLinear incompatible).
 - **Training** — MLX only. BF16. Sequential per-domain (never in parallel; stacks interfere). Foundations first, then niches (curriculum order).
 - **Forgetting gate** — runs after every stack. Rollback if `cosine(adapter, prev) < 30°` **and** `win-rate drop > 0.03` on cross-domain probes. Canonical operator doc: `docs/training/forgetting-gate.md`.
 - **Serving** — Q4_K_M only (quality cliff below). Max **4 active stacks** simultaneously per VRAM / interference budget.
@@ -80,7 +84,7 @@ Loads trained adapters, initializes Aeon, routes 50 test prompts, logs routing d
 
 ```bash
 python scripts/validate_domains.py            # 34-domain list consistency across 3 config mirrors
-python scripts/validate_rank_schema.py        # rank ∈ {4,8,12,16,32} · alpha = 2·rank
+python scripts/validate_rank_schema.py        # rank = 16 · alpha = 16 (1:1 ratio)
 python scripts/validate_curriculum_order.py   # foundations before niches
 python scripts/validate_no_pre_pivot.py       # no Qwen3.5-4B leaks in src/
 python scripts/validate_adapter_health.py <adapter.safetensors>  # all lora_B non-zero
@@ -153,14 +157,33 @@ Supports Q4_K_M base + 2-4 active adapters simultaneously.
 
 | Role | Machine | Why |
 |---|---|---|
-| Training | Mac Studio M3 Ultra 512 GB | Only host with enough unified memory for BF16 LoRA on 35B-A3B (peak 106 GB) |
+| Training | Mac Studio M3 Ultra 512 GB | Only host with enough unified memory for BF16 LoRA on 35B-A3B (peak ~107 GB) |
 | Teacher inference | Mac Studio (CPU) | `llama.cpp` on the 1.1 TB `Qwen3-Coder-480B-A35B`, ~5-10 tok/s |
 | Production inference | kxkm-ai (RTX 4090 24 GB) | Q4_K_M base + 2-4 adapters, ~30-50 tok/s |
 | Cognitive layer | Tower | Qdrant (Atlas) + Neo4j (Trace), ~16 GB RAM |
 
 **Do not train on kxkm-ai** — 35B-A3B BF16 LoRA does not fit in 24 GB. **Do not use QLoRA / BitsAndBytes on 35B-A3B** — known MoE-layer corruption.
 
-## Adapter results (10 SFT domains)
+## V4 SOTA results (32L r16 alpha=16, training script: `scripts/train_v4_sota.sh`)
+
+| Config | chat-fr val_loss | reasoning val_loss | Notes |
+|---|---|---|---|
+| V1 (8L r8) | 0.891 | — | First baseline |
+| V2 (32L r8) | 0.953 at iter 300 | — | More layers, same rank |
+| V3 (40L r32) | 1.304 | — | Overfitting, rank too high |
+| **V4 SOTA (32L r16)** | **0.849** | **0.638** (iter 100, still training) | Best ever, -65% vs base 2.417 |
+
+Benchmark on 10 domains: adapter wins 5/10, base wins 0/10, ties 5/10. Average PPL improvement: 11.8% (with old 8-layer config — V4 should be much higher).
+
+### Published models and datasets
+
+| Artifact | URL |
+|---|---|
+| Dataset (489K, 35 domains) | https://huggingface.co/datasets/clemsail/micro-kiki-v3-dataset |
+| Model (4B) | https://huggingface.co/clemsail/micro-kiki-v3 |
+| Model (35B, 35 adapters + Opus adapters) | https://huggingface.co/clemsail/micro-kiki-v35b |
+
+### Adapter results (10 SFT domains, pre-V4)
 
 | Domain | Examples | Final train loss | Rank |
 |---|---|---|---|
@@ -198,7 +221,7 @@ Remaining 6 stacks show minor interference (angle 25-29 deg); rollback not trigg
 
 ## Current work
 
-DPO/GRPO alignment blocked on MLX (no native support yet). Next: expand to 35 domains, publish HuggingFace release.
+V4 SOTA training in progress (reasoning at iter 100, val_loss 0.638). DPO/GRPO alignment blocked on MLX (no native support yet). Next: complete V4 training across all 35 domains.
 
 ## Related repos
 

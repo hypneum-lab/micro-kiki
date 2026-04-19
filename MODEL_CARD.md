@@ -25,7 +25,7 @@ micro-kiki is a multi-domain language model designed for technical applications 
 |----------|-------|
 | Base model | Qwen3.6-35B-A3B |
 | Architecture | MoE (256 experts, 3B active/token) |
-| Adapter | LoRA, rank tiers {4, 8, 12, 16, 32}, MLX scale = 20.0, 17 module kinds/layer (attention + MoE routers + shared_expert + switch_mlp) |
+| Adapter | LoRA r=16, alpha=16 (1:1 ratio per arXiv 2602.04998), 32/40 layers, 17 module kinds/layer. 1.03B trainable (2.96% of 35B). |
 | Domains | 34 |
 | Max active stacks | 4 |
 | Context length | 262,144 tokens |
@@ -148,19 +148,44 @@ Canonical doc: `docs/training/forgetting-gate.md`. Operator runbook for the dual
 
 57K Q&A about electronic component specs, datasheets, sourcing, BOM, and cross-reference. Sources: Electronics StackExchange (filtered by component tags) + JITX open-components-database.
 
-## Training — V3 (post-pivot 2026-04-16)
+## Training — V4 SOTA (post-pivot 2026-04-16, updated 2026-04-17)
 
 | Property | Value |
 |----------|-------|
-| Base model | Qwen3.6-35B-A3B (pivot from pre-v3 Qwen3.5-4B + MoE-LoRA) |
-| Adapter | Standard LoRA, rank tiers {4, 8, 12, 16, 32}, MLX scale = 20.0, 17 module kinds/layer |
+| Base model | Qwen3.6-35B-A3B (67 GB BF16; pivot from pre-v3 Qwen3.5-4B + MoE-LoRA) |
+| Adapter | Standard LoRA, r=16, alpha=16 (1:1 ratio per arXiv 2602.04998), 32/40 layers, 17 module kinds/layer |
+| Trainable params | 1.03B (2.96% of 35B) |
+| Learning rate | 1e-5 (MLX quantized/BF16). LR optimal ∝ r^(-1/2) per arXiv 2602.06204. |
+| Iters | 1000 foundations (chat-fr, reasoning, python), 500 coding, 100-200 niches |
+| Training script | `scripts/train_v4_sota.sh` |
 | Trainer | `mlx_lm lora` on Mac Studio M3 Ultra 512 GB (BF16) |
+| Metal optimization | `mx.set_memory_limit(460GB)` + `mx.set_cache_limit(32GB)` — required to prevent GPU Hang. Peak ~107 GB. |
+| DoRA | NOT supported (SwitchLinear incompatible with Qwen3.6 MoE) |
 | Forgetting gate | `scripts/post_train_gate.py` — health + angle + win-rate after every stack (rollback if angle < 30° AND win-rate drop > 0.03) |
-| Curriculum | Sequential, 34 stacks, foundations (rank 32) before niches — enforced by `scripts/validate_curriculum_order.py` |
+| Curriculum | Sequential, 34 stacks, foundations first — enforced by `scripts/validate_curriculum_order.py` |
 | Platform (MLX) | Mac Studio M3 Ultra 512 GB |
 | Platform (CUDA) | kxkm-ai RTX 4090 24 GB (Q4 inference only; **do not train** — 35B BF16 LoRA does not fit in 24 GB) |
 
 **Pre-pivot warning.** 35 MoE-LoRA adapters from the pre-pivot pipeline (`stacks-v3-r16/`) have `lora_B = 0` across all modules and are effectively dead weights. They are archived under `scripts/legacy/`. Do not deploy them. See `docs/research/2026-04-19-prepivot-moe-lora-audit.md` (audit) and `docs/research/2026-04-19-moe-lora-root-cause.md` (root cause).
+
+## V4 SOTA Results
+
+| Config | chat-fr val_loss | reasoning val_loss | Notes |
+|--------|-----------------|-------------------|-------|
+| V1 (8L r8) | 0.891 | — | First baseline |
+| V2 (32L r8) | 0.953 at iter 300 | — | More layers, same rank |
+| V3 (40L r32) | 1.304 | — | Overfitting, rank too high |
+| **V4 SOTA (32L r16)** | **0.849** | **0.638** (iter 100, still training) | Best ever, -65% vs base 2.417 |
+
+Benchmark on 10 domains: adapter wins 5/10, base wins 0/10, ties 5/10. Average PPL improvement: 11.8% (with old 8-layer config — V4 should be much higher).
+
+### Published
+
+| Artifact | URL |
+|----------|-----|
+| Dataset (489K, 35 domains) | https://huggingface.co/datasets/clemsail/micro-kiki-v3-dataset |
+| Model (4B) | https://huggingface.co/clemsail/micro-kiki-v3 |
+| Model (35B, 35 adapters + Opus adapters) | https://huggingface.co/clemsail/micro-kiki-v35b |
 
 ## Evaluation
 
