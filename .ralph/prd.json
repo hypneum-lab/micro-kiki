@@ -119,7 +119,8 @@
       "title": "Eval all 10 stacks vs base",
       "description": "Run the full eval suite comparing each of the 10 trained stacks against the base 35B-A3B passthrough on domain-specific held-out test sets. Report win-rate, BLEU, exact-match where applicable. Generate `results/stacks_vs_base_eval.json`. Acceptance: all 10 stacks show win-rate > 0.50 vs base on their target domain, or are flagged for retraining with revised config.",
       "priority": 15,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-16",
