@@ -205,6 +205,94 @@ override.
 populated even in angle-only mode; they never force a non-zero exit
 on their own (AND-logic with the win-rate drop is preserved).
 
+## Win-rate scoring modes
+
+The win-rate half of the gate compares generated responses against a
+reference answer per prompt. Two scoring modes ship with the framework;
+choose via `--scorer-module` (CLI) or the `scorer=` kwarg on
+`measure_forgetting_signal()`.
+
+### Containment (default)
+
+`src.eval.scorers.containment_score` — async wrapper around the legacy
+heuristic: score = 1.0 if the reference string is a substring of the
+response (case-insensitive); otherwise the fraction of
+whitespace-split reference tokens present in the response. Returns 0.0
+for empty references.
+
+**Use when:**
+- References are short, unambiguous strings (single facts, short
+  phrases, IDs, code tokens).
+- You cannot or will not call an external judge (air-gapped, CI cost).
+- You want a deterministic, reproducible score — the same
+  response/reference always produces the same value.
+
+**Don't use when:**
+- References are long free-form answers (paraphrases score near 0).
+- Correctness depends on semantics, not surface tokens.
+
+Default behaviour, no flag needed:
+
+```bash
+python scripts/measure_forgetting.py \
+    --prior-adapter ... --new-adapter ... \
+    --eval-dataset  ... --generate-fn-module ... \
+    --winrate-baseline-score 0.82
+```
+
+### LLM judge
+
+`src.eval.scorers.JudgeScorer` — async callable that reuses
+`src.eval.stack_eval.JUDGE_PROMPT` (the canonical per-stack evaluator
+template) and calls the configured judge client. Returns the `score`
+field from the judge's JSON response, clipped to `[0, 1]`.
+Bad-JSON responses return `0.0` with a warning — the gate stays
+robust when the judge is flaky.
+
+**Use when:**
+- References are long or free-form (essays, code explanations, French
+  translation critique).
+- You care about semantic equivalence, not surface tokens.
+- A judge client is already available (Mistral-Large via
+  `StackEvaluator`'s `judge_client`).
+
+**Don't use when:**
+- Budget / latency is tight (one judge call per prompt per adapter).
+- The judge model lives behind a flaky or slow network boundary
+  without retries.
+
+Wire a `JudgeScorer` via a small wrapper module that exposes a
+concrete scorer callable at import time, then point
+`--scorer-module` at it:
+
+```python
+# my_judge_scorer.py
+from src.eval.scorers import JudgeScorer
+from src.serving.judge_client import make_judge_client  # your client
+
+scorer = JudgeScorer(make_judge_client(), judge_model="mistral-large")
+```
+
+```bash
+python scripts/measure_forgetting.py \
+    --prior-adapter ... --new-adapter ... \
+    --eval-dataset  ... --generate-fn-module src.serving.mlx_client:generate \
+    --winrate-baseline-score 0.82 \
+    --scorer-module my_judge_scorer:scorer
+```
+
+The scorer is resolved via the same `module:attr` locator shape used
+by `--generate-fn-module`. Sync and async callables are both
+accepted; async ones are driven via `asyncio.run()` per prompt.
+
+### When to switch modes
+
+Typical playbook: containment for fast iteration during stack
+training, judge for the "real" post-stack gate check before
+registering an adapter with the router. The gate thresholds
+(`angle < 30°` AND `winrate_drop > 0.03`) are unchanged across
+modes — only the per-prompt score function differs.
+
 ## Adapter health sanity
 
 Before running the forgetting gate at all, check that each new adapter

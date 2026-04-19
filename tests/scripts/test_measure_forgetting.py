@@ -649,5 +649,98 @@ def test_full_gate_via_mocked_mlx_client(
     assert all(str(new_path) == str(adapter) for _, adapter in calls), calls
 
 
+# ---------------------------------------------------------------------------
+# Phase 2 — pluggable scorer (LLM-judge path)
+# ---------------------------------------------------------------------------
+
+
+def test_full_gate_with_judge_scorer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """--scorer-module wires a mocked LLM-judge scorer through the full gate.
+
+    Parallel deltas give a low angle, but the mocked judge returns a score
+    of 1.0 per prompt → winrate = 1.0, drop <= 0.03 → gate passes via
+    AND-logic. This verifies the judge-based scorer propagates through to
+    ``gate_status`` (i.e. the pluggable scorer replaces containment).
+    """
+    import types
+
+    mod = _load_script_module()
+
+    # Parallel deltas → low angle.
+    b1 = torch.tensor([[1.0], [0.0]])
+    a1 = torch.tensor([[1.0, 0.0]])
+    b2 = torch.tensor([[1.001], [0.0005]])
+    a2 = torch.tensor([[1.0005, 0.0002]])
+
+    prior_path = tmp_path / "prior.safetensors"
+    new_path = tmp_path / "new.safetensors"
+    _write_adapter(prior_path, b1, a1)
+    _write_adapter(new_path, b2, a2)
+
+    # Reference is deliberately absent from the response — containment would
+    # return 0.0 and fail. The judge scorer returns 1.0, so the gate should
+    # pass, proving the scorer is actually being used.
+    eval_path = tmp_path / "eval.jsonl"
+    _write_eval_dataset(
+        eval_path,
+        [
+            {"prompt": "p1", "reference": "EXPECTED_MARKER_A"},
+            {"prompt": "p2", "reference": "EXPECTED_MARKER_B"},
+        ],
+    )
+
+    def fake_generate(prompt, adapter):  # noqa: ARG001
+        return "response without the marker"
+
+    gen_locator = _patch_generate_fn(monkeypatch, fake_generate)
+
+    # Install a JudgeScorer-style async callable under a module locator.
+    judge_calls: list[tuple[str, str, str]] = []
+
+    async def fake_judge_scorer(prompt, reference, response):
+        judge_calls.append((prompt, reference, response))
+        return 1.0
+
+    scorer_mod_name = "tests_mock_scorer_module"
+    scorer_mod = types.ModuleType(scorer_mod_name)
+    scorer_mod.scorer = fake_judge_scorer  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, scorer_mod_name, scorer_mod)
+
+    out_path = tmp_path / "report.json"
+    rc = mod.main(
+        [
+            "--prior-adapter",
+            str(prior_path),
+            "--new-adapter",
+            str(new_path),
+            "--eval-dataset",
+            str(eval_path),
+            "--generate-fn-module",
+            gen_locator,
+            "--winrate-baseline-score",
+            "0.99",
+            "--scorer-module",
+            f"{scorer_mod_name}:scorer",
+            "--output",
+            str(out_path),
+        ]
+    )
+    assert rc == 0, "judge-scored winrate=1.0 should pass the gate"
+    report = json.loads(out_path.read_text())
+
+    # Judge-based winrate = 1.0 even though containment would have been 0.
+    assert report["winrate_measured"] == 1.0, report
+    assert report["gate_status"] == "pass"
+    assert report["angle_degrees_mean"] < 30.0
+    # Judge was called once per prompt, with the right shape.
+    assert len(judge_calls) == 2, judge_calls
+    for prompt, reference, response in judge_calls:
+        assert prompt in {"p1", "p2"}
+        assert reference.startswith("EXPECTED_MARKER_")
+        assert response == "response without the marker"
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))

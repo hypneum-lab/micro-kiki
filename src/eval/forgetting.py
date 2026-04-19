@@ -16,7 +16,9 @@ src.ralph.forgetting_auto.ForgettingChecker.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import importlib
+import inspect
 import json
 import logging
 import math
@@ -26,7 +28,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, NamedTuple
 
 if TYPE_CHECKING:
     import torch
@@ -662,17 +664,43 @@ def _resolve_generate_fn(module_path: str) -> Callable[..., str]:
         ) from exc
 
 
+def _call_scorer(
+    scorer: Callable[[str, str, str], Awaitable[float] | float] | None,
+    prompt: str,
+    reference: str,
+    response: str,
+) -> float:
+    """Dispatch a scorer that may be sync or async.
+
+    If ``scorer`` is ``None``, falls back to the sync containment heuristic.
+    Async scorers are driven via ``asyncio.run`` (one event loop per call).
+    The gate path is sync, so async scorers pay an event-loop setup cost
+    per prompt — acceptable for eval-time, not hot inference.
+    """
+    if scorer is None:
+        return _containment_score(response, reference)
+
+    result = scorer(prompt, reference, response)
+    if inspect.isawaitable(result):
+        return float(asyncio.run(result))  # type: ignore[arg-type]
+    return float(result)
+
+
 def _compute_winrate(
     dataset: list[dict[str, str]],
     generate_fn: Callable[..., str],
     adapter_path: Path,
     threshold: float = 0.5,
+    scorer: Callable[[str, str, str], Awaitable[float] | float] | None = None,
 ) -> float:
     """Run ``generate_fn`` over prompts and compute the fraction passing threshold.
 
     For each entry, we call ``generate_fn(prompt=..., adapter=adapter_path)``
-    and score containment of ``reference`` in the response. The win-rate is
-    the fraction of prompts with score ≥ ``threshold``.
+    and score the response via ``scorer(prompt, reference, response)``. When
+    ``scorer`` is ``None`` (default), the legacy token-containment heuristic
+    is used (backward-compatible).
+
+    The win-rate is the fraction of prompts with score ≥ ``threshold``.
 
     If ``generate_fn`` does not accept an ``adapter`` keyword, it is called
     positionally with the prompt alone (useful for mocked closures in tests).
@@ -689,7 +717,7 @@ def _compute_winrate(
         except TypeError:
             # Mock closures that only take the prompt.
             output = generate_fn(prompt)
-        score = _containment_score(output, reference)
+        score = _call_scorer(scorer, prompt, reference, output)
         if score >= threshold:
             wins += 1
     return wins / len(dataset)
@@ -710,6 +738,7 @@ def measure_forgetting_signal(
     angle_threshold: float = ANGLE_THRESHOLD,
     winrate_drop_threshold: float = WINRATE_DROP_THRESHOLD,
     winrate_score_threshold: float = 0.5,
+    scorer: Callable[[str, str, str], Awaitable[float] | float] | None = None,
 ) -> dict[str, Any]:
     """Compute forgetting signal (angle + optional win-rate) between two adapters.
 
@@ -731,6 +760,11 @@ def measure_forgetting_signal(
             regression.
         winrate_score_threshold: Per-prompt score cutoff used when counting
             wins (passed through to ``_compute_winrate``).
+        scorer: Optional callable ``fn(prompt, reference, response) -> float``
+            (sync or async) returning a ``[0, 1]`` quality score. When
+            ``None`` (default), the legacy containment heuristic is used —
+            preserving backward compatibility. See :mod:`src.eval.scorers`
+            for built-ins (:func:`containment_score`, :class:`JudgeScorer`).
 
     Returns:
         Dict with the JSON-ready fields:
@@ -828,6 +862,7 @@ def measure_forgetting_signal(
         generate_fn=gen_callable,
         adapter_path=Path(new_adapter_path),
         threshold=winrate_score_threshold,
+        scorer=scorer,
     )
     baseline = float(winrate_baseline)
     drop = baseline - measured
