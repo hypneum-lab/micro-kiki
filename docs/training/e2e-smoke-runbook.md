@@ -106,3 +106,33 @@ post-training action.
 - `src/serving/mlx_client.py` — the MLX server client.
 - `docs/training/forgetting-gate.md` — the canonical gate doc.
 - `.omc/brainstorm-oplora.md` — original design doc.
+
+
+## Empirical finding (2026-04-20) — mlx_lm.server has no per-request adapter swap
+
+A smoke test against `studio:8000` (Qwen3.6-35B-A3B) and `studio:8001`
+(Qwen3-Coder-480B-A35B-Instruct-MLX-4bit) confirmed:
+
+- `mlx_lm.server` 0.31.2 **silently ignores** a top-level `adapter` field in
+  `/v1/chat/completions` POST bodies. The same request with and without an
+  adapter path produces identical outputs.
+- There is **no** `/v1/load_adapter` or `/v1/adapters` endpoint.
+- Adapters are bound at server startup via `--adapter-path`.
+- The `mlx_lm_fork` at `~/KIKI-Mac_tunner/lib/mlx_lm_fork` is **training-only**
+  (no `server.py`); it does not solve this limitation.
+
+Implication for our `src/serving/mlx_client.py`:
+
+- The `adapter` kwarg is forwarded in the request body but has **no effect**
+  on the served output.
+- For true per-adapter inference during forgetting gate eval, two mlx servers
+  must run simultaneously on different ports, each started with its own
+  `--adapter-path`. Memory budget: 2 x ~70 GB for Qwen3.6-35B-A3B, easily
+  fitting the 512 GB of a Mac Studio M3 Ultra.
+
+Follow-up (optional, not urgent):
+
+- Update `mlx_client.py` to accept a `host` parameter and drop the unused
+  `adapter` payload, then wire `measure_forgetting.py` to call two hosts
+  (one per adapter) for the win-rate eval.
+- Or submit a PR to `mlx-examples` upstream adding `/v1/load_adapter`.
