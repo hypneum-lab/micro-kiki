@@ -82,7 +82,7 @@ def _load_model(model_path: str, adapter_path: str | None = None):
     """Load model (and optionally adapter) via mlx_lm."""
     from mlx_lm import load
 
-    kwargs = {"model_path": model_path}
+    kwargs = {"path_or_hf_repo": model_path}
     if adapter_path:
         kwargs["adapter_path"] = adapter_path
     model, tokenizer = load(**kwargs)
