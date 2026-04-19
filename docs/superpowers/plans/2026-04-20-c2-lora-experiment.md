@@ -1,5 +1,7 @@
 # C2-LoRA Experiment Implementation Plan
 
+> **STATUS 2026-04-20: BLOCKED at Task 3.** Adapter collection on Studio has heterogeneous rank/alpha/iters and is trained on Qwen3.5-35B-A3B (not 3.6). Single-shell adapter-swap approach cannot work without uniform retraining. See `docs/paper-a/c2-lora-blocked.md` for full diagnosis. Tasks 1-2 remain committed (server + tests) for future resumption after uniform retraining.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rerun the C2 downstream eval using real Qwen3.6-35B-A3B LoRA adapters (already trained on Studio, 10 MLX stacks in `~/micro-kiki/outputs/stacks/stack-<domain>/`) instead of system-prompt pseudo-adapters, and test whether weight-level specialisation eliminates the persona-refusal pathology identified in the diagnostic.
