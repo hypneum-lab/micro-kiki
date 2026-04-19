@@ -31,70 +31,80 @@
       "title": "Train niche stack: kicad-dsl",
       "description": "Train LoRA stack for domain `kicad-dsl` using merged dataset from story-2. Config: rank 16, alpha 32, q/k/v/o projections, 3-phase curriculum (seq 512→1280→4096), LR 8e-6→5e-6→3e-6, OPLoRA init. Run forgetting check after training; rollback if angle < 30° AND win-rate drop > 0.03. Output adapter to `outputs/stacks/stack-01-kicad-dsl/`. Acceptance: training completes, eval BLEU/exact-match reported, forgetting check pass.",
       "priority": 4,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-5",
       "title": "Train niche stack: spice",
       "description": "Train LoRA stack for domain `spice` using merged dataset from story-2. Same config as story-4 (rank 16, OPLoRA). Run forgetting check. Output adapter to `outputs/stacks/stack-02-spice/`. Acceptance: training completes, eval reported, forgetting check pass.",
       "priority": 5,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-6",
       "title": "Train niche stack: emc",
       "description": "Train LoRA stack for domain `emc` using merged dataset from story-2. Same config as story-4 (rank 16, OPLoRA). Run forgetting check. Output adapter to `outputs/stacks/stack-03-emc/`. Acceptance: training completes, eval reported, forgetting check pass.",
       "priority": 6,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-7",
       "title": "Train niche stack: stm32",
       "description": "Train LoRA stack for domain `stm32` using merged dataset from story-2. Rank 16, OPLoRA. stm32 is marginal (~2,723 examples) — apply early stopping with patience 3. Run forgetting check. Output adapter to `outputs/stacks/stack-04-stm32/`. Acceptance: training completes, early stopping triggered or not noted, eval reported, forgetting check pass.",
       "priority": 7,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-8",
       "title": "Train niche stack: embedded",
       "description": "Train LoRA stack for domain `embedded` using merged dataset from story-2 (~13,826 examples — strongest case). Rank 16, OPLoRA. Run forgetting check. Output adapter to `outputs/stacks/stack-05-embedded/`. Acceptance: training completes, eval reported, forgetting check pass.",
       "priority": 8,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-9",
       "title": "Train niche stack: freecad",
       "description": "Train LoRA stack for domain `freecad` using merged + teacher-augmented dataset (target ≥ 1,500 examples). Use rank 8 (high params/example ratio). OPLoRA init. Run forgetting check. Output adapter to `outputs/stacks/stack-06-freecad/`. Acceptance: training completes, augmentation count documented, eval reported, forgetting check pass.",
       "priority": 9,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-10",
       "title": "Train niche stack: platformio",
       "description": "Train LoRA stack for domain `platformio` using merged + teacher-augmented dataset (target ≥ 1,500 examples). Use rank 8. OPLoRA init. Run forgetting check. Output adapter to `outputs/stacks/stack-07-platformio/`. Acceptance: training completes, augmentation count documented, eval reported, forgetting check pass.",
       "priority": 10,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-11",
       "title": "Train niche stack: power",
       "description": "Train LoRA stack for domain `power` using merged dataset from story-2. Rank 16, OPLoRA. Run forgetting check. Output adapter to `outputs/stacks/stack-08-power/`. Acceptance: training completes, eval reported, forgetting check pass.",
       "priority": 11,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-12",
       "title": "Train niche stack: dsp",
       "description": "Train LoRA stack for domain `dsp` using merged dataset from story-2. Rank 16, OPLoRA. Run forgetting check. Output adapter to `outputs/stacks/stack-09-dsp/`. Acceptance: training completes, eval reported, forgetting check pass.",
       "priority": 12,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-13",
       "title": "Train niche stack: electronics",
       "description": "Train LoRA stack for domain `electronics` using merged dataset from story-2 (~1,900 examples — high overfitting risk). Use rank 8 to halve trainable params. Early stopping patience 3. Run forgetting check. Output adapter to `outputs/stacks/stack-10-electronics/`. Acceptance: training completes, overfitting status noted, eval reported, forgetting check pass.",
       "priority": 13,
-      "passes": false
+      "passes": true,
+      "status": "done"
     },
     {
       "id": "story-14",
