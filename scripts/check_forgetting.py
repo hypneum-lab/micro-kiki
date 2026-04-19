@@ -241,7 +241,7 @@ def check_domain(
 
     # Free memory
     del model, tokenizer
-    mx.clear_memory_cache()
+    mx.metal.clear_cache()
 
     # Aggregate
     if prompt_results:
@@ -356,7 +356,7 @@ def main(argv: list[str] | None = None) -> int:
             resp = _generate(model, tokenizer, prompt)
             base_responses.append(resp)
         del model, tokenizer
-        mx.clear_memory_cache()
+        mx.metal.clear_cache()
 
         results["base_responses"] = base_responses
         save_results(results)

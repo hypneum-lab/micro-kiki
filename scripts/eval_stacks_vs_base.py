@@ -311,7 +311,7 @@ def eval_domain(
         resp = _generate(model, tokenizer, prompt)
         base_responses.append(resp)
     del model, tokenizer
-    mx.clear_memory_cache()
+    mx.metal.clear_cache()
 
     # Generate adapted responses
     logger.info("[%s] Generating adapted responses...", domain)
@@ -322,7 +322,7 @@ def eval_domain(
         resp = _generate(model, tokenizer, prompt)
         adapted_responses.append(resp)
     del model, tokenizer
-    mx.clear_memory_cache()
+    mx.metal.clear_cache()
 
     # Score each prompt
     prompt_results = []
