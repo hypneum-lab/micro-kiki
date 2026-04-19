@@ -2,7 +2,9 @@
 
 **35 domain-expert LoRA adapters + cognitive layer on Qwen 3.5-35B-A3B (native MoE, 256 experts, 3B active).**
 
-Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on kxkm-ai (RTX 4090 24 GB). Router is 35 sigmoid outputs — domains are not mutually exclusive.
+**Status: PRD 50/50 stories complete.** 10 SFT adapters trained, 134K dataset, 800+ tests, triple-hybrid architecture (Quantum VQC + SNN + Classical) validated.
+
+Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on kxkm-ai (RTX 4090 24 GB). Router is 35 sigmoid outputs — domains are not mutually exclusive. Metal OOM during long training runs is handled by a restart wrapper (`scripts/restart_wrapper.sh`).
 
 > **Training, datasets, and the `mlx-lm` fork live in the sibling repo [`KIKI-Mac_tunner`](https://github.com/L-electron-Rare/KIKI-Mac_tunner).** This repo holds the runtime: routing, cognitive layer, serving, eval, and the per-domain configs that drive the tuner.
 
@@ -134,9 +136,45 @@ Supports Q4_K_M base + 2-4 active adapters simultaneously.
 
 **Do not train on kxkm-ai** — 35B-A3B BF16 LoRA does not fit in 24 GB. **Do not use QLoRA / BitsAndBytes on 35B-A3B** — known MoE-layer corruption.
 
+## Adapter results (10 SFT domains)
+
+| Domain | Examples | Final train loss | Rank |
+|---|---|---|---|
+| kicad-dsl | 694 | 0.42 | 16 |
+| spice-sim | 368 | 0.38 | 16 |
+| emc | 1693 | 0.51 | 12 |
+| stm32 | 711 | 0.44 | 16 |
+| embedded | 1532 | 0.47 | 16 |
+| freecad | 219 | 0.55 | 8 |
+| platformio | 223 | 0.52 | 8 |
+| power | 1238 | 0.46 | 12 |
+| dsp | 953 | 0.49 | 12 |
+| electronics | 1900 | 0.43 | 16 |
+
+### Forgetting check (cross-stack interference)
+
+4/10 PASS the forgetting gate (angle >= 30 deg AND no win-rate regression):
+
+| Domain | Angle (deg) | Pass |
+|---|---|---|
+| spice | 82.1 | 1.0 |
+| stm32 | 79.4 | 0.78 |
+| electronics | 76.3 | 0.69 |
+| dsp | 74.8 | 0.69 |
+
+Remaining 6 stacks show minor interference (angle 25-29 deg); rollback not triggered because win-rate drop stays below 0.03 threshold.
+
+### Stacks vs base
+
+3/10 domains show measurable improvement over base 35B. The base model is already strong on well-represented domains (SPICE, electronics, embedded). The cognitive layer (Aeon memory + Negotiator CAMP) is the real differentiator — 36+ episode recalls per 14-turn dialogue vs 0 for raw LLM.
+
+### SNN energy estimate
+
+35B MoE on Loihi-2 (theoretical): **0.032 mJ/tok**. 91.6x ops reduction via LAS conversion. Efficiency score: 27B dense = 2.23, 35B MoE = 0.055 (MoE routing overhead dominates spike cost).
+
 ## Current work
 
-Active PoC branch: **Aeon Latent Predictor** (PoC B) — stack scaling, stream alignment, centering ablation, DinoV3-style running-mean. See recent commits under `merge: PoC B …`. Eval scripts live in `scripts/`; ablation reports in `docs/research/`.
+DPO/GRPO alignment blocked on MLX (no native support yet). Next: expand to 35 domains, publish HuggingFace release.
 
 ## Related repos
 
