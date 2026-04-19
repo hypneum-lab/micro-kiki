@@ -281,15 +281,22 @@ class MicroKikiPipelineV2(MicroKikiPipeline):
         # ------------------------------------------------------------------
         self.quantum_router = None
         try:
-            from src.routing.quantum_router import QuantumRouter
-            self.quantum_router = QuantumRouter()
-            # Load trained weights if available
-            weights_path = _REPO_ROOT / "outputs" / "vqc-weights.npz"
-            if weights_path.exists():
-                self.quantum_router.load(weights_path)
-                logger.info("[V2] QuantumRouter loaded with trained weights")
+            from src.routing.quantum_router import QuantumRouter, QuantumRouterConfig
+            # Try 8-qubit weights first, fallback to 4-qubit
+            weights_8q = _REPO_ROOT / "outputs" / "vqc-8q-weights.npz"
+            weights_4q = _REPO_ROOT / "outputs" / "vqc-weights.npz"
+            if weights_8q.exists():
+                config = QuantumRouterConfig(n_qubits=8, n_layers=6)
+                self.quantum_router = QuantumRouter(config)
+                self.quantum_router.load(weights_8q)
+                logger.info("[V2] QuantumRouter 8-qubit loaded")
+            elif weights_4q.exists():
+                self.quantum_router = QuantumRouter()
+                self.quantum_router.load(weights_4q)
+                logger.info("[V2] QuantumRouter 4-qubit loaded")
             else:
-                logger.info("[V2] QuantumRouter loaded (untrained — run train_vqc_router.py)")
+                self.quantum_router = QuantumRouter()
+                logger.info("[V2] QuantumRouter (untrained)")
         except ImportError as exc:
             logger.warning("[V2] QuantumRouter disabled: %s", exc)
 
