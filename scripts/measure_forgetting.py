@@ -15,7 +15,7 @@ Full gate (phase 1b):
     python scripts/measure_forgetting.py \\
         --prior-adapter ... --new-adapter ... \\
         --eval-dataset data/eval/<stack>.jsonl \\
-        --generate-fn-module src.serving.vllm_client:generate \\
+        --generate-fn-module src.serving.mlx_client:generate \\
         --winrate-baseline-score 0.82 \\
         [--output results/forgetting-<stack>.json]
 
@@ -81,7 +81,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help=(
             "Python path to generation callable, e.g. "
-            "'src.serving.vllm_client:generate' (phase 1b)."
+            "'src.serving.mlx_client:generate' (phase 1b)."
         ),
     )
     parser.add_argument(

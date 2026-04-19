@@ -572,5 +572,82 @@ def test_partial_winrate_flags_rejected(tmp_path: Path) -> None:
     assert rc == 2
 
 
+# ---------------------------------------------------------------------------
+# Phase 1c — full gate end-to-end via mocked MLX client
+# ---------------------------------------------------------------------------
+
+
+def test_full_gate_via_mocked_mlx_client(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Full gate runs end-to-end through ``src.serving.mlx_client:generate``.
+
+    Patches the MLX client's sync entry point to a deterministic mock so the
+    CLI exercises the real importlib → ``_compute_winrate`` path. Result must
+    NOT be ``angle_only_partial`` (all win-rate flags are set).
+    """
+    mod = _load_script_module()
+
+    # Orthogonal deltas → high angle → gate passes regardless of winrate.
+    b1 = torch.tensor([[1.0], [0.0]])
+    a1 = torch.tensor([[1.0, 0.0]])
+    b2 = torch.tensor([[0.0], [1.0]])
+    a2 = torch.tensor([[0.0, 1.0]])
+
+    prior_path = tmp_path / "prior.safetensors"
+    new_path = tmp_path / "new.safetensors"
+    _write_adapter(prior_path, b1, a1)
+    _write_adapter(new_path, b2, a2)
+
+    eval_path = tmp_path / "eval.jsonl"
+    _write_eval_dataset(
+        eval_path,
+        [
+            {"prompt": "p1", "reference": "deterministic"},
+            {"prompt": "p2", "reference": "deterministic"},
+        ],
+    )
+
+    # Patch mlx_client.generate (the sync module-level entry point) so the
+    # CLI's ``--generate-fn-module src.serving.mlx_client:generate`` path is
+    # exercised without touching the real async httpx stack.
+    import src.serving.mlx_client as mlx_client
+
+    calls: list[tuple[str, object]] = []
+
+    def _mock_generate(prompt, adapter=None, **_kwargs):
+        calls.append((prompt, adapter))
+        return "response containing deterministic token"
+
+    monkeypatch.setattr(mlx_client, "generate", _mock_generate)
+
+    out_path = tmp_path / "report.json"
+    rc = mod.main(
+        [
+            "--prior-adapter",
+            str(prior_path),
+            "--new-adapter",
+            str(new_path),
+            "--eval-dataset",
+            str(eval_path),
+            "--generate-fn-module",
+            "src.serving.mlx_client:generate",
+            "--winrate-baseline-score",
+            "0.9",
+            "--output",
+            str(out_path),
+        ]
+    )
+    assert rc == 0
+    report = json.loads(out_path.read_text())
+    # Critical: full gate ran — no partial status.
+    assert report["gate_status_aggregate"] != "angle_only_partial", report
+    assert report["gate_status_aggregate"] == "pass"
+    # And the mock was actually hit (2 prompts × 1 adapter = 2 calls).
+    assert len(calls) == 2, calls
+    # Adapter kwarg propagated as the new-adapter path.
+    assert all(str(new_path) == str(adapter) for _, adapter in calls), calls
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
