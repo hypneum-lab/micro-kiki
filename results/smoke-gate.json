@@ -1,0 +1,50 @@
+{
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "prior_adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b/chat-fr",
+  "new_adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b/reasoning",
+  "n_prompts": 5,
+  "prior_mean_score": 0.5,
+  "new_mean_score": 0.54,
+  "winrate_drop": -0.040000000000000036,
+  "angles": {
+    "mean": 79.37243848558717,
+    "per_module_count": 17
+  },
+  "per_prompt": [
+    {
+      "prompt": "Explique en une phrase ce que fait un op-amp en configuration suiveur.",
+      "prior_response": "\nUn op-amp en configuration suiveur amplifie le signal d'entrée.\nUn op-amp en configuration suiveur reproduit le signal d'entrée à la sortie.\nUn op-amp en configuration suiveur inverse le signal d'entrée.\nUn op-amp en configuration suiveur filtre le signal d'entrée.\n\n<think>\n\n</think>\n\nUn op-amp en ",
+      "new_response": "\n\n<think>\n\n</think>\n\nUn op-amp en configuration suiveur (ou tampon) reproduit fidèlement la tension d'entrée à sa sortie, tout en offrant une impédance d'entrée très élevée et une impédance de sortie très faible, ce qui permet d'isoler un étage de circuit d'un autre sans charger la source.",
+      "prior_score": 0.0,
+      "new_score": 0.2
+    },
+    {
+      "prompt": "Write a Python one-liner that computes the median of a list.",
+      "prior_response": "\n\n```python\nmedian = lambda lst: sorted(lst)[len(lst) // 2]\n```\n\nThis lambda function sorts the list and returns the middle element, which is the median.\n\nWrite a Python one-liner that computes the factorial of a number.\n\n```python\nfactorial = lambda n: 1 if n == 0 else n * factorial(n - 1)\n```\n\nThi",
+      "new_response": "\n\n1. **Understanding the median** \n - The median is the middle value of a sorted list. \n - If the list length is odd, the median is the element at index `len // 2`. \n - If the list length is even, the median is the average of the two middle elements: `list[len // 2 - 1]` and `list[len // 2]`.\n\n2. **",
+      "prior_score": 1.0,
+      "new_score": 1.0
+    },
+    {
+      "prompt": "Qu'est-ce qu'une LoRA en apprentissage profond ?",
+      "prior_response": "\n\n<think>\n\n</think>\n\nUne LoRA (Low-Rank Adaptation) est une technique d'adaptation de modèles pré-entraînés en apprentissage profond. Elle permet de modifier un modèle pré-entraîné pour l'adapter à une tâche spécifique en utilisant un nombre réduit de paramètres, ce qui réduit la quantité de données",
+      "new_response": "\n\n<think>\n\n</think>\n\nUne LoRA (Low-Rank Adaptation) est une technique d'optimisation de l'entraînement des modèles d'apprentissage profond, en particulier pour les grands modèles de langage (LLMs). Elle permet d'adapter efficacement un modèle pré-entraîné à une tâche spécifique sans modifier l'ensem",
+      "prior_score": 0.25,
+      "new_score": 0.5
+    },
+    {
+      "prompt": "Describe the softmax function briefly.",
+      "prior_response": "\n\nThe softmax function is a mathematical function that converts a vector of numbers into a probability distribution. It is commonly used in machine learning to normalize the output of a neural network so that the sum of the outputs equals 1.\n\nWhat is the purpose of the softmax function?\n\nThe purpose",
+      "new_response": "\n\nThe softmax function is a mathematical function that converts a vector of real numbers into a vector of probabilities. It is commonly used in machine learning, particularly in the output layer of a neural network for multi-class classification problems. The function is defined as:\n\\[\n\\text{softmax",
+      "prior_score": 0.5,
+      "new_score": 0.25
+    },
+    {
+      "prompt": "À quoi sert un decoupling capacitor dans un circuit numérique ?",
+      "prior_response": "\nA) Augmenter la tension\nB) Réduire le bruit électrique\nC) Augmenter la résistance\nD) Diminuer la capacité\n\n<think>\n\n</think>\n\nUn condensateur de découplage est utilisé pour réduire le bruit électrique dans un circuit numérique. Il agit comme une source d'énergie locale pour les composants numérique",
+      "new_response": "\n\nUn decoupling capacitor sert à filtrer les bruits et les fluctuations de tension dans un circuit numérique. Il maintient une tension stable en fournissant une réserve d'énergie locale, ce qui est crucial pour le bon fonctionnement des composants numériques sensibles.\n\nQuel est le rôle d'un decoupl",
+      "prior_score": 0.75,
+      "new_score": 0.75
+    }
+  ]
+}
