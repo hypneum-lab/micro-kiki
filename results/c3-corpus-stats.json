@@ -1,0 +1,42 @@
+{
+  "stage1_raw": 1000,
+  "stage1_sanitized": 1000,
+  "stage2_noise_points": 0,
+  "stage2_cluster_taxonomy_overlap": 0.4102564102564103,
+  "stage3_per_domain_real": {
+    "dsp": 100,
+    "embedded": 100,
+    "emc": 100,
+    "freecad": 100,
+    "electronics": 100,
+    "kicad-dsl": 100,
+    "platformio": 100,
+    "power": 100,
+    "spice": 100,
+    "stm32": 100
+  },
+  "stage3_per_domain_augmented": {
+    "dsp": 0,
+    "electronics": 0,
+    "emc": 0,
+    "embedded": 0,
+    "freecad": 0,
+    "kicad-dsl": 0,
+    "platformio": 0,
+    "power": 0,
+    "spice": 0,
+    "stm32": 0
+  },
+  "stage3_per_domain_final": {
+    "dsp": 50,
+    "electronics": 50,
+    "emc": 50,
+    "embedded": 50,
+    "freecad": 50,
+    "kicad-dsl": 50,
+    "platformio": 50,
+    "power": 50,
+    "spice": 50,
+    "stm32": 50
+  }
+}

@@ -207,6 +207,7 @@ __marimo__/
 # Project-specific — heavy data excluded, seed prompts tracked
 data/*
 !data/prompts/
+!data/corpus-real/
 models/
 *.gguf
 *.safetensors
