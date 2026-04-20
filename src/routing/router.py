@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 # ---------------------------------------------------------------------------
@@ -70,6 +71,45 @@ except ImportError:  # pragma: no cover
     _NNModule = object  # type: ignore[misc,assignment]
 
 
+# ---------------------------------------------------------------------------
+# Optional NerveWmlAdvisor — env-gated lazy import + singleton
+# ---------------------------------------------------------------------------
+#
+# Contract (tests/routing/test_router_nerve_wml.py):
+# - Default (NERVE_WML_ENABLED != "1"): no import attempt, no perf cost,
+#   forward() is byte-identical to the pre-advisor baseline.
+# - If NERVE_WML_ENABLED=1 but nerve-wml is not installed: advisor resolves
+#   to None, forward() still returns vanilla sigmoid logits (never-raise).
+# - With an advisor returning a dict {domain_idx: logit}, forward() blends
+#   the advice into the domain slice of the raw logits PRE-sigmoid, using
+#   alpha from NERVE_WML_ALPHA (default 0.5):
+#       raw[..., :num_domains] = (1-alpha) * raw + alpha * advice_tensor
+# - If query_tokens is None, the advisor is never called (common path for
+#   training batches without query strings).
+
+_ADVISOR_SINGLETON: object | None = None
+_ADVISOR_IMPORT_TRIED: bool = False
+
+
+def _get_nerve_wml_advisor() -> object | None:
+    """Lazy import + memoize the nerve-wml advisor; never raises."""
+    global _ADVISOR_SINGLETON, _ADVISOR_IMPORT_TRIED
+    if _ADVISOR_SINGLETON is not None:
+        return _ADVISOR_SINGLETON
+    if _ADVISOR_IMPORT_TRIED:
+        return None
+    _ADVISOR_IMPORT_TRIED = True
+    try:
+        from nerve_wml.bridge.kiki_nerve_advisor import (  # noqa: PLC0415
+            KikiNerveAdvisor,
+        )
+
+        _ADVISOR_SINGLETON = KikiNerveAdvisor()
+    except Exception:  # noqa: BLE001
+        _ADVISOR_SINGLETON = None
+    return _ADVISOR_SINGLETON
+
+
 class MetaRouter(_NNModule):  # type: ignore[misc,valid-type]
     """Sigmoid meta-router with domain + capability outputs.
 
@@ -94,8 +134,32 @@ class MetaRouter(_NNModule):  # type: ignore[misc,valid-type]
         self.linear = nn.Linear(input_dim, total)  # type: ignore[name-defined]
         self.sigmoid = nn.Sigmoid()  # type: ignore[name-defined]
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[name-defined]
-        return self.sigmoid(self.linear(x))
+    def forward(
+        self,
+        x: torch.Tensor,  # type: ignore[name-defined]
+        query_tokens: list[int] | None = None,
+    ) -> torch.Tensor:  # type: ignore[name-defined]
+        raw = self.linear(x)
+        if query_tokens is not None and os.environ.get("NERVE_WML_ENABLED") == "1":
+            advisor = _get_nerve_wml_advisor()
+            if advisor is not None:
+                try:
+                    advice = advisor.advise(query_tokens)  # type: ignore[attr-defined]
+                    alpha = float(os.environ.get("NERVE_WML_ALPHA", "0.5"))
+                    advice_tensor = torch.zeros(
+                        self.num_domains, dtype=raw.dtype, device=raw.device
+                    )
+                    for idx, val in advice.items():
+                        if 0 <= int(idx) < self.num_domains:
+                            advice_tensor[int(idx)] = float(val)
+                    raw = raw.clone()
+                    raw[..., : self.num_domains] = (
+                        (1.0 - alpha) * raw[..., : self.num_domains]
+                        + alpha * advice_tensor
+                    )
+                except Exception:  # noqa: BLE001 — never-raise contract
+                    pass
+        return self.sigmoid(raw)
 
     def get_domains(self, output: torch.Tensor) -> torch.Tensor:  # type: ignore[name-defined]
         return output[:, : self.num_domains]
