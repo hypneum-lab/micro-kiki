@@ -231,7 +231,7 @@ Paper A has adopted LayerNorm(delta) as the stack-preserving anti-collapse mecha
 ---
 
 **Document metadata**
-Author: micro-kiki research team
+Author: Saillant, Clément (solo author)
 License: CC BY 4.0 (text), Apache 2.0 (companion code)
 Version: v1.0 (2026-04-19)
 Companion paper: Paper A (in preparation)

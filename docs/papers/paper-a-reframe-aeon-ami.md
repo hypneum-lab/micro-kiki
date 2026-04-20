@@ -170,6 +170,6 @@ Five decisions needed before drafting begins in earnest :
 ---
 
 **Document metadata**  
-Author: micro-kiki research team  
+Author: Saillant, Clément (solo author)  
 Review status: awaiting author sign-off on §10 open decisions  
 Next step: once §10 is resolved, begin drafting §1 of the actual paper
