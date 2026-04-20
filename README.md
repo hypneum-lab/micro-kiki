@@ -8,7 +8,7 @@ Deployable artefact of the *dreamOfkiki* research program, part of
 
 **Status: PRD 50/50 stories complete.** 10 SFT adapters trained, 134K dataset, 800+ tests, triple-hybrid architecture (Quantum VQC + SNN + Classical) validated. Post-pivot adapters (35/35) pass the adapter-health validator; pre-pivot MoE-LoRA adapters (stacks-v3-r16) were archived as dead weights after an `lora_B = 0` audit — see `docs/research/2026-04-19-prepivot-moe-lora-audit.md`.
 
-Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on kxkm-ai (RTX 4090 24 GB). Router is 35 sigmoid outputs — domains are not mutually exclusive. Metal OOM during long training runs is handled by a restart wrapper (`scripts/restart_wrapper.sh`).
+Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on kxkm-ai (RTX 4090 24 GB). Router is 35 sigmoid outputs — domains are not mutually exclusive. Metal OOM on M3 Ultra is prevented by raising the MLX cache limit: `mx.set_memory_limit(460 * 1024**3)` + `mx.set_cache_limit(32 * 1024**3)` before training (see `CLAUDE.md` hard invariants). Default `set_cache_limit` is too small and triggers GPU Hang on long runs.
 
 > **Training, datasets, and the `mlx-lm` fork live in the sibling repo [`KIKI-Mac_tunner`](https://github.com/L-electron-Rare/KIKI-Mac_tunner).** This repo holds the runtime: routing, cognitive layer, serving, eval, and the per-domain configs that drive the tuner.
 
