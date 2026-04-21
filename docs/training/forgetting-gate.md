@@ -417,6 +417,47 @@ environment variables (defaults `http://studio:8000` and
 - `angle_degrees_mean` / `angle_degrees_per_module` — unchanged
   from the angle-only output.
 
+## Consolidation (experimental)
+
+`scripts/post_train_gate.py` accepts a `--consolidate-on-warning` flag that
+redirects a failing forgetting gate through the
+[dream-of-kiki](https://github.com/hypneum-lab/dream-of-kiki) framework's
+`MicroKikiSubstrate` instead of exiting 2. The flag is **off by default** —
+existing operator invocations are unchanged.
+
+```bash
+python scripts/post_train_gate.py \
+    --new-adapter   output/stacks/stack-04-rust/adapters.safetensors \
+    --prior-adapter output/stacks/stack-03-cpp/adapters.safetensors \
+    --consolidate-on-warning \
+    --substrate-snapshot results/substrate-stack-04.npz \
+    --real-backend-path  models/qwen3.6-35b-a3b-mlx-4bit
+```
+
+On a gate failure the script will:
+
+1. Lazily import `kiki_oniric.{dream.episode,dream.runtime,substrates.micro_kiki}`.
+   If the package is not installed, print a warning and fall back to exit 2
+   (the pre-existing rollback behaviour). This is the expected state on
+   `kxkm-ai`; `kiki_oniric` currently lives on Mac Studio.
+2. Construct a `MicroKikiSubstrate` (passing `--real-backend-path` through as
+   `base_model_path`), optionally loading a prior snapshot from
+   `--substrate-snapshot` if the file exists.
+3. Build a `DreamEpisode` (`trigger=SATURATION`, `operation_set=(REPLAY,
+   DOWNSCALE, RESTRUCTURE)`, `output_channels=(WEIGHT_DELTA,
+   ATTENTION_PRIOR)`, `budget=1 TFLOP / 5 min / 1 kJ`) carrying the gate's
+   per-module JSON report in `input_slice`.
+4. Register the substrate's `replay_handler_factory() /
+   downscale_handler_factory() / restructure_handler_factory()` with a
+   `DreamRuntime` and call `runtime.execute(episode)`.
+5. On success, write the updated substrate snapshot back to
+   `--substrate-snapshot` (if given) and exit 0.
+
+Any failure in the consolidation path itself (episode raises, snapshot I/O
+error, unexpected upstream API drift) falls back to exit 2. See
+`tests/test_post_train_gate_consolidate.py` for the ImportError-fallback
+contract.
+
 ## Reference
 
 Full protocol, alternatives considered, and roadmap:
