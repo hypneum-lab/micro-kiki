@@ -72,7 +72,10 @@ log = logging.getLogger("convert_35b")
 # ---------------------------------------------------------------------------
 
 
-def build_layer_map(num_layers: int = NUM_LAYERS) -> list[dict[str, Any]]:
+def build_layer_map(
+    num_layers: int = NUM_LAYERS,
+    num_experts: int = NUM_EXPERTS,
+) -> list[dict[str, Any]]:
     """Return the canonical layer map for Qwen3.5-35B-A3B.
 
     Each entry describes one logical conversion unit with its weight key
@@ -118,7 +121,7 @@ def build_layer_map(num_layers: int = NUM_LAYERS) -> list[dict[str, Any]]:
         )
 
         # MoE expert FFNs — relu activation (SwiGLU gate + up + down)
-        for expert_id in range(NUM_EXPERTS):
+        for expert_id in range(num_experts):
             for proj in ("gate_proj", "up_proj", "down_proj"):
                 entries.append(
                     {
@@ -353,10 +356,22 @@ def load_model_config(config_path: Path | None = None) -> dict[str, Any]:
     """Load the model config.json for architecture analysis.
 
     Falls back to hardcoded constants if no config file is available.
+
+    Supports both flat (Qwen3.5-style) and nested `text_config`
+    (Qwen3.6-style multimodal) config layouts. When a `text_config`
+    key is present, its fields are flattened into the top level so
+    downstream consumers keep working with the simple `hidden_size`,
+    `num_hidden_layers`, etc. keys.
     """
     path = config_path or CONFIG_PATH
     if path.exists():
-        return json.loads(path.read_text())
+        raw = json.loads(path.read_text())
+        # Qwen3.6 multimodal wraps the LM config under "text_config".
+        if "text_config" in raw and isinstance(raw["text_config"], dict):
+            merged = dict(raw)
+            merged.update(raw["text_config"])
+            return merged
+        return raw
     log.warning("config.json not found at %s, using hardcoded constants", path)
     return {
         "hidden_size": HIDDEN_DIM,
@@ -905,9 +920,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--config",
+        "--config-path",
+        dest="config",
         type=Path,
         default=CONFIG_PATH,
-        help="Path to model config.json for analysis mode.",
+        help=(
+            "Path to model config.json (default: bundled Qwen3.5 config). "
+            "Supports both flat and nested text_config layouts "
+            "(e.g. Qwen3.6-35B-A3B)."
+        ),
     )
     parser.add_argument(
         "--log-level",
@@ -953,7 +974,21 @@ def main(argv: list[str] | None = None) -> int:
         args.dry_run,
     )
 
-    layer_map = build_layer_map()
+    # If a config is provided (or the default exists), honour its
+    # layer/expert counts so dry-run reports match the target model.
+    cfg_num_layers = NUM_LAYERS
+    cfg_num_experts = NUM_EXPERTS
+    try:
+        cfg = load_model_config(args.config)
+        cfg_num_layers = int(cfg.get("num_hidden_layers", NUM_LAYERS))
+        cfg_num_experts = int(cfg.get("num_experts", NUM_EXPERTS))
+    except Exception as exc:  # pragma: no cover — analysis is best-effort
+        log.debug("could not read config %s: %s", args.config, exc)
+
+    layer_map = build_layer_map(
+        num_layers=cfg_num_layers,
+        num_experts=cfg_num_experts,
+    )
     map_stats = layer_map_stats(layer_map)
     log.info(
         "layer map: %d total (%s)",
