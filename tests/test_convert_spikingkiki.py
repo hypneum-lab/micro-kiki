@@ -241,6 +241,141 @@ class TestLayerMap:
 
 
 # ---------------------------------------------------------------------------
+# Qwen3.6 hybrid attention tests
+# ---------------------------------------------------------------------------
+
+
+class TestHybridAttention:
+    """Tests for Qwen3.6-style linear_attn / self_attn hybrid layer maps."""
+
+    @pytest.fixture(scope="class")
+    def mod(self):
+        return _import_script()
+
+    def test_build_layer_map_qwen36_hybrid(self, mod):
+        """Hybrid layer_types must emit linear_attn + passthrough entries
+        on linear layers and self_attn entries on full layers."""
+        # 4 layers: linear, full, linear, full
+        layer_types = [
+            "linear_attention",
+            "full_attention",
+            "linear_attention",
+            "full_attention",
+        ]
+        layer_map = mod.build_layer_map(
+            num_layers=4, num_experts=2, layer_types=layer_types,
+        )
+        # Layer 0: 5 linear_attn_proj + 4 passthrough + router + 2*3 experts
+        l0 = [e for e in layer_map if e["layer_id"] == 0]
+        kinds0 = [e["kind"] for e in l0]
+        assert kinds0.count("linear_attn_proj") == 5
+        assert kinds0.count("linear_attn_passthrough") == 4
+        assert kinds0.count("attn_proj") == 0  # no self_attn on linear layer
+        assert kinds0.count("moe_router") == 1
+        assert kinds0.count("moe_expert_ffn") == 2 * 3
+
+        # Layer 1 (full_attention): 4 self_attn proj, no linear_attn
+        l1 = [e for e in layer_map if e["layer_id"] == 1]
+        kinds1 = [e["kind"] for e in l1]
+        assert kinds1.count("attn_proj") == 4
+        assert kinds1.count("linear_attn_proj") == 0
+        assert kinds1.count("linear_attn_passthrough") == 0
+
+        # Check key_prefixes for linear layer 0 match expected module names
+        la_proj_keys = [
+            e["key_prefix"] for e in l0 if e["kind"] == "linear_attn_proj"
+        ]
+        assert all(".linear_attn." in k for k in la_proj_keys)
+        la_modules = {k.rsplit(".", 1)[-1] for k in la_proj_keys}
+        assert la_modules == set(mod.LINEAR_ATTN_PROJ_MODULES)
+
+        passthrough_keys = [
+            e["key_prefix"]
+            for e in l0
+            if e["kind"] == "linear_attn_passthrough"
+        ]
+        pt_tensors = {k.rsplit(".", 1)[-1] for k in passthrough_keys}
+        assert pt_tensors == set(mod.LINEAR_ATTN_PASSTHROUGH_TENSORS)
+
+        # Activations: projs=identity, passthroughs=passthrough,
+        # self_attn=identity, router=identity, experts=relu
+        for e in l0:
+            if e["kind"] == "linear_attn_proj":
+                assert e["activation"] == "identity"
+            elif e["kind"] == "linear_attn_passthrough":
+                assert e["activation"] == "passthrough"
+
+    def test_build_layer_map_qwen35_backward_compat(self, mod):
+        """Without layer_types, behaviour matches Qwen3.5 (only self_attn)."""
+        # Explicit None: no hybrid emitted.
+        layer_map = mod.build_layer_map(
+            num_layers=3, num_experts=2, layer_types=None,
+        )
+        kinds = {e["kind"] for e in layer_map}
+        assert "linear_attn_proj" not in kinds
+        assert "linear_attn_passthrough" not in kinds
+        assert "attn_proj" in kinds
+        # Each layer should still have exactly 4 self-attn projections
+        for layer_idx in range(3):
+            layer_entries = [
+                e for e in layer_map if e["layer_id"] == layer_idx
+            ]
+            attn = [e for e in layer_entries if e["kind"] == "attn_proj"]
+            assert len(attn) == 4
+
+    def test_dry_run_qwen36_totals(self, mod, tmp_path: Path):
+        """Dry-run on a Qwen3.6 fixture config produces expected totals."""
+        cfg = {
+            "architectures": ["Qwen3_5MoeForConditionalGeneration"],
+            "text_config": {
+                "hidden_size": 2048,
+                "num_hidden_layers": 40,
+                "num_attention_heads": 16,
+                "num_key_value_heads": 2,
+                "head_dim": 256,
+                "num_experts": 256,
+                "num_experts_per_tok": 8,
+                "moe_intermediate_size": 512,
+                "shared_expert_intermediate_size": 512,
+                "vocab_size": 248320,
+                "layer_types": (
+                    ["linear_attention"] * 3 + ["full_attention"]
+                ) * 10,
+            },
+        }
+        cfg_path = tmp_path / "config.json"
+        cfg_path.write_text(json.dumps(cfg))
+        results_out = tmp_path / "meta.json"
+        result = subprocess.run(
+            [
+                sys.executable, str(SCRIPT),
+                "--dry-run",
+                "--config", str(cfg_path),
+                "--results-out", str(results_out),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, (
+            f"dry-run failed: {result.stderr}"
+        )
+        data = json.loads(results_out.read_text())
+        stats = data["layer_map_stats"]
+        # 40 layers: 30 linear (3-in-4) + 10 full
+        # linear_attn_proj: 30 * 5 = 150
+        # linear_attn_passthrough: 30 * 4 = 120
+        # attn_proj: 10 * 4 = 40
+        # moe_router: 40
+        # moe_expert_ffn: 40 * 256 * 3 = 30720
+        assert stats["linear_attn_proj"] == 150, stats
+        assert stats["linear_attn_passthrough"] == 120, stats
+        assert stats["attn_proj"] == 40, stats
+        assert stats["moe_router"] == 40, stats
+        assert stats["moe_expert_ffn"] == 30720, stats
+        assert stats["total"] == 150 + 120 + 40 + 40 + 30720
+
+
+# ---------------------------------------------------------------------------
 # Resume logic tests
 # ---------------------------------------------------------------------------
 

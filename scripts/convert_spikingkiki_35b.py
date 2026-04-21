@@ -22,6 +22,13 @@ Architecture of Qwen3.5-35B-A3B per transformer block:
     up_proj + down_proj (SwiGLU pattern)
   - Total ~94 transformer blocks
 
+Architecture of Qwen3.6-35B-A3B (hybrid attention, 40 layers):
+  - full_attention layers (1-in-4): standard self_attn.{q,k,v,o}_proj
+  - linear_attention layers (the rest): GLA-style linear_attn with 5
+    projections (in_proj_a, in_proj_b, in_proj_qkv, in_proj_z, out_proj)
+    plus 4 non-linear tensors copied verbatim (A_log, conv1d, dt_bias,
+    norm). The 5 linear projections use activation="identity".
+
 Usage:
   uv run python scripts/convert_spikingkiki_35b.py \\
       --input  /path/to/Qwen3.5-35B-A3B \\
@@ -72,41 +79,130 @@ log = logging.getLogger("convert_35b")
 # ---------------------------------------------------------------------------
 
 
+# Qwen3.6 linear_attn structure — see docs/specs and config.layer_types.
+# Five modules are standard Linear → LAS-convertible with identity activation.
+# Four tensors are non-linear state (SSM gate, conv kernel, time bias, norm)
+# and are copied verbatim into the spiking output without LAS conversion.
+LINEAR_ATTN_PROJ_MODULES = (
+    "in_proj_a",
+    "in_proj_b",
+    "in_proj_qkv",
+    "in_proj_z",
+    "out_proj",
+)
+LINEAR_ATTN_PASSTHROUGH_TENSORS = (
+    "A_log",
+    "conv1d",
+    "dt_bias",
+    "norm",
+)
+
+
+def _is_linear_attention_type(layer_type: str | None) -> bool:
+    """Return True when the given config layer_type denotes GLA linear attention.
+
+    Accepts the Qwen3.6 spelling ``linear_attention`` and a handful of
+    common aliases so future configs don't need a script change.
+    """
+    if not layer_type:
+        return False
+    lt = layer_type.lower()
+    return lt in {
+        "linear_attention",
+        "linear_attn",
+        "gated_linear_attention",
+        "gla",
+    }
+
+
 def build_layer_map(
     num_layers: int = NUM_LAYERS,
     num_experts: int = NUM_EXPERTS,
+    layer_types: list[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Return the canonical layer map for Qwen3.5-35B-A3B.
+    """Return the canonical layer map for Qwen3.5 or Qwen3.6 35B-A3B.
 
     Each entry describes one logical conversion unit with its weight key
     path inside the HuggingFace state_dict.
+
+    Parameters
+    ----------
+    num_layers : int
+        Number of transformer blocks.
+    num_experts : int
+        Number of MoE experts per block.
+    layer_types : list[str] | None
+        Optional per-layer attention type from ``config.json``. When
+        ``None`` (default), every block is treated as standard
+        ``self_attn`` — preserves Qwen3.5 behaviour. When provided, the
+        per-layer value picks between:
+          * ``full_attention`` / anything non-linear → ``self_attn.*``
+          * ``linear_attention`` → 5 linear ``linear_attn.*`` projections
+            plus 4 passthrough tensors (``A_log``, ``conv1d``,
+            ``dt_bias``, ``norm``) copied verbatim.
 
     Returns
     -------
     list of dicts with keys:
         layer_id   : int   — transformer block index
-        kind       : str   — "attn_proj" | "moe_router" | "moe_expert_ffn"
+        kind       : str   — "attn_proj" | "linear_attn_proj"
+                             | "linear_attn_passthrough" | "moe_router"
+                             | "moe_expert_ffn"
         key_prefix : str   — state_dict key prefix
         expert_id  : int | None
-        activation : str   — "identity" or "relu"
+        activation : str   — "identity", "relu", or "passthrough"
         converted  : bool  — False initially (set True when done)
+
+    Notes
+    -----
+    The ``attn_proj`` kind continues to denote the 4 standard self-attn
+    projections (q/k/v/o) — preserved for Qwen3.5 backward compat. The
+    new hybrid kinds (``linear_attn_proj``, ``linear_attn_passthrough``)
+    only appear when ``layer_types`` is supplied and marks a layer as
+    linear attention.
     """
     entries: list[dict[str, Any]] = []
     for layer_idx in range(num_layers):
         prefix = f"model.layers.{layer_idx}"
+        layer_type = layer_types[layer_idx] if layer_types else None
 
-        # Attention projections — identity activation to preserve residual
-        for proj in ("q_proj", "k_proj", "v_proj", "o_proj"):
-            entries.append(
-                {
-                    "layer_id": layer_idx,
-                    "kind": "attn_proj",
-                    "key_prefix": f"{prefix}.self_attn.{proj}",
-                    "expert_id": None,
-                    "activation": "identity",
-                    "converted": False,
-                }
-            )
+        if _is_linear_attention_type(layer_type):
+            # Linear attention block: 5 GLA projections + 4 passthroughs.
+            for proj in LINEAR_ATTN_PROJ_MODULES:
+                entries.append(
+                    {
+                        "layer_id": layer_idx,
+                        "kind": "linear_attn_proj",
+                        "key_prefix": f"{prefix}.linear_attn.{proj}",
+                        "expert_id": None,
+                        "activation": "identity",
+                        "converted": False,
+                    }
+                )
+            for tensor in LINEAR_ATTN_PASSTHROUGH_TENSORS:
+                entries.append(
+                    {
+                        "layer_id": layer_idx,
+                        "kind": "linear_attn_passthrough",
+                        "key_prefix": f"{prefix}.linear_attn.{tensor}",
+                        "expert_id": None,
+                        "activation": "passthrough",
+                        "converted": False,
+                    }
+                )
+        else:
+            # Standard self-attention (Qwen3.5 base and Qwen3.6 full layers).
+            for proj in ("q_proj", "k_proj", "v_proj", "o_proj"):
+                entries.append(
+                    {
+                        "layer_id": layer_idx,
+                        "kind": "attn_proj",
+                        "key_prefix": f"{prefix}.self_attn.{proj}",
+                        "expert_id": None,
+                        "activation": "identity",
+                        "converted": False,
+                    }
+                )
 
         # MoE router — identity activation (signed logits must be preserved)
         entries.append(
@@ -208,6 +304,26 @@ def _extract_linear_weights(module: Any) -> dict[str, Any]:
     return {"weight": w, "bias": b}
 
 
+def _save_passthrough_tensor(
+    tensor: Any, key: str, output_dir: Path
+) -> None:
+    """Copy a non-linear tensor (A_log / conv1d / dt_bias / norm) verbatim.
+
+    These are SSM state / conv kernels / RMSNorm weights — they have no
+    LAS conversion; we just dump them as ``.npz`` so the spiking
+    checkpoint remains self-contained.
+    """
+    import numpy as np
+    safe_key = key.replace(".", "_").replace("/", "_")
+    out_path = output_dir / f"{safe_key}.npz"
+    # Conv1d is a nn.Conv1d; its .weight is a tensor too. Handle both.
+    if hasattr(tensor, "weight") and not hasattr(tensor, "detach"):
+        arr = tensor.weight.detach().cpu().float().numpy()
+    else:
+        arr = tensor.detach().cpu().float().numpy()
+    np.savez_compressed(out_path, tensor=arr, passthrough=np.array([1]))
+
+
 def convert_block_torch(
     model: Any,
     layer_idx: int,
@@ -216,8 +332,14 @@ def convert_block_torch(
     converted_keys: set[str],
     output_dir: Path,
     timesteps: int,
+    layer_types: list[str] | None = None,
 ) -> dict[str, Any]:
     """Convert one transformer block, saving spiking layers to disk.
+
+    Dispatches on layer_types[layer_idx] when provided (Qwen3.6 hybrid):
+    linear_attention layers emit 5 LAS-converted projections and 4
+    passthrough tensors; full_attention (and Qwen3.5 default) emit the
+    4 standard q/k/v/o projections.
 
     Returns a dict of spike stats for the block (counts + activation bounds).
     """
@@ -226,26 +348,70 @@ def convert_block_torch(
 
     block = model.model.layers[layer_idx]
     prefix = f"model.layers.{layer_idx}"
-    block_stats: dict[str, Any] = {"layer_id": layer_idx, "projections": {}}
+    layer_type = layer_types[layer_idx] if layer_types else None
+    block_stats: dict[str, Any] = {
+        "layer_id": layer_idx,
+        "layer_type": layer_type or "full_attention",
+        "projections": {},
+    }
 
-    # --- Attention projections ---
-    attn = block.self_attn
-    for proj_name in ("q_proj", "k_proj", "v_proj", "o_proj"):
-        key = f"{prefix}.self_attn.{proj_name}"
-        if key in converted_keys:
-            log.debug("skip (resume) %s", key)
-            continue
-        proj_module = getattr(attn, proj_name)
-        weights = _extract_linear_weights(proj_module)
-        spiking = converter.convert_layer(weights, activation="identity")
-        _save_spiking_layer(spiking, key, output_dir)
-        w_abs_max = float(np.abs(weights["weight"]).max())
-        block_stats["projections"][proj_name] = {
-            "in": spiking.in_features,
-            "out": spiking.out_features,
-            "w_abs_max": round(w_abs_max, 4),
-        }
-        converted_keys.add(key)
+    # --- Attention projections (dispatch on layer type) ---
+    if _is_linear_attention_type(layer_type):
+        attn = block.linear_attn
+        # 5 LAS-convertible linear projections.
+        for proj_name in LINEAR_ATTN_PROJ_MODULES:
+            key = f"{prefix}.linear_attn.{proj_name}"
+            if key in converted_keys:
+                log.debug("skip (resume) %s", key)
+                continue
+            proj_module = getattr(attn, proj_name)
+            weights = _extract_linear_weights(proj_module)
+            spiking = converter.convert_layer(weights, activation="identity")
+            _save_spiking_layer(spiking, key, output_dir)
+            w_abs_max = float(np.abs(weights["weight"]).max())
+            block_stats["projections"][f"linear_attn.{proj_name}"] = {
+                "in": spiking.in_features,
+                "out": spiking.out_features,
+                "w_abs_max": round(w_abs_max, 4),
+            }
+            converted_keys.add(key)
+
+        # 4 passthrough tensors (A_log, conv1d, dt_bias, norm) — verbatim.
+        passthrough_stats: dict[str, Any] = {}
+        for tensor_name in LINEAR_ATTN_PASSTHROUGH_TENSORS:
+            key = f"{prefix}.linear_attn.{tensor_name}"
+            if key in converted_keys:
+                log.debug("skip (resume) %s", key)
+                continue
+            try:
+                obj = getattr(attn, tensor_name)
+            except AttributeError:
+                log.warning("linear_attn.%s missing on layer %d",
+                            tensor_name, layer_idx)
+                continue
+            _save_passthrough_tensor(obj, key, output_dir)
+            passthrough_stats[tensor_name] = "copied"
+            converted_keys.add(key)
+        if passthrough_stats:
+            block_stats["linear_attn_passthrough"] = passthrough_stats
+    else:
+        attn = block.self_attn
+        for proj_name in ("q_proj", "k_proj", "v_proj", "o_proj"):
+            key = f"{prefix}.self_attn.{proj_name}"
+            if key in converted_keys:
+                log.debug("skip (resume) %s", key)
+                continue
+            proj_module = getattr(attn, proj_name)
+            weights = _extract_linear_weights(proj_module)
+            spiking = converter.convert_layer(weights, activation="identity")
+            _save_spiking_layer(spiking, key, output_dir)
+            w_abs_max = float(np.abs(weights["weight"]).max())
+            block_stats["projections"][proj_name] = {
+                "in": spiking.in_features,
+                "out": spiking.out_features,
+                "w_abs_max": round(w_abs_max, 4),
+            }
+            converted_keys.add(key)
 
     # --- MoE router ---
     router_key = f"{prefix}.mlp.gate"
@@ -978,16 +1144,21 @@ def main(argv: list[str] | None = None) -> int:
     # layer/expert counts so dry-run reports match the target model.
     cfg_num_layers = NUM_LAYERS
     cfg_num_experts = NUM_EXPERTS
+    cfg_layer_types: list[str] | None = None
     try:
         cfg = load_model_config(args.config)
         cfg_num_layers = int(cfg.get("num_hidden_layers", NUM_LAYERS))
         cfg_num_experts = int(cfg.get("num_experts", NUM_EXPERTS))
+        lt = cfg.get("layer_types")
+        if isinstance(lt, list) and lt:
+            cfg_layer_types = [str(x) for x in lt]
     except Exception as exc:  # pragma: no cover — analysis is best-effort
         log.debug("could not read config %s: %s", args.config, exc)
 
     layer_map = build_layer_map(
         num_layers=cfg_num_layers,
         num_experts=cfg_num_experts,
+        layer_types=cfg_layer_types,
     )
     map_stats = layer_map_stats(layer_map)
     log.info(
@@ -1084,7 +1255,7 @@ def main(argv: list[str] | None = None) -> int:
     args.output.mkdir(parents=True, exist_ok=True)
 
     # --- Layer-by-layer conversion ---
-    n_total = NUM_LAYERS
+    n_total = cfg_num_layers
     for layer_idx in range(n_total):
         t_layer = time.monotonic()
         log.info(
@@ -1100,6 +1271,7 @@ def main(argv: list[str] | None = None) -> int:
                 converted_keys=converted_keys,
                 output_dir=args.output,
                 timesteps=args.timesteps,
+                layer_types=cfg_layer_types,
             )
         except Exception as exc:
             log.error(
