@@ -1180,6 +1180,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--start-block",
+        type=int,
+        default=0,
+        help="Start conversion at this block index (for parallel runs).",
+    )
+    parser.add_argument(
+        "--end-block",
+        type=int,
+        default=None,
+        help="End conversion BEFORE this block index (exclusive).",
+    )
+    parser.add_argument(
         "--log-level",
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
@@ -1339,7 +1351,11 @@ def main(argv: list[str] | None = None) -> int:
 
     # --- Layer-by-layer conversion ---
     n_total = cfg_num_layers
-    for layer_idx in range(n_total):
+    start_blk = max(0, args.start_block)
+    end_blk = args.end_block if args.end_block is not None else n_total
+    end_blk = min(end_blk, n_total)
+    log.info("block range: [%d, %d)", start_blk, end_blk)
+    for layer_idx in range(start_blk, end_blk):
         t_layer = time.monotonic()
         log.info(
             "[%d/%d] converting block %d …", layer_idx + 1, n_total, layer_idx
