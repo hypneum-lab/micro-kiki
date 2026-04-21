@@ -89,7 +89,7 @@ YAMLEOF
   $PYTHON -c "
 import mlx.core as mx
 mx.set_memory_limit(460 * 1024**3)
-mx.set_cache_limit(32 * 1024**3)
+mx.set_cache_limit(96 * 1024**3)  # x3 per fix(train): cache_limit x3 + rank 8 for MoE (5fb1b87) — avoids Metal OOM at rank 16 + num_layers 32
 import sys
 sys.argv = ['mlx_lm', 'lora', '-c', '$OUTPUT/config-$domain.yaml']
 from mlx_lm.cli import main
