@@ -321,7 +321,9 @@ def _detect_fused_experts(experts_module: Any) -> bool:
 def _num_experts(experts_module: Any, is_fused: bool) -> int:
     """Return the expert count regardless of layout."""
     if is_fused:
-        return int(experts_module.gate_up_proj.weight.shape[0])
+        gup = experts_module.gate_up_proj
+        t = gup.weight if hasattr(gup, "weight") else gup
+        return int(t.shape[0])
     return len(experts_module)
 
 
@@ -346,8 +348,12 @@ def _get_expert_weights(
     import numpy as np
 
     if is_fused:
-        gate_up = experts_module.gate_up_proj.weight  # (E, 2*I, H)
-        down = experts_module.down_proj.weight         # (E, H, I)
+        # Qwen3.6 stores experts as Parameters directly (not Linear modules).
+        # Older HF may wrap in nn.Linear. Handle both.
+        gup = experts_module.gate_up_proj
+        dp = experts_module.down_proj
+        gate_up = gup.weight if hasattr(gup, "weight") else gup  # (E, 2*I, H)
+        down = dp.weight if hasattr(dp, "weight") else dp         # (E, H, I)
         intermediate = gate_up.shape[1] // 2
         gate_w = gate_up[expert_id, :intermediate, :].detach().cpu().float().numpy()
         up_w = gate_up[expert_id, intermediate:, :].detach().cpu().float().numpy()
