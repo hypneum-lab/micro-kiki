@@ -302,10 +302,25 @@ class FakeMLXRuntime:
         # full-attn layers grow with context ; linear_attn
         # layers keep a fixed state so context_tokens × 40 KB
         # is the right approximation.
+        # Admission control : how many concurrent sessions can
+        # the KV budget support at a given target context ? This
+        # is the explicit operator knob — "raise max context to
+        # 1 M if you cap concurrency at 2" vs "hold 10 sessions
+        # at 200 K context", same RAM.
+        kv_per_token = 40 * 1024
+        def _max_concurrent_at(ctx: int) -> int:
+            if ctx <= 0:
+                return 0
+            return max(1, self._kv_bytes_budget // (ctx * kv_per_token))
+        admission = {
+            str(ctx): _max_concurrent_at(ctx)
+            for ctx in (4096, 16384, 32768, 65536, 131072,
+                        262144, 524288, 1_048_576)
+        }
         return {
             "runtime": "fake",
             "max_context_tokens": self.max_context_tokens,
-            "kv_bytes_per_token": 40 * 1024,
+            "kv_bytes_per_token": kv_per_token,
             "sessions_active": self._sessions_active,
             "kv_bytes_used": self._kv_bytes_used,
             "kv_bytes_budget": self._kv_bytes_budget,
@@ -319,6 +334,12 @@ class FakeMLXRuntime:
             "context_tokens_p50": p50,
             "context_tokens_p99": p99,
             "context_tokens_observed": len(self._context_tokens_observed),
+            # Admission table : context_tokens → max concurrent
+            # sessions the KV budget can hold at that context.
+            # Operators pick a row and either (a) cap context
+            # via ``max_completion_tokens`` + input clamp or
+            # (b) cap concurrency via a semaphore in the app.
+            "admission": admission,
         }
 
     async def generate(

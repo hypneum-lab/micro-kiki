@@ -447,6 +447,65 @@ def test_kv_stats_supports_1m_context_advertisement() -> None:
     assert rt.kv_stats()["max_context_tokens"] == 262_144
 
 
+class TestAdmissionTable:
+    """The admission table translates the KV budget into a
+    concrete trade-off : ``at context C, N concurrent sessions
+    fit``. Operators can either cap context at C or cap
+    concurrency at N for the same RAM footprint."""
+
+    def test_admission_table_monotone_decreasing(self) -> None:
+        """Longer context → fewer sessions. Never the reverse."""
+        rt = r.FakeMLXRuntime()
+        table = rt.kv_stats()["admission"]
+        keys = sorted(table.keys(), key=int)
+        prev = None
+        for k in keys:
+            cur = table[k]
+            if prev is not None:
+                assert cur <= prev, (
+                    f"admission not monotone at context={k}: "
+                    f"{prev} -> {cur}"
+                )
+            prev = cur
+
+    def test_admission_table_60gb_budget_math(self) -> None:
+        """60 GB KV pool at 40 KB/token, sanity check :
+
+        - 4 K ctx : 60 GB / (4096 × 40 KB) ≈ 375 sessions.
+        - 32 K ctx : ≈ 46 sessions.
+        - 262 K ctx : ≈ 5 sessions.
+        - 1 M ctx : ≈ 1 session.
+        """
+        rt = r.FakeMLXRuntime()  # default budget = 60 GB
+        table = rt.kv_stats()["admission"]
+        assert table["4096"] >= 300
+        assert 30 <= table["32768"] <= 60
+        assert 4 <= table["262144"] <= 8
+        assert table["1048576"] >= 1
+
+    def test_admission_scales_with_bigger_budget(self) -> None:
+        """Raise the KV budget to 160 GB (what a Studio can
+        easily allocate) → 1 M context supports 4 sessions
+        instead of 1."""
+        rt = r.FakeMLXRuntime()
+        rt._kv_bytes_budget = 160 * 1024**3
+        table = rt.kv_stats()["admission"]
+        # 160 GB / (1 M tokens × 40 KB) = 4 sessions.
+        assert table["1048576"] == 4
+        # 160 GB / (262 K × 40 KB) ≈ 16 sessions.
+        assert 12 <= table["262144"] <= 18
+
+    def test_admission_never_returns_zero_for_positive_context(self) -> None:
+        """Even a tiny budget must admit at least 1 session at
+        any positive context — the runtime always serves at
+        least one request (return 503 on OOM if that one fails)."""
+        rt = r.FakeMLXRuntime()
+        rt._kv_bytes_budget = 1024  # 1 KB — absurd
+        table = rt.kv_stats()["admission"]
+        for k in table:
+            assert table[k] >= 1
+
+
 # ---------------------------------------------------------------------------
 # Error types.
 # ---------------------------------------------------------------------------
