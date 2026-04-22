@@ -1,0 +1,59 @@
+{
+  "summary": "V4 SOTA HumanEval sweep on Mac Studio M3 Ultra \u2014 Qwen3.6-35B-A3B + LoRA r16 (2026-04-22)",
+  "base_model": "Qwen3.6-35B-A3B",
+  "N": 10,
+  "adapters_healthy": "76/76 (validate_adapter_health.py)",
+  "stacks_total": 35,
+  "router_v4_top1": 0.464,
+  "router_v4_top3": 0.696,
+  "router_v4_val_samples": 5377,
+  "per_adapter": [
+    {
+      "label": "base",
+      "pass@1": 0.8,
+      "n": 10,
+      "gen_s": 42.6,
+      "adapter": null
+    },
+    {
+      "label": "cpp",
+      "pass@1": 0.9,
+      "n": 10,
+      "gen_s": 57.1,
+      "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/cpp",
+      "delta_vs_base": 0.1
+    },
+    {
+      "label": "python",
+      "pass@1": 0.7,
+      "n": 10,
+      "gen_s": 72.1,
+      "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/python",
+      "delta_vs_base": -0.1
+    },
+    {
+      "label": "rust",
+      "pass@1": 0.8,
+      "n": 10,
+      "gen_s": 34.5,
+      "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/rust",
+      "delta_vs_base": 0.0
+    },
+    {
+      "label": "shell",
+      "pass@1": 0.7,
+      "n": 10,
+      "gen_s": 107.3,
+      "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/shell",
+      "delta_vs_base": -0.1
+    },
+    {
+      "label": "typescript",
+      "pass@1": 0.8,
+      "n": 10,
+      "gen_s": 68.7,
+      "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/typescript",
+      "delta_vs_base": 0.0
+    }
+  ]
+}

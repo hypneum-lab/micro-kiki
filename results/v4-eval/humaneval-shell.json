@@ -1,0 +1,92 @@
+{
+  "label": "shell",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/shell",
+  "n_problems": 10,
+  "max_tokens": 384,
+  "per_problem": [
+    {
+      "task_id": "HumanEval/0",
+      "entry_point": "has_close_elements",
+      "passed": false,
+      "gen_s": 11.92,
+      "completion": "    for i, j in combinations(range(len(numbers)), 2):\n        if abs(numbers[i] - numbers[j]) < threshold:\n            return True\n    return False\n\n",
+      "error": "NameError: name 'combinations' is not defined"
+    },
+    {
+      "task_id": "HumanEval/1",
+      "entry_point": "separate_paren_groups",
+      "passed": false,
+      "gen_s": 11.4,
+      "completion": "    result = []\n    current_group = []\n    for char in paren_string:\n        if char == '(':\n            current_group.append(char)\n        elif char == ')':\n            current_group.append(char)\n            result.append(''.join(current_group))\n            current_group = []\n        elif char == ' ':\n            continue\n        else:\n            raise ValueError(\"Invalid character in input string\")\n    return result\n\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/2",
+      "entry_point": "truncate_number",
+      "passed": true,
+      "gen_s": 11.4,
+      "completion": "    return number - int(number)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/3",
+      "entry_point": "below_zero",
+      "passed": true,
+      "gen_s": 11.42,
+      "completion": "    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/4",
+      "entry_point": "mean_absolute_deviation",
+      "passed": true,
+      "gen_s": 11.58,
+      "completion": "    mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/5",
+      "entry_point": "intersperse",
+      "passed": true,
+      "gen_s": 3.95,
+      "completion": "    if not numbers:\n        return []\n    result = [numbers[0]]\n    for i in range(1, len(numbers)):\n        result.append(delimeter)\n        result.append(numbers[i])\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/6",
+      "entry_point": "parse_nested_parens",
+      "passed": true,
+      "gen_s": 11.43,
+      "completion": "    result = []\n    for group in paren_string.split(' '):\n        max_depth = 0\n        current_depth = 0\n        for char in group:\n            if char == '(':\n                current_depth += 1\n                max_depth = max(max_depth, current_depth)\n            elif char == ')':\n                current_depth -= 1\n        result.append(max_depth)\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/7",
+      "entry_point": "filter_by_substring",
+      "passed": true,
+      "gen_s": 11.41,
+      "completion": "    return [s for s in strings if substring in s]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/8",
+      "entry_point": "sum_product",
+      "passed": false,
+      "gen_s": 11.42,
+      "completion": "    return sum(numbers), product(numbers)\n\n",
+      "error": "NameError: name 'product' is not defined"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "entry_point": "rolling_max",
+      "passed": true,
+      "gen_s": 11.42,
+      "completion": "    max_so_far = float('-inf')\n    result = []\n    for num in numbers:\n        if num > max_so_far:\n            max_so_far = num\n        result.append(max_so_far)\n    return result\n\n",
+      "error": ""
+    }
+  ],
+  "pass@1": 0.7,
+  "total_gen_s": 107.3,
+  "status": "ok"
+}
