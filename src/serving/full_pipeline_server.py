@@ -435,12 +435,78 @@ def _build_meta_router_legacy_stub(cfg: FullPipelineConfig) -> Any:
     return _StubMetaRouter()
 
 
-def _build_aeon(cfg: FullPipelineConfig) -> Any:
-    """Return a stub AeonPalace whose recall/write raise at call time.
+class _AeonAdapter:
+    """Adapter exposing the orchestrator's ``.recall(q, k)`` / ``.write(dict)``
+    contract over the real ``src.memory.aeon.AeonPalace``.
 
-    Orchestrator wraps both stage 1 (recall) and stage 7 (write) in
-    try/except and degrades to empty recall / skipped write on failure.
+    * ``recall`` maps ``AeonPalace.recall`` (returning ``list[Episode]``)
+      to ``list[dict]`` with a ``"text"`` key as the orchestrator builds
+      prompts from ``r.get("text", "")``.
+    * ``write`` flattens the orchestrator's episode dict (``query`` /
+      ``response`` / ``adapters`` / …) into ``AeonPalace.write(content,
+      domain, metadata)`` — the first active adapter becomes the domain,
+      the response becomes the content, and the rest lands in metadata.
     """
+
+    def __init__(self, palace: Any) -> None:
+        self._palace = palace
+
+    def recall(self, query: str, k: int = 3) -> list[dict]:
+        episodes = self._palace.recall(query, top_k=int(k))
+        return [
+            {
+                "text": ep.content,
+                "domain": ep.domain,
+                "ts": ep.timestamp.isoformat(),
+            }
+            for ep in episodes
+        ]
+
+    def write(self, episode: dict) -> None:
+        content = (
+            episode.get("response")
+            or episode.get("query")
+            or ""
+        )
+        if not content:
+            return
+        adapters = episode.get("adapters") or []
+        domain = adapters[0] if adapters else "general"
+        meta = {
+            "query": episode.get("query", ""),
+            "adapters": adapters,
+            "quality": episode.get("quality", {}),
+            "antibias": episode.get("antibias", {}),
+            "recalled": episode.get("recalled", []),
+        }
+        self._palace.write(content=content, domain=domain, metadata=meta)
+
+
+def _build_aeon(cfg: FullPipelineConfig) -> Any:
+    """Construct a real AeonPalace (MiniLM-L6-v2 384-dim) wrapped in
+    ``_AeonAdapter``. Falls back to a stub that raises at call time when
+    sentence-transformers is unavailable.
+    """
+    try:
+        import numpy as np
+        from sentence_transformers import SentenceTransformer
+
+        from src.memory.aeon import AeonPalace
+
+        encoder = SentenceTransformer(
+            "sentence-transformers/all-MiniLM-L6-v2"
+        )
+
+        def _embed(text: str):
+            vec = encoder.encode(
+                [text], convert_to_numpy=True, show_progress_bar=False
+            )
+            return vec[0].astype(np.float32)
+
+        palace = AeonPalace(dim=384, embed_fn=_embed)
+        return _AeonAdapter(palace)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("AeonPalace init failed (%s), using stub", exc)
 
     class _StubAeon:
         def recall(self, query: str, k: int = 3) -> list[dict]:
