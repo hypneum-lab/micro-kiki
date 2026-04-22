@@ -518,12 +518,62 @@ def _build_aeon(cfg: FullPipelineConfig) -> Any:
     return _StubAeon()
 
 
-def _build_negotiator(cfg: FullPipelineConfig) -> Any:
-    """Return a stub Negotiator whose async ``arbitrate`` raises at call time.
+class _NegotiatorAdapter:
+    """Adapter that maps the orchestrator's ``arbitrate(candidates) ->
+    (winner, quality_dict)`` to the real ``Negotiator.negotiate(prompt,
+    candidates) -> NegotiationResult``.
 
-    Orchestrator catches and falls back to ``candidates[0]`` with an
-    empty quality dict.
+    The orchestrator does not currently pass the user prompt into stage 5
+    (only the K candidates). The real pipeline only uses ``prompt`` for
+    the Catfish module's dissent generation — when absent, Catfish still
+    scores agreement/quality off the candidates themselves, which is
+    enough for a useful arbitration signal.
     """
+
+    def __init__(self, negotiator: Any) -> None:
+        self._neg = negotiator
+
+    async def arbitrate(self, candidates: list[str]) -> tuple[str, dict]:
+        # Prompt is not threaded through the orchestrator today; an empty
+        # string is acceptable for Catfish (no-dissent default when the
+        # local generate_fn is None anyway).
+        result = await self._neg.negotiate("", list(candidates))
+        quality = {
+            "winner_idx": int(result.winner_idx),
+            "num_candidates": int(result.num_candidates),
+        }
+        if result.judge_result is not None:
+            quality["agreement"] = float(
+                getattr(result.judge_result, "agreement", 0.0)
+            )
+        if result.catfish_result is not None:
+            quality["catfish_triggered"] = bool(
+                getattr(result.catfish_result, "triggered", False)
+            )
+        return result.winner_response, quality
+
+
+def _build_negotiator(cfg: FullPipelineConfig) -> Any:
+    """Construct a real Negotiator (extractor + judge + catfish) with
+    ``generate_fn=None`` — each dep falls back to its heuristic path
+    (embedding similarity, agreement/quality thresholds) when no LLM
+    client is wired. Wraps the result in ``_NegotiatorAdapter`` so the
+    orchestrator's contract is preserved. Stub fallback if import fails.
+    """
+    try:
+        from src.cognitive.argument_extractor import ArgumentExtractor
+        from src.cognitive.catfish import CatfishModule
+        from src.cognitive.judge import AdaptiveJudge
+        from src.cognitive.negotiator import Negotiator
+
+        extractor = ArgumentExtractor(generate_fn=None)
+        judge = AdaptiveJudge(fast_client=None, deep_client=None)
+        catfish = CatfishModule(generate_fn=None)
+        return _NegotiatorAdapter(
+            Negotiator(extractor=extractor, judge=judge, catfish=catfish)
+        )
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Negotiator init failed (%s), using stub", exc)
 
     class _StubNegotiator:
         async def arbitrate(
