@@ -48,7 +48,7 @@ from typing import Any, AsyncIterator
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
 
 from . import schemas as s
 from .runtime import MLXRuntime, RuntimeError_
@@ -407,48 +407,76 @@ def create_app(
                 },
             )
 
+    async def _sse_stream(
+        request: s.ChatCompletionRequest,
+        http_request: Request,
+    ) -> AsyncIterator[bytes]:
+        """Wrap ``runtime.generate_stream`` in the SSE wire format.
+
+        Emits one ``data: <chunk_json>\\n\\n`` line per chunk and
+        a final ``data: [DONE]\\n\\n`` sentinel. Observes
+        ``http_request.is_disconnected()`` between chunks so we
+        stop generating (and free the KV cache) when the client
+        closes the connection — agent workloads cancel frequently
+        on timeouts + chain short-circuits.
+
+        Structured runtime errors mid-stream are serialised as a
+        final SSE ``data: {"error": ...}`` frame before [DONE]
+        — some LangChain versions parse that and raise cleanly,
+        others fall through on [DONE], both graceful.
+        """
+        try:
+            async for chunk in runtime.generate_stream(request):
+                if await http_request.is_disconnected():
+                    _LOG.info(
+                        "client disconnected mid-stream, "
+                        "cancelling runtime"
+                    )
+                    break
+                payload = chunk.model_dump_json(exclude_none=True)
+                yield f"data: {payload}\n\n".encode("utf-8")
+        except RuntimeError_ as exc:
+            error_payload = exc.to_error().model_dump_json()
+            yield f"data: {error_payload}\n\n".encode("utf-8")
+        yield b"data: [DONE]\n\n"
+
     @app.post("/v1/chat/completions")
     async def chat_completions(
         request: s.ChatCompletionRequest,
-    ) -> JSONResponse:
-        """Non-streaming chat completions with tool calling +
-        JSON mode. Streaming (``stream=true``) is T8.
+        http_request: Request,
+    ):
+        """Chat completions endpoint — non-streaming + streaming.
 
         Validation steps ordered so the cheapest / most
         user-impactful checks fire first :
 
-        1. ``stream=True`` → 400 ``not_implemented`` (T8 will
-           replace).
-        2. ``tool_choice`` / ``tools`` consistency (T7).
-        3. ``response_format`` sanity (T7).
-        4. Dispatch to runtime.
+        1. ``tool_choice`` / ``tools`` consistency (T7).
+        2. ``response_format`` sanity (T7).
+        3. ``stream=True`` → SSE stream (T8).
+        4. Non-streaming → dispatch to ``runtime.generate``.
         5. Wrap runtime exceptions in OpenAI-shaped errors.
         """
-        if request.stream:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "error": {
-                        "message": "streaming not yet implemented",
-                        "type": "not_implemented",
-                        "param": "stream",
-                    }
-                },
-            )
-
         _validate_tool_choice(request)
         _validate_response_format(request)
 
         metrics.record_adapter(request.model)
 
+        if request.stream:
+            return StreamingResponse(
+                _sse_stream(request, http_request),
+                media_type="text/event-stream",
+                # Disable proxy buffering (nginx etc) that would
+                # batch SSE frames and break per-token latency.
+                headers={
+                    "Cache-Control": "no-cache",
+                    "X-Accel-Buffering": "no",
+                    "Connection": "keep-alive",
+                },
+            )
+
         try:
             completion = await runtime.generate(request)
         except RuntimeError_ as exc:
-            # Structured runtime errors (adapter_not_found,
-            # json_schema_validation, context_length_exceeded, …)
-            # get mapped to the right HTTP status + OpenAI error
-            # shape. Instructor / LangChain retry logic keys off
-            # these.
             return JSONResponse(
                 status_code=exc.http_status,
                 content=exc.to_error().model_dump(),

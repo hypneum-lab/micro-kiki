@@ -173,12 +173,11 @@ def test_chat_completions_non_streaming_basic() -> None:
     assert body["usage"]["total_tokens"] > 0
 
 
-def test_chat_completions_rejects_stream_until_t8() -> None:
-    """T6 ships a non-streaming scaffold ; streaming goes out
-    with T8. Until then, ``stream=true`` returns a clean 400
-    with ``type=not_implemented`` so clients discover the
-    limitation rather than get silent buffering."""
-    app = _app()
+def test_chat_completions_stream_returns_sse_with_done_sentinel() -> None:
+    """T8 — ``stream=true`` returns SSE with ``data:`` frames and
+    ends with ``data: [DONE]``."""
+    rt = FakeMLXRuntime(scripted_responses={"x": "a b c"})
+    app = _app(runtime=rt)
     with TestClient(app) as client:
         resp = client.post(
             "/v1/chat/completions",
@@ -188,9 +187,16 @@ def test_chat_completions_rejects_stream_until_t8() -> None:
                 "stream": True,
             },
         )
-    assert resp.status_code == 400
-    body = resp.json()
-    assert body["detail"]["error"]["type"] == "not_implemented"
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/event-stream")
+    body = resp.text
+    assert body.endswith("data: [DONE]\n\n")
+    # Every non-DONE data line must be parseable JSON.
+    for line in body.splitlines():
+        if line.startswith("data: ") and not line.endswith("[DONE]"):
+            payload = line[len("data: "):]
+            obj = json.loads(payload)
+            assert obj.get("object") == "chat.completion.chunk"
 
 
 def test_chat_completions_validates_schema() -> None:
@@ -513,3 +519,221 @@ def test_json_schema_validation_error_maps_to_400_for_instructor() -> None:
     assert resp.status_code == 400
     body = resp.json()
     assert body["error"]["type"] == "json_schema_validation"
+
+
+# ---------------------------------------------------------------------------
+# T8 — SSE streaming in depth.
+# ---------------------------------------------------------------------------
+
+
+def _parse_sse(body: str) -> list[dict]:
+    """Split an SSE response body into the list of non-DONE
+    JSON payloads."""
+    out: list[dict] = []
+    for line in body.splitlines():
+        if line.startswith("data: ") and not line.endswith("[DONE]"):
+            out.append(json.loads(line[len("data: "):]))
+    return out
+
+
+def test_stream_first_chunk_carries_role_assistant() -> None:
+    """OpenAI streaming contract : the very first chunk delta
+    carries ``role=assistant``, no content. Subsequent chunks
+    omit role."""
+    rt = FakeMLXRuntime(scripted_responses={"x": "hello"})
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-python",
+                "messages": [{"role": "user", "content": "x"}],
+                "stream": True,
+            },
+        )
+    chunks = _parse_sse(resp.text)
+    first = chunks[0]
+    assert first["choices"][0]["delta"].get("role") == "assistant"
+    assert first["choices"][0]["delta"].get("content") is None
+
+
+def test_stream_final_chunk_carries_finish_reason_stop() -> None:
+    """Only the final chunk may have non-null finish_reason
+    (silent killer for the OpenAI SDK's streaming parser)."""
+    rt = FakeMLXRuntime(scripted_responses={"x": "one two"})
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-python",
+                "messages": [{"role": "user", "content": "x"}],
+                "stream": True,
+            },
+        )
+    chunks = _parse_sse(resp.text)
+    # All intermediate chunks must have finish_reason=None.
+    for c in chunks[:-1]:
+        assert c["choices"][0].get("finish_reason") in (None,)
+    # The last content-bearing chunk carries the finish_reason.
+    finish_chunks = [
+        c
+        for c in chunks
+        if c["choices"]
+        and c["choices"][0].get("finish_reason") is not None
+    ]
+    assert len(finish_chunks) == 1
+    assert finish_chunks[0]["choices"][0]["finish_reason"] == "stop"
+
+
+def test_stream_content_deltas_recompose_to_original_text() -> None:
+    """Concatenate all delta.content values — should match the
+    scripted response (plus token-break whitespace that
+    FakeMLXRuntime inserts)."""
+    rt = FakeMLXRuntime(
+        scripted_responses={"hello": "one two three four"},
+    )
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-python",
+                "messages": [{"role": "user", "content": "hello"}],
+                "stream": True,
+            },
+        )
+    chunks = _parse_sse(resp.text)
+    recomposed = "".join(
+        c["choices"][0]["delta"].get("content") or ""
+        for c in chunks
+        if c["choices"]
+    )
+    assert recomposed.strip() == "one two three four"
+
+
+def test_stream_tool_call_deltas_concatenate_correctly() -> None:
+    """LangChain accumulates tool_calls[index].function.arguments
+    deltas — the sum must equal the original JSON arguments."""
+    forced = s.ToolCall(
+        function=s.FunctionCall(
+            name="emit_json",
+            arguments=json.dumps({"city": "Paris", "units": "C"}),
+        )
+    )
+    rt = FakeMLXRuntime(force_tool_call=forced)
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-python",
+                "messages": [{"role": "user", "content": "emit"}],
+                "tools": [
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": "emit_json",
+                            "parameters": {"type": "object"},
+                        },
+                    }
+                ],
+                "stream": True,
+            },
+        )
+    chunks = _parse_sse(resp.text)
+    recomposed = "".join(
+        tc.get("function", {}).get("arguments") or ""
+        for c in chunks
+        for tc in (c["choices"][0]["delta"].get("tool_calls") or [])
+        if c["choices"]
+    )
+    assert json.loads(recomposed) == {"city": "Paris", "units": "C"}
+    # Final chunk has finish_reason=tool_calls.
+    finish_chunks = [
+        c
+        for c in chunks
+        if c["choices"]
+        and c["choices"][0].get("finish_reason") is not None
+    ]
+    assert len(finish_chunks) == 1
+    assert finish_chunks[0]["choices"][0]["finish_reason"] == "tool_calls"
+
+
+def test_stream_include_usage_emits_final_usage_chunk() -> None:
+    """LangChain's callback manager requires a terminal chunk
+    with ``choices=[]`` + ``usage`` populated when
+    ``stream_options.include_usage=True``. Without it, token
+    counts are zero in downstream observability."""
+    rt = FakeMLXRuntime(scripted_responses={"x": "a b c"})
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-python",
+                "messages": [{"role": "user", "content": "x"}],
+                "stream": True,
+                "stream_options": {"include_usage": True},
+            },
+        )
+    chunks = _parse_sse(resp.text)
+    usage_chunks = [c for c in chunks if c.get("usage") is not None]
+    assert len(usage_chunks) == 1
+    usage = usage_chunks[0]
+    assert usage["choices"] == []
+    assert usage["usage"]["total_tokens"] > 0
+
+
+def test_stream_headers_disable_proxy_buffering() -> None:
+    """The response must carry ``X-Accel-Buffering: no`` so
+    intermediate nginx / reverse proxies don't batch SSE frames
+    — that would shred per-token latency for agent clients."""
+    rt = FakeMLXRuntime()
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-python",
+                "messages": [{"role": "user", "content": "x"}],
+                "stream": True,
+            },
+        )
+    assert resp.headers.get("x-accel-buffering") == "no"
+    assert resp.headers.get("cache-control") == "no-cache"
+
+
+def test_stream_runtime_error_serialised_as_final_data_frame() -> None:
+    """Mid-stream errors come through as a final ``data: {error}``
+    frame before ``[DONE]``. LangChain / OpenAI SDK see a valid
+    terminator either way — no parse crash."""
+    rt = _ErroringRuntime(
+        AdapterNotFound, "adapter 'ghost' missing",
+    )
+
+    async def _empty_stream(request):  # noqa: ANN001
+        raise AdapterNotFound("adapter 'ghost' missing")
+        yield  # pragma: no cover — satisfy generator typing
+
+    rt.generate_stream = _empty_stream  # type: ignore[method-assign]
+    app = _app(runtime=rt)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/v1/chat/completions",
+            json={
+                "model": "qwen3.6-35b-ghost",
+                "messages": [{"role": "user", "content": "x"}],
+                "stream": True,
+            },
+        )
+    assert resp.status_code == 200  # SSE itself always 200 ; error in-band.
+    lines = [
+        line[len("data: "):]
+        for line in resp.text.splitlines()
+        if line.startswith("data: ") and not line.endswith("[DONE]")
+    ]
+    assert lines, "expected at least an error data-frame before [DONE]"
+    last = json.loads(lines[-1])
+    assert last["error"]["type"] == "adapter_not_found"
+    assert resp.text.endswith("data: [DONE]\n\n")
