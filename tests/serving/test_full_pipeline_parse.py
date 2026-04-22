@@ -19,6 +19,9 @@ def _client(monkeypatch):
     class _FakeRuntime:
         base_loaded = True
 
+        def apply(self, adapters):
+            pass
+
     class _FakeMeta:
         def route(self, q):
             return []

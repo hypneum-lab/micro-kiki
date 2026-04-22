@@ -117,23 +117,31 @@ def _build_runtime(cfg: FullPipelineConfig) -> Any:
 
 
 def _build_meta_router(cfg: FullPipelineConfig) -> Any:
-    """Construct the sigmoid ``MetaRouter``.
+    """Construct the query-level adapter selector.
 
-    Real constructor: ``MetaRouter(input_dim=768, num_domains=35,
-    num_capabilities=5)``. There is no ``.default()`` or ``.load()``
-    classmethod; trained weights (if provided via
-    ``cfg.meta_router_weights``) are loaded via ``load_state_dict``.
+    The orchestrator expects ``state.meta_router.route(query) ->
+    list[tuple[str, float]]`` where each tuple is ``(niche_name,
+    weight)`` and ``niche_name`` is an entry in ``NICHE_DOMAINS``.
+
+    The real ``MetaRouter`` in ``src.routing.router`` is a pure
+    ``torch.nn.Module`` operating on a 768-dim embedding — no tokenizer,
+    no text-to-embedding front-end — and ``src.routing.dispatcher``
+    maps the 35 sigmoid outputs to 7 *meta-intents* (QUICK_REPLY,
+    CODING, …), not to niche domain names. Neither exposes the
+    ``.route(query)`` contract directly, and no trained weights are
+    available locally yet.
+
+    We therefore defer the real wrapper to PB-T11 (Studio integration)
+    and raise here. The test suite monkeypatches this factory with a
+    fake ``route(query)`` implementation, so unit tests remain green.
     """
-    from src.routing.router import MetaRouter  # lazy torch
-
-    router = MetaRouter()
-    if cfg.meta_router_weights is not None:
-        import torch  # lazy
-
-        state = torch.load(cfg.meta_router_weights, map_location="cpu")
-        router.load_state_dict(state)
-        router.eval()
-    return router
+    raise NotImplementedError(
+        "MetaRouter.route(query) wrapper deferred to PB-T11 Studio "
+        "integration. The real MetaRouter (src.routing.router) is a "
+        "torch.nn.Module over 768-dim embeddings; the dispatcher "
+        "(src.routing.dispatcher) maps to 7 meta-intents, not niche "
+        "names. Tests monkeypatch this factory with fakes.",
+    )
 
 
 def _build_aeon(cfg: FullPipelineConfig) -> Any:
@@ -273,11 +281,38 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
         except Exception as exc:  # noqa: BLE001 — recall must not block
             log.warning("Aeon recall failed: %s", exc)
             recalled = []
-        del recalled  # TODO: consumed by stage 3 prompt assembly (PB-T6).
 
-        # TODO: Stages 2-7 wire in PB-T5 through PB-T9.
+        # Stage 2 — adapter selection. Meta aliases consult the MetaRouter;
+        # niche aliases force the requested adapter and skip the router.
+        if alias.mode == "meta":
+            try:
+                selections = state.meta_router.route(user_text)
+                adapters = [name for (name, _weight) in selections]
+            except Exception as exc:  # noqa: BLE001 — degrade to base
+                log.warning("MetaRouter failed, falling back to base: %s", exc)
+                adapters = []
+        else:
+            adapters = [alias.target]
+
+        # Stage 3 — apply adapters on the MLX runtime.
+        try:
+            state.runtime.apply(adapters)
+        except Exception as exc:  # noqa: BLE001 — surface as 503
+            log.error("adapter apply failed for %s: %s", adapters, exc)
+            return _err(
+                503,
+                f"adapter apply failed: {exc}",
+                "adapter_apply_failed",
+            )
+
+        # `recalled` + `adapters` are consumed by stages 4-7 in PB-T6+.
+        _ = recalled
+        _ = adapters
+
         return _err(
-            501, "pipeline partially wired (stage 1 only)", "not_implemented"
+            501,
+            "pipeline partially wired (stages 1-3)",
+            "not_implemented",
         )
 
     return app

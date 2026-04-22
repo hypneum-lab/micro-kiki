@@ -13,6 +13,7 @@ def test_recall_invoked_with_user_text(monkeypatch):
         def write(self, ep): pass
 
     class _Runtime:
+        def apply(self, adapters): pass
         def generate(self, prompt, **kw): return "out"
     class _Meta:
         def route(self, q): return []
@@ -53,6 +54,7 @@ def test_recall_failure_is_non_blocking(monkeypatch):
         def write(self, ep): pass
 
     class _Runtime:
+        def apply(self, adapters): pass
         def generate(self, p, **kw): return "x"
     class _Meta:
         def route(self, q): return []
