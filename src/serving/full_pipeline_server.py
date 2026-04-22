@@ -59,6 +59,23 @@ from src.serving.model_aliases import ModelAlias, build_aliases, lookup
 
 log = logging.getLogger(__name__)
 
+# Attach our own StreamHandler so adapter-swap / eager-materialize /
+# preload events surface in whatever captures stdout/stderr (e.g. the
+# nohup log file). Uvicorn's default logging configuration only wires
+# up ``uvicorn.access`` / ``uvicorn.error`` — custom module loggers
+# silently drop their records otherwise.
+if not log.handlers:
+    _h = logging.StreamHandler()
+    _h.setFormatter(
+        logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+            datefmt="%H:%M:%S",
+        )
+    )
+    log.addHandler(_h)
+    log.setLevel(logging.INFO)
+    log.propagate = False
+
 
 def _build_registry() -> tuple[CollectorRegistry, dict]:
     """Construct a fresh Prometheus registry + per-server metric objects.
