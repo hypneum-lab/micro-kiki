@@ -177,8 +177,10 @@ class _MLXRuntimeAdapter:
     * ``apply(adapters)``: resolve the single (or first) niche name to
       ``<adapters_root>/<name>`` and call
       ``mlx_lm.tuner.utils.load_adapters`` to patch the live model in
-      place. Swapping to a *different* adapter re-loads the base model
-      from disk to avoid LoRA-layer stacking.
+      place. Swapping to a *different* adapter unpatches the previous
+      LoRA wrappers via :mod:`src.serving.mlx_unpatch` (O(10ms)) rather
+      than reloading the 19 GB base from disk. A base reload is the
+      safe fallback if unpatching raises.
     * ``apply([])`` is a no-op (degraded path for failed MetaRouter).
     * ``generate`` uses ``mlx_lm.generate`` with
       ``sampler=make_sampler(temp=temperature)``.
@@ -277,10 +279,28 @@ class _MLXRuntimeAdapter:
 
         adapter_path = str(Path(self._adapters_root) / name)
         if self._current_adapter is not None:
-            # Swapping: reload base to drop previous LoRA layers cleanly.
-            # With the base safetensors already in the page cache, this
-            # is CPU-bound (~1 s) rather than disk-bound.
-            self._model, self._tokenizer = mlx_load(self._base_model_path)
+            # Zero-swap path: unpatch LoRA wrappers in place (O(10ms))
+            # instead of reloading the 19 GB base from disk. Fall back
+            # to a full reload if unpatch raises — keeps the behaviour
+            # of the original implementation as a safety net.
+            t0 = time.perf_counter()
+            try:
+                from src.serving.mlx_unpatch import unpatch_all_lora
+
+                unpatch_all_lora(self._model)
+                log.info(
+                    "adapter unpatched in %.1f ms (%s -> %s)",
+                    (time.perf_counter() - t0) * 1000,
+                    self._current_adapter,
+                    name,
+                )
+            except Exception as exc:  # noqa: BLE001
+                log.warning(
+                    "unpatch_all_lora failed (%s); falling back to "
+                    "full base reload",
+                    exc,
+                )
+                self._model, self._tokenizer = mlx_load(self._base_model_path)
         self._model = load_adapters(self._model, adapter_path)
         self._current_adapter = name
 
