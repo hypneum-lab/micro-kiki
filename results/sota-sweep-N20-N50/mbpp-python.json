@@ -1,0 +1,362 @@
+{
+  "label": "mbpp-python",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/python",
+  "n_problems": 50,
+  "max_tokens": 512,
+  "per_problem": [
+    {
+      "task_id": "mbpp/11",
+      "passed": false,
+      "gen_s": 2.52,
+      "completion": "def remove_Occ(string, char):\n    return string[1:-1] if string[0] == string[-1] == char else string[1:] if string[0] == char else string[:-1] if string[-1] == char else string",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/12",
+      "passed": true,
+      "gen_s": 0.82,
+      "completion": "def sort_matrix(matrix):\n    return sorted(matrix, key=sum)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/13",
+      "passed": false,
+      "gen_s": 7.33,
+      "completion": "from collections import Counter\n\ndef count_common(words):\n    return Counter(words).most_common()\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/14",
+      "passed": true,
+      "gen_s": 1.01,
+      "completion": "def find_Volume(a, b, c):\n    return a * b * c / 2",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/15",
+      "passed": false,
+      "gen_s": 1.38,
+      "completion": "def split_lowerstring(string):\n    result = []\n    for i in string:\n        if i.islower():\n            result.append(i)\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/16",
+      "passed": false,
+      "gen_s": 3.38,
+      "completion": "import re\n\ndef text_lowercase_underscore(text):\n    pattern = r\"[a-z]+_[a-z]+\"\n    if re.search(pattern, text):\n        return \"Found a match!\"\n    else:\n        return \"Not matched!\"\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/17",
+      "passed": true,
+      "gen_s": 0.71,
+      "completion": "def square_perimeter(side):\n    return side*4",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/18",
+      "passed": true,
+      "gen_s": 3.13,
+      "completion": "def remove_dirty_chars(string1, string2):\n    result = \"\"\n    for i in string1:\n        if i not in string2:\n            result += i\n    return result\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/19",
+      "passed": true,
+      "gen_s": 0.83,
+      "completion": "def test_duplicate(arr):\n    return len(arr) != len(set(arr))",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/20",
+      "passed": false,
+      "gen_s": 15.16,
+      "completion": "def is_woodall(n):\n    if n <= 0:\n        return False\n    while n % 2 == 0:\n        n //= 2\n    if n == 1:\n        return True\n    while n % 3 == 0:\n        n //= 3\n    if n == 1:\n        return True\n    while n % 5 == 0:\n        n //= 5\n    if n == 1:\n        return True\n    while n % 7 == 0:\n        n //= 7\n    if n == 1:\n        return True\n    while n % 11 == 0:\n        n //= 11\n    if n == 1:\n        return True\n    while n % 13 == 0:\n        n //= 13\n    if n == 1:\n        return True\n    while n % 17 == 0:\n        n //= 17\n    if n == 1:\n        return True\n    while n % 19 == 0:\n        n //= 19\n    if n == 1:\n        return True\n    while n % 23 == 0:\n        n //= 23\n    if n == 1:\n        return True\n    while n % 29 == 0:\n        n //= 29\n    if n == 1:\n        return True\n   ",
+      "error": "SyntaxError: invalid syntax (<mbpp>, line 68)"
+    },
+    {
+      "task_id": "mbpp/21",
+      "passed": true,
+      "gen_s": 3.88,
+      "completion": "def multiples_of_num(m, n):\n    return [n*i for i in range(1, m+1)]\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/22",
+      "passed": true,
+      "gen_s": 3.58,
+      "completion": "def find_first_duplicate(arr):\n    seen = set()\n    for num in arr:\n        if num in seen:\n            return num\n        seen.add(num)\n    return -1\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/23",
+      "passed": true,
+      "gen_s": 4.6,
+      "completion": "def maximum_Sum(list_of_lists):\n    max_sum = 0\n    for i in list_of_lists:\n        if sum(i) > max_sum:\n            max_sum = sum(i)\n    return max_sum\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/24",
+      "passed": true,
+      "gen_s": 2.27,
+      "completion": "def binary_to_decimal(binary):\n    decimal = 0\n    power = 0\n    while binary > 0:\n        digit = binary % 10\n        decimal += digit * (2 ** power)\n        binary = binary // 10\n        power += 1\n    return decimal",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/25",
+      "passed": false,
+      "gen_s": 0.84,
+      "completion": "def find_Product(arr, n):\n    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/26",
+      "passed": false,
+      "gen_s": 1.31,
+      "completion": "def check_k_elements(lst, k):\n    for i in lst:\n        if len(i) != k:\n            return False\n    return True",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/27",
+      "passed": true,
+      "gen_s": 3.9,
+      "completion": "def remove(string_list):\n    result = []\n    for string in string_list:\n        result.append(''.join([char for char in string if not char.isdigit()]))\n    return result\n\n# Test the function",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/28",
+      "passed": true,
+      "gen_s": 3.33,
+      "completion": "def binomial_Coeff(n, r):\n    if r > n:\n        return 0\n    elif r == 0 or r == n:\n        return 1\n    else:\n        return binomial_Coeff(n-1, r-1) + binomial_Coeff(n-1, r)\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/29",
+      "passed": true,
+      "gen_s": 5.83,
+      "completion": "def get_Odd_Occurrence(arr, size):\n    for i in range(size):\n        count = 0\n        for j in range(size):\n            if arr[i] == arr[j]:\n                count += 1\n        if count % 2 != 0:\n            return arr[i]\n    return -1\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/30",
+      "passed": true,
+      "gen_s": 3.71,
+      "completion": "def count_Substring_With_Equal_Ends(string):\n    count = 0\n    for i in range(len(string)):\n        for j in range(i+1, len(string)):\n            if string[i] == string[j]:\n                count += 1\n    return count + len(string)\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/31",
+      "passed": false,
+      "gen_s": 3.43,
+      "completion": "import heapq\nfrom collections import Counter\n\ndef func(lists, k):\n    # Flatten the list of lists into a single list\n    flat_list = [item for sublist in lists for item in sublist]\n    \n    # Count the frequency of each element\n    frequency = Counter(flat_list)\n    \n    # Use a heap to find the top k elements with the highest frequency\n    top_k = heapq.nlargest(k, frequency, key=frequency.get)\n    \n    return top_k",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/32",
+      "passed": true,
+      "gen_s": 3.5,
+      "completion": "def max_Prime_Factors(n):\n    max_prime = -1\n    while n % 2 == 0:\n        max_prime = 2\n        n = n / 2\n    for i in range(3, int(n**0.5) + 1, 2):\n        while n % i == 0:\n            max_prime = i\n            n = n / i\n    if n > 2:\n        max_prime = n\n    return int(max_prime)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/33",
+      "passed": false,
+      "gen_s": 1.71,
+      "completion": "def decimal_To_Binary(n):\n    if n > 1:\n        return str(decimal_To_Binary(n // 2)) + str(n % 2)\n    else:\n        return str(n)",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/34",
+      "passed": false,
+      "gen_s": 1.18,
+      "completion": "def find_missing(arr, n):\n    if n in arr:\n        return n\n    else:\n        return n-1",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/35",
+      "passed": true,
+      "gen_s": 0.81,
+      "completion": "def find_rect_num(n):\n    return n*(n+1)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/36",
+      "passed": false,
+      "gen_s": 1.18,
+      "completion": "def find_Nth_Digit(numerator, denominator, n):\n    result = numerator / denominator\n    return str(result)[n]",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/37",
+      "passed": true,
+      "gen_s": 8.34,
+      "completion": "def sort_mixed_list(mixed_list):\n    int_list = []\n    str_list = []\n    for i in mixed_list:\n        if type(i) == int:\n            int_list.append(i)\n        else:\n            str_list.append(i)\n    int_list.sort()\n    str_list.sort()\n    return int_list + str_list\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/38",
+      "passed": false,
+      "gen_s": 3.88,
+      "completion": "def div_even_odd(lst):\n    even = 0\n    odd = 0\n    for i in lst:\n        if i % 2 == 0:\n            even = i\n        else:\n            odd = i\n    return even // odd\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/39",
+      "passed": false,
+      "gen_s": 2.15,
+      "completion": "def rearange_string(s):\n    # Your code here\n    return \"\"\n\n# Test cases",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/40",
+      "passed": true,
+      "gen_s": 11.01,
+      "completion": "from collections import Counter\n\ndef freq_element(list_of_lists):\n    flat_list = [item for sublist in list_of_lists for item in sublist]\n    return dict(Counter(flat_list))\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/41",
+      "passed": true,
+      "gen_s": 4.95,
+      "completion": "def filter_evennumbers(numbers):\n    return list(filter(lambda x: x % 2 == 0, numbers))\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/42",
+      "passed": false,
+      "gen_s": 2.65,
+      "completion": "def find_Sum(arr, n):\n    count = {}\n    for i in arr:\n        if i in count:\n            count[i] += 1\n        else:\n            count[i] = 1\n    sum = 0\n    for i in count:\n        if count[i] > 1:\n            sum += i\n    return sum",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/43",
+      "passed": false,
+      "gen_s": 3.16,
+      "completion": "import re\n\ndef text_match(text):\n    pattern = r'[a-z]+_[a-z]+'\n    if re.search(pattern, text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/44",
+      "passed": true,
+      "gen_s": 2.21,
+      "completion": "import re\n\ndef text_match_string(string):\n    if re.match(\"python\", string):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/45",
+      "passed": true,
+      "gen_s": 3.23,
+      "completion": "from math import gcd\nfrom functools import reduce\n\ndef get_gcd(arr):\n    return reduce(gcd, arr)\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/46",
+      "passed": true,
+      "gen_s": 0.91,
+      "completion": "def test_distinct(lst):\n    return len(lst) == len(set(lst))",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/47",
+      "passed": true,
+      "gen_s": 2.98,
+      "completion": "def compute_Last_Digit(a, b):\n    if a > b:\n        return 0\n    else:\n        factorial_a = 1\n        for i in range(1, a+1):\n            factorial_a *= i\n        factorial_b = 1\n        for j in range(1, b+1):\n            factorial_b *= j\n        return factorial_b // factorial_a % 10",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/48",
+      "passed": false,
+      "gen_s": 15.13,
+      "completion": "def odd_bit_set_number(n):\n    return n | 0x55555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/49",
+      "passed": true,
+      "gen_s": 0.95,
+      "completion": "def specified_element(lst, n):\n    return [i[n] for i in lst]",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/50",
+      "passed": false,
+      "gen_s": 1.0,
+      "completion": "def min_length_list(lists):\n    return min(lists, key=lambda x: len(x))",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/51",
+      "passed": true,
+      "gen_s": 1.24,
+      "completion": "def check_equilateral(a,b,c):\n    if a==b==c:\n        return True\n    else:\n        return False",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/52",
+      "passed": true,
+      "gen_s": 2.73,
+      "completion": "def parallelogram_area(base, height):\n    return base * height\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/53",
+      "passed": true,
+      "gen_s": 1.42,
+      "completion": "def check_Equality(string):\n    if string[0] == string[-1]:\n        return \"Equal\"\n    else:\n        return \"Not Equal\"",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/54",
+      "passed": false,
+      "gen_s": 0.8,
+      "completion": "def counting_sort(arr):\n    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/55",
+      "passed": false,
+      "gen_s": 0.91,
+      "completion": "def tn_gp(t,n,r):\n    return n*(r**(t-1))",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/56",
+      "passed": true,
+      "gen_s": 0.99,
+      "completion": "def check(n):\n    return n == 2 * int(str(n)[::-1]) - 1",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/57",
+      "passed": true,
+      "gen_s": 1.2,
+      "completion": "def find_Max_Num(digits, n):\n    digits.sort(reverse=True)\n    return int(''.join(map(str, digits[:n])))",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/58",
+      "passed": true,
+      "gen_s": 1.74,
+      "completion": "def opposite_Signs(a,b):\n    if a>0 and b<0:\n        return True\n    elif a<0 and b>0:\n        return True\n    else:\n        return False",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/59",
+      "passed": false,
+      "gen_s": 0.83,
+      "completion": "def is_octagonal(n):\n    return n*(2*n-1)",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/60",
+      "passed": false,
+      "gen_s": 3.09,
+      "completion": "def max_len_sub(arr, k):\n    max_len = 0\n    for i in range(len(arr)):\n        count = 1\n        for j in range(i+1, len(arr)):\n            if arr[j] - arr[j-1] == k:\n                count += 1\n            else:\n                count = 1\n            max_len = max(max_len, count)\n    return max_len",
+      "error": "AssertionError: "
+    }
+  ],
+  "pass@1": 0.58,
+  "total_gen_s": 158.8,
+  "status": "ok"
+}

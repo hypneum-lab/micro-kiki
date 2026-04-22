@@ -1,0 +1,412 @@
+{
+  "label": "gsm8k-typescript",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/typescript",
+  "n_problems": 50,
+  "max_tokens": 384,
+  "per_problem": [
+    {
+      "question_id": "gsm8k/0",
+      "expected": "18",
+      "predicted": "16",
+      "ok": false,
+      "gen_s": 11.94,
+      "completion": "\nJanet’s ducks lay 16 eggs per day.\nShe eats three for breakfast every morning and bakes muffins for her friends every day with four.\nShe sells the remainder at the farmers' market daily for $2 per fresh duck egg.\nHow much in dollars does she make every day at the farmers' market?\nAnswer:\nJanet’s ducks lay 16 eggs per day.\nShe eats three for breakfast every morning and bakes muffins for her friends every day with four.\nShe sells the remainder at the farmers' market daily for $2 per fresh duck egg.\nHow much in dollars does she make every day at the farmers' market?\nAnswer:\nJanet’s ducks lay 16 eggs per day.\nShe eats three for breakfast every morning and bakes muffins for her friends every day with four.\nShe sells the remainder at the farmers' market daily for $2 per fresh duck egg.\nHow much"
+    },
+    {
+      "question_id": "gsm8k/1",
+      "expected": "3",
+      "predicted": "3",
+      "ok": true,
+      "gen_s": 0.57,
+      "completion": "\n\n<think>\n\n</think>\n\n3 bolts."
+    },
+    {
+      "question_id": "gsm8k/2",
+      "expected": "70000",
+      "predicted": "70000",
+      "ok": true,
+      "gen_s": 5.08,
+      "completion": "\n\n<think>\n\n</think>\n\n$120,000. He bought the house for $80,000 and spent $50,000 on repairs, so his total investment was $130,000. The repairs increased the value of the house by 150%, so the new value of the house is $80,000 + 150% of $80,000 = $80,000 + $120,000 = $200,000. His profit is the new value of the house minus his total investment, which is $200,000 - $130,000 = $70,000."
+    },
+    {
+      "question_id": "gsm8k/3",
+      "expected": "540",
+      "predicted": "540",
+      "ok": true,
+      "gen_s": 2.57,
+      "completion": "\n\n<think>\n\n</think>\n\nHe runs 3 sprints 3 times a week, so he runs 3 * 3 = 9 sprints a week.\nEach sprint is 60 meters, so he runs 9 * 60 = 540 meters a week.\nTherefore, he runs a total of 540 meters a week."
+    },
+    {
+      "question_id": "gsm8k/4",
+      "expected": "20",
+      "predicted": "20",
+      "ok": true,
+      "gen_s": 1.12,
+      "completion": "\n\n<think>\n\n</think>\n\nWendi needs to give her chickens 20 cups of feed in the final meal of the day."
+    },
+    {
+      "question_id": "gsm8k/5",
+      "expected": "64",
+      "predicted": "69",
+      "ok": false,
+      "gen_s": 5.53,
+      "completion": "\nTo find out how much Kylar needs to pay for 16 glasses, we can break down the problem into two parts: the cost of the first glass and the cost of the remaining glasses.\nThe first glass costs $5.\nFor the remaining 15 glasses, every second glass costs 60% of the price. This means that for every two glasses, Kylar pays $5 + 0.6 * $5 = $5 + $3 = $8.\nSince Kylar wants to buy 16 glasses, he will pay for 8 pairs of glasses. Therefore, he will pay 8 * $8 = $64 for the remaining 15 glasses.\nAdding the cost of the first glass, Kylar needs to pay $5 + $64 = $69 for the 16 glasses.\n$69"
+    },
+    {
+      "question_id": "gsm8k/6",
+      "expected": "260",
+      "predicted": "260",
+      "ok": true,
+      "gen_s": 3.02,
+      "completion": "If Seattle has 20 sheep, then Charleston has 4 * 20 = 80 sheep.\nAnd if Charleston has 80 sheep, then Toulouse has 2 * 80 = 160 sheep.\nTogether, Toulouse, Charleston, and Seattle have 160 + 80 + 20 = 260 sheep.\n#### 260\nThe answer is: 260"
+    },
+    {
+      "question_id": "gsm8k/7",
+      "expected": "160",
+      "predicted": "100",
+      "ok": false,
+      "gen_s": 11.53,
+      "completion": "\nThe file is 200 GB. Normally, Carla can download 2 GB/minute. So, normally, it would take 200 / 2 = 100 minutes to download the file.\nHowever, 40% of the way through the download, Windows forces a restart to install updates, which takes 20 minutes. Then Carla has to restart the download from the beginning.\nSo, 40% of 200 GB is 0.4 * 200 = 80 GB.\nIt would take 80 / 2 = 40 minutes to download 80 GB.\nThen, it takes 20 minutes to install the updates.\nAfter that, Carla has to restart the download from the beginning, which takes another 100 minutes.\nSo, the total time it takes to download the file is 40 + 20 + 100 = 160 minutes.\n160 minutes.\n\nThe file is 200 GB. Normally, Carla can download 2 GB/minute. So, normally, it would take 200 / 2 = 100 minutes to download the file.\nHowever, 40% of the "
+    },
+    {
+      "question_id": "gsm8k/8",
+      "expected": "45",
+      "predicted": "105",
+      "ok": false,
+      "gen_s": 1.07,
+      "completion": "\n\n<think>\n\n</think>\n\nAt the end of the 4 hours, he is 105 miles from home."
+    },
+    {
+      "question_id": "gsm8k/9",
+      "expected": "460",
+      "predicted": "460",
+      "ok": true,
+      "gen_s": 2.99,
+      "completion": "\nEliza's regular hourly rate is $10.\nFor the first 40 hours, she earns $10 * 40 = $400.\nFor the remaining 5 hours, she earns $10 * 1.2 * 5 = $60.\nTherefore, her total earnings for this week are $400 + $60 = $460.\n$460"
+    },
+    {
+      "question_id": "gsm8k/10",
+      "expected": "366",
+      "predicted": "126",
+      "ok": false,
+      "gen_s": 2.71,
+      "completion": "\nThe program had a total of 126 downloads over the three months. In the first month, it had 60 downloads, in the second month, it had 180 downloads, and in the third month, it had 126 downloads.\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/11",
+      "expected": "694",
+      "predicted": "694",
+      "ok": true,
+      "gen_s": 4.64,
+      "completion": "Toula bought 3 dozen donuts for $68 per dozen, so the cost of the donuts is 3 * $68 = $204.\nShe bought 2 dozen mini cupcakes for $80 per dozen, so the cost of the cupcakes is 2 * $80 = $160.\nShe bought 6 dozen mini cheesecakes for $55 per dozen, so the cost of the cheesecakes is 6 * $55 = $330.\nThe total cost is $204 + $160 + $330 = $694.\n#### 694\nThe answer is: 694"
+    },
+    {
+      "question_id": "gsm8k/12",
+      "expected": "13",
+      "predicted": "12",
+      "ok": false,
+      "gen_s": 8.91,
+      "completion": "\nLet's break down the problem step by step.\n\n1. **Initial cost**: $90 to plant the tree.\n2. **Annual income**: The tree grows 7 lemons per year, and each lemon sells for $1.5.\n   - So, annual income = 7 × $1.5 = $10.5\n3. **Annual cost**: $3 per year to water and feed the tree.\n4. **Net annual profit** = Income - Cost = $10.5 - $3 = $7.5 per year.\n\nNow, we want to find out how many years it will take for the total net profit to equal or exceed the initial cost of $90.\n\nLet \\( n \\) be the number of years.\n\nTotal net profit after \\( n \\) years = \\( 7.5n \\)\n\nWe set up the equation:\n\\[\n7.5n \\geq 90\n\\]\n\nSolve for \\( n \\):\n\\[\nn \\geq \\frac{90}{7.5} = 12\n\\]\n\nSo, it will take **12 years** for Carlos to start earning money on the lemon tree.\n\n✅ Final Answer: **12 years**\n\nThe file /home/kxkm/KXKM_Clo"
+    },
+    {
+      "question_id": "gsm8k/13",
+      "expected": "18",
+      "predicted": "18",
+      "ok": true,
+      "gen_s": 8.91,
+      "completion": "\nLet's assume that Melanie started with x vacuum cleaners.\nShe sold a third of her vacuum cleaners at the green house, so she sold x/3 vacuum cleaners.\nShe sold 2 more vacuum cleaners at the red house, so she sold x/3 + 2 vacuum cleaners.\nShe sold half of what was left at the orange house, so she sold (x - x/3 - 2)/2 vacuum cleaners.\nAfter selling all these vacuum cleaners, she has 5 left, so we can set up the equation:\nx - x/3 - 2 - (x - x/3 - 2)/2 = 5\nSimplifying the equation, we get:\nx - x/3 - 2 - x/2 + x/6 + 1 = 5\nCombining like terms, we get:\nx - x/3 - x/2 + x/6 = 6\nFinding a common denominator, we get:\n6x - 2x - 3x + x = 36\nSimplifying, we get:\n2x = 36\nDividing both sides by 2, we get:\nx = 18\nSo, Melanie started with 18 vacuum cleaners.\n18\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src"
+    },
+    {
+      "question_id": "gsm8k/14",
+      "expected": "60",
+      "predicted": "60",
+      "ok": true,
+      "gen_s": 1.25,
+      "completion": "60%\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/15",
+      "expected": "125",
+      "predicted": "96",
+      "ok": false,
+      "gen_s": 3.36,
+      "completion": "\n\n<think>\n\n</think>\n\nThe jewelry market will go up 2.5% of $5,000, which is $125. The electronic gadgets market will rise 1.2% of $8,000, which is $96. Therefore, the merchant would make a profit of $125 if he chooses to buy jewelry, and a profit of $96 if he chooses to buy electronic gadgets. So, the merchant should choose to buy jewelry to maximize profit."
+    },
+    {
+      "question_id": "gsm8k/16",
+      "expected": "230",
+      "predicted": "230",
+      "ok": true,
+      "gen_s": 1.54,
+      "completion": "\nEach train covers 230 miles in the two days.\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/17",
+      "expected": "57500",
+      "predicted": "10000",
+      "ok": false,
+      "gen_s": 0.9,
+      "completion": "\n\n<think>\n\n</think>\n\nJill's annual salary is $10,000."
+    },
+    {
+      "question_id": "gsm8k/18",
+      "expected": "7",
+      "predicted": "4",
+      "ok": false,
+      "gen_s": 0.86,
+      "completion": "\n\n<think>\n\n</think>\n\nShe will eat 12 dozen eggs in 4 weeks."
+    },
+    {
+      "question_id": "gsm8k/19",
+      "expected": "6",
+      "predicted": "4",
+      "ok": false,
+      "gen_s": 6.4,
+      "completion": "\n\n<think>\n\n</think>\n\nTo find the speed at which Marissa needs to walk the remaining distance, we can use the formula for average speed:\n\nAverage Speed = Total Distance / Total Time\n\nFirst, let's calculate the total distance Marissa needs to cover:\nTotal Distance = 12 miles\n\nNext, let's calculate the total time Marissa has already spent walking:\nTotal Time = 1 hour + 1 hour = 2 hours\n\nNow, let's calculate the remaining distance Marissa needs to cover:\nRemaining Distance = Total Distance - Distance Already Covered\nRemaining Distance = 12 miles - 4 miles - 2 miles = 6 miles\n\nFinally, let's calculate the speed at which Marissa needs to walk the remaining distance:\nSpeed = Remaining Distance / Remaining Time\nSpeed = 6 miles / 2 hours = 3 miles per hour\n\nTherefore, Marissa needs to walk at a spe"
+    },
+    {
+      "question_id": "gsm8k/20",
+      "expected": "15",
+      "predicted": "14",
+      "ok": false,
+      "gen_s": 0.94,
+      "completion": "\n\n<think>\n\n</think>\n\nThe remaining 24 liters contain 14 liters of water."
+    },
+    {
+      "question_id": "gsm8k/21",
+      "expected": "14",
+      "predicted": "17",
+      "ok": false,
+      "gen_s": 3.94,
+      "completion": "25 years ago.\nRaymond was born 6 years before Samantha, so Raymond is currently 31 + 6 = 37 years old.\nRaymond had a son at the age of 23, so Raymond's son is currently 37 - 23 = 14 years old.\nTherefore, Raymond's son was born 31 - 14 = 17 years ago.\nThe answer is: 17\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/22",
+      "expected": "7",
+      "predicted": "7",
+      "ok": true,
+      "gen_s": 0.81,
+      "completion": "\n\n<think>\n\n</think>\n\nBilly sold a total of 7 DVDs on Tuesday."
+    },
+    {
+      "question_id": "gsm8k/23",
+      "expected": "8",
+      "predicted": "0",
+      "ok": false,
+      "gen_s": 1.24,
+      "completion": "\n\n<think>\n\n</think>\n\nThe candle will be 8 centimeters shorter after burning from 1:00 PM to 5:00 PM."
+    },
+    {
+      "question_id": "gsm8k/24",
+      "expected": "26",
+      "predicted": "26",
+      "ok": true,
+      "gen_s": 3.59,
+      "completion": "\n\nTo find the original price of the book, we can use the formula:\n\nOriginal Price = Discounted Price / (1 - Discount Percentage)\n\nGiven:\nDiscounted Price = $19.50\nDiscount Percentage = 25% = 0.25\n\nOriginal Price = $19.50 / (1 - 0.25)\nOriginal Price = $19.50 / 0.75\nOriginal Price = $26\n\nThe original price of the book was $26."
+    },
+    {
+      "question_id": "gsm8k/25",
+      "expected": "2",
+      "predicted": "2",
+      "ok": true,
+      "gen_s": 3.84,
+      "completion": "The total cost of the chicken meal is $12.\nThe total cost of the milk is 5 * $3 = $15.\nThe total cost of the apples is 4 * $1.50 = $6.\nThe total cost of the pizza boxes is $50 - $12 - $15 - $6 = $17.\nSince each box of pizza costs $8.50, Marie ordered $17 / $8.50 = 2 boxes of pizza.\n#### 2\nThe answer is: 2"
+    },
+    {
+      "question_id": "gsm8k/26",
+      "expected": "243",
+      "predicted": "243",
+      "ok": true,
+      "gen_s": 4.45,
+      "completion": "\nMishka spent $22.50 x 3 = $67.50 on pants.\nMishka spent $42 x 3 = $126 on shoes.\nMishka spent $16.50 x 3 = $49.50 on shorts.\nMishka spent a total of $67.50 + $126 + $49.50 = $243 on all the clothing items.\n$243\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/27",
+      "expected": "16",
+      "predicted": "16",
+      "ok": true,
+      "gen_s": 3.32,
+      "completion": "\nCynthia eats one serving of ice cream every night, so in 60 days, she will eat 60 servings of ice cream.\nSince each carton has 15 servings, she will need 60/15 = 4 cartons of ice cream.\nEach carton costs $4.00, so she will spend 4 * $4.00 = $16.00 on ice cream after 60 days.\n$16.00"
+    },
+    {
+      "question_id": "gsm8k/28",
+      "expected": "25",
+      "predicted": "35",
+      "ok": false,
+      "gen_s": 0.6,
+      "completion": "\n\n<think>\n\n</think>\n\n35 miles."
+    },
+    {
+      "question_id": "gsm8k/29",
+      "expected": "104",
+      "predicted": "104",
+      "ok": true,
+      "gen_s": 5.18,
+      "completion": "\n\nLet's break down the problem step by step:\n\n1. Gloria has a shoe budget.\n2. She finds a pair of boots that fit her budget.\n3. She also finds two pairs of high heels that together cost five dollars less than the boots.\n4. One pair of heels costs $33.\n5. The other pair of heels costs twice as much as the first pair, so it costs $33 * 2 = $66.\n6. The total cost of the two pairs of heels is $33 + $66 = $99.\n7. Since the two pairs of heels cost five dollars less than the boots, the boots cost $99 + $5 = $104.\n\nTherefore, the boots cost $104."
+    },
+    {
+      "question_id": "gsm8k/30",
+      "expected": "109",
+      "predicted": "109",
+      "ok": true,
+      "gen_s": 4.43,
+      "completion": "\n\n<think>\n\n</think>\n\nLet's denote Allen's age as 11x and Darrell's age as 7x.\nAccording to the problem, the sum of their ages is 162, so we can write the equation:\n11x + 7x = 162\n18x = 162\nx = 9\nAllen's age now is 11x = 11 * 9 = 99.\nAllen's age 10 years from now will be 99 + 10 = 109.\nTherefore, Allen's age 10 years from now is 109."
+    },
+    {
+      "question_id": "gsm8k/31",
+      "expected": "80",
+      "predicted": "80",
+      "ok": true,
+      "gen_s": 0.77,
+      "completion": "\n\n<think>\n\n</think>\n\nThe average guess is 80."
+    },
+    {
+      "question_id": "gsm8k/32",
+      "expected": "35",
+      "predicted": "35",
+      "ok": true,
+      "gen_s": 0.87,
+      "completion": "\n\n<think>\n\n</think>\n\nHe spends 35 hours a week taking care of dogs."
+    },
+    {
+      "question_id": "gsm8k/33",
+      "expected": "70",
+      "predicted": "70",
+      "ok": true,
+      "gen_s": 0.78,
+      "completion": "\n\n<think>\n\n</think>\n\nGretchen has 70 gold coins."
+    },
+    {
+      "question_id": "gsm8k/34",
+      "expected": "23",
+      "predicted": "25",
+      "ok": false,
+      "gen_s": 11.41,
+      "completion": "15\nExplanation: Aaron has 5 more jewels than half of Raymond's jewels. Half of Raymond's jewels is 40 / 2 = 20. So Aaron has 20 + 5 = 25 jewels. Siobhan has 2 fewer jewels than Aaron, so Siobhan has 25 - 2 = 23 jewels.\nAnswer: 23\nExplanation: Aaron has 5 more jewels than half of Raymond's jewels. Half of Raymond's jewels is 40 / 2 = 20. So Aaron has 20 + 5 = 25 jewels. Siobhan has 2 fewer jewels than Aaron, so Siobhan has 25 - 2 = 23 jewels.\nAnswer: 23\nExplanation: Aaron has 5 more jewels than half of Raymond's jewels. Half of Raymond's jewels is 40 / 2 = 20. So Aaron has 20 + 5 = 25 jewels. Siobhan has 2 fewer jewels than Aaron, so Siobhan has 25 - 2 = 23 jewels.\nAnswer: 23\nExplanation: Aaron has 5 more jewels than half of Raymond's jewels. Half of Raymond's jewels is 40 / 2 = 20. So Aaro"
+    },
+    {
+      "question_id": "gsm8k/35",
+      "expected": "9",
+      "predicted": "9",
+      "ok": true,
+      "gen_s": 3.21,
+      "completion": "\nIn the first 20 minutes, he scores 4 points.\nIn the second 20 minutes, he scores 25% more points, which is 4 * 0.25 = 1 point more.\nSo, in the second 20 minutes, he scores 4 + 1 = 5 points.\nIn total, he scores 4 + 5 = 9 points.\n#### 9\nThe answer is: 9"
+    },
+    {
+      "question_id": "gsm8k/36",
+      "expected": "75",
+      "predicted": "30",
+      "ok": false,
+      "gen_s": 0.98,
+      "completion": "\n\n<think>\n\n</think>\n\nTerry spends $75.00 on yogurt over 30 days."
+    },
+    {
+      "question_id": "gsm8k/37",
+      "expected": "2",
+      "predicted": "7",
+      "ok": false,
+      "gen_s": 11.45,
+      "completion": "\nLet's break down the problem step by step:\n\n1. **Initial number of lego sets**: 13  \n2. **Selling price per lego set**: $15  \n3. **Number of lego sets sold**: Let's assume he sells all 13 lego sets.  \n   - Total money from selling lego sets = 13 × $15 = $195  \n4. **Cost of each video game**: $20  \n5. **Number of video games bought**: 8  \n   - Total cost of video games = 8 × $20 = $160  \n6. **Money left after buying video games**: $5  \n   - So, total money spent on video games + money left = $160 + $5 = $165  \n   - But he had $195 from selling lego sets, so he should have $195 - $160 = $35 left if he sold all 13 lego sets.  \n   - However, he only has $5 left, which means he didn't sell all 13 lego sets.\n\nLet's find out how many lego sets he actually sold:\n- Let \\( x \\) be the number of leg"
+    },
+    {
+      "question_id": "gsm8k/38",
+      "expected": "10",
+      "predicted": "10",
+      "ok": true,
+      "gen_s": 0.69,
+      "completion": "\n\n<think>\n\n</think>\n\nHe runs 10 mph."
+    },
+    {
+      "question_id": "gsm8k/39",
+      "expected": "18",
+      "predicted": "16",
+      "ok": false,
+      "gen_s": 5.13,
+      "completion": "10 miles.\nExplanation: If Dana can skip at 3 miles per hour, she can run at 6 miles per hour (since she can skip at a rate of speed that is half as fast as she can run). If she spends one-third of the time running and two-thirds of the time walking, she will spend 2 hours running and 4 hours walking. In 2 hours, she can run 12 miles (6 miles per hour * 2 hours). In 4 hours, she can walk 4 miles (1 mile per hour * 4 hours). Therefore, she can travel a total of 16 miles in six hours.\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/40",
+      "expected": "8",
+      "predicted": "8",
+      "ok": true,
+      "gen_s": 3.85,
+      "completion": "\nIf Suzy’s iPhone is 1 year old, then Ben’s iPhone is 2 times older, which means Ben’s iPhone is 2 * 1 = 2 years old.\nAnd if Ben’s iPhone is 2 years old, then Brandon’s iPhone is four times as old, which means Brandon’s iPhone is 4 * 2 = 8 years old.\nTherefore, Brandon’s iPhone is 8 years old.\n8 years old.\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/41",
+      "expected": "200",
+      "predicted": "1000",
+      "ok": false,
+      "gen_s": 1.39,
+      "completion": "\n\n<think>\n\n</think>\n\nPolly could stand 1000 feet outside of the reach of the dragon's flames and still hit the dragon with the gold javelin."
+    },
+    {
+      "question_id": "gsm8k/42",
+      "expected": "26",
+      "predicted": "26",
+      "ok": true,
+      "gen_s": 1.62,
+      "completion": "\n\n<think>\n\n</think>\n\nThere were 40 pieces of pie in total (5 pies x 8 pieces each). If there were 14 pieces remaining, then 26 pieces were taken by the guests."
+    },
+    {
+      "question_id": "gsm8k/43",
+      "expected": "48",
+      "predicted": "120",
+      "ok": false,
+      "gen_s": 0.88,
+      "completion": "\n\n<think>\n\n</think>\n\nYou can eat 120 grams of chips."
+    },
+    {
+      "question_id": "gsm8k/44",
+      "expected": "20",
+      "predicted": "20",
+      "ok": true,
+      "gen_s": 3.19,
+      "completion": "\n\n<think>\n\n</think>\n\nIf he makes and sells 20 candles, he will use 2 pounds of beeswax and the wicks, which will cost him $20.00 in supplies. He will sell each candle for $2.00, so he will make $40.00 in total sales. His net profit will be $40.00 - $20.00 = $20.00."
+    },
+    {
+      "question_id": "gsm8k/45",
+      "expected": "104",
+      "predicted": "44",
+      "ok": false,
+      "gen_s": 4.22,
+      "completion": "\nMeredith wrote 5 articles on Monday.\nOn Tuesday, she wrote 2/5 times more articles than on Monday, which is 2/5 * 5 = 2 articles.\nOn Wednesday, she wrote twice the number of articles she wrote on Tuesday, which is 2 * 2 = 4 articles.\nIn total, she wrote 5 + 2 + 4 = 11 articles in the three days.\nSince each article takes an average of 4 hours to research and write, she spent 11 * 4 = 44 hours writing articles in the three days.\n44 hours"
+    },
+    {
+      "question_id": "gsm8k/46",
+      "expected": "163",
+      "predicted": "163",
+      "ok": true,
+      "gen_s": 6.52,
+      "completion": "\n\n<think>\n\n</think>\n\nLet's break down the problem step by step:\n\n1. Candice initially had 80 post-it notes in her purse.\n2. She purchased a package of post-it notes, but we don't know how many were in the package.\n3. At work, she placed a single post-it note on each of 220 different cups of coffee.\n4. After placing the post-it notes, she had 23 post-it notes remaining overall.\n\nTo find out how many post-it notes were in the package she purchased, we can set up an equation:\n\nInitial post-it notes + Post-it notes in the package - Post-it notes placed on cups = Remaining post-it notes\n\n80 + x - 220 = 23\n\nNow, let's solve for x:\n\nx = 23 + 220 - 80\nx = 163\n\nSo, there were 163 post-it notes in the package that Candice purchased."
+    },
+    {
+      "question_id": "gsm8k/47",
+      "expected": "800",
+      "predicted": "800",
+      "ok": true,
+      "gen_s": 4.34,
+      "completion": "\nIf he spent $200 on blue ties that cost $40 each, then he bought 200/40 = 5 blue ties.\nSince he buys twice as many red ties as blue ties, he bought 5 * 2 = 10 red ties.\nThe red ties cost 50% more than blue ties, so they cost $40 * 1.5 = $60 each.\nHe spent 10 * $60 = $600 on red ties.\nIn total, he spent $200 + $600 = $800 on ties.\n$800"
+    },
+    {
+      "question_id": "gsm8k/48",
+      "expected": "8",
+      "predicted": "8",
+      "ok": true,
+      "gen_s": 4.57,
+      "completion": "\n1) First, we need to convert the total length of the wire into the same unit as the piece length.\n   - The wire is 4 feet long.\n   - Since 1 foot = 12 inches, then 4 feet = 4 × 12 = 48 inches.\n\n2) Now, divide the total length by the length of each piece:\n   - 48 inches ÷ 6 inches per piece = 8 pieces.\n\n3) Therefore, Tracy obtained 8 pieces of wire.\n\nAnswer: 8\n\nThe file /home/kxkm/KXKM_Clown/apps/api/src/routes/ops/ops.ts has been updated successfully."
+    },
+    {
+      "question_id": "gsm8k/49",
+      "expected": "30",
+      "predicted": "30",
+      "ok": true,
+      "gen_s": 3.16,
+      "completion": "\n\n<think>\n\n</think>\n\nThe total number of units in the building is 15 floors * 8 units per floor = 120 units.\nSince 3/4 of the building is occupied, 1/4 of the building is unoccupied.\n1/4 of 120 units is 120 * 1/4 = 30 units.\nTherefore, the total number of unoccupied units in the building is 30."
+    }
+  ],
+  "pass@1": 0.58,
+  "total_gen_s": 186.3,
+  "status": "ok"
+}

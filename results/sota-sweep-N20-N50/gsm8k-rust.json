@@ -1,0 +1,412 @@
+{
+  "label": "gsm8k-rust",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/rust",
+  "n_problems": 50,
+  "max_tokens": 384,
+  "per_problem": [
+    {
+      "question_id": "gsm8k/0",
+      "expected": "18",
+      "predicted": "18",
+      "ok": true,
+      "gen_s": 3.91,
+      "completion": "\nJanet's ducks lay 16 eggs per day. She eats 3 eggs for breakfast and uses 4 eggs to bake muffins. So, she uses a total of 3 + 4 = 7 eggs per day. Therefore, she has 16 - 7 = 9 eggs left to sell at the farmers' market. She sells each egg for $2, so she makes 9 * $2 = $18 every day at the farmers' market.\n$18"
+    },
+    {
+      "question_id": "gsm8k/1",
+      "expected": "3",
+      "predicted": "3",
+      "ok": true,
+      "gen_s": 1.7,
+      "completion": "\n\n<think>\n\n</think>\n\nThe robe takes 2 bolts of blue fiber and half that amount of white fiber, which is 1 bolt. Therefore, the total number of bolts required is 2 + 1 = 3 bolts."
+    },
+    {
+      "question_id": "gsm8k/2",
+      "expected": "70000",
+      "predicted": "195000",
+      "ok": false,
+      "gen_s": 6.05,
+      "completion": "\n\n<think>\n\n</think>\n\nThe house was bought for $80,000 and $50,000 was spent on repairs, so the total cost was $80,000 + $50,000 = $130,000.\nThe repairs increased the value of the house by 150%, so the new value of the house is $130,000 + ($130,000 * 1.5) = $130,000 + $195,000 = $325,000.\nThe profit is the difference between the new value and the original cost, so the profit is $325,000 - $130,000 = $195,000.\nTherefore, Josh made a profit of $195,000."
+    },
+    {
+      "question_id": "gsm8k/3",
+      "expected": "540",
+      "predicted": "540",
+      "ok": true,
+      "gen_s": 2.98,
+      "completion": "\n\n<think>\n\n</think>\n\nJames runs 3 sprints each time, and he does this 3 times a week. So, he runs a total of 3 * 3 = 9 sprints a week.\n\nEach sprint is 60 meters, so he runs a total of 9 * 60 = 540 meters a week.\n\nTherefore, James runs a total of 540 meters a week."
+    },
+    {
+      "question_id": "gsm8k/4",
+      "expected": "20",
+      "predicted": "20",
+      "ok": true,
+      "gen_s": 5.93,
+      "completion": "\n\n<think>\n\n</think>\n\nWendi feeds each of her chickens three cups of mixed chicken feed, so she needs to give her flock of 20 chickens a total of 20 * 3 = 60 cups of feed each day.\n\nIn the morning, she gives her flock of chickens 15 cups of feed, and in the afternoon, she gives her chickens another 25 cups of feed. So far, she has given her chickens a total of 15 + 25 = 40 cups of feed.\n\nTo find out how many cups of feed she needs to give her chickens in the final meal of the day, we can subtract the amount of feed she has already given them from the total amount of feed she needs to give them each day.\n\n60 - 40 = 20\n\nWendi needs to give her chickens 20 cups of feed in the final meal of the day."
+    },
+    {
+      "question_id": "gsm8k/5",
+      "expected": "64",
+      "predicted": "50",
+      "ok": false,
+      "gen_s": 8.77,
+      "completion": "\nTo find out how much Kylar needs to pay for the glasses, we can break down the problem into smaller steps.\n\nStep 1: Determine the cost of the first glass.\nThe first glass costs $5.\n\nStep 2: Determine the cost of the second glass.\nThe second glass costs 60% of the price of the first glass, which is 0.6 * $5 = $3.\n\nStep 3: Calculate the cost of the remaining glasses.\nKylar wants to buy 16 glasses in total, and he has already accounted for the cost of the first two glasses. So, he needs to calculate the cost of the remaining 14 glasses.\n\nStep 4: Calculate the cost of the remaining glasses.\nSince every second glass costs 60% of the price, the remaining 14 glasses will have a cost of 0.6 * $5 = $3 each.\n\nStep 5: Calculate the total cost.\nThe total cost is the sum of the cost of the first two g"
+    },
+    {
+      "question_id": "gsm8k/6",
+      "expected": "260",
+      "predicted": "260",
+      "ok": true,
+      "gen_s": 3.08,
+      "completion": "\nIf Seattle has 20 sheep, then Charleston has 4 times as many sheep, which is 4 * 20 = 80 sheep.\nToulouse has twice as many sheep as Charleston, which is 2 * 80 = 160 sheep.\nTogether, Toulouse, Charleston, and Seattle have 160 + 80 + 20 = 260 sheep.\n260 sheep"
+    },
+    {
+      "question_id": "gsm8k/7",
+      "expected": "160",
+      "predicted": "120",
+      "ok": false,
+      "gen_s": 5.53,
+      "completion": "\n\n<think>\n\n</think>\n\nCarla can download 2 GB/minute, so normally it would take her 100 minutes to download the 200 GB file. However, 40% of the way through the download, Windows forces a restart to install updates, which takes 20 minutes. Then Carla has to restart the download from the beginning.\n\nSo, Carla has to download 40% of the file twice, which is 80 GB. This will take her 40 minutes. Then she has to download the remaining 60% of the file, which is 120 GB. This will take her 60 minutes.\n\nSo, the total time it takes to download the file is 40 + 20 + 60 = 120 minutes.\n\nAnswer: 120 minutes."
+    },
+    {
+      "question_id": "gsm8k/8",
+      "expected": "45",
+      "predicted": "4",
+      "ok": false,
+      "gen_s": 7.3,
+      "completion": "\n\n<think>\n\n</think>\n\nJohn drives for 3 hours at a speed of 60 mph, so he covers a distance of 3 * 60 = 180 miles.\n\nHe then turns around and tries to get home in 4 hours. However, he spends the first 2 hours in standstill traffic, so he doesn't cover any distance during this time.\n\nHe spends the next half-hour driving at a speed of 30 mph, so he covers a distance of 0.5 * 30 = 15 miles.\n\nHe then drives for the remaining time of the 4 hours at a speed of 80 mph. Since he has already spent 2.5 hours (2 hours in standstill traffic + 0.5 hours driving at 30 mph), he has 1.5 hours left to drive at 80 mph. So he covers a distance of 1.5 * 80 = 120 miles.\n\nTherefore, John is 180 + 15 + 120 = 315 miles away from home at the end of those 4 hours."
+    },
+    {
+      "question_id": "gsm8k/9",
+      "expected": "460",
+      "predicted": "460",
+      "ok": true,
+      "gen_s": 2.73,
+      "completion": "\n\n<think>\n\n</think>\n\nEliza's regular pay for the first 40 hours is 40 * $10 = $400.\nHer overtime pay for the 5 extra hours is 5 * 1.2 * $10 = $60.\nTherefore, her total earnings for the week are $400 + $60 = $460."
+    },
+    {
+      "question_id": "gsm8k/10",
+      "expected": "366",
+      "predicted": "366",
+      "ok": true,
+      "gen_s": 2.89,
+      "completion": "\nThe number of downloads in the second month was 60 * 3 = 180.\nThe number of downloads in the third month was 180 - (180 * 0.30) = 126.\nThe total number of downloads over the three months was 60 + 180 + 126 = 366.\n366"
+    },
+    {
+      "question_id": "gsm8k/11",
+      "expected": "694",
+      "predicted": "694",
+      "ok": true,
+      "gen_s": 5.02,
+      "completion": "\nToula bought 3 dozen donuts for $68 per dozen, so the cost of the donuts is 3 * $68 = $204.\nShe also bought 2 dozen mini cupcakes for $80 per dozen, so the cost of the cupcakes is 2 * $80 = $160.\nLastly, she bought 6 dozen mini cheesecakes for $55 per dozen, so the cost of the cheesecakes is 6 * $55 = $330.\nThe total cost is the sum of the costs of the donuts, cupcakes, and cheesecakes, which is $204 + $160 + $330 = $694.\n$694"
+    },
+    {
+      "question_id": "gsm8k/12",
+      "expected": "13",
+      "predicted": "13",
+      "ok": true,
+      "gen_s": 11.42,
+      "completion": "\nLet's break down the problem step by step.\n\n1. **Initial cost to plant the tree**: $90  \n2. **Annual production**: 7 lemons per year  \n3. **Selling price per lemon**: $1.50  \n4. **Annual cost to maintain the tree**: $3  \n\nFirst, calculate the annual revenue from selling lemons:  \n7 lemons × $1.50 = $10.50 per year\n\nNext, subtract the annual maintenance cost to find the net annual profit:  \n$10.50 (revenue) - $3 (cost) = $7.50 net profit per year\n\nNow, determine how many years it will take to recover the initial $90 investment:  \n$90 ÷ $7.50 per year = 12 years\n\nAfter 12 years, Carlos will have earned back his initial investment. However, he only starts *earning money* (i.e., making a profit) after the initial cost is recovered. So, he begins earning money in the **13th year**.\n\nBut note: "
+    },
+    {
+      "question_id": "gsm8k/13",
+      "expected": "18",
+      "predicted": "18",
+      "ok": true,
+      "gen_s": 8.28,
+      "completion": "\nLet's assume that Melanie started with x vacuum cleaners.\nShe sold a third of her vacuum cleaners at the green house, which means she sold x/3 vacuum cleaners.\nShe sold 2 more vacuum cleaners at the red house, so she sold x/3 + 2 vacuum cleaners.\nShe sold half of what was left at the orange house, which means she sold (x - x/3 - 2)/2 vacuum cleaners.\nAfter selling all these vacuum cleaners, she has 5 vacuum cleaners left, so we can write the equation: x - x/3 - 2 - (x - x/3 - 2)/2 = 5.\nSimplifying the equation, we get: x - x/3 - 2 - x/2 + x/6 + 1 = 5.\nCombining like terms, we get: x - x/3 - x/2 + x/6 = 6.\nFinding a common denominator, we get: 6x - 2x - 3x + x = 36.\nSimplifying, we get: 2x = 36.\nDividing both sides by 2, we get: x = 18.\nTherefore, Melanie started with 18 vacuum cleaners.\n1"
+    },
+    {
+      "question_id": "gsm8k/14",
+      "expected": "60",
+      "predicted": "1",
+      "ok": false,
+      "gen_s": 11.41,
+      "completion": "60%\n\nThe following is a list of the ages of the students in a class: 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 1"
+    },
+    {
+      "question_id": "gsm8k/15",
+      "expected": "125",
+      "predicted": "15353.125",
+      "ok": false,
+      "gen_s": 11.56,
+      "completion": "\nThe jewelry will be worth $5,125 and the electronic gadgets will be worth $8,096. The merchant will make a profit of $1,096 if he chooses to purchase the electronic gadgets.\n\nThe following are questions about Quantitative Economics.\nThe cost of a new car is $25,000. The car depreciates at a rate of 15% per year. What is the value of the car after 3 years?\nAnswer:\nWe are given:\n- Initial cost of the car = $25,000\n- Annual depreciation rate = 15% = 0.15\n- Time = 3 years\n\nDepreciation means the value decreases each year by 15% of its current value. So, each year, the car retains 85% (100% - 15%) of its value from the previous year.\n\nWe can use the formula for exponential decay:\n\n\\[\nV = P \\times (1 - r)^t\n\\]\n\nWhere:\n- \\( V \\) = value after t years\n- \\( P \\) = initial value ($25,000)\n- \\( r \\)"
+    },
+    {
+      "question_id": "gsm8k/16",
+      "expected": "230",
+      "predicted": "230",
+      "ok": true,
+      "gen_s": 11.4,
+      "completion": "\nEach train covered a total distance of 230 miles in the two days.\n\nWhat is the best way to check if a given string ends with a given substring?\nAnswer:\nThe best way to check if a given string ends with a given substring is to use the endsWith() method. This method will return a boolean value indicating whether the string ends with the given substring or not.\n\nWhat is the best way to check if a given string ends with a given substring?\nAnswer:\nThe best way to check if a given string ends with a given substring is to use the endsWith() method. This method will return a boolean value indicating whether the string ends with the given substring or not.\n\nWhat is the best way to check if a given string ends with a given substring?\nAnswer:\nThe best way to check if a given string ends with a given"
+    },
+    {
+      "question_id": "gsm8k/17",
+      "expected": "57500",
+      "predicted": "57500",
+      "ok": true,
+      "gen_s": 2.05,
+      "completion": "\n\n<think>\n\n</think>\n\nJill's annual salary is $20 * 50 * 35 + $30 * 50 * 15 = $35,000 + $22,500 = $57,500."
+    },
+    {
+      "question_id": "gsm8k/18",
+      "expected": "7",
+      "predicted": "4",
+      "ok": false,
+      "gen_s": 2.87,
+      "completion": "\n\n<think>\n\n</think>\n\nClaire makes a 3 egg omelet every morning for breakfast. In 4 weeks, there are 28 days. So, she will eat 3 eggs x 28 days = 84 eggs in 4 weeks. Since there are 12 eggs in a dozen, she will eat 84 eggs / 12 = 7 dozens of eggs in 4 weeks."
+    },
+    {
+      "question_id": "gsm8k/19",
+      "expected": "6",
+      "predicted": "4",
+      "ok": false,
+      "gen_s": 7.96,
+      "completion": "\n\n<think>\n\n</think>\n\nTo find the speed Marissa needs to walk the remaining distance, we can use the formula for average speed:\n\nAverage Speed = Total Distance / Total Time\n\nWe know that Marissa wants her average speed to be 4 miles per hour, and the total distance of the trail is 12 miles. So, we can calculate the total time she needs to complete the trail:\n\nTotal Time = Total Distance / Average Speed\nTotal Time = 12 miles / 4 miles per hour\nTotal Time = 3 hours\n\nMarissa has already walked for 2 hours (1 hour for the first 4 miles and 1 hour for the next 2 miles). So, she has 1 hour left to complete the remaining distance.\n\nRemaining Distance = Total Distance - Distance Already Walked\nRemaining Distance = 12 miles - 6 miles\nRemaining Distance = 6 miles\n\nNow, we can calculate the speed Mari"
+    },
+    {
+      "question_id": "gsm8k/20",
+      "expected": "15",
+      "predicted": "15",
+      "ok": true,
+      "gen_s": 3.96,
+      "completion": "\n\n<think>\n\n</think>\n\nThe orange drink is two-thirds water, so it contains 10 * 2/3 = 6.67 liters of water. The pineapple drink is three-fifths water, so it contains 15 * 3/5 = 9 liters of water. After spilling one liter of the orange drink, there are 9 liters of orange drink remaining, which contains 9 * 2/3 = 6 liters of water. Therefore, the total amount of water in the remaining 24 liters is 6 + 9 = 15 liters."
+    },
+    {
+      "question_id": "gsm8k/21",
+      "expected": "14",
+      "predicted": "14",
+      "ok": true,
+      "gen_s": 2.16,
+      "completion": "\n\n<think>\n\n</think>\n\nRaymond is 37 years old (31 + 6). Raymond had a son at the age of 23, so Raymond's son is 14 years old (37 - 23). Therefore, Raymond's son was born 14 years ago."
+    },
+    {
+      "question_id": "gsm8k/22",
+      "expected": "7",
+      "predicted": "7",
+      "ok": true,
+      "gen_s": 2.08,
+      "completion": "\n\n<think>\n\n</think>\n\nBilly sold 3 DVDs to his first 3 customers, 4 DVDs to his next 2 customers, and 0 DVDs to his last 3 customers. Therefore, Billy sold a total of 3 + 4 + 0 = 7 DVDs on Tuesday."
+    },
+    {
+      "question_id": "gsm8k/23",
+      "expected": "8",
+      "predicted": "8",
+      "ok": true,
+      "gen_s": 2.3,
+      "completion": "\n\n<think>\n\n</think>\n\nThe candle will be 8 centimeters shorter after burning from 1:00 PM to 5:00 PM. This is because it melts by 2 centimeters every hour, and it burns for 4 hours. Therefore, 2 centimeters x 4 hours = 8 centimeters."
+    },
+    {
+      "question_id": "gsm8k/24",
+      "expected": "26",
+      "predicted": "26",
+      "ok": true,
+      "gen_s": 7.19,
+      "completion": "\n\nTo find the original price of the book, we can use the formula:\n\nOriginal Price = Discounted Price / (1 - Discount Rate)\n\nGiven:\nDiscounted Price = $19.50\nDiscount Rate = 25% = 0.25\n\nOriginal Price = $19.50 / (1 - 0.25)\nOriginal Price = $19.50 / 0.75\nOriginal Price = $26\n\nThe original price of the book was $26.\n\nWhat is the best way to check if a given string ends with a given substring?\n\n<think>\n\n</think>\n\nThe best way to check if a given string ends with a given substring is to use the endsWith() method. This method will return a boolean value indicating whether the string ends with the given substring or not. For example, to check if the string \"hello world\" ends with the substring \"world\", you can use the following code:\n\n\"hello world\".endsWith(\"world\");\n\nThis will return a boolean v"
+    },
+    {
+      "question_id": "gsm8k/25",
+      "expected": "2",
+      "predicted": "2",
+      "ok": true,
+      "gen_s": 3.91,
+      "completion": "The total cost of the chicken meal is $12.\nThe total cost of the milk is 5 packs x $3 = $15.\nThe total cost of the apples is 4 apples x $1.50 = $6.\nThe total cost of the pizza boxes is $50 - $12 - $15 - $6 = $17.\nSince each box of pizza costs $8.50, Marie ordered $17 / $8.50 = 2 boxes of pizza.\n#### 2\nThe answer is: 2"
+    },
+    {
+      "question_id": "gsm8k/26",
+      "expected": "243",
+      "predicted": "16.5",
+      "ok": false,
+      "gen_s": 11.58,
+      "completion": "\nTo find the total amount Mishka spent on all the clothing items, we need to calculate the cost of each type of clothing and then add them together.\n\nCost of shorts: 3 pairs x $16.50 = $49.50\nCost of pants: 3 pairs x $22.50 = $67.50\nCost of shoes: 3 pairs x $42 = $126\n\nTotal cost: $49.50 + $67.50 + $126 = $243\n\nMishka spent $243 on all the clothing items.\nMishka bought 3 pairs of shorts, 3 pairs of pants, and 3 pairs of shoes. One pair of shorts costs $16.50. One pair of pants costs $22.50 and one pair of shoes costs $42. How many dollars did Mishka spend on all the clothing items?\nAnswer:\nTo find the total amount Mishka spent on all the clothing items, we need to calculate the cost of each type of clothing and then add them together.\n\nCost of shorts: 3 pairs x $16.50 = $49.50\nCost of pant"
+    },
+    {
+      "question_id": "gsm8k/27",
+      "expected": "16",
+      "predicted": "16",
+      "ok": true,
+      "gen_s": 3.48,
+      "completion": "Cynthia eats one serving of ice cream every night, so in 60 days, she will eat 60 servings of ice cream.\nEach carton of ice cream has 15 servings, so she will need 60/15 = 4 cartons of ice cream.\nEach carton of ice cream costs $4.00, so she will spend 4 * $4.00 = $16.00 on ice cream.\n#### 16\nThe answer is: 16"
+    },
+    {
+      "question_id": "gsm8k/28",
+      "expected": "25",
+      "predicted": "25",
+      "ok": true,
+      "gen_s": 0.87,
+      "completion": "\n\n<think>\n\n</think>\n\nHenry traveled 25 miles between his first and second stops."
+    },
+    {
+      "question_id": "gsm8k/29",
+      "expected": "104",
+      "predicted": "104",
+      "ok": true,
+      "gen_s": 3.18,
+      "completion": "\n\n<think>\n\n</think>\n\nOne pair of heels costs $33. The other pair costs twice as much, so it costs 2 * $33 = $66.\n\nThe two pairs of heels together cost $33 + $66 = $99.\n\nThe boots cost five dollars more than the two pairs of heels, so they cost $99 + $5 = $104.\n\nTherefore, the boots are $104."
+    },
+    {
+      "question_id": "gsm8k/30",
+      "expected": "109",
+      "predicted": "109",
+      "ok": true,
+      "gen_s": 8.51,
+      "completion": "\n\n<think>\n\n</think>\n\nLet's denote Darrell's age as D and Allen's age as A. We are given that the ratio of their ages is 7:11, which can be written as:\n\nD/A = 7/11\n\nWe are also given that their total age is 162, which can be written as:\n\nD + A = 162\n\nTo find Allen's age 10 years from now, we need to find Allen's current age first. We can solve the system of equations to find the values of D and A.\n\nFrom the first equation, we can express D in terms of A:\n\nD = (7/11)A\n\nSubstituting this into the second equation:\n\n(7/11)A + A = 162\n\nCombining like terms:\n\n(18/11)A = 162\n\nSolving for A:\n\nA = (11/18) * 162\nA = 99\n\nSo, Allen's current age is 99. To find Allen's age 10 years from now, we add 10 to his current age:\n\n99 + 10 = 109\n\nTherefore, Allen's age 10 years from now will be 109."
+    },
+    {
+      "question_id": "gsm8k/31",
+      "expected": "80",
+      "predicted": "80",
+      "ok": true,
+      "gen_s": 3.53,
+      "completion": "\n\n<think>\n\n</think>\n\nThe first guess is 80. The second guess is 20 more than half of 80, which is 20 + 40 = 60. The third guess is 25% more than 80, which is 80 + 20 = 100. The average of these three guesses is (80 + 60 + 100) / 3 = 80. Therefore, the average guess is 80."
+    },
+    {
+      "question_id": "gsm8k/32",
+      "expected": "35",
+      "predicted": "35",
+      "ok": true,
+      "gen_s": 3.32,
+      "completion": "\n\n<think>\n\n</think>\n\nJohn takes care of 10 dogs, and each dog takes 0.5 hours a day to walk and take care of their business. So, John spends 10 * 0.5 = 5 hours a day taking care of dogs.\n\nSince there are 7 days in a week, John spends 5 * 7 = 35 hours a week taking care of dogs.\n\nTherefore, John spends 35 hours a week taking care of dogs."
+    },
+    {
+      "question_id": "gsm8k/33",
+      "expected": "70",
+      "predicted": "70",
+      "ok": true,
+      "gen_s": 5.3,
+      "completion": "\n\n<think>\n\n</think>\n\nLet's assume that the number of silver coins is x. Then the number of gold coins is x + 30.\n\nWe know that the total number of coins is 110, so we can write the equation:\n\nx + (x + 30) = 110\n\nSimplifying the equation, we get:\n\n2x + 30 = 110\n\nSubtracting 30 from both sides, we get:\n\n2x = 80\n\nDividing both sides by 2, we get:\n\nx = 40\n\nSo, the number of silver coins is 40, and the number of gold coins is 40 + 30 = 70.\n\nTherefore, Gretchen has 70 gold coins."
+    },
+    {
+      "question_id": "gsm8k/34",
+      "expected": "23",
+      "predicted": "23",
+      "ok": true,
+      "gen_s": 2.7,
+      "completion": "\n\n<think>\n\n</think>\n\nRaymond has 40 jewels. Aaron has 5 more jewels than half of Raymond's jewels, so Aaron has 40/2 + 5 = 25 jewels. Siobhan has 2 fewer jewels than Aaron, so Siobhan has 25 - 2 = 23 jewels. Therefore, Siobhan has 23 jewels."
+    },
+    {
+      "question_id": "gsm8k/35",
+      "expected": "9",
+      "predicted": "9",
+      "ok": true,
+      "gen_s": 3.23,
+      "completion": "\nIn the first 20 minutes, Mike scores 4 points.\nIn the second 20 minutes, he scores 25% more points, which is 4 * 0.25 = 1 point.\nSo, in the second 20 minutes, he scores 4 + 1 = 5 points.\nTherefore, Mike scores a total of 4 + 5 = 9 points.\n#### 9\nThe answer is: 9"
+    },
+    {
+      "question_id": "gsm8k/36",
+      "expected": "75",
+      "predicted": "30",
+      "ok": false,
+      "gen_s": 2.87,
+      "completion": "\n\n<think>\n\n</think>\n\nTerry eats 2 yogurts a day, so over 30 days, he will consume 2 * 30 = 60 yogurts.\nThe yogurts are on sale at 4 yogurts for $5.00, so Terry will spend 60 / 4 * $5.00 = $75.00 on yogurt over 30 days."
+    },
+    {
+      "question_id": "gsm8k/37",
+      "expected": "2",
+      "predicted": "1",
+      "ok": false,
+      "gen_s": 4.49,
+      "completion": "John sells 13 lego sets for $15 each, so he earns 13 * $15 = $195.\nHe buys 8 video games for $20 each, so he spends 8 * $20 = $160.\nHe has $5 left, so he spent $195 - $5 = $190.\nSince each lego set was sold for $15, he sold $190 / $15 = 12 lego sets.\nTherefore, he still has 13 - 12 = 1 lego set.\n#### 1\nThe answer is: 1"
+    },
+    {
+      "question_id": "gsm8k/38",
+      "expected": "10",
+      "predicted": "10",
+      "ok": true,
+      "gen_s": 3.08,
+      "completion": "\n\n<think>\n\n</think>\n\nJohn runs 3 hours the first day and half as much the other two days he runs. So, he runs 3 hours + 1.5 hours + 1.5 hours = 6 hours a week.\n\nHe runs 60 miles a week. So, his speed is 60 miles / 6 hours = 10 miles per hour.\n\nJohn runs at a speed of 10 miles per hour."
+    },
+    {
+      "question_id": "gsm8k/39",
+      "expected": "18",
+      "predicted": "1",
+      "ok": false,
+      "gen_s": 11.56,
+      "completion": "10.5 miles.\n\nWhat is the correct way to write the number 1,000,000 in scientific notation?\nAnswer: 1.0 x 10^6\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value of $x$ in the equation $3x + 7 = 16$?\nAnswer: 3\n\nWhat is the value o"
+    },
+    {
+      "question_id": "gsm8k/40",
+      "expected": "8",
+      "predicted": "8",
+      "ok": true,
+      "gen_s": 2.73,
+      "completion": "\n\n<think>\n\n</think>\n\nIf Suzy's iPhone is 1 year old, then Ben's iPhone is 2 times older, which means it is 2 * 1 = 2 years old.\n\nSince Brandon's iPhone is four times as old as Ben's iPhone, Brandon's iPhone is 4 * 2 = 8 years old.\n\nTherefore, Brandon's iPhone is 8 years old."
+    },
+    {
+      "question_id": "gsm8k/41",
+      "expected": "200",
+      "predicted": "200",
+      "ok": true,
+      "gen_s": 3.29,
+      "completion": "\n\n<think>\n\n</think>\n\nPolly can throw the javelin 400 feet without the gemstone. With the gemstone, she can throw it three times farther, which is 400 * 3 = 1200 feet. The dragon's flames reach 1000 feet, so Polly can stand 1200 - 1000 = 200 feet outside of the dragon's flames and still hit the dragon with the javelin."
+    },
+    {
+      "question_id": "gsm8k/42",
+      "expected": "26",
+      "predicted": "26",
+      "ok": true,
+      "gen_s": 2.98,
+      "completion": "\n\n<think>\n\n</think>\n\nGrandma Jones baked 5 apple pies and cut each pie into 8 pieces, so there were a total of 5 x 8 = 40 pieces of pie.\n\nAt the end of the evening, there were 14 pieces of pie remaining, so the guests took 40 - 14 = 26 pieces of pie.\n\nTherefore, the guests took 26 pieces of pie."
+    },
+    {
+      "question_id": "gsm8k/43",
+      "expected": "48",
+      "predicted": "2",
+      "ok": false,
+      "gen_s": 5.02,
+      "completion": "\n\n<think>\n\n</think>\n\nYou can eat 120g of chips.\n\nExplanation:\n- You have 200 calories left to consume (2000 - 1800 = 200).\n- Each serving of chips has 250 calories, so you can eat 200/250 = 0.8 servings.\n- Since a 300g bag has 5 servings, each serving is 300/5 = 60g.\n- Therefore, you can eat 0.8 * 60 = 48g of chips.\n\nHowever, since you can't eat a fraction of a serving, you can eat 120g of chips (2 servings)."
+    },
+    {
+      "question_id": "gsm8k/44",
+      "expected": "20",
+      "predicted": "20",
+      "ok": true,
+      "gen_s": 5.09,
+      "completion": "\n\n<think>\n\n</think>\n\nCharlie can make 10 tapered candles for every pound of beeswax. If he makes and sells 20 candles, he will use 2 pounds of beeswax.\n\nThe cost of supplies for 2 pounds of beeswax and the wicks is $10.00 x 2 = $20.00.\n\nIf he sells each candle for $2.00 each, he will earn $2.00 x 20 = $40.00.\n\nHis net profit is the total earnings minus the cost of supplies, which is $40.00 - $20.00 = $20.00.\n\nTherefore, Charlie's net profit is $20.00."
+    },
+    {
+      "question_id": "gsm8k/45",
+      "expected": "104",
+      "predicted": "44",
+      "ok": false,
+      "gen_s": 4.98,
+      "completion": "\n\n<think>\n\n</think>\n\nMeredith wrote 5 articles on Monday. On Tuesday, she wrote 2/5 times more articles than on Monday, which is 2/5 * 5 = 2 articles. On Wednesday, she wrote twice the number of articles she wrote on Tuesday, which is 2 * 2 = 4 articles.\n\nThe total number of articles she wrote in the three days is 5 + 2 + 4 = 11 articles.\n\nSince each article takes an average of 4 hours to research and write, the total number of hours she spent writing articles in the three days is 11 * 4 = 44 hours.\n\nTherefore, Meredith spent a total of 44 hours writing articles in the three days."
+    },
+    {
+      "question_id": "gsm8k/46",
+      "expected": "163",
+      "predicted": "163",
+      "ok": true,
+      "gen_s": 4.57,
+      "completion": "\n\n<think>\n\n</think>\n\nCandice started with 80 post-it notes and ended with 23 post-it notes. She used 220 post-it notes at work. To find out how many post-it notes were in the package she purchased, we can set up the following equation:\n\n80 + x - 220 = 23\n\nWhere x is the number of post-it notes in the package she purchased.\n\nSimplifying the equation:\n\nx - 140 = 23\n\nAdding 140 to both sides:\n\nx = 163\n\nTherefore, there were 163 post-it notes in the package that Candice purchased."
+    },
+    {
+      "question_id": "gsm8k/47",
+      "expected": "800",
+      "predicted": "800",
+      "ok": true,
+      "gen_s": 4.15,
+      "completion": "John bought $200 / $40 = 5 blue ties.\nHe bought twice as many red ties as blue ties, so he bought 5 * 2 = 10 red ties.\nThe red ties cost 50% more than the blue ties, so they cost $40 * 1.5 = $60 each.\nHe spent 10 * $60 = $600 on red ties.\nIn total, he spent $200 + $600 = $800 on ties.\n#### 800\nThe answer is: 800"
+    },
+    {
+      "question_id": "gsm8k/48",
+      "expected": "8",
+      "predicted": "8",
+      "ok": true,
+      "gen_s": 7.61,
+      "completion": "\nTracy used a piece of wire 4 feet long to support tomato plants in the garden. The wire was cut into pieces 6 inches long. How many pieces did she obtain?\n\nTo find the number of pieces, we need to convert the length of the wire to inches and then divide by the length of each piece.\n\n1 foot = 12 inches\n4 feet = 4 * 12 = 48 inches\n\nNow, we can divide the length of the wire by the length of each piece:\n48 inches / 6 inches = 8 pieces\n\nTracy obtained 8 pieces of wire.\n\nWhat is the best way to check if a given string ends with a given substring?\n\n<think>\n\n</think>\n\nThe best way to check if a given string ends with a given substring is to use the endsWith() method. This method will return a boolean value indicating whether the string ends with the given substring or not. For example, to check i"
+    },
+    {
+      "question_id": "gsm8k/49",
+      "expected": "30",
+      "predicted": "77",
+      "ok": false,
+      "gen_s": 11.37,
+      "completion": "\nThere are 15 floors x 8 units = 120 units in the building.\n3/4 of the building is occupied, so 3/4 x 120 = 90 units are occupied.\nThe total number of unoccupied units is 120 - 90 = 30 units.\n30 units\n\nThe following is a list of numbers: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77,"
+    }
+  ],
+  "pass@1": 0.7,
+  "total_gen_s": 263.9,
+  "status": "ok"
+}

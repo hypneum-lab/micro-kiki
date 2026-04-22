@@ -1,0 +1,172 @@
+{
+  "label": "humaneval-python",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/python",
+  "n_problems": 20,
+  "max_tokens": 384,
+  "per_problem": [
+    {
+      "task_id": "HumanEval/0",
+      "entry_point": "has_close_elements",
+      "passed": true,
+      "gen_s": 11.84,
+      "completion": "    numbers.sort()\n    for i in range(len(numbers) - 1):\n        if abs(numbers[i] - numbers[i + 1]) < threshold:\n            return True\n    return False\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/1",
+      "entry_point": "separate_paren_groups",
+      "passed": true,
+      "gen_s": 11.43,
+      "completion": "    result = []\n    current_group = []\n    depth = 0\n    for char in paren_string:\n        if char == '(':\n            depth += 1\n            current_group.append(char)\n        elif char == ')':\n            depth -= 1\n            current_group.append(char)\n            if depth == 0:\n                result.append(''.join(current_group))\n                current_group = []\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/2",
+      "entry_point": "truncate_number",
+      "passed": true,
+      "gen_s": 11.31,
+      "completion": "    return number - int(number)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/3",
+      "entry_point": "below_zero",
+      "passed": true,
+      "gen_s": 1.32,
+      "completion": "    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/4",
+      "entry_point": "mean_absolute_deviation",
+      "passed": true,
+      "gen_s": 2.23,
+      "completion": "    mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/5",
+      "entry_point": "intersperse",
+      "passed": true,
+      "gen_s": 3.8,
+      "completion": "    if len(numbers) == 0:\n        return []\n    result = [numbers[0]]\n    for i in range(1, len(numbers)):\n        result.append(delimeter)\n        result.append(numbers[i])\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/6",
+      "entry_point": "parse_nested_parens",
+      "passed": false,
+      "gen_s": 3.17,
+      "completion": "    result = []\n    current_group = []\n    current_depth = 0\n    for char in paren_string:\n        if char == '(':\n            current_depth += 1\n            current_group.append(char)\n        elif char == ')':\n            current_depth -= 1\n            current_group.append(char)\n            if current_depth == 0:\n                result.append(len(current_group) // 2)\n                current_group = []\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/7",
+      "entry_point": "filter_by_substring",
+      "passed": true,
+      "gen_s": 11.35,
+      "completion": "    return [s for s in strings if substring in s]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/8",
+      "entry_point": "sum_product",
+      "passed": false,
+      "gen_s": 4.14,
+      "completion": "    if not numbers:\n        return 0, 1\n    else:\n        return sum(numbers), product(numbers)\n\n",
+      "error": "NameError: name 'product' is not defined"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "entry_point": "rolling_max",
+      "passed": false,
+      "gen_s": 11.36,
+      "completion": "    result = []\n    max_val = numbers[0]\n    for num in numbers:\n        if num > max_val:\n            max_val = num\n        result.append(max_val)\n    return result\n\n",
+      "error": "IndexError: list index out of range"
+    },
+    {
+      "task_id": "HumanEval/10",
+      "entry_point": "make_palindrome",
+      "passed": true,
+      "gen_s": 11.52,
+      "completion": "    if not string:\n        return ''\n    elif is_palindrome(string):\n        return string\n    else:\n        for i in range(len(string)):\n            if is_palindrome(string[i:]):\n                return string + string[:i][::-1]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/11",
+      "entry_point": "string_xor",
+      "passed": true,
+      "gen_s": 11.32,
+      "completion": "    result = ''\n    for i in range(len(a)):\n        if a[i] == b[i]:\n            result += '0'\n        else:\n            result += '1'\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/12",
+      "entry_point": "longest",
+      "passed": true,
+      "gen_s": 1.83,
+      "completion": "    if not strings:\n        return None\n    longest_string = strings[0]\n    for string in strings[1:]:\n        if len(string) > len(longest_string):\n            longest_string = string\n    return longest_string",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/13",
+      "entry_point": "greatest_common_divisor",
+      "passed": true,
+      "gen_s": 0.94,
+      "completion": "    while b:\n        a, b = b, a % b\n    return a",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/14",
+      "entry_point": "all_prefixes",
+      "passed": true,
+      "gen_s": 12.73,
+      "completion": "    return [string[:i+1] for i in range(len(string))]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/15",
+      "entry_point": "string_sequence",
+      "passed": true,
+      "gen_s": 1.02,
+      "completion": "    return ' '.join([str(i) for i in range(n+1)])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/16",
+      "entry_point": "count_distinct_characters",
+      "passed": true,
+      "gen_s": 0.69,
+      "completion": "    return len(set(string.lower()))",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/17",
+      "entry_point": "parse_music",
+      "passed": true,
+      "gen_s": 2.78,
+      "completion": "    notes = music_string.split()\n    beats = []\n    for note in notes:\n        if note == 'o':\n            beats.append(4)\n        elif note == 'o|':\n            beats.append(2)\n        elif note == '.|':\n            beats.append(1)\n    return beats",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/18",
+      "entry_point": "how_many_times",
+      "passed": true,
+      "gen_s": 2.42,
+      "completion": "    count = 0\n    start = 0\n    while start < len(string):\n        index = string.find(substring, start)\n        if index == -1:\n            break\n        count += 1\n        start = index + 1\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/19",
+      "entry_point": "sort_numbers",
+      "passed": true,
+      "gen_s": 13.26,
+      "completion": "    number_map = {\n        'zero': 0,\n        'one': 1,\n        'two': 2,\n        'three': 3,\n        'four': 4,\n        'five': 5,\n        'six': 6,\n        'seven': 7,\n        'eight': 8,\n        'nine': 9\n    }\n    numbers = numbers.split()\n    numbers.sort(key=lambda x: number_map[x])\n    return ' '.join(numbers)\n\n",
+      "error": ""
+    }
+  ],
+  "pass@1": 0.85,
+  "total_gen_s": 130.5,
+  "status": "ok"
+}
