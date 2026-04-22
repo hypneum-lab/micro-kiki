@@ -245,7 +245,119 @@ def _build_runtime(cfg: FullPipelineConfig) -> Any:
     )
 
 
+class _MetaRouterV4Adapter:
+    """Real adapter over the trained router-v4 (``output/router-v4/``).
+
+    Architecture (from ``output/router-v4/meta.json``): a 2-layer MLP
+    ``Linear(384, 512) -> ReLU -> Linear(512, 34)`` with sigmoid applied
+    at inference. Input embeddings come from
+    ``sentence-transformers/all-MiniLM-L6-v2`` (384-dim). Output is 34
+    niche-domain sigmoids in the label-map order (``chat-fr``, …
+    ``yaml-json``). No ``base`` index — when nothing exceeds threshold
+    the orchestrator falls back to base-only.
+
+    Exposes ``.route(query: str) -> list[tuple[str, float]]`` matching
+    the orchestrator's contract, ordered top-K by score.
+    """
+
+    def __init__(
+        self,
+        weights_path: Path,
+        meta_path: Path,
+        threshold: float = 0.12,
+        max_active: int = 4,
+    ) -> None:
+        import json
+        import torch
+        import torch.nn as nn
+        from safetensors.torch import load_file
+
+        meta = json.loads(Path(meta_path).read_text())
+        self._domains: list[str] = list(meta["domains"])
+        self._threshold = float(threshold)
+        self._max_active = int(max_active)
+
+        input_dim = int(meta.get("embedding_dim", 384))
+        hidden_dim = int(meta.get("hidden_dim", 512))
+        num_domains = int(meta.get("num_domains", 34))
+
+        self._net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, num_domains),
+        )
+        state_dict = load_file(str(weights_path))
+        # safetensors keys use "0.weight" / "3.weight" indices matching
+        # the Sequential positions (Linear at 0, Linear at 3 with the
+        # non-parametric ReLU at 1 and an implicit Dropout slot at 2).
+        # Our Sequential here has Linear at 0, ReLU at 1, Linear at 2 —
+        # so remap key "3.*" -> "2.*".
+        remapped = {}
+        for k, v in state_dict.items():
+            if k.startswith("0."):
+                remapped[k] = v
+            elif k.startswith("3."):
+                remapped[f"2.{k.split('.', 1)[1]}"] = v
+        self._net.load_state_dict(remapped, strict=True)
+        self._net.eval()
+
+        from sentence_transformers import SentenceTransformer
+
+        self._encoder = SentenceTransformer(
+            meta.get("embedding_model", "sentence-transformers/all-MiniLM-L6-v2"),
+        )
+
+    def route(self, query: str) -> list[tuple[str, float]]:
+        import torch
+
+        vec = self._encoder.encode([query], convert_to_numpy=False, show_progress_bar=False)
+        x = vec[0] if isinstance(vec, list) else vec[0]
+        if not hasattr(x, "float"):
+            x = torch.tensor(x, dtype=torch.float32)
+        with torch.no_grad():
+            logits = self._net(x.unsqueeze(0))[0]
+            scores = torch.sigmoid(logits)
+        pairs = [
+            (self._domains[i], float(scores[i].item()))
+            for i in range(len(self._domains))
+            if float(scores[i].item()) > self._threshold
+        ]
+        pairs.sort(key=lambda p: p[1], reverse=True)
+        return pairs[: self._max_active]
+
+
 def _build_meta_router(cfg: FullPipelineConfig) -> Any:
+    """Build a real router-v4 adapter if weights exist, else a stub.
+
+    The weights live at ``<repo_root>/output/router-v4/router.safetensors``
+    with the sibling ``meta.json`` describing the architecture and label
+    order. When both files are present the returned object routes text
+    queries via ``all-MiniLM-L6-v2`` → MLP → sigmoid. When they are
+    absent (e.g., CI, fresh checkout), a stub is returned whose
+    ``.route(query)`` raises so the orchestrator degrades to base-only.
+    """
+    repo_root = Path(__file__).resolve().parents[2]
+    weights = repo_root / "output" / "router-v4" / "router.safetensors"
+    meta = repo_root / "output" / "router-v4" / "meta.json"
+    if weights.exists() and meta.exists():
+        try:
+            return _MetaRouterV4Adapter(weights_path=weights, meta_path=meta)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("router-v4 load failed (%s), using stub", exc)
+
+    # Fall back to stub (degraded path: base-only inference).
+
+    class _StubMetaRouter:
+        def route(self, query: str) -> list[tuple[str, float]]:
+            raise NotImplementedError(
+                "MetaRouter weights not available (output/router-v4/ missing). "
+                "Orchestrator degrades to base-only at stage 2."
+            )
+
+    return _StubMetaRouter()
+
+
+def _build_meta_router_legacy_stub(cfg: FullPipelineConfig) -> Any:
     """Return a stub MetaRouter whose ``.route(query)`` raises at call time.
 
     Rationale: ``make_app(cfg)`` must succeed at startup so integration
