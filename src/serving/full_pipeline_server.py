@@ -259,8 +259,26 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
                 "model_not_found",
                 "model",
             )
-        # Orchestration stages 1-7 land in PB-T4+.
-        return _err(501, "pipeline not yet wired", "not_implemented")
+
+        # Drive recall from the LAST user message if present; fall back to
+        # the last message content if there is no user turn (edge case).
+        user_text = next(
+            (m.content for m in reversed(req.messages) if m.role == "user"),
+            req.messages[-1].content,
+        )
+
+        # Stage 1 — Aeon recall (best-effort, non-blocking on failure).
+        try:
+            recalled = state.aeon.recall(user_text, k=3)
+        except Exception as exc:  # noqa: BLE001 — recall must not block
+            log.warning("Aeon recall failed: %s", exc)
+            recalled = []
+        del recalled  # TODO: consumed by stage 3 prompt assembly (PB-T6).
+
+        # TODO: Stages 2-7 wire in PB-T5 through PB-T9.
+        return _err(
+            501, "pipeline partially wired (stage 1 only)", "not_implemented"
+        )
 
     return app
 
