@@ -11,8 +11,8 @@ def test_router_has_35_outputs_by_default():
     assert router.num_domains == 35
 
 
-def test_niche_domains_has_34_elements():
-    assert len(NICHE_DOMAINS) == 34
+def test_niche_domains_has_35_elements():
+    assert len(NICHE_DOMAINS) == 35
 
 
 def test_new_domains_in_niche_domains():

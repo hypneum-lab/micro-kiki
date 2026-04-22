@@ -15,8 +15,8 @@ def test_build_aliases_shape():
     # Authoritative counts come from the repo itself.
     # Adjust these assertions ONLY if the source-of-truth data has changed.
     assert len(meta) == 7, f"expected 7 meta intents, got {len(meta)}"
-    assert len(niche) == 34, f"expected 34 niches, got {len(niche)}"
-    assert len(aliases) == 41
+    assert len(niche) == 35, f"expected 35 niches, got {len(niche)}"
+    assert len(aliases) == 42
 
 
 def test_build_aliases_ids_well_formed():

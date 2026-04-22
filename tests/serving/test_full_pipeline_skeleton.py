@@ -59,7 +59,7 @@ def test_health_and_models(monkeypatch):
     assert r.status_code == 200
     body = r.json()
     assert body["object"] == "list"
-    assert len(body["data"]) == 41
+    assert len(body["data"]) == 42
     # The 7 real meta intents are: quick-reply, reasoning, coding,
     # creative, research, agentic, tool-use.
     ids = {m["id"] for m in body["data"]}
