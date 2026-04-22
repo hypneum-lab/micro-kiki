@@ -310,10 +310,16 @@ class _MetaRouterV4Adapter:
     def route(self, query: str) -> list[tuple[str, float]]:
         import torch
 
-        vec = self._encoder.encode([query], convert_to_numpy=False, show_progress_bar=False)
+        vec = self._encoder.encode(
+            [query], convert_to_numpy=False, show_progress_bar=False
+        )
         x = vec[0] if isinstance(vec, list) else vec[0]
         if not hasattr(x, "float"):
             x = torch.tensor(x, dtype=torch.float32)
+        # Encoder may place tensors on MPS (Apple Silicon); the tiny
+        # router MLP stays on CPU to avoid a device migration just for
+        # a 34×512 matmul.
+        x = x.detach().to("cpu", dtype=torch.float32)
         with torch.no_grad():
             logits = self._net(x.unsqueeze(0))[0]
             scores = torch.sigmoid(logits)
