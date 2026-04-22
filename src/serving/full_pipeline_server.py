@@ -34,11 +34,54 @@ from typing import Any, Literal
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    CollectorRegistry,
+    Counter,
+    Gauge,
+    Histogram,
+    generate_latest,
+)
 from pydantic import BaseModel
 
 from src.serving.model_aliases import ModelAlias, build_aliases, lookup
 
 log = logging.getLogger(__name__)
+
+
+def _build_registry() -> tuple[CollectorRegistry, dict]:
+    """Construct a fresh Prometheus registry + per-server metric objects.
+
+    A fresh ``CollectorRegistry`` is used (not the global default) so
+    multiple ``make_app`` calls in the same process (tests!) do not
+    collide on duplicate metric names.
+    """
+    reg = CollectorRegistry()
+    return reg, {
+        "requests_total": Counter(
+            "kiki_requests_total",
+            "Requests by model and status",
+            ["model", "status"],
+            registry=reg,
+        ),
+        "stage_latency": Histogram(
+            "kiki_stage_latency_seconds",
+            "Per-stage latency",
+            ["stage"],
+            registry=reg,
+        ),
+        "queue_depth": Gauge(
+            "kiki_queue_depth",
+            "In-flight requests",
+            registry=reg,
+        ),
+        "rejections_total": Counter(
+            "kiki_rejections_total",
+            "Rejected at queue boundary",
+            ["reason"],
+            registry=reg,
+        ),
+    }
 
 
 @dataclass
@@ -242,6 +285,21 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
         cfg=cfg,
     )
     app.state.kiki = state
+    reg, metrics = _build_registry()
+    app.state.kiki_metrics = metrics
+    app.state.kiki_registry = reg
+
+    from fastapi import Response as _Response
+
+    @app.get("/metrics")
+    def metrics_endpoint() -> _Response:
+        # Sample queue depth at scrape time so the gauge reflects the
+        # in-flight count regardless of when requests completed.
+        metrics["queue_depth"].set(state.queue_depth)
+        return _Response(
+            generate_latest(reg),
+            media_type=CONTENT_TYPE_LATEST,
+        )
 
     @app.get("/health")
     def health() -> dict:
@@ -275,8 +333,19 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
 
     @app.post("/v1/chat/completions")
     async def chat_completions(req: ChatCompletionRequest):
+        # Queue guard first — reject before doing any work.
+        if state.queue_depth >= cfg.max_queue_depth:
+            metrics["rejections_total"].labels(reason="queue_full").inc()
+            metrics["requests_total"].labels(
+                model=req.model, status="429"
+            ).inc()
+            return _err(429, "queue full, retry later", "queue_full")
+
         alias = lookup(req.model)
         if alias is None:
+            metrics["requests_total"].labels(
+                model=req.model, status="404"
+            ).inc()
             return _err(
                 404,
                 f"model {req.model!r} not found",
@@ -284,113 +353,147 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
                 "model",
             )
 
-        # Drive recall from the LAST user message if present; fall back to
-        # the last message content if there is no user turn (edge case).
-        user_text = next(
-            (m.content for m in reversed(req.messages) if m.role == "user"),
-            req.messages[-1].content,
-        )
-
-        # Stage 1 — Aeon recall (best-effort, non-blocking on failure).
+        state.queue_depth += 1
         try:
-            recalled = state.aeon.recall(user_text, k=3)
-        except Exception as exc:  # noqa: BLE001 — recall must not block
-            log.warning("Aeon recall failed: %s", exc)
-            recalled = []
-
-        # Stage 2 — adapter selection. Meta aliases consult the MetaRouter;
-        # niche aliases force the requested adapter and skip the router.
-        if alias.mode == "meta":
-            try:
-                selections = state.meta_router.route(user_text)
-                adapters = [name for (name, _weight) in selections]
-            except Exception as exc:  # noqa: BLE001 — degrade to base
-                log.warning("MetaRouter failed, falling back to base: %s", exc)
-                adapters = []
-        else:
-            adapters = [alias.target]
-
-        # Stage 3 — apply adapters on the MLX runtime.
-        try:
-            state.runtime.apply(adapters)
-        except Exception as exc:  # noqa: BLE001 — surface as 503
-            log.error("adapter apply failed for %s: %s", adapters, exc)
-            return _err(
-                503,
-                f"adapter apply failed: {exc}",
-                "adapter_apply_failed",
+            # Drive recall from the LAST user message if present; fall back
+            # to the last message content if there is no user turn.
+            user_text = next(
+                (m.content for m in reversed(req.messages) if m.role == "user"),
+                req.messages[-1].content,
             )
 
-        # Stage 4 — inference, K candidates (K = cfg.negotiator_k).
-        prompt = _build_prompt(req.messages, recalled)
-        max_toks = req.max_tokens if req.max_tokens is not None else 512
-        temp = req.temperature if req.temperature is not None else 0.7
-        candidates: list[str] = []
-        for i in range(state.cfg.negotiator_k):
+            # Stage 1 — Aeon recall (best-effort, non-blocking on failure).
+            with metrics["stage_latency"].labels(stage="recall").time():
+                try:
+                    recalled = state.aeon.recall(user_text, k=3)
+                except Exception as exc:  # noqa: BLE001 — recall never blocks
+                    log.warning("Aeon recall failed: %s", exc)
+                    recalled = []
+
+            # Stage 2 — adapter selection. Meta aliases consult the
+            # MetaRouter; niche aliases force the requested adapter.
+            with metrics["stage_latency"].labels(stage="router").time():
+                if alias.mode == "meta":
+                    try:
+                        selections = state.meta_router.route(user_text)
+                        adapters = [name for (name, _w) in selections]
+                    except Exception as exc:  # noqa: BLE001 — degrade to base
+                        log.warning(
+                            "MetaRouter failed, falling back to base: %s", exc
+                        )
+                        adapters = []
+                else:
+                    adapters = [alias.target]
+
+            # Stage 3 — apply adapters on the MLX runtime.
             try:
-                candidates.append(
-                    state.runtime.generate(
-                        prompt,
-                        max_tokens=max_toks,
-                        temperature=temp,
-                    )
-                )
-            except Exception as exc:  # noqa: BLE001
-                log.error("inference attempt %d failed: %s", i, exc)
+                state.runtime.apply(adapters)
+            except Exception as exc:  # noqa: BLE001 — surface as 503
+                metrics["requests_total"].labels(
+                    model=req.model, status="503"
+                ).inc()
+                log.error("adapter apply failed for %s: %s", adapters, exc)
                 return _err(
-                    500,
-                    f"inference failed: {exc}",
-                    "inference_error",
+                    503,
+                    f"adapter apply failed: {exc}",
+                    "adapter_apply_failed",
                 )
 
-        # Stage 5 — Negotiator arbitrates K candidates → winner + quality signals
-        try:
-            winner, quality = await state.negotiator.arbitrate(candidates)
-        except Exception as exc:  # noqa: BLE001
-            log.warning("Negotiator failed, using candidate 0: %s", exc)
-            winner, quality = candidates[0], {}
+            # Stage 4 — inference, K candidates (K = cfg.negotiator_k).
+            prompt = _build_prompt(req.messages, recalled)
+            max_toks = req.max_tokens if req.max_tokens is not None else 512
+            temp = req.temperature if req.temperature is not None else 0.7
+            candidates: list[str] = []
+            with metrics["stage_latency"].labels(stage="inference").time():
+                for i in range(state.cfg.negotiator_k):
+                    try:
+                        candidates.append(
+                            state.runtime.generate(
+                                prompt,
+                                max_tokens=max_toks,
+                                temperature=temp,
+                            )
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        metrics["requests_total"].labels(
+                            model=req.model, status="500"
+                        ).inc()
+                        log.error("inference attempt %d failed: %s", i, exc)
+                        return _err(
+                            500,
+                            f"inference failed: {exc}",
+                            "inference_error",
+                        )
 
-        # Pass winner + quality to AntiBias for stage 6 (tests can observe via AB monkeypatch).
-        ab_ctx = {"quality": quality, "recalled": recalled, "adapters": adapters}
-        try:
-            final_text, ab_report = await state.antibias.check(winner, ctx=ab_ctx)
-        except Exception as exc:  # noqa: BLE001
-            log.warning("AntiBias failed, passing through: %s", exc)
-            final_text, ab_report = winner, {}
+            # Stage 5 — Negotiator arbitrates K candidates.
+            with metrics["stage_latency"].labels(stage="negotiator").time():
+                try:
+                    winner, quality = await state.negotiator.arbitrate(
+                        candidates
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    log.warning(
+                        "Negotiator failed, using candidate 0: %s", exc
+                    )
+                    winner, quality = candidates[0], {}
 
-        # Stage 7 — Aeon write (best-effort, never block on failure)
-        try:
-            state.aeon.write({
-                "query": user_text,
-                "response": final_text,
-                "adapters": adapters,
-                "recalled": [r.get("text", "") for r in recalled],
+            # Stage 6 — AntiBias check on the winner.
+            ab_ctx = {
                 "quality": quality,
-                "antibias": ab_report,
-            })
-        except Exception as exc:  # noqa: BLE001 — write must not block
-            log.warning("Aeon write failed (non-blocking): %s", exc)
+                "recalled": recalled,
+                "adapters": adapters,
+            }
+            with metrics["stage_latency"].labels(stage="antibias").time():
+                try:
+                    final_text, ab_report = await state.antibias.check(
+                        winner, ctx=ab_ctx
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    log.warning("AntiBias failed, passing through: %s", exc)
+                    final_text, ab_report = winner, {}
 
-        return {
-            "id": f"chatcmpl-{uuid.uuid4().hex[:12]}",
-            "object": "chat.completion",
-            "created": int(time.time()),
-            "model": req.model,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {"role": "assistant", "content": final_text},
-                    "finish_reason": "stop",
-                }
-            ],
-            "usage": {
-                "prompt_tokens": max(1, len(user_text) // 4),
-                "completion_tokens": max(1, len(final_text) // 4),
-                "total_tokens": max(
-                    1, (len(user_text) + len(final_text)) // 4
-                ),
-            },
-        }
+            # Stage 7 — Aeon write (best-effort, never block on failure).
+            with metrics["stage_latency"].labels(stage="memory_write").time():
+                try:
+                    state.aeon.write({
+                        "query": user_text,
+                        "response": final_text,
+                        "adapters": adapters,
+                        "recalled": [r.get("text", "") for r in recalled],
+                        "quality": quality,
+                        "antibias": ab_report,
+                    })
+                except Exception as exc:  # noqa: BLE001 — write never blocks
+                    log.warning("Aeon write failed (non-blocking): %s", exc)
+
+            metrics["requests_total"].labels(
+                model=req.model, status="200"
+            ).inc()
+            return {
+                "id": f"chatcmpl-{uuid.uuid4().hex[:12]}",
+                "object": "chat.completion",
+                "created": int(time.time()),
+                "model": req.model,
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": final_text,
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": max(1, len(user_text) // 4),
+                    "completion_tokens": max(1, len(final_text) // 4),
+                    "total_tokens": max(
+                        1, (len(user_text) + len(final_text)) // 4
+                    ),
+                },
+            }
+        finally:
+            state.queue_depth -= 1
 
     return app
 
