@@ -1,9 +1,9 @@
-"""Story-19: E2E smoke test for 34 niche domains + base fallback.
+"""Story-19: E2E smoke test for 35 niche domains + base fallback.
 
 Verifies that:
 1. ModelRouter.select() routes each of the 34 niche domain prompts correctly.
 2. AeonPalace write + recall round-trip works for every domain.
-3. All 34 niche domains get adapter != None.
+3. All 35 niche domains get adapter != None.
 4. The base query ("What is the weather?") gets adapter == None.
 """
 from __future__ import annotations
@@ -19,7 +19,7 @@ from src.routing.router import NICHE_DOMAINS
 from src.memory.aeon import AeonPalace
 
 # ---------------------------------------------------------------------------
-# 34-domain test prompts (one per niche domain)
+# 35-domain test prompts (one per niche domain)
 # ---------------------------------------------------------------------------
 DOMAIN_TESTS: dict[str, str] = {
     "chat-fr":      "Explique-moi comment fonctionne un transformateur en francais.",
@@ -50,6 +50,7 @@ DOMAIN_TESTS: dict[str, str] = {
     "security":     "Audit this Flask app for OWASP Top 10 vulnerabilities.",
     "shell":        "Write a bash script to find and delete files older than 30 days.",
     "spice":        "Write a SPICE netlist for a current-mode buck converter at 500kHz.",
+    "spice-sim":    "Run an AC noise analysis for the op-amp buffer I wrote in ngspice.",
     "sql":          "Write a PostgreSQL query with window functions for running totals.",
     "stm32":        "Write STM32 HAL code for DMA-based ADC on 4 channels.",
     "typescript":   "Create a type-safe React hook for API fetching with generics.",
@@ -125,8 +126,8 @@ class TestDomainRouting:
             f"Base query should have adapter=None, got '{route.adapter}'"
         )
 
-    def test_all_34_domains_covered(self):
-        """Ensure DOMAIN_TESTS covers all 34 NICHE_DOMAINS."""
+    def test_all_35_domains_covered(self):
+        """Ensure DOMAIN_TESTS covers all 35 NICHE_DOMAINS."""
         assert set(DOMAIN_TESTS.keys()) == set(NICHE_DOMAINS), (
             f"DOMAIN_TESTS keys {set(DOMAIN_TESTS.keys())} != "
             f"NICHE_DOMAINS {set(NICHE_DOMAINS)}"
@@ -176,7 +177,7 @@ class TestFullE2ESmoke:
     """Combined routing + memory smoke test for all 35 queries."""
 
     def test_all_domains_e2e(self, router: ModelRouter, palace: AeonPalace):
-        """Run through all 34 niche domains: route, write, recall."""
+        """Run through all 35 niche domains: route, write, recall."""
         for domain, prompt in DOMAIN_TESTS.items():
             # Route
             route = router.select(prompt, domain_hint=domain)
@@ -191,7 +192,7 @@ class TestFullE2ESmoke:
                 source="test-e2e-smoke",
             )
 
-            # Recall — use top_k=40 because 34 domain episodes compete
+            # Recall — use top_k=40 because 35 domain episodes compete
             recalled = palace.recall(prompt, top_k=40)
             assert any(ep.id == ep_id for ep in recalled), (
                 f"Episode {ep_id} for {domain} not recalled"
