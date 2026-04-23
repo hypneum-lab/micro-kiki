@@ -335,7 +335,16 @@ class _MLXRuntimeAdapter:
                     self._swap_metric.labels(method="reload").observe(
                         time.perf_counter() - t1
                     )
+        # Observe the load_adapters call itself. When self._current_adapter
+        # is None we emit method="initial" so dashboards can separate cold-
+        # boot latency from steady-state swaps; otherwise the unpatch/reload
+        # observations above already cover the cost that matters.
+        t_apply = time.perf_counter()
         self._model = load_adapters(self._model, adapter_path)
+        if self._swap_metric is not None and self._current_adapter is None:
+            self._swap_metric.labels(method="initial").observe(
+                time.perf_counter() - t_apply
+            )
         self._current_adapter = name
 
     def generate(
