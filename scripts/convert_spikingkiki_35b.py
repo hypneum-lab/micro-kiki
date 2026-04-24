@@ -22,6 +22,13 @@ Architecture of Qwen3.5-35B-A3B per transformer block:
     up_proj + down_proj (SwiGLU pattern)
   - Total ~94 transformer blocks
 
+Architecture of Qwen3.6-35B-A3B (hybrid attention, 40 layers):
+  - full_attention layers (1-in-4): standard self_attn.{q,k,v,o}_proj
+  - linear_attention layers (the rest): GLA-style linear_attn with 5
+    projections (in_proj_a, in_proj_b, in_proj_qkv, in_proj_z, out_proj)
+    plus 4 non-linear tensors copied verbatim (A_log, conv1d, dt_bias,
+    norm). The 5 linear projections use activation="identity".
+
 Usage:
   uv run python scripts/convert_spikingkiki_35b.py \\
       --input  /path/to/Qwen3.5-35B-A3B \\
@@ -72,38 +79,130 @@ log = logging.getLogger("convert_35b")
 # ---------------------------------------------------------------------------
 
 
-def build_layer_map(num_layers: int = NUM_LAYERS) -> list[dict[str, Any]]:
-    """Return the canonical layer map for Qwen3.5-35B-A3B.
+# Qwen3.6 linear_attn structure — see docs/specs and config.layer_types.
+# Five modules are standard Linear → LAS-convertible with identity activation.
+# Four tensors are non-linear state (SSM gate, conv kernel, time bias, norm)
+# and are copied verbatim into the spiking output without LAS conversion.
+LINEAR_ATTN_PROJ_MODULES = (
+    "in_proj_a",
+    "in_proj_b",
+    "in_proj_qkv",
+    "in_proj_z",
+    "out_proj",
+)
+LINEAR_ATTN_PASSTHROUGH_TENSORS = (
+    "A_log",
+    "conv1d",
+    "dt_bias",
+    "norm",
+)
+
+
+def _is_linear_attention_type(layer_type: str | None) -> bool:
+    """Return True when the given config layer_type denotes GLA linear attention.
+
+    Accepts the Qwen3.6 spelling ``linear_attention`` and a handful of
+    common aliases so future configs don't need a script change.
+    """
+    if not layer_type:
+        return False
+    lt = layer_type.lower()
+    return lt in {
+        "linear_attention",
+        "linear_attn",
+        "gated_linear_attention",
+        "gla",
+    }
+
+
+def build_layer_map(
+    num_layers: int = NUM_LAYERS,
+    num_experts: int = NUM_EXPERTS,
+    layer_types: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Return the canonical layer map for Qwen3.5 or Qwen3.6 35B-A3B.
 
     Each entry describes one logical conversion unit with its weight key
     path inside the HuggingFace state_dict.
+
+    Parameters
+    ----------
+    num_layers : int
+        Number of transformer blocks.
+    num_experts : int
+        Number of MoE experts per block.
+    layer_types : list[str] | None
+        Optional per-layer attention type from ``config.json``. When
+        ``None`` (default), every block is treated as standard
+        ``self_attn`` — preserves Qwen3.5 behaviour. When provided, the
+        per-layer value picks between:
+          * ``full_attention`` / anything non-linear → ``self_attn.*``
+          * ``linear_attention`` → 5 linear ``linear_attn.*`` projections
+            plus 4 passthrough tensors (``A_log``, ``conv1d``,
+            ``dt_bias``, ``norm``) copied verbatim.
 
     Returns
     -------
     list of dicts with keys:
         layer_id   : int   — transformer block index
-        kind       : str   — "attn_proj" | "moe_router" | "moe_expert_ffn"
+        kind       : str   — "attn_proj" | "linear_attn_proj"
+                             | "linear_attn_passthrough" | "moe_router"
+                             | "moe_expert_ffn"
         key_prefix : str   — state_dict key prefix
         expert_id  : int | None
-        activation : str   — "identity" or "relu"
+        activation : str   — "identity", "relu", or "passthrough"
         converted  : bool  — False initially (set True when done)
+
+    Notes
+    -----
+    The ``attn_proj`` kind continues to denote the 4 standard self-attn
+    projections (q/k/v/o) — preserved for Qwen3.5 backward compat. The
+    new hybrid kinds (``linear_attn_proj``, ``linear_attn_passthrough``)
+    only appear when ``layer_types`` is supplied and marks a layer as
+    linear attention.
     """
     entries: list[dict[str, Any]] = []
     for layer_idx in range(num_layers):
         prefix = f"model.layers.{layer_idx}"
+        layer_type = layer_types[layer_idx] if layer_types else None
 
-        # Attention projections — identity activation to preserve residual
-        for proj in ("q_proj", "k_proj", "v_proj", "o_proj"):
-            entries.append(
-                {
-                    "layer_id": layer_idx,
-                    "kind": "attn_proj",
-                    "key_prefix": f"{prefix}.self_attn.{proj}",
-                    "expert_id": None,
-                    "activation": "identity",
-                    "converted": False,
-                }
-            )
+        if _is_linear_attention_type(layer_type):
+            # Linear attention block: 5 GLA projections + 4 passthroughs.
+            for proj in LINEAR_ATTN_PROJ_MODULES:
+                entries.append(
+                    {
+                        "layer_id": layer_idx,
+                        "kind": "linear_attn_proj",
+                        "key_prefix": f"{prefix}.linear_attn.{proj}",
+                        "expert_id": None,
+                        "activation": "identity",
+                        "converted": False,
+                    }
+                )
+            for tensor in LINEAR_ATTN_PASSTHROUGH_TENSORS:
+                entries.append(
+                    {
+                        "layer_id": layer_idx,
+                        "kind": "linear_attn_passthrough",
+                        "key_prefix": f"{prefix}.linear_attn.{tensor}",
+                        "expert_id": None,
+                        "activation": "passthrough",
+                        "converted": False,
+                    }
+                )
+        else:
+            # Standard self-attention (Qwen3.5 base and Qwen3.6 full layers).
+            for proj in ("q_proj", "k_proj", "v_proj", "o_proj"):
+                entries.append(
+                    {
+                        "layer_id": layer_idx,
+                        "kind": "attn_proj",
+                        "key_prefix": f"{prefix}.self_attn.{proj}",
+                        "expert_id": None,
+                        "activation": "identity",
+                        "converted": False,
+                    }
+                )
 
         # MoE router — identity activation (signed logits must be preserved)
         entries.append(
@@ -118,7 +217,7 @@ def build_layer_map(num_layers: int = NUM_LAYERS) -> list[dict[str, Any]]:
         )
 
         # MoE expert FFNs — relu activation (SwiGLU gate + up + down)
-        for expert_id in range(NUM_EXPERTS):
+        for expert_id in range(num_experts):
             for proj in ("gate_proj", "up_proj", "down_proj"):
                 entries.append(
                     {
@@ -199,10 +298,97 @@ def _extract_linear_weights(module: Any) -> dict[str, Any]:
     w = module.weight.detach().cpu().float().numpy()
     b = (
         module.bias.detach().cpu().float().numpy()
-        if module.bias is not None
+        if getattr(module, "bias", None) is not None
         else None
     )
     return {"weight": w, "bias": b}
+
+
+def _detect_fused_experts(experts_module: Any) -> bool:
+    """Return True when ``experts_module`` uses Qwen3.6's fused layout.
+
+    Qwen3.6-35B-A3B ships ``Qwen3_5MoeExperts``: a single ``nn.Module`` that
+    holds two fused parameters (``gate_up_proj`` and ``down_proj``) shaped
+    ``(num_experts, …)`` instead of the Qwen3.5 ``ModuleList`` of per-expert
+    ``nn.Linear`` triplets. The fused module has neither ``__len__`` nor
+    ``__getitem__``, so the old per-expert iteration crashes on it.
+    """
+    return hasattr(experts_module, "gate_up_proj") and hasattr(
+        experts_module, "down_proj"
+    )
+
+
+def _num_experts(experts_module: Any, is_fused: bool) -> int:
+    """Return the expert count regardless of layout."""
+    if is_fused:
+        gup = experts_module.gate_up_proj
+        t = gup.weight if hasattr(gup, "weight") else gup
+        return int(t.shape[0])
+    return len(experts_module)
+
+
+def _get_expert_weights(
+    experts_module: Any,
+    expert_id: int,
+    is_fused: bool,
+) -> dict[str, dict[str, Any]]:
+    """Return ``{"gate_proj": wb, "up_proj": wb, "down_proj": wb}`` slices.
+
+    Each value matches the ``_extract_linear_weights`` shape
+    (``{"weight": np.ndarray, "bias": np.ndarray | None}``). Biases are
+    ``None`` for MoE expert FFNs in both Qwen3.5 and Qwen3.6.
+
+    For the Qwen3.6 fused layout, ``gate_up_proj.weight`` has shape
+    ``(num_experts, 2 * intermediate, hidden)`` — the first half along axis 1
+    is the gate projection, the second half is the up projection. The
+    ``down_proj.weight`` has shape ``(num_experts, hidden, intermediate)``.
+    For the Qwen3.5 ModuleList layout, we simply delegate to
+    ``_extract_linear_weights`` on each per-expert submodule.
+    """
+    import numpy as np
+
+    if is_fused:
+        # Qwen3.6 stores experts as Parameters directly (not Linear modules).
+        # Older HF may wrap in nn.Linear. Handle both.
+        gup = experts_module.gate_up_proj
+        dp = experts_module.down_proj
+        gate_up = gup.weight if hasattr(gup, "weight") else gup  # (E, 2*I, H)
+        down = dp.weight if hasattr(dp, "weight") else dp         # (E, H, I)
+        intermediate = gate_up.shape[1] // 2
+        gate_w = gate_up[expert_id, :intermediate, :].detach().cpu().float().numpy()
+        up_w = gate_up[expert_id, intermediate:, :].detach().cpu().float().numpy()
+        down_w = down[expert_id].detach().cpu().float().numpy()
+        return {
+            "gate_proj": {"weight": gate_w, "bias": None},
+            "up_proj": {"weight": up_w, "bias": None},
+            "down_proj": {"weight": down_w, "bias": None},
+        }
+
+    expert = experts_module[expert_id]
+    return {
+        proj_name: _extract_linear_weights(getattr(expert, proj_name))
+        for proj_name in ("gate_proj", "up_proj", "down_proj")
+    }
+
+
+def _save_passthrough_tensor(
+    tensor: Any, key: str, output_dir: Path
+) -> None:
+    """Copy a non-linear tensor (A_log / conv1d / dt_bias / norm) verbatim.
+
+    These are SSM state / conv kernels / RMSNorm weights — they have no
+    LAS conversion; we just dump them as ``.npz`` so the spiking
+    checkpoint remains self-contained.
+    """
+    import numpy as np
+    safe_key = key.replace(".", "_").replace("/", "_")
+    out_path = output_dir / f"{safe_key}.npz"
+    # Conv1d is a nn.Conv1d; its .weight is a tensor too. Handle both.
+    if hasattr(tensor, "weight") and not hasattr(tensor, "detach"):
+        arr = tensor.weight.detach().cpu().float().numpy()
+    else:
+        arr = tensor.detach().cpu().float().numpy()
+    np.savez_compressed(out_path, tensor=arr, passthrough=np.array([1]))
 
 
 def convert_block_torch(
@@ -213,8 +399,14 @@ def convert_block_torch(
     converted_keys: set[str],
     output_dir: Path,
     timesteps: int,
+    layer_types: list[str] | None = None,
 ) -> dict[str, Any]:
     """Convert one transformer block, saving spiking layers to disk.
+
+    Dispatches on layer_types[layer_idx] when provided (Qwen3.6 hybrid):
+    linear_attention layers emit 5 LAS-converted projections and 4
+    passthrough tensors; full_attention (and Qwen3.5 default) emit the
+    4 standard q/k/v/o projections.
 
     Returns a dict of spike stats for the block (counts + activation bounds).
     """
@@ -223,26 +415,70 @@ def convert_block_torch(
 
     block = model.model.layers[layer_idx]
     prefix = f"model.layers.{layer_idx}"
-    block_stats: dict[str, Any] = {"layer_id": layer_idx, "projections": {}}
+    layer_type = layer_types[layer_idx] if layer_types else None
+    block_stats: dict[str, Any] = {
+        "layer_id": layer_idx,
+        "layer_type": layer_type or "full_attention",
+        "projections": {},
+    }
 
-    # --- Attention projections ---
-    attn = block.self_attn
-    for proj_name in ("q_proj", "k_proj", "v_proj", "o_proj"):
-        key = f"{prefix}.self_attn.{proj_name}"
-        if key in converted_keys:
-            log.debug("skip (resume) %s", key)
-            continue
-        proj_module = getattr(attn, proj_name)
-        weights = _extract_linear_weights(proj_module)
-        spiking = converter.convert_layer(weights, activation="identity")
-        _save_spiking_layer(spiking, key, output_dir)
-        w_abs_max = float(np.abs(weights["weight"]).max())
-        block_stats["projections"][proj_name] = {
-            "in": spiking.in_features,
-            "out": spiking.out_features,
-            "w_abs_max": round(w_abs_max, 4),
-        }
-        converted_keys.add(key)
+    # --- Attention projections (dispatch on layer type) ---
+    if _is_linear_attention_type(layer_type):
+        attn = block.linear_attn
+        # 5 LAS-convertible linear projections.
+        for proj_name in LINEAR_ATTN_PROJ_MODULES:
+            key = f"{prefix}.linear_attn.{proj_name}"
+            if key in converted_keys:
+                log.debug("skip (resume) %s", key)
+                continue
+            proj_module = getattr(attn, proj_name)
+            weights = _extract_linear_weights(proj_module)
+            spiking = converter.convert_layer(weights, activation="identity")
+            _save_spiking_layer(spiking, key, output_dir)
+            w_abs_max = float(np.abs(weights["weight"]).max())
+            block_stats["projections"][f"linear_attn.{proj_name}"] = {
+                "in": spiking.in_features,
+                "out": spiking.out_features,
+                "w_abs_max": round(w_abs_max, 4),
+            }
+            converted_keys.add(key)
+
+        # 4 passthrough tensors (A_log, conv1d, dt_bias, norm) — verbatim.
+        passthrough_stats: dict[str, Any] = {}
+        for tensor_name in LINEAR_ATTN_PASSTHROUGH_TENSORS:
+            key = f"{prefix}.linear_attn.{tensor_name}"
+            if key in converted_keys:
+                log.debug("skip (resume) %s", key)
+                continue
+            try:
+                obj = getattr(attn, tensor_name)
+            except AttributeError:
+                log.warning("linear_attn.%s missing on layer %d",
+                            tensor_name, layer_idx)
+                continue
+            _save_passthrough_tensor(obj, key, output_dir)
+            passthrough_stats[tensor_name] = "copied"
+            converted_keys.add(key)
+        if passthrough_stats:
+            block_stats["linear_attn_passthrough"] = passthrough_stats
+    else:
+        attn = block.self_attn
+        for proj_name in ("q_proj", "k_proj", "v_proj", "o_proj"):
+            key = f"{prefix}.self_attn.{proj_name}"
+            if key in converted_keys:
+                log.debug("skip (resume) %s", key)
+                continue
+            proj_module = getattr(attn, proj_name)
+            weights = _extract_linear_weights(proj_module)
+            spiking = converter.convert_layer(weights, activation="identity")
+            _save_spiking_layer(spiking, key, output_dir)
+            w_abs_max = float(np.abs(weights["weight"]).max())
+            block_stats["projections"][proj_name] = {
+                "in": spiking.in_features,
+                "out": spiking.out_features,
+                "w_abs_max": round(w_abs_max, 4),
+            }
+            converted_keys.add(key)
 
     # --- MoE router ---
     router_key = f"{prefix}.mlp.gate"
@@ -261,16 +497,32 @@ def convert_block_torch(
         log.debug("skip (resume) %s", router_key)
 
     # --- MoE experts ---
+    # Dispatch on layout: Qwen3.6 ships a fused ``Qwen3_5MoeExperts`` module
+    # (no ``__len__`` / ``__getitem__``) whereas Qwen3.5 uses a ModuleList of
+    # per-expert ``nn.Linear`` triplets. ``_get_expert_weights`` hides the
+    # difference behind a uniform dict per expert.
     experts_module = block.mlp.experts
+    is_fused = _detect_fused_experts(experts_module)
+    num_experts = _num_experts(experts_module, is_fused)
+    if is_fused:
+        log.debug("layer %d: fused MoE experts (num=%d)", layer_idx, num_experts)
     expert_spike_counts: list[float] = []
-    for expert_id in range(len(experts_module)):
-        expert = experts_module[expert_id]
+    for expert_id in range(num_experts):
+        # Compute only-if-needed: skip the slice/extract when every projection
+        # for this expert is already in the resume set.
+        needed = [
+            proj
+            for proj in ("gate_proj", "up_proj", "down_proj")
+            if f"{prefix}.mlp.experts.{expert_id}.{proj}" not in converted_keys
+        ]
+        if not needed:
+            continue
+        expert_weights = _get_expert_weights(experts_module, expert_id, is_fused)
         for proj_name in ("gate_proj", "up_proj", "down_proj"):
             key = f"{prefix}.mlp.experts.{expert_id}.{proj_name}"
             if key in converted_keys:
                 continue
-            proj_module = getattr(expert, proj_name)
-            weights = _extract_linear_weights(proj_module)
+            weights = expert_weights[proj_name]
             spiking = converter.convert_layer(weights, activation="relu")
             _save_spiking_layer(spiking, key, output_dir)
             # Rough spike count estimate via max weight * timesteps
@@ -353,10 +605,22 @@ def load_model_config(config_path: Path | None = None) -> dict[str, Any]:
     """Load the model config.json for architecture analysis.
 
     Falls back to hardcoded constants if no config file is available.
+
+    Supports both flat (Qwen3.5-style) and nested `text_config`
+    (Qwen3.6-style multimodal) config layouts. When a `text_config`
+    key is present, its fields are flattened into the top level so
+    downstream consumers keep working with the simple `hidden_size`,
+    `num_hidden_layers`, etc. keys.
     """
     path = config_path or CONFIG_PATH
     if path.exists():
-        return json.loads(path.read_text())
+        raw = json.loads(path.read_text())
+        # Qwen3.6 multimodal wraps the LM config under "text_config".
+        if "text_config" in raw and isinstance(raw["text_config"], dict):
+            merged = dict(raw)
+            merged.update(raw["text_config"])
+            return merged
+        return raw
     log.warning("config.json not found at %s, using hardcoded constants", path)
     return {
         "hidden_size": HIDDEN_DIM,
@@ -905,9 +1169,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--config",
+        "--config-path",
+        dest="config",
         type=Path,
         default=CONFIG_PATH,
-        help="Path to model config.json for analysis mode.",
+        help=(
+            "Path to model config.json (default: bundled Qwen3.5 config). "
+            "Supports both flat and nested text_config layouts "
+            "(e.g. Qwen3.6-35B-A3B)."
+        ),
+    )
+    parser.add_argument(
+        "--start-block",
+        type=int,
+        default=0,
+        help="Start conversion at this block index (for parallel runs).",
+    )
+    parser.add_argument(
+        "--end-block",
+        type=int,
+        default=None,
+        help="End conversion BEFORE this block index (exclusive).",
     )
     parser.add_argument(
         "--log-level",
@@ -953,7 +1235,26 @@ def main(argv: list[str] | None = None) -> int:
         args.dry_run,
     )
 
-    layer_map = build_layer_map()
+    # If a config is provided (or the default exists), honour its
+    # layer/expert counts so dry-run reports match the target model.
+    cfg_num_layers = NUM_LAYERS
+    cfg_num_experts = NUM_EXPERTS
+    cfg_layer_types: list[str] | None = None
+    try:
+        cfg = load_model_config(args.config)
+        cfg_num_layers = int(cfg.get("num_hidden_layers", NUM_LAYERS))
+        cfg_num_experts = int(cfg.get("num_experts", NUM_EXPERTS))
+        lt = cfg.get("layer_types")
+        if isinstance(lt, list) and lt:
+            cfg_layer_types = [str(x) for x in lt]
+    except Exception as exc:  # pragma: no cover — analysis is best-effort
+        log.debug("could not read config %s: %s", args.config, exc)
+
+    layer_map = build_layer_map(
+        num_layers=cfg_num_layers,
+        num_experts=cfg_num_experts,
+        layer_types=cfg_layer_types,
+    )
     map_stats = layer_map_stats(layer_map)
     log.info(
         "layer map: %d total (%s)",
@@ -1049,8 +1350,12 @@ def main(argv: list[str] | None = None) -> int:
     args.output.mkdir(parents=True, exist_ok=True)
 
     # --- Layer-by-layer conversion ---
-    n_total = NUM_LAYERS
-    for layer_idx in range(n_total):
+    n_total = cfg_num_layers
+    start_blk = max(0, args.start_block)
+    end_blk = args.end_block if args.end_block is not None else n_total
+    end_blk = min(end_blk, n_total)
+    log.info("block range: [%d, %d)", start_blk, end_blk)
+    for layer_idx in range(start_blk, end_blk):
         t_layer = time.monotonic()
         log.info(
             "[%d/%d] converting block %d …", layer_idx + 1, n_total, layer_idx
@@ -1065,6 +1370,7 @@ def main(argv: list[str] | None = None) -> int:
                 converted_keys=converted_keys,
                 output_dir=args.output,
                 timesteps=args.timesteps,
+                layer_types=cfg_layer_types,
             )
         except Exception as exc:
             log.error(

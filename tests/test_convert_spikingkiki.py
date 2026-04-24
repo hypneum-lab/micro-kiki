@@ -241,6 +241,141 @@ class TestLayerMap:
 
 
 # ---------------------------------------------------------------------------
+# Qwen3.6 hybrid attention tests
+# ---------------------------------------------------------------------------
+
+
+class TestHybridAttention:
+    """Tests for Qwen3.6-style linear_attn / self_attn hybrid layer maps."""
+
+    @pytest.fixture(scope="class")
+    def mod(self):
+        return _import_script()
+
+    def test_build_layer_map_qwen36_hybrid(self, mod):
+        """Hybrid layer_types must emit linear_attn + passthrough entries
+        on linear layers and self_attn entries on full layers."""
+        # 4 layers: linear, full, linear, full
+        layer_types = [
+            "linear_attention",
+            "full_attention",
+            "linear_attention",
+            "full_attention",
+        ]
+        layer_map = mod.build_layer_map(
+            num_layers=4, num_experts=2, layer_types=layer_types,
+        )
+        # Layer 0: 5 linear_attn_proj + 4 passthrough + router + 2*3 experts
+        l0 = [e for e in layer_map if e["layer_id"] == 0]
+        kinds0 = [e["kind"] for e in l0]
+        assert kinds0.count("linear_attn_proj") == 5
+        assert kinds0.count("linear_attn_passthrough") == 4
+        assert kinds0.count("attn_proj") == 0  # no self_attn on linear layer
+        assert kinds0.count("moe_router") == 1
+        assert kinds0.count("moe_expert_ffn") == 2 * 3
+
+        # Layer 1 (full_attention): 4 self_attn proj, no linear_attn
+        l1 = [e for e in layer_map if e["layer_id"] == 1]
+        kinds1 = [e["kind"] for e in l1]
+        assert kinds1.count("attn_proj") == 4
+        assert kinds1.count("linear_attn_proj") == 0
+        assert kinds1.count("linear_attn_passthrough") == 0
+
+        # Check key_prefixes for linear layer 0 match expected module names
+        la_proj_keys = [
+            e["key_prefix"] for e in l0 if e["kind"] == "linear_attn_proj"
+        ]
+        assert all(".linear_attn." in k for k in la_proj_keys)
+        la_modules = {k.rsplit(".", 1)[-1] for k in la_proj_keys}
+        assert la_modules == set(mod.LINEAR_ATTN_PROJ_MODULES)
+
+        passthrough_keys = [
+            e["key_prefix"]
+            for e in l0
+            if e["kind"] == "linear_attn_passthrough"
+        ]
+        pt_tensors = {k.rsplit(".", 1)[-1] for k in passthrough_keys}
+        assert pt_tensors == set(mod.LINEAR_ATTN_PASSTHROUGH_TENSORS)
+
+        # Activations: projs=identity, passthroughs=passthrough,
+        # self_attn=identity, router=identity, experts=relu
+        for e in l0:
+            if e["kind"] == "linear_attn_proj":
+                assert e["activation"] == "identity"
+            elif e["kind"] == "linear_attn_passthrough":
+                assert e["activation"] == "passthrough"
+
+    def test_build_layer_map_qwen35_backward_compat(self, mod):
+        """Without layer_types, behaviour matches Qwen3.5 (only self_attn)."""
+        # Explicit None: no hybrid emitted.
+        layer_map = mod.build_layer_map(
+            num_layers=3, num_experts=2, layer_types=None,
+        )
+        kinds = {e["kind"] for e in layer_map}
+        assert "linear_attn_proj" not in kinds
+        assert "linear_attn_passthrough" not in kinds
+        assert "attn_proj" in kinds
+        # Each layer should still have exactly 4 self-attn projections
+        for layer_idx in range(3):
+            layer_entries = [
+                e for e in layer_map if e["layer_id"] == layer_idx
+            ]
+            attn = [e for e in layer_entries if e["kind"] == "attn_proj"]
+            assert len(attn) == 4
+
+    def test_dry_run_qwen36_totals(self, mod, tmp_path: Path):
+        """Dry-run on a Qwen3.6 fixture config produces expected totals."""
+        cfg = {
+            "architectures": ["Qwen3_5MoeForConditionalGeneration"],
+            "text_config": {
+                "hidden_size": 2048,
+                "num_hidden_layers": 40,
+                "num_attention_heads": 16,
+                "num_key_value_heads": 2,
+                "head_dim": 256,
+                "num_experts": 256,
+                "num_experts_per_tok": 8,
+                "moe_intermediate_size": 512,
+                "shared_expert_intermediate_size": 512,
+                "vocab_size": 248320,
+                "layer_types": (
+                    ["linear_attention"] * 3 + ["full_attention"]
+                ) * 10,
+            },
+        }
+        cfg_path = tmp_path / "config.json"
+        cfg_path.write_text(json.dumps(cfg))
+        results_out = tmp_path / "meta.json"
+        result = subprocess.run(
+            [
+                sys.executable, str(SCRIPT),
+                "--dry-run",
+                "--config", str(cfg_path),
+                "--results-out", str(results_out),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, (
+            f"dry-run failed: {result.stderr}"
+        )
+        data = json.loads(results_out.read_text())
+        stats = data["layer_map_stats"]
+        # 40 layers: 30 linear (3-in-4) + 10 full
+        # linear_attn_proj: 30 * 5 = 150
+        # linear_attn_passthrough: 30 * 4 = 120
+        # attn_proj: 10 * 4 = 40
+        # moe_router: 40
+        # moe_expert_ffn: 40 * 256 * 3 = 30720
+        assert stats["linear_attn_proj"] == 150, stats
+        assert stats["linear_attn_passthrough"] == 120, stats
+        assert stats["attn_proj"] == 40, stats
+        assert stats["moe_router"] == 40, stats
+        assert stats["moe_expert_ffn"] == 30720, stats
+        assert stats["total"] == 150 + 120 + 40 + 40 + 30720
+
+
+# ---------------------------------------------------------------------------
 # Resume logic tests
 # ---------------------------------------------------------------------------
 
@@ -351,3 +486,141 @@ class TestMetadata:
             args, layer_map, spike_stats={}, elapsed_s=0.0, status="test"
         )
         assert meta["converted_layers"] == 3
+
+
+# ---------------------------------------------------------------------------
+# MoE expert weight extraction tests (Qwen3.5 ModuleList vs Qwen3.6 fused)
+# ---------------------------------------------------------------------------
+
+
+class TestExpertWeightExtraction:
+    """Tests for the layout-agnostic expert weight helper.
+
+    Qwen3.5 exposes ``block.mlp.experts`` as an ``nn.ModuleList`` of per-expert
+    triplets. Qwen3.6 replaced that with a single ``Qwen3_5MoeExperts`` module
+    holding fused 3D tensors: ``gate_up_proj.weight`` with shape
+    ``(E, 2*I, H)`` and ``down_proj.weight`` with shape ``(E, H, I)``. The
+    helper must expose both layouts through the same dict API.
+    """
+
+    @pytest.fixture(scope="class")
+    def mod(self):
+        return _import_script()
+
+    @pytest.fixture(scope="class")
+    def torch(self):
+        torch = pytest.importorskip("torch")
+        return torch
+
+    def _fused_stub(self, torch, num_experts=4, intermediate=16, hidden=8):
+        """Build a plain-object stub mimicking HF's ``Qwen3_5MoeExperts``.
+
+        The script only touches ``experts.gate_up_proj.weight`` and
+        ``experts.down_proj.weight``, so we build a non-``nn.Module`` stub
+        to sidestep torch's Parameter/Module attribute gymnastics.
+        """
+        fused = _FusedStub()
+        fused.gate_up_proj = _TensorHolder(
+            torch.randn(num_experts, 2 * intermediate, hidden)
+        )
+        fused.down_proj = _TensorHolder(
+            torch.randn(num_experts, hidden, intermediate)
+        )
+        return fused
+
+    def _modulelist_stub(self, torch, num_experts=4, intermediate=16, hidden=8):
+        class Expert(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.gate_proj = torch.nn.Linear(hidden, intermediate, bias=False)
+                self.up_proj = torch.nn.Linear(hidden, intermediate, bias=False)
+                self.down_proj = torch.nn.Linear(intermediate, hidden, bias=False)
+
+        return torch.nn.ModuleList([Expert() for _ in range(num_experts)])
+
+    def test_detect_fused_true(self, mod, torch):
+        fused = self._fused_stub(torch)
+        assert mod._detect_fused_experts(fused) is True
+
+    def test_detect_fused_false_on_modulelist(self, mod, torch):
+        ml = self._modulelist_stub(torch)
+        assert mod._detect_fused_experts(ml) is False
+
+    def test_num_experts_fused(self, mod, torch):
+        fused = self._fused_stub(torch, num_experts=7)
+        assert mod._num_experts(fused, is_fused=True) == 7
+
+    def test_num_experts_modulelist(self, mod, torch):
+        ml = self._modulelist_stub(torch, num_experts=5)
+        assert mod._num_experts(ml, is_fused=False) == 5
+
+    def test_fused_expert_weight_extraction(self, mod, torch):
+        """Fused layout: helper slices the correct row of each fused tensor.
+
+        gate = first half of gate_up along axis 1; up = second half;
+        down = per-expert slice of down_proj.
+        """
+        hidden, intermediate, num_experts = 8, 16, 4
+        fused = self._fused_stub(
+            torch, num_experts=num_experts, intermediate=intermediate, hidden=hidden
+        )
+        for expert_id in range(num_experts):
+            w = mod._get_expert_weights(fused, expert_id, is_fused=True)
+            assert set(w.keys()) == {"gate_proj", "up_proj", "down_proj"}
+            assert w["gate_proj"]["weight"].shape == (intermediate, hidden)
+            assert w["up_proj"]["weight"].shape == (intermediate, hidden)
+            assert w["down_proj"]["weight"].shape == (hidden, intermediate)
+            assert w["gate_proj"]["bias"] is None
+            assert w["up_proj"]["bias"] is None
+            assert w["down_proj"]["bias"] is None
+
+            # Values must match a manual slice of the fused tensors.
+            gate_up = fused.gate_up_proj.weight.detach().cpu().float().numpy()
+            down = fused.down_proj.weight.detach().cpu().float().numpy()
+            assert (w["gate_proj"]["weight"] == gate_up[expert_id, :intermediate, :]).all()
+            assert (w["up_proj"]["weight"] == gate_up[expert_id, intermediate:, :]).all()
+            assert (w["down_proj"]["weight"] == down[expert_id]).all()
+
+    def test_modulelist_expert_weight_extraction(self, mod, torch):
+        """ModuleList layout: helper returns the same 3-key dict."""
+        hidden, intermediate, num_experts = 8, 16, 3
+        ml = self._modulelist_stub(
+            torch, num_experts=num_experts, intermediate=intermediate, hidden=hidden
+        )
+        for expert_id in range(num_experts):
+            w = mod._get_expert_weights(ml, expert_id, is_fused=False)
+            assert set(w.keys()) == {"gate_proj", "up_proj", "down_proj"}
+            assert w["gate_proj"]["weight"].shape == (intermediate, hidden)
+            assert w["up_proj"]["weight"].shape == (intermediate, hidden)
+            assert w["down_proj"]["weight"].shape == (hidden, intermediate)
+            # Values must match the underlying nn.Linear weights.
+            import numpy as np
+            expert = ml[expert_id]
+            assert np.allclose(
+                w["gate_proj"]["weight"],
+                expert.gate_proj.weight.detach().cpu().float().numpy(),
+            )
+
+
+class _TensorHolder:
+    """Expose a tensor via ``.weight`` (mimics an ``nn.Linear``-ish surface).
+
+    The real ``Qwen3_5MoeExperts`` attaches its fused parameters such that
+    ``experts.gate_up_proj.weight`` resolves to the fused tensor. This shim
+    is the compact equivalent for tests — we do not need gradient tracking
+    nor the rest of the ``nn.Linear`` API.
+    """
+
+    def __init__(self, tensor):
+        self.weight = tensor
+
+
+class _FusedStub:
+    """Plain object standing in for ``Qwen3_5MoeExperts`` in tests.
+
+    Not an ``nn.Module``: the conversion script only calls
+    ``hasattr(experts, 'gate_up_proj')``, ``experts.gate_up_proj.weight``,
+    and ``experts.down_proj.weight``. A bare namespace suffices.
+    """
+
+    pass

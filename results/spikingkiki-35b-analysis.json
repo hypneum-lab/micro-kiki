@@ -1,15 +1,15 @@
 {
   "story": "story-27",
   "title": "LAS convert Qwen3.5-35B-A3B -> SpikingKiki-35B (MoE)",
-  "timestamp": "2026-04-17T16:54:50Z",
+  "timestamp": "2026-04-21T14:53:32Z",
   "model": {
-    "name": "Qwen/Qwen3.5-35B-A3B",
-    "architecture": "Qwen3MoeForCausalLM",
-    "hidden_size": 7168,
-    "num_layers": 94,
+    "name": "Qwen3.5-35B-A3B",
+    "architecture": "Qwen3_5MoeForConditionalGeneration",
+    "hidden_size": 2048,
+    "num_layers": 40,
     "num_experts": 256,
     "active_experts_per_token": 8,
-    "total_params_estimate": 1086886248448,
+    "total_params_estimate": 34131148800,
     "active_params_estimate": 3.0
   },
   "convertibility": {
@@ -19,35 +19,35 @@
       "projections": {
         "q_proj": {
           "shape": [
-            7168,
-            7168
+            2048,
+            4096
           ],
-          "params": 51380224
+          "params": 8388608
         },
         "k_proj": {
           "shape": [
-            7168,
-            448
+            2048,
+            512
           ],
-          "params": 3211264
+          "params": 1048576
         },
         "v_proj": {
           "shape": [
-            7168,
-            448
+            2048,
+            512
           ],
-          "params": 3211264
+          "params": 1048576
         },
         "o_proj": {
           "shape": [
-            7168,
-            7168
+            4096,
+            2048
           ],
-          "params": 51380224
+          "params": 8388608
         }
       },
-      "params_per_layer": 109182976,
-      "total_params": 10263199744,
+      "params_per_layer": 18874368,
+      "total_params": 754974720,
       "notes": [
         "GQA (grouped query attention) with 64 Q heads, 4 KV heads",
         "Identity activation preserves signed values for softmax",
@@ -58,10 +58,10 @@
     "moe_router": {
       "convertible": true,
       "method": "LAS identity activation (expert selection from signed logits)",
-      "params_per_layer": 1835008,
-      "total_params": 172490752,
+      "params_per_layer": 524288,
+      "total_params": 20971520,
       "notes": [
-        "Router: 7168 -> 256 (top-8 selection)",
+        "Router: 2048 -> 256 (top-8 selection)",
         "Identity activation critical: signed logits determine ranking",
         "ANN-equivalent routing used for selection (spiking for energy)",
         "norm_topk_prob normalises expert combination weights"
@@ -70,10 +70,10 @@
     "moe_expert_ffn": {
       "convertible": "partial",
       "method": "LAS relu activation on gate/up/down (SwiGLU issue)",
-      "params_per_expert": 44040192,
+      "params_per_expert": 3145728,
       "num_experts": 256,
       "active_per_token": 8,
-      "total_params": 1059783180288,
+      "total_params": 32212254720,
       "blocking_issues": [
         "SwiGLU gate uses SiLU (x * sigmoid(x)), not ReLU -- rate-coded LIF only approximates ReLU natively",
         "Signed intermediate activations from SiLU need two-channel encoding (positive + negative spike trains)",
@@ -86,7 +86,7 @@
         "Temporal correlation coding for element-wise multiply (active research, no proven LAS-compatible method yet)"
       ],
       "notes": [
-        "Each expert: 7168 -> 2048 -> 7168 (SwiGLU)",
+        "Each expert: 2048 -> 512 -> 2048 (SwiGLU)",
         "Only 8/256 experts active per token",
         "down_proj (inter -> hidden) is straightforward ReLU conversion",
         "gate_proj output feeds SiLU -- the conversion bottleneck"
@@ -95,10 +95,10 @@
     "shared_expert": {
       "convertible": "partial",
       "method": "Same SwiGLU issues as MoE experts",
-      "params_per_layer": 154140672,
-      "total_params": 14489223168,
+      "params_per_layer": 3145728,
+      "total_params": 125829120,
       "notes": [
-        "Shared expert: 7168 -> 7168 -> 7168",
+        "Shared expert: 2048 -> 512 -> 2048",
         "Always active (not gated by router)",
         "Same SwiGLU conversion challenges as regular experts"
       ]
@@ -106,18 +106,18 @@
     "embedding_lm_head": {
       "convertible": false,
       "method": "N/A (lookup table, not a matmul)",
-      "params": 2178154496,
+      "params": 1017118720,
       "notes": [
         "Embedding is a lookup, not amenable to spiking conversion",
         "lm_head logits need full precision for sampling"
       ]
     },
     "summary": {
-      "total_params_per_layer": 11539447808,
-      "total_model_params_estimate": 1086886248448,
-      "fully_convertible_params": 10435690496,
-      "partially_convertible_params": 1074272403456,
-      "not_convertible_params": 2178154496
+      "total_params_per_layer": 827850752,
+      "total_model_params_estimate": 34131148800,
+      "fully_convertible_params": 775946240,
+      "partially_convertible_params": 32338083840,
+      "not_convertible_params": 1017118720
     }
   },
   "spike_rate_equivalence": {
@@ -126,17 +126,17 @@
     "max_quantisation_error": 0.0078125,
     "relative_error_bound": "O(1/128) = 0.007812",
     "attention": {
-      "neurons_per_token": 15232,
-      "mean_spikes_per_token": 974848.0,
-      "macs_per_token": 109182976,
-      "spike_to_mac_ratio": 0.008929
+      "neurons_per_token": 7168,
+      "mean_spikes_per_token": 458752.0,
+      "macs_per_token": 18874368,
+      "spike_to_mac_ratio": 0.024306
     },
     "moe_ffn_per_token": {
       "active_experts": 8,
-      "neurons_per_token": 90112,
-      "mean_spikes_per_token": 5767168.0,
-      "macs_per_token": 352321536,
-      "spike_to_mac_ratio": 0.016369
+      "neurons_per_token": 24576,
+      "mean_spikes_per_token": 1572864.0,
+      "macs_per_token": 25165824,
+      "spike_to_mac_ratio": 0.0625
     },
     "notes": [
       "Spike-to-MAC ratio < 1 means fewer spike events than MAC ops",
@@ -153,23 +153,23 @@
       "source": "Horowitz 2014 (45nm CMOS)"
     },
     "per_token_per_layer": {
-      "ann_macs": 617480192,
-      "snn_spike_ops": 6742016
+      "ann_macs": 47710208,
+      "snn_spike_ops": 2031616
     },
     "per_token_full_model": {
-      "ann_macs": 58043138048,
-      "ann_energy_pJ": 266998435020.8,
-      "ann_energy_uJ": 266998.435,
-      "snn_spike_ops": 633749504,
-      "snn_energy_cmos_pJ": 570374553.6,
-      "snn_energy_cmos_uJ": 570.375,
-      "snn_energy_neuromorphic_pJ": 31687475.2,
-      "snn_energy_neuromorphic_uJ": 31.687
+      "ann_macs": 1908408320,
+      "ann_energy_pJ": 8778678272.0,
+      "ann_energy_uJ": 8778.678,
+      "snn_spike_ops": 81264640,
+      "snn_energy_cmos_pJ": 73138176.0,
+      "snn_energy_cmos_uJ": 73.138,
+      "snn_energy_neuromorphic_pJ": 4063232.0,
+      "snn_energy_neuromorphic_uJ": 4.063
     },
     "savings": {
-      "cmos_ratio": 468.11,
-      "neuromorphic_ratio": 8425.99,
-      "cmos_saving_percent": 99.8,
+      "cmos_ratio": 120.03,
+      "neuromorphic_ratio": 2160.52,
+      "cmos_saving_percent": 99.2,
       "neuromorphic_saving_percent": 100.0
     },
     "caveats": [
@@ -183,12 +183,12 @@
     ]
   },
   "conversion_summary": {
-    "fully_convertible_percent": 1.0,
-    "partially_convertible_percent": 98.8,
-    "not_convertible_percent": 0.2,
-    "fully_convertible_params": 10435690496,
-    "partially_convertible_params": 1074272403456,
-    "not_convertible_params": 2178154496,
+    "fully_convertible_percent": 2.3,
+    "partially_convertible_percent": 94.7,
+    "not_convertible_percent": 3.0,
+    "fully_convertible_params": 775946240,
+    "partially_convertible_params": 32338083840,
+    "not_convertible_params": 1017118720,
     "verdict": "Attention layers (GQA projections) and MoE routers are fully convertible via LAS with identity activation. MoE expert FFNs are partially convertible: down_proj is straightforward, but SwiGLU gate (SiLU activation + element-wise multiply) has no direct spiking equivalent. Recommended approach: hybrid conversion keeping SwiGLU gate in ANN domain, converting up/down projections to spiking. This yields ~60% expert parameter conversion with predictable energy savings."
   },
   "research_questions": [

@@ -1,0 +1,92 @@
+{
+  "label": "rust",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/rust",
+  "n_problems": 10,
+  "max_tokens": 384,
+  "per_problem": [
+    {
+      "task_id": "HumanEval/0",
+      "entry_point": "has_close_elements",
+      "passed": true,
+      "gen_s": 2.17,
+      "completion": "    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/1",
+      "entry_point": "separate_paren_groups",
+      "passed": false,
+      "gen_s": 2.56,
+      "completion": "    result = []\n    current_group = []\n    for char in paren_string:\n        if char == '(':\n            current_group.append(char)\n        elif char == ')':\n            current_group.append(char)\n            result.append(''.join(current_group))\n            current_group = []\n        elif char == ' ':\n            continue\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/2",
+      "entry_point": "truncate_number",
+      "passed": true,
+      "gen_s": 0.57,
+      "completion": "    return number - int(number)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/3",
+      "entry_point": "below_zero",
+      "passed": true,
+      "gen_s": 1.34,
+      "completion": "    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/4",
+      "entry_point": "mean_absolute_deviation",
+      "passed": true,
+      "gen_s": 1.18,
+      "completion": "    mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/5",
+      "entry_point": "intersperse",
+      "passed": true,
+      "gen_s": 1.9,
+      "completion": "    if not numbers:\n        return []\n    result = []\n    for i, num in enumerate(numbers):\n        result.append(num)\n        if i < len(numbers) - 1:\n            result.append(delimeter)\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/6",
+      "entry_point": "parse_nested_parens",
+      "passed": false,
+      "gen_s": 1.27,
+      "completion": "    result = []\n    for group in paren_string.split():\n        result.append(max(group.count('('), group.count(')')))\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/7",
+      "entry_point": "filter_by_substring",
+      "passed": true,
+      "gen_s": 0.75,
+      "completion": "    return [s for s in strings if substring in s]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/8",
+      "entry_point": "sum_product",
+      "passed": true,
+      "gen_s": 11.39,
+      "completion": "    sum = 0\n    product = 1\n    for i in numbers:\n        sum += i\n        product *= i\n    return (sum, product)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/9",
+      "entry_point": "rolling_max",
+      "passed": true,
+      "gen_s": 11.4,
+      "completion": "    result = []\n    max_num = float('-inf')\n    for num in numbers:\n        max_num = max(max_num, num)\n        result.append(max_num)\n    return result\n\n",
+      "error": ""
+    }
+  ],
+  "pass@1": 0.8,
+  "total_gen_s": 34.5,
+  "status": "ok"
+}

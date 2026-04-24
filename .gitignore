@@ -251,3 +251,6 @@ unsloth_compiled_cache/
 
 # C3 real corpus — raw ingestion files (may contain PII before sanitization)
 data/corpus-real/*/raw.jsonl
+
+# Large dry-run artifact (regenerated on demand)
+results/spikingkiki-35b-convert.json
