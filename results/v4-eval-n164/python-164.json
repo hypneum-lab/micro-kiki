@@ -1,0 +1,1324 @@
+{
+  "label": "python-164",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/python",
+  "n_problems": 164,
+  "max_tokens": 384,
+  "per_problem": [
+    {
+      "task_id": "HumanEval/0",
+      "entry_point": "has_close_elements",
+      "passed": true,
+      "gen_s": 14.64,
+      "completion": "    numbers.sort()\n    for i in range(len(numbers) - 1):\n        if abs(numbers[i] - numbers[i + 1]) < threshold:\n            return True\n    return False\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/1",
+      "entry_point": "separate_paren_groups",
+      "passed": true,
+      "gen_s": 14.03,
+      "completion": "    result = []\n    current_group = []\n    depth = 0\n    for char in paren_string:\n        if char == '(':\n            depth += 1\n            current_group.append(char)\n        elif char == ')':\n            depth -= 1\n            current_group.append(char)\n            if depth == 0:\n                result.append(''.join(current_group))\n                current_group = []\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/2",
+      "entry_point": "truncate_number",
+      "passed": true,
+      "gen_s": 13.87,
+      "completion": "    return number - int(number)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/3",
+      "entry_point": "below_zero",
+      "passed": true,
+      "gen_s": 1.64,
+      "completion": "    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/4",
+      "entry_point": "mean_absolute_deviation",
+      "passed": true,
+      "gen_s": 2.77,
+      "completion": "    mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/5",
+      "entry_point": "intersperse",
+      "passed": true,
+      "gen_s": 4.63,
+      "completion": "    if len(numbers) == 0:\n        return []\n    result = [numbers[0]]\n    for i in range(1, len(numbers)):\n        result.append(delimeter)\n        result.append(numbers[i])\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/6",
+      "entry_point": "parse_nested_parens",
+      "passed": false,
+      "gen_s": 3.94,
+      "completion": "    result = []\n    current_group = []\n    current_depth = 0\n    for char in paren_string:\n        if char == '(':\n            current_depth += 1\n            current_group.append(char)\n        elif char == ')':\n            current_depth -= 1\n            current_group.append(char)\n            if current_depth == 0:\n                result.append(len(current_group) // 2)\n                current_group = []\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/7",
+      "entry_point": "filter_by_substring",
+      "passed": true,
+      "gen_s": 13.95,
+      "completion": "    return [s for s in strings if substring in s]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/8",
+      "entry_point": "sum_product",
+      "passed": false,
+      "gen_s": 5.07,
+      "completion": "    if not numbers:\n        return 0, 1\n    else:\n        return sum(numbers), product(numbers)\n\n",
+      "error": "NameError: name 'product' is not defined"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "entry_point": "rolling_max",
+      "passed": false,
+      "gen_s": 13.89,
+      "completion": "    result = []\n    max_val = numbers[0]\n    for num in numbers:\n        if num > max_val:\n            max_val = num\n        result.append(max_val)\n    return result\n\n",
+      "error": "IndexError: list index out of range"
+    },
+    {
+      "task_id": "HumanEval/10",
+      "entry_point": "make_palindrome",
+      "passed": true,
+      "gen_s": 13.92,
+      "completion": "    if not string:\n        return ''\n    elif is_palindrome(string):\n        return string\n    else:\n        for i in range(len(string)):\n            if is_palindrome(string[i:]):\n                return string + string[:i][::-1]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/11",
+      "entry_point": "string_xor",
+      "passed": true,
+      "gen_s": 13.86,
+      "completion": "    result = ''\n    for i in range(len(a)):\n        if a[i] == b[i]:\n            result += '0'\n        else:\n            result += '1'\n    return result\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/12",
+      "entry_point": "longest",
+      "passed": true,
+      "gen_s": 2.25,
+      "completion": "    if not strings:\n        return None\n    longest_string = strings[0]\n    for string in strings[1:]:\n        if len(string) > len(longest_string):\n            longest_string = string\n    return longest_string",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/13",
+      "entry_point": "greatest_common_divisor",
+      "passed": true,
+      "gen_s": 1.16,
+      "completion": "    while b:\n        a, b = b, a % b\n    return a",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/14",
+      "entry_point": "all_prefixes",
+      "passed": true,
+      "gen_s": 14.1,
+      "completion": "    return [string[:i+1] for i in range(len(string))]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/15",
+      "entry_point": "string_sequence",
+      "passed": true,
+      "gen_s": 1.11,
+      "completion": "    return ' '.join([str(i) for i in range(n+1)])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/16",
+      "entry_point": "count_distinct_characters",
+      "passed": true,
+      "gen_s": 0.74,
+      "completion": "    return len(set(string.lower()))",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/17",
+      "entry_point": "parse_music",
+      "passed": true,
+      "gen_s": 2.92,
+      "completion": "    notes = music_string.split()\n    beats = []\n    for note in notes:\n        if note == 'o':\n            beats.append(4)\n        elif note == 'o|':\n            beats.append(2)\n        elif note == '.|':\n            beats.append(1)\n    return beats",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/18",
+      "entry_point": "how_many_times",
+      "passed": true,
+      "gen_s": 2.54,
+      "completion": "    count = 0\n    start = 0\n    while start < len(string):\n        index = string.find(substring, start)\n        if index == -1:\n            break\n        count += 1\n        start = index + 1\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/19",
+      "entry_point": "sort_numbers",
+      "passed": true,
+      "gen_s": 14.06,
+      "completion": "    number_map = {\n        'zero': 0,\n        'one': 1,\n        'two': 2,\n        'three': 3,\n        'four': 4,\n        'five': 5,\n        'six': 6,\n        'seven': 7,\n        'eight': 8,\n        'nine': 9\n    }\n    numbers = numbers.split()\n    numbers.sort(key=lambda x: number_map[x])\n    return ' '.join(numbers)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/20",
+      "entry_point": "find_closest_elements",
+      "passed": true,
+      "gen_s": 6.02,
+      "completion": "    numbers.sort()\n    closest = (numbers[0], numbers[1])\n    for i in range(1, len(numbers) - 1):\n        if numbers[i + 1] - numbers[i] < closest[1] - closest[0]:\n            closest = (numbers[i], numbers[i + 1])\n    return closest\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/21",
+      "entry_point": "rescale_to_unit",
+      "passed": true,
+      "gen_s": 13.88,
+      "completion": "    min_val = min(numbers)\n    max_val = max(numbers)\n    if min_val == max_val:\n        return [0.0] * len(numbers)\n    return [(x - min_val) / (max_val - min_val) for x in numbers]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/22",
+      "entry_point": "filter_integers",
+      "passed": true,
+      "gen_s": 14.07,
+      "completion": "    return [value for value in values if isinstance(value, int)]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/23",
+      "entry_point": "strlen",
+      "passed": true,
+      "gen_s": 14.0,
+      "completion": "    return len(string)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/24",
+      "entry_point": "largest_divisor",
+      "passed": true,
+      "gen_s": 1.71,
+      "completion": "    for i in range(n - 1, 0, -1):\n        if n % i == 0:\n            return i\n    return 1",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/25",
+      "entry_point": "factorize",
+      "passed": true,
+      "gen_s": 2.74,
+      "completion": "    factors = []\n    d = 2\n    while d * d <= n:\n        while n % d == 0:\n            factors.append(d)\n            n //= d\n        d += 1\n    if n > 1:\n        factors.append(n)\n    return factors",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/26",
+      "entry_point": "remove_duplicates",
+      "passed": true,
+      "gen_s": 1.99,
+      "completion": "    count = {}\n    for num in numbers:\n        count[num] = count.get(num, 0) + 1\n    return [num for num in numbers if count[num] == 1]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/27",
+      "entry_point": "flip_case",
+      "passed": true,
+      "gen_s": 1.24,
+      "completion": "    return ''.join([char.upper() if char.islower() else char.lower() for char in string])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/28",
+      "entry_point": "concatenate",
+      "passed": true,
+      "gen_s": 13.9,
+      "completion": "    return ''.join(strings)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/29",
+      "entry_point": "filter_by_prefix",
+      "passed": true,
+      "gen_s": 14.02,
+      "completion": "    return [string for string in strings if string.startswith(prefix)]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/30",
+      "entry_point": "get_positive",
+      "passed": true,
+      "gen_s": 0.97,
+      "completion": "    return [x for x in l if x > 0]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/31",
+      "entry_point": "is_prime",
+      "passed": true,
+      "gen_s": 14.02,
+      "completion": "    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    max_divisor = int(n**0.5)\n    for d in range(3, 1 + max_divisor, 2):\n        if n % d == 0:\n            return False\n    return True\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/32",
+      "entry_point": "find_zero",
+      "passed": false,
+      "gen_s": 1.57,
+      "completion": "    # TODO\n    pass\n\n",
+      "error": "TypeError: must be real number, not NoneType"
+    },
+    {
+      "task_id": "HumanEval/33",
+      "entry_point": "sort_third",
+      "passed": true,
+      "gen_s": 1.33,
+      "completion": "    l = list(l)\n    l[::3] = sorted(l[::3])\n    return l",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/34",
+      "entry_point": "unique",
+      "passed": true,
+      "gen_s": 0.72,
+      "completion": "    return sorted(set(l))",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/35",
+      "entry_point": "max_element",
+      "passed": true,
+      "gen_s": 13.76,
+      "completion": "    return max(l)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/36",
+      "entry_point": "fizz_buzz",
+      "passed": true,
+      "gen_s": 2.3,
+      "completion": "    count = 0\n    for i in range(1, n):\n        if i % 11 == 0 or i % 13 == 0:\n            count += str(i).count('7')\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/37",
+      "entry_point": "sort_even",
+      "passed": true,
+      "gen_s": 3.23,
+      "completion": "    even = sorted([x for i, x in enumerate(l) if i % 2 == 0])\n    odd = [x for i, x in enumerate(l) if i % 2 != 0]\n    return [even.pop(0) if i % 2 == 0 else odd.pop(0) for i in range(len(l))]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/38",
+      "entry_point": "decode_cyclic",
+      "passed": true,
+      "gen_s": 13.97,
+      "completion": "    # split string to groups. Each of length 3.\n    groups = [s[(3 * i):min((3 * i + 3), len(s))] for i in range((len(s) + 2) // 3)]\n    # cycle elements in each group. Unless group has fewer elements than 3.\n    groups = [(group[-1] + group[:-1]) if len(group) == 3 else group for group in groups]\n    return \"\".join(groups)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/39",
+      "entry_point": "prime_fib",
+      "passed": false,
+      "gen_s": 3.04,
+      "completion": "    fib = [0, 1]\n    while len(fib) < n:\n        fib.append(fib[-1] + fib[-2])\n    for i in fib:\n        if i > 1 and all(i % j == 0 for j in range(2, i)):\n            return i\n    return -1",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/40",
+      "entry_point": "triples_sum_to_zero",
+      "passed": true,
+      "gen_s": 5.02,
+      "completion": "    l.sort()\n    for i in range(len(l)):\n        if i > 0 and l[i] == l[i-1]:\n            continue\n        for j in range(i+1, len(l)):\n            if j > i+1 and l[j] == l[j-1]:\n                continue\n            for k in range(j+1, len(l)):\n                if k > j+1 and l[k] == l[k-1]:\n                    continue\n                if l[i] + l[j] + l[k] == 0:\n                    return True\n    return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/41",
+      "entry_point": "car_race_collision",
+      "passed": true,
+      "gen_s": 0.67,
+      "completion": "    return n * n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/42",
+      "entry_point": "incr_list",
+      "passed": true,
+      "gen_s": 0.9,
+      "completion": "    return [i + 1 for i in l]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/43",
+      "entry_point": "pairs_sum_to_zero",
+      "passed": true,
+      "gen_s": 1.69,
+      "completion": "    seen = set()\n    for num in l:\n        if -num in seen:\n            return True\n        seen.add(num)\n    return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/44",
+      "entry_point": "change_base",
+      "passed": true,
+      "gen_s": 2.38,
+      "completion": "    if x == 0:\n        return '0'\n    digits = []\n    while x:\n        x, r = divmod(x, base)\n        digits.append(str(r))\n    return ''.join(reversed(digits))",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/45",
+      "entry_point": "triangle_area",
+      "passed": true,
+      "gen_s": 0.72,
+      "completion": "    return a * h / 2",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/46",
+      "entry_point": "fib4",
+      "passed": false,
+      "gen_s": 8.1,
+      "completion": "    if n == 0:\n        return 0\n    elif n == 1:\n        return 0\n    elif n == 2:\n        return 2\n    elif n == 3:\n        return 0\n    else:\n        fib4_n_minus_1 = 0\n        fib4_n_minus_2 = 0\n        fib4_n_minus_3 = 2\n        fib4_n_minus_4 = 0\n        fib4_n = 0\n        for i in range(4, n+1):\n            fib4_n = fib4_n_minus_1 + fib4_n_minus_2 + fib4_n_minus_3 + fib4_n_minus_4\n            fib4_n_minus_4 = fib4_n_minus_3\n            fib4_n_minus_3 = fib4_n_minus_2\n            fib4_n_minus_2 = fib4_n_minus_1\n            fib4_n_minus_1 = fib4_n\n        return fib4_n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/47",
+      "entry_point": "median",
+      "passed": true,
+      "gen_s": 2.36,
+      "completion": "    l.sort()\n    mid = len(l) // 2\n    if len(l) % 2 == 0:\n        return (l[mid - 1] + l[mid]) / 2\n    else:\n        return l[mid]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/48",
+      "entry_point": "is_palindrome",
+      "passed": true,
+      "gen_s": 14.09,
+      "completion": "    return text == text[::-1]\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/49",
+      "entry_point": "modp",
+      "passed": true,
+      "gen_s": 14.07,
+      "completion": "    return pow(2, n, p)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/50",
+      "entry_point": "decode_shift",
+      "passed": true,
+      "gen_s": 14.04,
+      "completion": "    return \"\".join([chr(((ord(ch) - 5 - ord(\"a\")) % 26) + ord(\"a\")) for ch in s])\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/51",
+      "entry_point": "remove_vowels",
+      "passed": true,
+      "gen_s": 2.17,
+      "completion": "    vowels = ['a', 'e', 'i', 'o', 'u']\n    result = ''\n    for letter in text:\n        if letter.lower() not in vowels:\n            result += letter\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/52",
+      "entry_point": "below_threshold",
+      "passed": true,
+      "gen_s": 14.15,
+      "completion": "    return all(num < t for num in l)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/53",
+      "entry_point": "add",
+      "passed": true,
+      "gen_s": 14.09,
+      "completion": "    return x + y\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/54",
+      "entry_point": "same_chars",
+      "passed": false,
+      "gen_s": 14.05,
+      "completion": "    return sorted(s0) == sorted(s1)\n\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/55",
+      "entry_point": "fib",
+      "passed": true,
+      "gen_s": 13.87,
+      "completion": "    if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        a, b = 0, 1\n        for _ in range(n - 1):\n            a, b = b, a + b\n        return b\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/56",
+      "entry_point": "correct_bracketing",
+      "passed": true,
+      "gen_s": 2.32,
+      "completion": "    stack = []\n    for bracket in brackets:\n        if bracket == \"<\":\n            stack.append(bracket)\n        elif bracket == \">\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/57",
+      "entry_point": "monotonic",
+      "passed": false,
+      "gen_s": 4.38,
+      "completion": "    if len(l) < 2:\n        return True\n    if l[0] < l[1]:\n        for i in range(1, len(l)):\n            if l[i] < l[i-1]:\n                return False\n        return True\n    elif l[0] > l[1]:\n        for i in range(1, len(l)):\n            if l[i] > l[i-1]:\n                return False\n        return True\n    else:\n        return False",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/58",
+      "entry_point": "common",
+      "passed": true,
+      "gen_s": 0.9,
+      "completion": "    return sorted(set(l1) & set(l2))",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/59",
+      "entry_point": "largest_prime_factor",
+      "passed": true,
+      "gen_s": 13.9,
+      "completion": "    max_prime = -1\n    while n % 2 == 0:\n        max_prime = 2\n        n = n / 2\n    for i in range(3, int(n**0.5) + 1, 2):\n        while n % i == 0:\n            max_prime = i\n            n = n / i\n    if n > 2:\n        max_prime = n\n    return int(max_prime)\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/60",
+      "entry_point": "sum_to_n",
+      "passed": true,
+      "gen_s": 13.97,
+      "completion": "    return n*(n+1)//2\n\n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/61",
+      "entry_point": "correct_bracketing",
+      "passed": true,
+      "gen_s": 2.29,
+      "completion": "    stack = []\n    for bracket in brackets:\n        if bracket == \"(\":\n            stack.append(bracket)\n        elif bracket == \")\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/62",
+      "entry_point": "derivative",
+      "passed": true,
+      "gen_s": 1.17,
+      "completion": "    return [i * j for i, j in enumerate(xs) if i > 0]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/63",
+      "entry_point": "fibfib",
+      "passed": true,
+      "gen_s": 6.51,
+      "completion": "    if n == 0:\n        return 0\n    elif n == 1:\n        return 0\n    elif n == 2:\n        return 1\n    else:\n        fibfib_n_minus_1 = 1\n        fibfib_n_minus_2 = 0\n        fibfib_n_minus_3 = 0\n        fibfib_n = 0\n        for i in range(3, n + 1):\n            fibfib_n = fibfib_n_minus_1 + fibfib_n_minus_2 + fibfib_n_minus_3\n            fibfib_n_minus_3 = fibfib_n_minus_2\n            fibfib_n_minus_2 = fibfib_n_minus_1\n            fibfib_n_minus_1 = fibfib_n\n        return fibfib_n",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/64",
+      "entry_point": "vowels_count",
+      "passed": true,
+      "gen_s": 3.35,
+      "completion": "    vowels = ['a', 'e', 'i', 'o', 'u']\n    count = 0\n    for i in range(len(s)):\n        if s[i].lower() in vowels:\n            count += 1\n        elif s[i].lower() == 'y' and i == len(s) - 1:\n            count += 1\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/65",
+      "entry_point": "circular_shift",
+      "passed": true,
+      "gen_s": 1.8,
+      "completion": "    x_str = str(x)\n    if shift > len(x_str):\n        return x_str[::-1]\n    return x_str[-shift:] + x_str[:-shift]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/66",
+      "entry_point": "digitSum",
+      "passed": true,
+      "gen_s": 1.08,
+      "completion": "    return sum([ord(c) for c in s if c.isupper()])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/67",
+      "entry_point": "fruit_distribution",
+      "passed": false,
+      "gen_s": 1.31,
+      "completion": "    # your code here\n    return n - int(s.split()[0]) - int(s.split()[2])",
+      "error": "ValueError: invalid literal for int() with base 10: 'and'"
+    },
+    {
+      "task_id": "HumanEval/68",
+      "entry_point": "pluck",
+      "passed": false,
+      "gen_s": 0.9,
+      "completion": "    # Your code here\n    return []",
+      "error": "AssertionError: Error"
+    },
+    {
+      "task_id": "HumanEval/69",
+      "entry_point": "search",
+      "passed": true,
+      "gen_s": 3.22,
+      "completion": "    freq = {}\n    for i in lst:\n        if i in freq:\n            freq[i] += 1\n        else:\n            freq[i] = 1\n    max_val = -1\n    for i in freq:\n        if i > max_val and freq[i] >= i:\n            max_val = i\n    return max_val",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/70",
+      "entry_point": "strange_sort_list",
+      "passed": true,
+      "gen_s": 2.21,
+      "completion": "    if not lst:\n        return []\n    lst.sort()\n    result = []\n    while lst:\n        result.append(lst.pop(0))\n        if lst:\n            result.append(lst.pop())\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/71",
+      "entry_point": "triangle_area",
+      "passed": true,
+      "gen_s": 3.34,
+      "completion": "    if a + b > c and a + c > b and b + c > a:\n        s = (a + b + c) / 2\n        area = (s * (s - a) * (s - b) * (s - c)) ** 0.5\n        return round(area, 2)\n    else:\n        return -1",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/72",
+      "entry_point": "will_it_fly",
+      "passed": true,
+      "gen_s": 1.02,
+      "completion": "    return q == q[::-1] and sum(q) <= w",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/73",
+      "entry_point": "smallest_change",
+      "passed": false,
+      "gen_s": 0.8,
+      "completion": "    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/74",
+      "entry_point": "total_match",
+      "passed": false,
+      "gen_s": 3.17,
+      "completion": "    if len(lst1) == 0:\n        return lst1\n    elif len(lst2) == 0:\n        return lst2\n    elif len(lst1) < len(lst2):\n        return lst1\n    elif len(lst1) > len(lst2):\n        return lst2\n    else:\n        return lst1",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/75",
+      "entry_point": "is_multiply_prime",
+      "passed": false,
+      "gen_s": 0.71,
+      "completion": "    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/76",
+      "entry_point": "is_simple_power",
+      "passed": true,
+      "gen_s": 3.11,
+      "completion": "    if n == 1:\n        return x == 1\n    if n == 0:\n        return x == 0\n    if n < 0:\n        return False\n    while x > 1:\n        if x % n != 0:\n            return False\n        x = x // n\n    return x == 1",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/77",
+      "entry_point": "iscube",
+      "passed": false,
+      "gen_s": 0.82,
+      "completion": "    return a**(1/3) % 1 == 0",
+      "error": "TypeError: unsupported operand type(s) for %: 'complex' and 'int'"
+    },
+    {
+      "task_id": "HumanEval/78",
+      "entry_point": "hex_key",
+      "passed": true,
+      "gen_s": 1.57,
+      "completion": "    primes = set(['2', '3', '5', '7', 'B', 'D'])\n    return sum(1 for c in num if c in primes)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/79",
+      "entry_point": "decimal_to_binary",
+      "passed": true,
+      "gen_s": 2.53,
+      "completion": "    if decimal == 0:\n        return \"db0db\"\n    binary = \"\"\n    while decimal > 0:\n        binary = str(decimal % 2) + binary\n        decimal = decimal // 2\n    return \"db\" + binary + \"db\"",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/80",
+      "entry_point": "is_happy",
+      "passed": true,
+      "gen_s": 2.82,
+      "completion": "    if len(s) < 3:\n        return False\n    for i in range(len(s) - 2):\n        if s[i] == s[i + 1] or s[i] == s[i + 2] or s[i + 1] == s[i + 2]:\n            return False\n    return True",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/81",
+      "entry_point": "numerical_letter_grade",
+      "passed": false,
+      "gen_s": 10.43,
+      "completion": "    grades = [float(grade) for grade in grades]\n    grades.sort(reverse=True)\n    letter_grades = []\n    for grade in grades:\n        if grade >= 4.0:\n            letter_grades.append('A+')\n        elif grade > 3.7:\n            letter_grades.append('A')\n        elif grade > 3.3:\n            letter_grades.append('A-')\n        elif grade > 3.0:\n            letter_grades.append('B+')\n        elif grade > 2.7:\n            letter_grades.append('B')\n        elif grade > 2.3:\n            letter_grades.append('B-')\n        elif grade > 2.0:\n            letter_grades.append('C+')\n        elif grade > 1.7:\n            letter_grades.append('C')\n        elif grade > 1.3:\n            letter_grades.append('C-')\n        elif grade > 1.0:\n            letter_grades.append('D+')\n        elif grade > 0.7:\n  ",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/82",
+      "entry_point": "prime_length",
+      "passed": true,
+      "gen_s": 2.44,
+      "completion": "    if len(string) < 2:\n        return False\n    for i in range(2, int(len(string) ** 0.5) + 1):\n        if len(string) % i == 0:\n            return False\n    return True",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/83",
+      "entry_point": "starts_one_ends",
+      "passed": false,
+      "gen_s": 1.94,
+      "completion": "    if n == 1:\n        return 1\n    else:\n        return 2 * 10**(n-2) + 8 * 10**(n-2)",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/84",
+      "entry_point": "solve",
+      "passed": true,
+      "gen_s": 0.95,
+      "completion": "    return bin(sum(map(int, str(N))))[2:]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/85",
+      "entry_point": "add",
+      "passed": true,
+      "gen_s": 1.54,
+      "completion": "    return sum([lst[i] for i in range(1, len(lst), 2) if lst[i] % 2 == 0])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/86",
+      "entry_point": "anti_shuffle",
+      "passed": true,
+      "gen_s": 1.3,
+      "completion": "    return ' '.join([''.join(sorted(word)) if word else '' for word in s.split(' ')])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/87",
+      "entry_point": "get_row",
+      "passed": false,
+      "gen_s": 3.35,
+      "completion": "    result = []\n    for i in range(len(lst)):\n        for j in range(len(lst[i])):\n            if lst[i][j] == x:\n                result.append((i, j))\n    result.sort()\n    result.sort(key=lambda x: x[0], reverse=True)\n    result.sort(key=lambda x: x[1])\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/88",
+      "entry_point": "sort_array",
+      "passed": true,
+      "gen_s": 2.98,
+      "completion": "    if len(array) == 0:\n        return []\n    elif len(array) == 1:\n        return array\n    else:\n        if (array[0] + array[-1]) % 2 == 0:\n            return sorted(array, reverse=True)\n        else:\n            return sorted(array)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/89",
+      "entry_point": "encrypt",
+      "passed": true,
+      "gen_s": 3.81,
+      "completion": "    result = \"\"\n    for i in s:\n        if i.isalpha():\n            if i.isupper():\n                result += chr((ord(i) - 65 + 4) % 26 + 65)\n            else:\n                result += chr((ord(i) - 97 + 4) % 26 + 97)\n        else:\n            result += i\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/90",
+      "entry_point": "next_smallest",
+      "passed": true,
+      "gen_s": 2.33,
+      "completion": "    if len(lst) < 2:\n        return None\n    lst.sort()\n    for i in range(1, len(lst)):\n        if lst[i] > lst[i-1]:\n            return lst[i]\n    return None",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/91",
+      "entry_point": "is_bored",
+      "passed": false,
+      "gen_s": 1.69,
+      "completion": "    count = 0\n    for sentence in S.split('.'):\n        if sentence.strip().startswith('I'):\n            count += 1\n    return count",
+      "error": "AssertionError: Test 2"
+    },
+    {
+      "task_id": "HumanEval/92",
+      "entry_point": "any_int",
+      "passed": false,
+      "gen_s": 1.69,
+      "completion": "    if x == y + z and x.is_integer() and y.is_integer() and z.is_integer():\n        return True\n    else:\n        return False",
+      "error": "AssertionError: This prints if this assert fails 1 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/93",
+      "entry_point": "encode",
+      "passed": false,
+      "gen_s": 4.25,
+      "completion": "    result = ''\n    for i in message:\n        if i.isalpha():\n            if i.isupper():\n                if i in 'AEIOU':\n                    result += chr(ord(i) + 2)\n                else:\n                    result += i.lower()\n            else:\n                if i in 'aeiou':\n                    result += chr(ord(i) - 2)\n                else:\n                    result += i.upper()\n        else:\n            result += i\n    return result",
+      "error": "AssertionError: This prints if this assert fails 1 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/94",
+      "entry_point": "skjkasdkd",
+      "passed": true,
+      "gen_s": 4.18,
+      "completion": "    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    def sum_digits(n):\n        return sum(map(int, str(n)))\n\n    max_prime = max([n for n in lst if is_prime(n)], default=0)\n    return sum_digits(max_prime)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/95",
+      "entry_point": "check_dict_case",
+      "passed": false,
+      "gen_s": 2.48,
+      "completion": "    if not dict:\n        return False\n    if all(key.islower() for key in dict.keys()):\n        return True\n    elif all(key.isupper() for key in dict.keys()):\n        return True\n    else:\n        return False",
+      "error": "AttributeError: 'int' object has no attribute 'islower'"
+    },
+    {
+      "task_id": "HumanEval/96",
+      "entry_point": "count_up_to",
+      "passed": false,
+      "gen_s": 0.77,
+      "completion": "    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/97",
+      "entry_point": "multiply",
+      "passed": true,
+      "gen_s": 1.08,
+      "completion": "    return abs(a % 10) * abs(b % 10)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/98",
+      "entry_point": "count_upper",
+      "passed": true,
+      "gen_s": 2.56,
+      "completion": "    count = 0\n    for i in range(0, len(s), 2):\n        if s[i].isupper() and s[i] in ['A', 'E', 'I', 'O', 'U']:\n            count += 1\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/99",
+      "entry_point": "closest_integer",
+      "passed": true,
+      "gen_s": 3.21,
+      "completion": "    if '.' in value:\n        integer, decimal = value.split('.')\n        if decimal[0] == '5':\n            if int(integer) > 0:\n                return int(integer) + 1\n            else:\n                return int(integer) - 1\n        else:\n            return int(integer)\n    else:\n        return int(value)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/100",
+      "entry_point": "make_a_pile",
+      "passed": true,
+      "gen_s": 2.58,
+      "completion": "    result = [n]\n    for i in range(1, n):\n        if n % 2 == 0:\n            result.append(result[-1] + 2)\n        else:\n            result.append(result[-1] + 2)\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/101",
+      "entry_point": "words_string",
+      "passed": false,
+      "gen_s": 0.67,
+      "completion": "    return s.split()",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/102",
+      "entry_point": "choose_num",
+      "passed": false,
+      "gen_s": 1.79,
+      "completion": "    if x > y:\n        return -1\n    if y % 2 == 0:\n        return y\n    else:\n        return y - 1",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/103",
+      "entry_point": "rounded_avg",
+      "passed": true,
+      "gen_s": 1.74,
+      "completion": "    if n > m:\n        return -1\n    else:\n        avg = round((n + m) / 2)\n        return bin(avg)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/104",
+      "entry_point": "unique_digits",
+      "passed": true,
+      "gen_s": 1.8,
+      "completion": "    return sorted([i for i in x if all(digit not in ['0', '2', '4', '6', '8'] for digit in str(i))])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/105",
+      "entry_point": "by_length",
+      "passed": false,
+      "gen_s": 0.73,
+      "completion": "    # Your code here",
+      "error": "AssertionError: Error"
+    },
+    {
+      "task_id": "HumanEval/106",
+      "entry_point": "f",
+      "passed": false,
+      "gen_s": 4.92,
+      "completion": "    result = []\n    for i in range(1, n + 1):\n        if i % 2 == 0:\n            result.append(factorial(i))\n        else:\n            result.append(sum(range(1, i + 1)))\n    return result\n",
+      "error": "NameError: name 'factorial' is not defined"
+    },
+    {
+      "task_id": "HumanEval/107",
+      "entry_point": "even_odd_palindrome",
+      "passed": true,
+      "gen_s": 3.26,
+      "completion": "    count_even = 0\n    count_odd = 0\n    for i in range(1, n+1):\n        if str(i) == str(i)[::-1]:\n            if i % 2 == 0:\n                count_even += 1\n            else:\n                count_odd += 1\n    return (count_even, count_odd)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/108",
+      "entry_point": "count_nums",
+      "passed": false,
+      "gen_s": 2.05,
+      "completion": "    count = 0\n    for num in arr:\n        if num > 0:\n            count += 1\n        elif num < 0:\n            count += 1\n    return count",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/109",
+      "entry_point": "move_one_ball",
+      "passed": false,
+      "gen_s": 3.15,
+      "completion": "    if len(arr) == 0:\n        return True\n    if len(arr) == 1:\n        return True\n    if arr[0] <= arr[1]:\n        return False\n    for i in range(1, len(arr)):\n        if arr[i] < arr[i-1]:\n            return False\n    return True",
+      "error": "AssertionError: This prints if this assert fails 1 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/110",
+      "entry_point": "exchange",
+      "passed": true,
+      "gen_s": 6.63,
+      "completion": "    # Count the number of odd elements in lst1\n    odd_count = 0\n    for num in lst1:\n        if num % 2 != 0:\n            odd_count += 1\n    # Count the number of even elements in lst2\n    even_count = 0\n    for num in lst2:\n        if num % 2 == 0:\n            even_count += 1\n    # If the number of odd elements in lst1 is greater than the number of even elements in lst2,\n    # it is not possible to exchange elements to make lst1 a list of only even numbers\n    if odd_count > even_count:\n        return \"NO\"\n    # Otherwise, it is possible to exchange elements to make lst1 a list of only even numbers\n    return \"YES\"",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/111",
+      "entry_point": "histogram",
+      "passed": false,
+      "gen_s": 0.82,
+      "completion": "    # Your code here\n    return {}",
+      "error": "AssertionError: This prints if this assert fails 1 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/112",
+      "entry_point": "reverse_delete",
+      "passed": true,
+      "gen_s": 1.44,
+      "completion": "    result = ''.join([i for i in s if i not in c])\n    return result, result == result[::-1]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/113",
+      "entry_point": "odd_count",
+      "passed": true,
+      "gen_s": 4.0,
+      "completion": "    result = []\n    for i in lst:\n        count = 0\n        for j in i:\n            if j in ['1', '3', '5', '7', '9']:\n                count += 1\n        result.append(\"the number of odd elements \" + str(count) + \"n the str\" + str(count) + \"ng \" + str(count) + \" of the \" + str(count) + \"nput.\")\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/114",
+      "entry_point": "minSubArraySum",
+      "passed": false,
+      "gen_s": 2.58,
+      "completion": "    min_sum = float('inf')\n    for i in range(len(nums)):\n        for j in range(i+1, len(nums)):\n            if sum(nums[i:j+1]) < min_sum:\n                min_sum = sum(nums[i:j+1])\n    return min_sum",
+      "error": "AssertionError: This prints if this assert fails 1 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/115",
+      "entry_point": "max_fill",
+      "passed": false,
+      "gen_s": 0.84,
+      "completion": "    # Your code here\n    pass",
+      "error": "AssertionError: Error"
+    },
+    {
+      "task_id": "HumanEval/116",
+      "entry_point": "sort_array",
+      "passed": false,
+      "gen_s": 1.22,
+      "completion": "    return sorted(arr, key=lambda x: (bin(abs(x)).count('1'), abs(x)))",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/117",
+      "entry_point": "select_words",
+      "passed": true,
+      "gen_s": 3.34,
+      "completion": "    consonants = set(\"bcdfghjklmnpqrstvwxyz\")\n    words = s.split()\n    result = []\n    for word in words:\n        count = 0\n        for letter in word:\n            if letter.lower() in consonants:\n                count += 1\n        if count == n:\n            result.append(word)\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/118",
+      "entry_point": "get_closest_vowel",
+      "passed": true,
+      "gen_s": 3.28,
+      "completion": "    vowels = ['a', 'e', 'i', 'o', 'u']\n    word = word[::-1]\n    for i in range(1, len(word) - 1):\n        if word[i] in vowels and word[i-1] not in vowels and word[i+1] not in vowels:\n            return word[i]\n    return \"\"",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/119",
+      "entry_point": "match_parens",
+      "passed": false,
+      "gen_s": 0.78,
+      "completion": "    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/120",
+      "entry_point": "maximum",
+      "passed": false,
+      "gen_s": 0.77,
+      "completion": "    return sorted(arr)[-k:]",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/121",
+      "entry_point": "solution",
+      "passed": true,
+      "gen_s": 1.63,
+      "completion": "    return sum([lst[i] for i in range(0, len(lst), 2) if lst[i] % 2 != 0])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/122",
+      "entry_point": "add_elements",
+      "passed": true,
+      "gen_s": 1.21,
+      "completion": "    return sum([x for x in arr[:k] if x < 100])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/123",
+      "entry_point": "get_odd_collatz",
+      "passed": true,
+      "gen_s": 3.98,
+      "completion": "    collatz_sequence = [n]\n    while n != 1:\n        if n % 2 == 0:\n            n = n // 2\n        else:\n            n = 3 * n + 1\n        collatz_sequence.append(n)\n    odd_collatz_sequence = [x for x in collatz_sequence if x % 2 != 0]\n    odd_collatz_sequence.sort()\n    return odd_collatz_sequence",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/124",
+      "entry_point": "valid_date",
+      "passed": true,
+      "gen_s": 7.78,
+      "completion": "    if not date:\n        return False\n    try:\n        month, day, year = date.split('-')\n        month, day, year = int(month), int(day), int(year)\n        if month < 1 or month > 12:\n            return False\n        if day < 1:\n            return False\n        if month in [1, 3, 5, 7, 8, 10, 12]:\n            if day > 31:\n                return False\n        elif month in [4, 6, 9, 11]:\n            if day > 30:\n                return False\n        elif month == 2:\n            if year % 4 == 0:\n                if day > 29:\n                    return False\n            else:\n                if day > 28:\n                    return False\n        return True\n    except ValueError:\n        return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/125",
+      "entry_point": "split_words",
+      "passed": false,
+      "gen_s": 2.47,
+      "completion": "    if ' ' in txt:\n        return txt.split()\n    elif ',' in txt:\n        return txt.split(',')\n    else:\n        return sum([1 for c in txt if c.islower() and ord(c) % 2 == 1])",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/126",
+      "entry_point": "is_sorted",
+      "passed": true,
+      "gen_s": 3.06,
+      "completion": "    if len(lst) <= 1:\n        return True\n    for i in range(len(lst)-1):\n        if lst[i] > lst[i+1]:\n            return False\n        elif lst[i] == lst[i+1]:\n            if lst.count(lst[i]) > 2:\n                return False\n    return True",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/127",
+      "entry_point": "intersection",
+      "passed": false,
+      "gen_s": 4.2,
+      "completion": "    # Your code here\n    start = max(interval1[0], interval2[0])\n    end = min(interval1[1], interval2[1])\n    if start > end:\n        return \"NO\"\n    length = end - start + 1\n    if length < 2:\n        return \"NO\"\n    for i in range(2, length):\n        if length % i == 0:\n            return \"NO\"\n    return \"YES\"",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/128",
+      "entry_point": "prod_signs",
+      "passed": false,
+      "gen_s": 2.73,
+      "completion": "    if not arr:\n        return None\n    sign = 1\n    for i in arr:\n        if i > 0:\n            sign *= 1\n        elif i < 0:\n            sign *= -1\n    return sign * sum(abs(i) for i in arr)",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/129",
+      "entry_point": "minPath",
+      "passed": false,
+      "gen_s": 10.72,
+      "completion": "    N = len(grid)\n    # Initialize a priority queue with all the cells in the grid\n    queue = [(grid[i][j], i, j) for i in range(N) for j in range(N)]\n    heapq.heapify(queue)\n    \n    # Initialize a dictionary to keep track of the visited cells\n    visited = set()\n    \n    # Initialize a list to store the minimum path\n    path = []\n    \n    # Iterate until the path has length k\n    while len(path) < k:\n        # Pop the cell with the minimum value from the priority queue\n        value, i, j = heapq.heappop(queue)\n        \n        # If the cell has not been visited yet, add it to the path and mark it as visited\n        if (i, j) not in visited:\n            path.append(value)\n            visited.add((i, j))\n            \n            # Add the neighbor cells to the priority queue\n           ",
+      "error": "NameError: name 'heapq' is not defined"
+    },
+    {
+      "task_id": "HumanEval/130",
+      "entry_point": "tri",
+      "passed": false,
+      "gen_s": 5.6,
+      "completion": "    if n == 0:\n        return [1]\n    elif n == 1:\n        return [1, 3]\n    elif n == 2:\n        return [1, 3, 2]\n    else:\n        tri_sequence = [1, 3, 2]\n        for i in range(3, n + 1):\n            if i % 2 == 0:\n                tri_sequence.append(1 + i // 2)\n            else:\n                tri_sequence.append(tri_sequence[i - 1] + tri_sequence[i - 2] + tri_sequence[i + 1])\n        return tri_sequence",
+      "error": "IndexError: list index out of range"
+    },
+    {
+      "task_id": "HumanEval/131",
+      "entry_point": "digits",
+      "passed": true,
+      "gen_s": 2.92,
+      "completion": "    product = 1\n    has_odd = False\n    while n > 0:\n        digit = n % 10\n        if digit % 2 != 0:\n            product *= digit\n            has_odd = True\n        n = n // 10\n    return product if has_odd else 0",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/132",
+      "entry_point": "is_nested",
+      "passed": false,
+      "gen_s": 3.0,
+      "completion": "    stack = []\n    for i in string:\n        if i == '[':\n            stack.append(i)\n        elif i == ']':\n            if len(stack) == 0:\n                return False\n            stack.pop()\n    if len(stack) == 0:\n        return True\n    else:\n        return False",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/133",
+      "entry_point": "sum_squares",
+      "passed": false,
+      "gen_s": 1.02,
+      "completion": "    return sum([int(x) ** 2 for x in lst])",
+      "error": "AssertionError: This prints if this assert fails 1 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/134",
+      "entry_point": "check_if_last_char_is_a_letter",
+      "passed": false,
+      "gen_s": 1.74,
+      "completion": "    if not txt:\n        return False\n    if txt[-1].isalpha() and txt[-2] == ' ':\n        return True\n    return False",
+      "error": "IndexError: string index out of range"
+    },
+    {
+      "task_id": "HumanEval/135",
+      "entry_point": "can_arrange",
+      "passed": false,
+      "gen_s": 1.87,
+      "completion": "    max_index = -1\n    for i in range(1, len(arr)):\n        if arr[i] > arr[i-1]:\n            max_index = i\n    return max_index",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/136",
+      "entry_point": "largest_smallest_integers",
+      "passed": true,
+      "gen_s": 2.92,
+      "completion": "    a = None\n    b = None\n    for i in lst:\n        if i < 0:\n            if a is None or i > a:\n                a = i\n        elif i > 0:\n            if b is None or i < b:\n                b = i\n    return a, b",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/137",
+      "entry_point": "compare_one",
+      "passed": false,
+      "gen_s": 3.18,
+      "completion": "    if isinstance(a, str):\n        a = a.replace(',', '.')\n        a = float(a)\n    if isinstance(b, str):\n        b = b.replace(',', '.')\n        b = float(b)\n    if a > b:\n        return a\n    elif a < b:\n        return b\n    else:\n        return None",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/138",
+      "entry_point": "is_equal_to_sum_even",
+      "passed": true,
+      "gen_s": 1.78,
+      "completion": "    if n < 8:\n        return False\n    if n % 2 == 0:\n        return True\n    else:\n        return False",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/139",
+      "entry_point": "special_factorial",
+      "passed": false,
+      "gen_s": 1.5,
+      "completion": "    result = 1\n    for i in range(1, n+1):\n        result *= factorial(i)\n    return result",
+      "error": "NameError: name 'factorial' is not defined"
+    },
+    {
+      "task_id": "HumanEval/140",
+      "entry_point": "fix_spaces",
+      "passed": false,
+      "gen_s": 1.19,
+      "completion": "    # Your code here\n    return text.replace('  ', '-').replace(' ', '_')",
+      "error": "AssertionError: This prints if this assert fails 3 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/141",
+      "entry_point": "file_name_check",
+      "passed": true,
+      "gen_s": 4.3,
+      "completion": "    if not file_name:\n        return 'No'\n    if file_name.count('.') != 1:\n        return 'No'\n    name, ext = file_name.split('.')\n    if not name or not name[0].isalpha():\n        return 'No'\n    if ext not in ['txt', 'exe', 'dll']:\n        return 'No'\n    if sum(c.isdigit() for c in name) > 3:\n        return 'No'\n    return 'Yes'",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/142",
+      "entry_point": "sum_squares",
+      "passed": true,
+      "gen_s": 2.87,
+      "completion": "    result = 0\n    for i in range(len(lst)):\n        if i % 3 == 0:\n            result += lst[i]**2\n        elif i % 4 == 0:\n            result += lst[i]**3\n        else:\n            result += lst[i]\n    return result",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/143",
+      "entry_point": "words_in_sentence",
+      "passed": true,
+      "gen_s": 4.96,
+      "completion": "    def is_prime(n):\n        if n <= 1:\n            return False\n        if n == 2:\n            return True\n        if n % 2 == 0:\n            return False\n        for i in range(3, int(n**0.5) + 1, 2):\n            if n % i == 0:\n                return False\n        return True\n\n    words = sentence.split()\n    result = []\n    for word in words:\n        if is_prime(len(word)):\n            result.append(word)\n    return \" \".join(result)",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/144",
+      "entry_point": "simplify",
+      "passed": true,
+      "gen_s": 2.6,
+      "completion": "    x_num, x_den = map(int, x.split('/'))\n    n_num, n_den = map(int, n.split('/'))\n    result_num = x_num * n_num\n    result_den = x_den * n_den\n    return result_num % result_den == 0",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/145",
+      "entry_point": "order_by_points",
+      "passed": false,
+      "gen_s": 1.26,
+      "completion": "    return sorted(nums, key=lambda x: (sum(map(int, str(abs(x)))), nums.index(x)))",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/146",
+      "entry_point": "specialFilter",
+      "passed": true,
+      "gen_s": 2.47,
+      "completion": "    count = 0\n    for num in nums:\n        if num > 10 and int(str(num)[0]) % 2 != 0 and int(str(num)[-1]) % 2 != 0:\n            count += 1\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/147",
+      "entry_point": "get_max_triples",
+      "passed": true,
+      "gen_s": 3.86,
+      "completion": "    a = [i * i - i + 1 for i in range(1, n + 1)]\n    count = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            for k in range(j + 1, n):\n                if (a[i] + a[j] + a[k]) % 3 == 0:\n                    count += 1\n    return count",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/148",
+      "entry_point": "bf",
+      "passed": true,
+      "gen_s": 4.67,
+      "completion": "    planets = [\"Mercury\", \"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\", \"Uranus\", \"Neptune\"]\n    if planet1 in planets and planet2 in planets:\n        index1 = planets.index(planet1)\n        index2 = planets.index(planet2)\n        if index1 < index2:\n            return tuple(planets[index1+1:index2])\n        else:\n            return tuple(planets[index2+1:index1])\n    else:\n        return ()",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/149",
+      "entry_point": "sorted_list_sum",
+      "passed": true,
+      "gen_s": 1.84,
+      "completion": "    lst = [word for word in lst if len(word) % 2 == 0]\n    lst.sort(key=lambda x: (len(x), x))\n    return lst",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/150",
+      "entry_point": "x_or_y",
+      "passed": true,
+      "gen_s": 2.15,
+      "completion": "    if n <= 1:\n        return y\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return y\n    return x",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/151",
+      "entry_point": "double_the_difference",
+      "passed": false,
+      "gen_s": 1.38,
+      "completion": "    return sum([i**2 for i in lst if i % 2 != 0 and i >= 0])",
+      "error": "AssertionError: This prints if this assert fails 3 (good for debugging!)"
+    },
+    {
+      "task_id": "HumanEval/152",
+      "entry_point": "compare",
+      "passed": true,
+      "gen_s": 1.08,
+      "completion": "    return [abs(g-s) for g,s in zip(guess,game)]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/153",
+      "entry_point": "Strongest_Extension",
+      "passed": true,
+      "gen_s": 2.51,
+      "completion": "    def strength(extension):\n        return sum(1 for c in extension if c.isupper()) - sum(1 for c in extension if c.islower())\n    strongest = max(extensions, key=strength)\n    return f\"{class_name}.{strongest}\"",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/154",
+      "entry_point": "cycpattern_check",
+      "passed": false,
+      "gen_s": 1.2,
+      "completion": "    return b in (a[i:] + a[:i] for i in range(len(a)))",
+      "error": "AssertionError: test #1"
+    },
+    {
+      "task_id": "HumanEval/155",
+      "entry_point": "even_odd_count",
+      "passed": false,
+      "gen_s": 2.48,
+      "completion": "    even = 0\n    odd = 0\n    for i in str(num):\n        if int(i) % 2 == 0:\n            even += 1\n        else:\n            odd += 1\n    return (even, odd)",
+      "error": "ValueError: invalid literal for int() with base 10: '-'"
+    },
+    {
+      "task_id": "HumanEval/156",
+      "entry_point": "int_to_mini_roman",
+      "passed": true,
+      "gen_s": 5.57,
+      "completion": "    roman_numerals = {1: 'i', 4: 'iv', 5: 'v', 9: 'ix', 10: 'x', 40: 'xl', 50: 'l', 90: 'xc', 100: 'c', 400: 'cd', 500: 'd', 900: 'cm', 1000: 'm'}\n    result = ''\n    for value, numeral in sorted(roman_numerals.items(), reverse=True):\n        while number >= value:\n            result += numeral\n            number -= value\n    return result.lower()",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/157",
+      "entry_point": "right_angle_triangle",
+      "passed": false,
+      "gen_s": 1.38,
+      "completion": "    if a**2 + b**2 == c**2:\n        return True\n    else:\n        return False",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/158",
+      "entry_point": "find_max",
+      "passed": true,
+      "gen_s": 5.93,
+      "completion": "    def count_unique_chars(word):\n        return len(set(word))\n\n    def lexicographical_order(word1, word2):\n        if word1 < word2:\n            return -1\n        elif word1 > word2:\n            return 1\n        else:\n            return 0\n\n    max_unique_chars = 0\n    max_word = \"\"\n\n    for word in words:\n        unique_chars = count_unique_chars(word)\n        if unique_chars > max_unique_chars:\n            max_unique_chars = unique_chars\n            max_word = word\n        elif unique_chars == max_unique_chars:\n            if lexicographical_order(word, max_word) < 0:\n                max_word = word\n\n    return max_word",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/159",
+      "entry_point": "eat",
+      "passed": true,
+      "gen_s": 1.75,
+      "completion": "    if need <= remaining:\n        return [number + need, remaining - need]\n    else:\n        return [number + remaining, 0]",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/160",
+      "entry_point": "do_algebra",
+      "passed": false,
+      "gen_s": 4.5,
+      "completion": "    result = operand[0]\n    for i in range(len(operator)):\n        if operator[i] == '+':\n            result += operand[i+1]\n        elif operator[i] == '-':\n            result -= operand[i+1]\n        elif operator[i] == '*':\n            result *= operand[i+1]\n        elif operator[i] == '//':\n            result //= operand[i+1]\n        elif operator[i] == '**':\n            result **= operand[i+1]\n    return result",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "HumanEval/161",
+      "entry_point": "solve",
+      "passed": true,
+      "gen_s": 1.96,
+      "completion": "    if not any(c.isalpha() for c in s):\n        return s[::-1]\n    return ''.join([c.swapcase() if c.isalpha() else c for c in s])",
+      "error": ""
+    },
+    {
+      "task_id": "HumanEval/162",
+      "entry_point": "string_to_md5",
+      "passed": false,
+      "gen_s": 1.36,
+      "completion": "    if text == '':\n        return None\n    else:\n        return hashlib.md5(text.encode()).hexdigest()",
+      "error": "NameError: name 'hashlib' is not defined"
+    },
+    {
+      "task_id": "HumanEval/163",
+      "entry_point": "generate_integers",
+      "passed": false,
+      "gen_s": 1.87,
+      "completion": "    if a > b:\n        a, b = b, a\n    return [i for i in range(a, b + 1) if i % 2 == 0]",
+      "error": "AssertionError: Test 1"
+    }
+  ],
+  "pass@1": 0.6707317073170732,
+  "total_gen_s": 725.0,
+  "status": "ok"
+}

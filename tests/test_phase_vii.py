@@ -35,8 +35,8 @@ REQUIRED_CONFIG_KEYS = [
 
 
 class TestNicheDomainConstants:
-    def test_niche_domains_has_34(self):
-        assert len(NICHE_DOMAINS) == 34
+    def test_niche_domains_has_35(self):
+        assert len(NICHE_DOMAINS) == 35
 
     def test_niche_stacks_subset_of_router(self):
         stack_domains = {domain for _, domain in NICHE_STACKS}

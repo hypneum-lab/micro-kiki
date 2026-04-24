@@ -1,0 +1,362 @@
+{
+  "label": "mbpp-math",
+  "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+  "adapter": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota/math",
+  "n_problems": 50,
+  "max_tokens": 512,
+  "per_problem": [
+    {
+      "task_id": "mbpp/11",
+      "passed": false,
+      "gen_s": 3.84,
+      "completion": "def remove_Occ(string, char):\n    return string[1:-1] if string[0] == char and string[-1] == char else string[1:] if string[0] == char else string[:-1] if string[-1] == char else string\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/12",
+      "passed": false,
+      "gen_s": 0.85,
+      "completion": "def sort_matrix(matrix):\n    # Write your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/13",
+      "passed": false,
+      "gen_s": 0.82,
+      "completion": "def count_common(words):\n    # your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/14",
+      "passed": true,
+      "gen_s": 1.06,
+      "completion": "def find_Volume(base, height, length):\n    return (base * height * length) / 2",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/15",
+      "passed": false,
+      "gen_s": 3.8,
+      "completion": "def split_lowerstring(string):\n    result = []\n    for i in range(1, len(string)):\n        if string[i].islower():\n            result.append(string[i])\n    return result\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/16",
+      "passed": false,
+      "gen_s": 3.41,
+      "completion": "import re\n\ndef text_lowercase_underscore(text):\n    pattern = r'^[a-z]+_[\\w]+$\n    if re.match(pattern, text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'\n",
+      "error": "SyntaxError: unterminated string literal (detected at line 4) (<mbpp>, line 4)"
+    },
+    {
+      "task_id": "mbpp/17",
+      "passed": true,
+      "gen_s": 1.64,
+      "completion": "def square_perimeter(side):\n    return side * 4\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/18",
+      "passed": false,
+      "gen_s": 3.28,
+      "completion": "def remove_dirty_chars(s1, s2):\n    s1 = list(s1)\n    s2 = list(s2)\n    for i in s2:\n        if i in s1:\n            s1.remove(i)\n    return \"\".join(s1)\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/19",
+      "passed": false,
+      "gen_s": 0.8,
+      "completion": "def test_duplicate(arr):\n    # Write your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/20",
+      "passed": false,
+      "gen_s": 3.18,
+      "completion": "import math\n\ndef is_woodall(n):\n    if n == 0:\n        return False\n    for i in range(1, n + 1):\n        if i * (2 ** i) == n:\n            return True\n    return False\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/21",
+      "passed": true,
+      "gen_s": 1.04,
+      "completion": "def multiples_of_num(m,n):\n    return [n*i for i in range(1,m+1)]",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/22",
+      "passed": true,
+      "gen_s": 3.71,
+      "completion": "def find_first_duplicate(arr):\n    seen = set()\n    for i in arr:\n        if i in seen:\n            return i\n        seen.add(i)\n    return -1\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/23",
+      "passed": true,
+      "gen_s": 4.72,
+      "completion": "def maximum_Sum(list_of_lists):\n    max_sum = 0\n    for i in list_of_lists:\n        if sum(i) > max_sum:\n            max_sum = sum(i)\n    return max_sum\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/24",
+      "passed": false,
+      "gen_s": 3.12,
+      "completion": "def binary_to_decimal(binary):\n    decimal = 0\n    for i in range(len(binary)):\n        decimal += int(binary[i]) * 2 ** (len(binary) - i - 1)\n    return decimal\n",
+      "error": "TypeError: object of type 'int' has no len()"
+    },
+    {
+      "task_id": "mbpp/25",
+      "passed": false,
+      "gen_s": 0.87,
+      "completion": "def find_Product(arr, n):\n    # Write your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/26",
+      "passed": false,
+      "gen_s": 1.35,
+      "completion": "def check_k_elements(tuples, k):\n    for t in tuples:\n        if len(t) != k:\n            return False\n    return True",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/27",
+      "passed": true,
+      "gen_s": 3.17,
+      "completion": "def remove(list):\n    new_list = []\n    for i in list:\n        new_list.append(i.translate({ord(c): None for c in '0123456789'}))\n    return new_list\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/28",
+      "passed": true,
+      "gen_s": 3.27,
+      "completion": "def binomial_Coeff(n, k):\n    if k == 0 or k == n:\n        return 1\n    else:\n        return binomial_Coeff(n-1, k-1) + binomial_Coeff(n-1, k)\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/29",
+      "passed": false,
+      "gen_s": 15.49,
+      "completion": "def get_Odd_Occurrence(arr, size):\n    # Write your code here\n    # Hint: Use a dictionary to count the occurrences of each element\n    # Hint: Iterate over the dictionary and return the element with an odd count\n    # Hint: Use the modulo operator to check if the count is odd\n    # Hint: Use the return statement to return the element with an odd count\n    # Hint: Use the assert statement to test your function\n    # Hint: Use the print statement to print the result of your function\n    # Hint: Use the input statement to get the input from the user\n    # Hint: Use the split statement to split the input string into a list of integers\n    # Hint: Use the int statement to convert the input string to an integer\n    # Hint: Use the len statement to get the length of the list\n    # Hint: Use the ",
+      "error": "IndentationError: expected an indented block after function definition on line 1 (<mbpp>, line 35)"
+    },
+    {
+      "task_id": "mbpp/30",
+      "passed": true,
+      "gen_s": 3.72,
+      "completion": "def count_Substring_With_Equal_Ends(s):\n    count = 0\n    for i in range(len(s)):\n        for j in range(i+1, len(s)):\n            if s[i] == s[j]:\n                count += 1\n    return count + len(s)\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/31",
+      "passed": false,
+      "gen_s": 3.21,
+      "completion": "import heapq\nfrom collections import Counter\n\ndef func(lists, k):\n    # Flatten the list of lists\n    flat_list = [item for sublist in lists for item in sublist]\n    \n    # Count the frequency of each integer\n    freq = Counter(flat_list)\n    \n    # Find the top k integers that occur most frequently\n    top_k = heapq.nlargest(k, freq, key=freq.get)\n    \n    return top_k",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/32",
+      "passed": false,
+      "gen_s": 0.89,
+      "completion": "def max_Prime_Factors(n):\n    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/33",
+      "passed": true,
+      "gen_s": 1.72,
+      "completion": "def decimal_To_Binary(n):\n    if n == 0:\n        return 0\n    else:\n        return n % 2 + 10 * decimal_To_Binary(n // 2)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/34",
+      "passed": false,
+      "gen_s": 0.87,
+      "completion": "def find_missing(arr, n):\n    # Write your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/35",
+      "passed": true,
+      "gen_s": 0.88,
+      "completion": "def find_rect_num(n):\n    return n * (n + 1)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/36",
+      "passed": false,
+      "gen_s": 1.01,
+      "completion": "def find_Nth_Digit(numerator, denominator, n):\n    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/37",
+      "passed": false,
+      "gen_s": 6.19,
+      "completion": "def sort_mixed_list(mixed_list):\n    # Your code here\n    pass\n\n# Test cases",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/38",
+      "passed": true,
+      "gen_s": 4.12,
+      "completion": "def div_even_odd(list):\n    for i in list:\n        if i % 2 == 0:\n            even = i\n            break\n    for i in list:\n        if i % 2 != 0:\n            odd = i\n            break\n    return even / odd\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/39",
+      "passed": false,
+      "gen_s": 0.82,
+      "completion": "def rearange_string(s):\n    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/40",
+      "passed": true,
+      "gen_s": 2.25,
+      "completion": "from collections import Counter\ndef freq_element(list_of_lists):\n    # Flatten the list of lists\n    flat_list = [item for sublist in list_of_lists for item in sublist]\n    # Count the frequency of each element\n    freq = Counter(flat_list)\n    return dict(freq)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/41",
+      "passed": true,
+      "gen_s": 1.09,
+      "completion": "def filter_evennumbers(numbers):\n    return list(filter(lambda x: x % 2 == 0, numbers))",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/42",
+      "passed": false,
+      "gen_s": 2.26,
+      "completion": "def find_Sum(arr, n):\n    # Write your code here\n    # Hint: Use a dictionary to store the frequency of each element in the array\n    # Hint: Iterate over the array and add the sum of repeated elements to a variable\n    # Hint: Return the variable\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/43",
+      "passed": false,
+      "gen_s": 3.21,
+      "completion": "import re\n\ndef text_match(text):\n    pattern = r'^[a-z]+_[\\w]+$\n    if re.search(pattern, text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'\n",
+      "error": "SyntaxError: unterminated string literal (detected at line 4) (<mbpp>, line 4)"
+    },
+    {
+      "task_id": "mbpp/44",
+      "passed": true,
+      "gen_s": 2.87,
+      "completion": "import re\ndef text_match_string(text):\n    pattern = r'^\\w+'\n    if re.match(pattern, text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/45",
+      "passed": true,
+      "gen_s": 0.88,
+      "completion": "import math\ndef get_gcd(arr):\n    return math.gcd(*arr)",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/46",
+      "passed": true,
+      "gen_s": 2.67,
+      "completion": "def test_distinct(list):\n    if len(list) == len(set(list)):\n        return True\n    else:\n        return False\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/47",
+      "passed": false,
+      "gen_s": 0.91,
+      "completion": "def compute_Last_Digit(a,b):\n    # Your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/48",
+      "passed": false,
+      "gen_s": 15.14,
+      "completion": "def odd_bit_set_number(n):\n    return n | 0b10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/49",
+      "passed": true,
+      "gen_s": 1.07,
+      "completion": "def specified_element(list, index):\n    return [list[i][index] for i in range(len(list))]",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/50",
+      "passed": false,
+      "gen_s": 1.07,
+      "completion": "def min_length_list(list_of_lists):\n    return min(list_of_lists, key=lambda x: len(x))",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/51",
+      "passed": true,
+      "gen_s": 2.49,
+      "completion": "def check_equilateral(a,b,c):\n    if a==b and b==c:\n        return True\n    else:\n        return False\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/52",
+      "passed": true,
+      "gen_s": 2.15,
+      "completion": "def parallelogram_area(base, height):\n    return base * height\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/53",
+      "passed": true,
+      "gen_s": 2.55,
+      "completion": "def check_Equality(string):\n    if string[0] == string[-1]:\n        return \"Equal\"\n    else:\n        return \"Not Equal\"\n",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/54",
+      "passed": false,
+      "gen_s": 0.83,
+      "completion": "def counting_sort(arr):\n    # Write your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/55",
+      "passed": false,
+      "gen_s": 0.89,
+      "completion": "def tn_gp(a,r,n):\n    return a*r**(n-1)",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/56",
+      "passed": false,
+      "gen_s": 0.74,
+      "completion": "def check(n):\n    # your code here\n    pass",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/57",
+      "passed": true,
+      "gen_s": 1.35,
+      "completion": "def find_Max_Num(arr, n):\n    # Write your code here\n    arr.sort(reverse=True)\n    return int(\"\".join(map(str, arr)))",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/58",
+      "passed": true,
+      "gen_s": 1.25,
+      "completion": "def opposite_Signs(a,b):\n    if a*b < 0:\n        return True\n    else:\n        return False",
+      "error": ""
+    },
+    {
+      "task_id": "mbpp/59",
+      "passed": false,
+      "gen_s": 2.11,
+      "completion": "def is_octagonal(n):\n    return 4 * n * n - 2 * n\n",
+      "error": "AssertionError: "
+    },
+    {
+      "task_id": "mbpp/60",
+      "passed": false,
+      "gen_s": 0.91,
+      "completion": "def max_len_sub(arr, n):\n    # Write your code here\n    pass",
+      "error": "AssertionError: "
+    }
+  ],
+  "pass@1": 0.44,
+  "total_gen_s": 131.5,
+  "status": "ok"
+}
