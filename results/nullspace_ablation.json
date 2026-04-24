@@ -1,0 +1,76 @@
+{
+  "ablation": [
+    {
+      "domain": "embedded",
+      "frozen_priors": [
+        "chat-fr",
+        "python"
+      ],
+      "with_nullspace": {
+        "final_train_loss": 1.1875,
+        "angles_vs_priors": {
+          "chat-fr": 88.59180914469414,
+          "python": 88.5770069194352
+        },
+        "mean_angle": 88.58440803206467
+      },
+      "without_nullspace": {
+        "final_train_loss": 1.2109375,
+        "angles_vs_priors": {
+          "chat-fr": 88.58587411208123,
+          "python": 88.62199054530892
+        },
+        "mean_angle": 88.60393232869507
+      },
+      "delta_angle": -0.019524296630393678
+    },
+    {
+      "domain": "dsp",
+      "frozen_priors": [
+        "chat-fr",
+        "python"
+      ],
+      "with_nullspace": {
+        "final_train_loss": 0.80859375,
+        "angles_vs_priors": {
+          "chat-fr": 88.60211389127252,
+          "python": 88.65373123793363
+        },
+        "mean_angle": 88.62792256460307
+      },
+      "without_nullspace": {
+        "final_train_loss": 0.80078125,
+        "angles_vs_priors": {
+          "chat-fr": 88.62457838345269,
+          "python": 88.62368885175725
+        },
+        "mean_angle": 88.62413361760497
+      },
+      "delta_angle": 0.003788946998099618
+    },
+    {
+      "domain": "power",
+      "frozen_priors": [
+        "chat-fr",
+        "python"
+      ],
+      "with_nullspace": {
+        "final_train_loss": 0.9296875,
+        "angles_vs_priors": {
+          "chat-fr": 88.56469851677501,
+          "python": 88.58835146187077
+        },
+        "mean_angle": 88.57652498932289
+      },
+      "without_nullspace": {
+        "final_train_loss": 0.984375,
+        "angles_vs_priors": {
+          "chat-fr": 88.60781830455697,
+          "python": 88.57787234458064
+        },
+        "mean_angle": 88.5928453245688
+      },
+      "delta_angle": -0.016320335245907813
+    }
+  ]
+}
