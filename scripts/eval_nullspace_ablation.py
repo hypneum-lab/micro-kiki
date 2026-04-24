@@ -166,14 +166,18 @@ def _measure_angles_vs_priors(
 
 def _apply_fresh_lora(model: Any, lora_cfg: dict[str, Any]) -> None:
     """Strip any existing LoRA state and apply fresh (zero-initialised) layers."""
-    from mlx_lm.tuner.utils import apply_lora_layers
+    from mlx_lm.tuner.utils import linear_to_lora_layers, remove_lora_layers
 
-    # mlx_lm apply_lora_layers replaces existing LoRA modules in-place,
-    # reinitialising A to random and B to zero — that is a clean reset.
-    apply_lora_layers(
+    # Remove existing LoRA layers first, then apply fresh ones.
+    try:
+        remove_lora_layers(model)
+    except Exception:
+        pass  # no LoRA layers to remove on first call
+
+    linear_to_lora_layers(
         model,
-        num_lora_layers=lora_cfg.get("num_layers", 32),
-        rank=lora_cfg.get("rank", 16),
+        num_layers=lora_cfg.get("num_layers", 32),
+        config={"rank": lora_cfg.get("rank", 16), "alpha": lora_cfg.get("alpha", 16), "scale": 20.0, "dropout": 0.0},
     )
     model.train()
     logger.info(

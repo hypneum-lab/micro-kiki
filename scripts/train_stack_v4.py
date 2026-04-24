@@ -349,7 +349,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         import mlx.core as mx
         from mlx_lm import load as mlx_load
-        from mlx_lm.tuner.utils import apply_lora_layers
+        from mlx_lm.tuner.utils import linear_to_lora_layers
     except ImportError as exc:
         logger.error("mlx_lm not available: %s", exc)
         return 3
@@ -366,10 +366,10 @@ def main(argv: list[str] | None = None) -> int:
         lora_cfg.get("alpha", 16),
         lora_cfg.get("num_layers", 32),
     )
-    apply_lora_layers(
+    linear_to_lora_layers(
         model,
-        num_lora_layers=lora_cfg.get("num_layers", 32),
-        rank=lora_cfg.get("rank", 16),
+        num_layers=lora_cfg.get("num_layers", 32),
+        config={"rank": lora_cfg.get("rank", 16), "alpha": lora_cfg.get("alpha", 16), "scale": 20.0, "dropout": 0.0},
     )
     model.train()  # enable gradient tracking
 
