@@ -835,6 +835,36 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
             ],
         }
 
+    @app.post("/v1/route")
+    async def route_query(req: dict) -> dict:
+        """Classify a prompt into domains using the MiniLM router.
+
+        Request body: {"query": "Design a 48V buck converter"}
+        Optional: {"query": "...", "threshold": 0.15, "top_k": 4}
+        """
+        query = req.get("query", "")
+        if not query:
+            return {"error": "missing 'query' field"}
+        threshold = float(req.get("threshold", 0.12))
+        top_k = int(req.get("top_k", 4))
+
+        try:
+            old_threshold = state.meta_router._threshold
+            old_max = state.meta_router._max_active
+            state.meta_router._threshold = threshold
+            state.meta_router._max_active = top_k
+            pairs = state.meta_router.route(query)
+            state.meta_router._threshold = old_threshold
+            state.meta_router._max_active = old_max
+        except NotImplementedError:
+            return {"error": "router weights not loaded", "domains": []}
+
+        return {
+            "query": query,
+            "domains": [{"name": name, "score": round(score, 4)} for name, score in pairs],
+            "fallback": len(pairs) == 0,
+        }
+
     @app.post("/v1/chat/completions")
     async def chat_completions(req: ChatCompletionRequest):
         # Queue guard first — reject before doing any work.
