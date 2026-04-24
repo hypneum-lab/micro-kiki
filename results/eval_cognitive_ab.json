@@ -1,0 +1,935 @@
+{
+  "meta": {
+    "model": "kiki-meta-coding",
+    "host": "127.0.0.1",
+    "port": 9200,
+    "max_tokens": 200,
+    "prompts": 30
+  },
+  "summary": {
+    "total_prompts": 30,
+    "full_wins": 14,
+    "raw_wins": 16,
+    "ties": 0,
+    "avg_composite_full": 0.394,
+    "avg_composite_raw": 0.4042,
+    "cognitive_delta": -0.0102,
+    "errors": [],
+    "per_domain": {
+      "chat-fr": {
+        "full_avg": 0.4074,
+        "raw_avg": 0.3973,
+        "full_wins": 3,
+        "raw_wins": 2,
+        "ties": 0
+      },
+      "embedded": {
+        "full_avg": 0.2667,
+        "raw_avg": 0.398,
+        "full_wins": 1,
+        "raw_wins": 4,
+        "ties": 0
+      },
+      "power": {
+        "full_avg": 0.5543,
+        "raw_avg": 0.4839,
+        "full_wins": 4,
+        "raw_wins": 1,
+        "ties": 0
+      },
+      "python": {
+        "full_avg": 0.4916,
+        "raw_avg": 0.453,
+        "full_wins": 3,
+        "raw_wins": 2,
+        "ties": 0
+      },
+      "spice": {
+        "full_avg": 0.5074,
+        "raw_avg": 0.509,
+        "full_wins": 2,
+        "raw_wins": 3,
+        "ties": 0
+      },
+      "stm32": {
+        "full_avg": 0.1364,
+        "raw_avg": 0.1839,
+        "full_wins": 1,
+        "raw_wins": 4,
+        "ties": 0
+      }
+    }
+  },
+  "results": [
+    {
+      "index": 0,
+      "domain": "embedded",
+      "prompt": "Explain the difference between FreeRTOS tasks and interrupts on STM32",
+      "full": {
+        "text": "If your task needs to run in the same time as other tasks, then you should treat the UART as any other task and use the FreeRTOS queue interface to send and receive data.\n\nIf you need the data to be transferred as fast as possible in the UART, then you should use the UART interrupt and process the data in the receive interrupt.\n\nNote:  I assume here that your UART is capable of generating an interrupt when a data is received.",
+        "latency_s": 13.546,
+        "scores": {
+          "length": 429,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 0.2857
+        },
+        "composite": 0.2457
+      },
+      "raw": {
+        "text": "In a bare-metal application, once a UART interrupt is triggered, the UART is effectively owned by the interrupt handler. The data is received and processed by the interrupt handler. The UART can't be used for anything else until the interrupt has finished executing and the UART is no longer owned by the interrupt handler.\n\nIn FreeRTOS, tasks can be given the right to use the UART. However, when a task is given the right to use the UART, the task will not execute until the UART is no longer owned by the interrupt handler. When the task is given the right to use the UART, the UART can be used as a FreeRTOS queue by either task, or the interrupt handler and task can use the UART as a FreeRTOS queue.\n\nThe free running UART is like a two-way street. The interrupt handler and the task can both use the UART to send and/or receive data. The FreeRTOS queue is like a one-way street. The interrupt handler can send",
+        "latency_s": 15.697,
+        "scores": {
+          "length": 916,
+          "keyword_count": 5,
+          "keyword_max": 20,
+          "coherence": 0.2857
+        },
+        "composite": 0.3095
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 1,
+      "domain": "embedded",
+      "prompt": "How to implement a circular DMA buffer for UART on ARM Cortex-M4",
+      "full": {
+        "text": "If you want to transfer data from the UART to the DSP (or vice versa) using DMA, you should first configure the DMA controller for the specific transfer.\n\nNext, in your application code, you need to enable the relevant UART interrupt to indicate the start of a new transfer.\n\nThe UART interrupt handler should program the DMA controller for the next transfer and (optionally) wait for the DMA controller to finish the current transfer.\n\nIf you need the data to be transferred as fast as possible in the UART, then you should use the UART interrupt and process the data in the receive interrupt.",
+        "latency_s": 8.12,
+        "scores": {
+          "length": 594,
+          "keyword_count": 3,
+          "keyword_max": 20,
+          "coherence": 0.2
+        },
+        "composite": 0.2044
+      },
+      "raw": {
+        "text": "You should not implement the buffer in the FIFO.\nThe buffer should be in the continuous RAM.\nThe FIFO should contain the data that the receiver has received and not yet been copied into the RAM buffer.\nThe FIFO should be large enough to hold the data that has been received but not yet copied into the RAM buffer.\nThe receiver should fill the FIFO with the received data and raise an interrupt if the FIFO contains a full set of data.\nThe main program should copy the contents of the FIFO into the RAM buffer.\nThe main program should copy the contents of the RAM buffer into the external storage (a file, a database, whatever)\nThe main program should then empty the FIFO (resetting the heads of the FIFO)\nIn the main program, a flag is set when the data in the RAM buffer has been copied into the external storage.\nThe flag is reset when the data in the RAM buffer has been copied into the external storage.\n",
+        "latency_s": 15.812,
+        "scores": {
+          "length": 908,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.4
+        },
+        "composite": 0.3208
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 2,
+      "domain": "embedded",
+      "prompt": "Design a state machine for a battery management system",
+      "full": {
+        "text": "Here is a state machine for a battery management system:\n\nState 1: Idle\nState 2: Charging\nState 3: Discharging\nState 4: Overcharging\nState 5: Overheating\nState 6: Overcurrent\nState 7: Overvoltage\nState 8: Undercurrent\nState 9: Undervoltage\nState 10: Short Circuit\n\nTransitions:\nIdle -> Charging: battery levels below 90%\nIdle -> Discharging: battery levels above 10%\nIdle -> Short Circuit: short circuit detected\nCharging -> Discharging: battery levels reach 90%\nCharging -> Overcharging: battery levels exceed 90%\nCharging -> Overcurrent: current exceeds 1.5*A\nCharging -> Overvoltage: voltage exceeds 1.1*B\nCharging -> Overheating: temperature exceeds 40°C\nDischarging -> Charging: battery levels",
+        "latency_s": 16.146,
+        "scores": {
+          "length": 698,
+          "keyword_count": 1,
+          "keyword_max": 20,
+          "coherence": 0.8333
+        },
+        "composite": 0.5015
+      },
+      "raw": {
+        "text": "What I would do is design a set of rules that can be called periodically on a timer (eg. 100ms).\n\nI would have a set of rules that checked for important things such as:\n- Voltage\n- Current\n- Temperature\n\nEach of these rules would return a \"state\" for the battery.\n\nThis state would be used to determine what action to take next.\n\nFor example, if the voltage is too high, the battery would enter a charging state in which the power supply is turned on.\n\nIf the voltage is too low, the battery would enter a discharging state in which the power supply is turned off.\n\nIf the temperature is too high, the battery would enter a cooling state in which the fan is turned on.\n\nIf the temperature is too low, the battery would enter a heating state in which the heater is turned on.\n\nIf the current is too high, the battery would enter an overcurrent state in",
+        "latency_s": 15.722,
+        "scores": {
+          "length": 851,
+          "keyword_count": 1,
+          "keyword_max": 20,
+          "coherence": 0.5
+        },
+        "composite": 0.3501
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 3,
+      "domain": "embedded",
+      "prompt": "What are the trade-offs between polling and interrupt-driven I/O",
+      "full": {
+        "text": "The best approach depends on the requirements of the application. Polling is the simplest approach, but can consume a lot of CPU time. Interrupt-driven I/O can be more efficient, but can be more complicated and difficult to debug.",
+        "latency_s": 5.097,
+        "scores": {
+          "length": 230,
+          "keyword_count": 1,
+          "keyword_max": 20,
+          "coherence": 0.4
+        },
+        "composite": 0.238
+      },
+      "raw": {
+        "text": "What are the trade-offs between polling and interrupt-driven I/O?\n\nPolling:\n\n- Does not use interrupts\n- Read memory location to determine if data is ready\n- Simple to implement\n- Data must be in memory\n- Must wait for data to arrive (may wait a long time)\n- Processor may have to wait for a long period\n- User application can be interrupted by hardware\n- Easy to write\n\nInterrupt:\n\n- Uses interrupts\n- CPU is interrupted when data is ready\n- Processor can perform other tasks\n- Application may not be interrupted by hardware\n- More complex to write\n- More complex to debug\n- Hardware may interrupt user application\n- Data may not be in memory",
+        "latency_s": 12.082,
+        "scores": {
+          "length": 643,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.5943
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 4,
+      "domain": "embedded",
+      "prompt": "Implement a watchdog timer recovery strategy for safety-critical firmware",
+      "full": {
+        "text": "The easiest approach is to have the main loop set the watchdog periodically. If the watchdog is not cleared, it assumes that the system is not functioning correctly, so it will reset the system.\n\nThe other approach is to have an interrupt that watches the watchdog. If the watchdog times out, the interrupt is set, and the interrupt routine will reset the system. The watchdog uses an external RC circuit to set the timeout.",
+        "latency_s": 7.891,
+        "scores": {
+          "length": 424,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.1429
+        },
+        "composite": 0.1439
+      },
+      "raw": {
+        "text": "Solution:\n\n\n\nDesigns for safety-critical systems typically include a watchdog timer (WDT) to detect software hangs. The WDT is a simple timer that must be reset periodically through the normal operation of the application. If the application fails to reset the WDT within a specific time period, the WDT will trigger a system reset to bring the system back to a known state.\n\nThe WDT is typically implemented as a hardware timer that counts down to zero. The application must periodically reset the timer to prevent the watchdog timer from expiring and triggering a system reset. The initial count value of the timer is typically chosen to be larger than the worst-case execution time of the application.\n\nThe reset mechanism for the WDT typically involves writing a specific value to a register. The exact value that must be written to the register is usually a combination of a magic number and a checksum. This prevents accidental resets of the WDT due to programming errors.\n\nThe WDT typically",
+        "latency_s": 15.598,
+        "scores": {
+          "length": 997,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.5714
+        },
+        "composite": 0.4154
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 5,
+      "domain": "spice",
+      "prompt": "Write a SPICE netlist for a common-emitter amplifier with voltage divider bias",
+      "full": {
+        "text": "```spice\n* Common-Emitter Amplifier with Voltage Divider Bias\n.title Common-Emitter Amplifier\n\nVcc vcc 0 DC 9V\nR1 in n1 22k\nR2 n1 out 47k\nCin in base 1u\nCout out collector 1u\nQ1 collector base emitter 2N3904\nRc vcc collector 4.7k\nRe emitter 0 1k\n\n.model 2N3904 NPN(BF=200 IS=1e-14 VAF=100)\n\n.tran 10u 10m\n\n.control\nrun\nplot v(out) v(in) title 'Common-Emitter Amplifier Response'\n.endc\n.end\n```\n\nThis common-emitter amplifier uses voltage divider bias with R1=22k and R2=47k.\n",
+        "latency_s": 16.308,
+        "scores": {
+          "length": 475,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 0.7778
+        },
+        "composite": 0.4964
+      },
+      "raw": {
+        "text": "```spice\n* Common-Emitter Amplifier with Voltage Divider Bias\n.title Common-Emitter Amplifier\n\nVcc vcc 0 DC 12\nR1 vcc base 47k\nR2 base 0 10k\nCin in base 1u\nQ1 collector base emitter 2N3904\nRc vcc collector 4.7k\nRe emitter 0 1k\nCout collector out 1u\nL1 emitter 0 10u\n\n.model 2N3904 NPN(BF=200 IS=1e-14 VAF=100)\n\n.tran 10u 10m\n\n.control\nrun\nplot v(out) title 'Output Voltage'\necho \"Gain = -Rc/Re = -4.7k/1k = -4.7\"\n.endc\n.end",
+        "latency_s": 15.69,
+        "scores": {
+          "length": 423,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 0.7778
+        },
+        "composite": 0.4912
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 6,
+      "domain": "spice",
+      "prompt": "Simulate a 555 timer in astable mode using SPICE",
+      "full": {
+        "text": "```spice\n* 555 Timer in Astable Mode\n.title 555 Timer Astable Mode\n\nVcc vcc 0 DC 15V\nR1 in n1 10k\nC1 n1 n2 100n\nR2 n2 0 10k\nC2 n2 0 100n\nR3 n2 out 10k\nQ1 out 0 0 1 2N3904\nQ2 0 n2 0 2 2N3904\nQ3 0 0 n2 3 2N3904\n\n.model 1 555(THRESH=1.5, TRIG=0.6, OUT=15, SUPPLY=15)\n.model 2 555(THRESH=1.5, TRIG",
+        "latency_s": 16.595,
+        "scores": {
+          "length": 293,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.6667
+        },
+        "composite": 0.3926
+      },
+      "raw": {
+        "text": "```spice\n* 555 Timer in Astable Mode\n* Define the circuit\nV1 0 1 15\nR1 1 0 10k\nC1 0 0 1u\nR2 0 0 10k\nC2 0 0 1u\nR3 0 0 10k\nVcc 0 0 15\n\n* 555 Timer model\n.model 555 (Vth=1.2)\n\n* Simulation commands\n.options savecurrents\n\n* Output\n.print dc V(1) V(2) V(3) V(4) V(5) V(6) V(7) V(8) V(9) V(10) V(11) V(12) V(13) V(14) V(15) V",
+        "latency_s": 15.683,
+        "scores": {
+          "length": 319,
+          "keyword_count": 5,
+          "keyword_max": 20,
+          "coherence": 0.6667
+        },
+        "composite": 0.4402
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 7,
+      "domain": "spice",
+      "prompt": "Create a SPICE model for a Zener diode voltage regulator",
+      "full": {
+        "text": "```spice\n* Zener Diode Voltage Regulator\n\n* Define the voltage source\nVin IN 0 DC 12\n\n* Zener diode parameters\n.model ZENER 5.1 (VZ=5.1, IZT=5u, VJ=0.7, VJ=0.7, XJ=0.3, VJ=0.7)\n\n* Resistor R1\nR1 IN N1 10k\n\n* Resistor R2\nR2 N1 0 22k\n\n* Resistor R3\nR3 N1 N2 22k\n\n* Resistor R4\nR4 N2 0 10k\n\n* Power supply\nVcc 1 0 DC 12\n\n* Output voltage\nVout N2 0\n\n* Simulation commands\n.tran 0 0 0 0 0",
+        "latency_s": 16.518,
+        "scores": {
+          "length": 383,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 0.8571
+        },
+        "composite": 0.5568
+      },
+      "raw": {
+        "text": "```spice\n* Zener Diode Voltage Regulator Model\r\n* Define the model\r\n.model Zener (Vz=5.6, Vd=0.7, Ir=0.001, Rs=25, Rr=5000)\r\n\r\n* Define the circuit\r\nVin IN 0 5 12 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1",
+        "latency_s": 15.802,
+        "scores": {
+          "length": 284,
+          "keyword_count": 3,
+          "keyword_max": 20,
+          "coherence": 0.8571
+        },
+        "composite": 0.502
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 8,
+      "domain": "spice",
+      "prompt": "How to do Monte Carlo analysis in SPICE for component tolerances",
+      "full": {
+        "text": "```spice\n* Monte Carlo Analysis for Component Tolerances\n\n* Define the circuit\nVcc vcc 0 DC 9V\nR1 in n1 22k (TOL=5%)\nR2 n1 out 47k (TOL=5%)\nCin in base 1u (TOL=10%)\nCout out collector 1u (TOL=10%)\nQ1 collector base emitter 2N3904\nRc vcc collector 4.7k (TOL=5%)\nRe emitter 0 1k (TOL=5%)\n\n* Transistor model\n.model 2N3904 NPN(BF=200 IS=1e-14 VAF=100)\n\n* Monte Carlo analysis\n.montecarlo 100 4.7k 4.7k ",
+        "latency_s": 16.607,
+        "scores": {
+          "length": 399,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.5999
+      },
+      "raw": {
+        "text": "Monte Carlo analysis in SPICE (LTspice, NGSPICE, PSpice) is used to evaluate the statistical distribution of circuit performance due to component tolerances. The core idea is to simulate the circuit thousands of times where component values are randomly varied within their specified tolerance ranges, then aggregate the results.\n\nHere is a comprehensive guide on how to perform Monte Carlo analysis in SPICE.\n\n### 1. Theoretical Basis\nComponent tolerances are not single values but ranges (e.g., $\\pm 5\\%$, $\\pm 1\\%$). Monte Carlo analysis assumes that these variations follow a distribution (usually Gaussian/Normal).\n*   **Input**: Circuit parameters ($R, L, C$, gain, offset).\n*   **Process**: Random sampling of parameters $N$ times (where $N$ is the number of runs).\n*   **Output**: Statistical distribution of the output (mean, standard deviation, worst",
+        "latency_s": 15.714,
+        "scores": {
+          "length": 860,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.616
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 9,
+      "domain": "spice",
+      "prompt": "Write a SPICE testbench for a full-bridge rectifier with filter",
+      "full": {
+        "text": "```spice\n* Full-Bridge Rectifier with Filter\n\n* Input AC voltage source\nVAC 1 0 SIN(0 9 10k)\n\n* Diodes\nD1 1 2 1N4148\nD2 3 0 1N4148\nD3 4 0 1N4148\nD4 4 5 1N4148\n\n* Filter capacitor\nCF 5 0 100u\n\n* Load resistor\nRL 5 0 1k\n\n* Transient analysis\n.tran 10u 10m\n\n* Output\nVout 5 0\n\n* Simulation commands\n.control\nrun\nplot v(out) title 'Full-Bridge Rectifier with Filter'\n.endc\n.end\n```\n\nFull-bridge rectifier with filter capacitor CF=100u and load",
+        "latency_s": 16.584,
+        "scores": {
+          "length": 439,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 0.7143
+        },
+        "composite": 0.4911
+      },
+      "raw": {
+        "text": "```spice\n* Full-Bridge Rectifier with Capacitor Filter\r\n* Define the circuit\r\nV1 IN 0 SIN(0 12 100k)  ; Input sinusoidal waveform\r\nD1 IN N1 DIODE\r\nD2 N2 0 DIODE\r\nD3 N3 0 DIODE\r\nD4 N4 0 DIODE\r\nC1 N4 0 47u\r\nRload N4 0 22k\r\n\r\n* Diodes\r\n.model DIODE D(IS=1e-14 RS=0.5 BV=100)\r\n\r\n* Simulation commands\r\n.TRAN 10u 50m  ; Transient analysis from 0 to 50m seconds with a timestep of 10u seconds\r\n\r\n* Output\r\n.PRINT TRAN V(IN) V(N4)  ; Print the input and output voltages\r\n.PLOT TRAN V(IN) V(N",
+        "latency_s": 15.86,
+        "scores": {
+          "length": 484,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 0.7143
+        },
+        "composite": 0.4956
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 10,
+      "domain": "python",
+      "prompt": "Implement a thread-safe LRU cache in Python without external libraries",
+      "full": {
+        "text": "```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.cache = OrderedDict()\n        self.capacity = capacity\n\n    def get(self, key: str) -> str:\n        if key in self.cache:\n            self.cache.move_to_end(key)\n            return self.cache[key]\n        return None\n\n    def put(self, key: str, value: str) -> None:\n        if key in self.cache:\n            self.cache.move_to_end(key)\n        self.cache[key] = value\n        if len(self.cache) > self.capacity:\n            self.cache.popitem(last=False)\n```",
+        "latency_s": 12.211,
+        "scores": {
+          "length": 575,
+          "keyword_count": 4,
+          "keyword_max": 19,
+          "coherence": 0.2857
+        },
+        "composite": 0.2635
+      },
+      "raw": {
+        "text": "```python\nfrom collections import OrderedDict\nimport threading\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.lock = threading.Lock()\n\n    def get(self, key: int) -> int:\n        with self.lock:\n            if key not in self.cache:\n                return -1\n            self.cache.move_to_end(key)\n            return self.cache[key]\n\n    def put(self, key: int, value: int) -> None:\n        with self.lock:\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            elif len(self.cache) >= self.capacity:\n                self.cache.popitem(last=False)\n            self.cache[key] = value\n```",
+        "latency_s": 13.62,
+        "scores": {
+          "length": 713,
+          "keyword_count": 6,
+          "keyword_max": 19,
+          "coherence": 0.2857
+        },
+        "composite": 0.3089
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 11,
+      "domain": "python",
+      "prompt": "Write a Python decorator that retries failed async functions with exponential backoff",
+      "full": {
+        "text": "```python\nimport asyncio\nimport random\n\n\ndef retry_with_exponential_backoff(max_retries=3, initial_delay=1, final_delay=10, max_random_delay=1):\n    def decorator(func):\n        async def wrapper(*args, **kwargs):\n            attempt = 0\n            delay = initial_delay\n            while attempt < max_retries:\n                try:\n                    result = await func(*args, **kwargs)\n                    return result\n                except Exception as e:\n                    attempt += 1\n                    if attempt == max_retries:\n                        raise e\n                    delay = min(delay * 2, final_delay)\n                    delay = delay + random.uniform(0, max_random_delay)\n                    await asyncio.sleep(delay)\n\n        return wrapper\n\n    return decorator\n\n\n@retry_with_exponential_backoff(max_retries=3, initial_delay=1, final_delay=10, max_random_delay=1",
+        "latency_s": 16.414,
+        "scores": {
+          "length": 897,
+          "keyword_count": 6,
+          "keyword_max": 19,
+          "coherence": 0.6364
+        },
+        "composite": 0.5026
+      },
+      "raw": {
+        "text": "Here's a Python decorator that retries failed async functions with exponential backoff:\n\n```python\nimport asyncio\nimport random\nimport time\nfrom functools import wraps\n\ndef retry(max_retries=3, backoff_factor=2, max_delay=60, jitter=True):\n    def decorator(func):\n        @wraps(func)\n        async def wrapper(*args, **kwargs):\n            retries = 0\n            delay = 1\n\n            while retries < max_retries:\n                try:\n                    return await func(*args, **kwargs)\n                except Exception as e:\n                    retries += 1\n                    if jitter:\n                        delay = random.uniform(delay // 2, delay)\n                    else:\n                        delay = delay * backoff_factor\n\n                    if delay > max_delay:\n                        delay = max_delay\n\n                    print(f\"Retry {retries}/{max_retries} in {delay:.2f}s:",
+        "latency_s": 15.802,
+        "scores": {
+          "length": 904,
+          "keyword_count": 6,
+          "keyword_max": 19,
+          "coherence": 0.9091
+        },
+        "composite": 0.6397
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 12,
+      "domain": "python",
+      "prompt": "How to implement the observer pattern in Python using weakrefs",
+      "full": {
+        "text": "The observer pattern is a behavioral design pattern that defines a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically. The observer pattern is also known as the Publish-Subscribe pattern.\n\nThe weakrefs module in Python provides weak references to objects. A weak reference to an object is not enough to keep the object alive: when the only remaining references to a object are weak references, garbage collection is free to destroy the object and reuse its memory for something else.\n\nHere's a simple implementation of the observer pattern using weakrefs:\n\n```python\nimport weakref\n\nclass Observer:\n    def __init__(self, name):\n        self.name = name\n\n    def update(self, data):\n        print(f\"{self.name} received data: {data}\")\n\nclass Subject:\n    def __init__(self):\n        self._observers = weakref.WeakSet()\n        self._",
+        "latency_s": 16.362,
+        "scores": {
+          "length": 918,
+          "keyword_count": 4,
+          "keyword_max": 19,
+          "coherence": 1.0
+        },
+        "composite": 0.655
+      },
+      "raw": {
+        "text": "Implementing the observer pattern with weakrefs in Python involves creating a set of objects (observers) that observe another object (subject). When the subject changes state, it notifies all observers. The use of weakrefs ensures that the observers can be garbage collected when they're no longer needed.\n\nHere's a simple implementation:\n\n```python\nimport weakref\n\nclass Subject:\n    def __init__(self):\n        self._observers = weakref.WeakSet()\n\n    def attach(self, observer):\n        self._observers.add(observer)\n\n    def detach(self, observer):\n        self._observers.discard(observer)\n\n    def notify(self, event):\n        for observer in self._observers:\n            observer.update(event)\n\n\nclass Observer:\n    def update(self, event):\n        pass  # Custom implementation for each observer\n```\n\nIn the above example, `Subject` is the class that holds a set",
+        "latency_s": 15.707,
+        "scores": {
+          "length": 870,
+          "keyword_count": 4,
+          "keyword_max": 19,
+          "coherence": 0.8333
+        },
+        "composite": 0.5668
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 13,
+      "domain": "python",
+      "prompt": "Create a Python context manager for database transaction rollback",
+      "full": {
+        "text": "```python\nimport contextlib\nimport psycopg2\nfrom psycopg2 import pool\n\n\nclass DatabaseConnection:\n    def __init__(self):\n        self.connection_pool = pool.ThreadedConnectionPool(1, 20, dsn=\"your_database_connection_string\")\n\n    def __enter__(self):\n        self.connection = self.connection_pool.getconn()\n        self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)\n        return self.connection\n\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        self.connection_pool.putconn(self.connection)\n        if exc_type:\n            self.connection.rollback()\n\n\n@contextlib.contextmanager\ndef transaction():\n    with DatabaseConnection() as db:\n        try:\n            yield db\n            db.commit()\n        except:\n            db.rollback()\n            raise\n```\n\nIn this context manager, a database connection is acquired",
+        "latency_s": 16.462,
+        "scores": {
+          "length": 865,
+          "keyword_count": 5,
+          "keyword_max": 19,
+          "coherence": 0.8571
+        },
+        "composite": 0.594
+      },
+      "raw": {
+        "text": "from contextlib import contextmanager\n\n@contextmanager\ndef db_transaction(db):\n    db.execute('BEGIN TRANSACTION')\n    try:\n        yield\n        db.execute('COMMIT')\n    except Exception:\n        db.execute('ROLLBACK')\n        raise\n    finally:\n        db.execute('END TRANSACTION')",
+        "latency_s": 6.109,
+        "scores": {
+          "length": 284,
+          "keyword_count": 4,
+          "keyword_max": 19,
+          "coherence": 0.5714
+        },
+        "composite": 0.3773
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 14,
+      "domain": "python",
+      "prompt": "Implement a trie data structure with prefix search in Python",
+      "full": {
+        "text": "```python\nclass TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end_of_word = False\n\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for char in word:\n            if char not in node.children:\n                node.children[char] = TrieNode()\n            node = node.children[char]\n        node.is_end_of_word = True\n\n    def search(self, word):\n        node = self.root\n        for char in word:\n            if char not in node.children:\n                return False\n            node = node.children[char]\n        return node.is_end_of_word\n\n    def starts_with(self, prefix):\n        node = self.root\n        for char in prefix:\n            if char not in node.children:\n                return False\n            node =",
+        "latency_s": 16.535,
+        "scores": {
+          "length": 830,
+          "keyword_count": 3,
+          "keyword_max": 19,
+          "coherence": 0.625
+        },
+        "composite": 0.4429
+      },
+      "raw": {
+        "text": "class TrieNode:\n    def __init__(self):\n        self.children = collections.defaultdict(TrieNode)\n        self.isEnd = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for i in word:\n            node = node.children[i]\n        node.isEnd = True\n\n    def search(self, word):\n        node = self.root\n        for i in word:\n            if i not in node.children:\n                return False\n            node = node.children[i]\n        return node.isEnd\n\n    def startsWith(self, prefix):\n        node = self.root\n        for i in prefix:\n            if i not in node.children:\n                return False\n            node = node.children[i]\n        return True",
+        "latency_s": 14.694,
+        "scores": {
+          "length": 747,
+          "keyword_count": 3,
+          "keyword_max": 19,
+          "coherence": 0.5
+        },
+        "composite": 0.3721
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 15,
+      "domain": "chat-fr",
+      "prompt": "Explique les avantages et inconvénients du télétravail pour une PME française",
+      "full": {
+        "text": "Le télétravail présente des avantages tels que la réduction de l'impact environnemental et l'économie de temps de déplacement, mais il peut aussi entraîner un isolement social et des problèmes de séparation vie professionnelle-vie personnelle.",
+        "latency_s": 5.331,
+        "scores": {
+          "length": 243,
+          "keyword_count": 2,
+          "keyword_max": 15,
+          "coherence": 0.3333
+        },
+        "composite": 0.2309
+      },
+      "raw": {
+        "text": "Avantages : - Gain de temps de déplacement pour les employés et les employeurs. - Réduction de l'impact environnemental. Inconvénients : - Isolement social et sentiment de solitude. - Éventuels problèmes de connexion internet et de communication avec l'équipe.",
+        "latency_s": 5.341,
+        "scores": {
+          "length": 260,
+          "keyword_count": 2,
+          "keyword_max": 15,
+          "coherence": 0.5
+        },
+        "composite": 0.316
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 16,
+      "domain": "chat-fr",
+      "prompt": "Rédige un résumé de la Révolution française en 200 mots",
+      "full": {
+        "text": "La Révolution française était une période révolutionnaire qui a duré de 1789 à 1799, et qui a eu un impact majeur sur l'histoire de France. Elle a été déclenchée par la convocation des États généraux en 1789 et s'est terminée par la prise du pouvoir par Napoléon Bonaparte. La Révolution a été marquée par l'exécution de Louis XVI, la montée au pouvoir de Napoléon Bonaparte et les guerres napoléoniennes. Elle a également été marquée par la montée au pouvoir de Napoléon Bonaparte, l'exécution de Louis XVI et les guerres napoléoniennes. La Révolution a également été marquée par la montée au pouvoir de Napoléon Bonaparte, l'exécution de Louis XVI et les guerres napoléoniennes.",
+        "latency_s": 16.064,
+        "scores": {
+          "length": 680,
+          "keyword_count": 3,
+          "keyword_max": 15,
+          "coherence": 0.4
+        },
+        "composite": 0.328
+      },
+      "raw": {
+        "text": "La Révolution française était une période de bouleversements politiques et sociaux en France qui a duré de 1789 à 1799. Elle a été marquée par l'exécution de Louis XVI, la montée au pouvoir de Napoléon Bonaparte et la chute de la monarchie. Les causes de la Révolution française comprenaient les inégalités sociales, les difficultés économiques et l'exécution de Louis XVI.",
+        "latency_s": 8.138,
+        "scores": {
+          "length": 373,
+          "keyword_count": 3,
+          "keyword_max": 15,
+          "coherence": 0.4
+        },
+        "composite": 0.2973
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 17,
+      "domain": "chat-fr",
+      "prompt": "Quels sont les critères pour choisir une école d'ingénieur en France",
+      "full": {
+        "text": "Pour choisir une école d'ingénieur en France, il est important de prendre en compte plusieurs critères. Tout d'abord, il est important de choisir une école reconnue et accréditée par les organismes officiels, tels que la Commission des titres d'ingénieur (CTI). Ensuite, il est important de prendre en compte la réputation de l'école, son historique, ses spécialités et ses programmes d'études. Il est également important de prendre en compte l'emplacement de l'école, les opportunités de stage et d'emploi, et les possibilités de recherche et d'innovation. Enfin, il est important de prendre en compte le coût de l'enseignement et les opportunités de financement disponibles pour les étudiants.",
+        "latency_s": 13.047,
+        "scores": {
+          "length": 695,
+          "keyword_count": 4,
+          "keyword_max": 15,
+          "coherence": 0.75
+        },
+        "composite": 0.5245
+      },
+      "raw": {
+        "text": "Les critères pour choisir une école d'ingénieur en France incluent la réputation de l'établissement, la qualité de l'enseignement, les opportunités de recherche, l'accès à l'industrie, les programmes d'échange, les taux d'insertion professionnelle, les activités parascolaires, l'engagement social et environnemental, ainsi que la diversité culturelle et sociale.",
+        "latency_s": 7.133,
+        "scores": {
+          "length": 363,
+          "keyword_count": 4,
+          "keyword_max": 15,
+          "coherence": 0.75
+        },
+        "composite": 0.4913
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 18,
+      "domain": "chat-fr",
+      "prompt": "Compare les systèmes de retraite français et allemand",
+      "full": {
+        "text": "Les systèmes de retraite français et allemands présentent des différences notable. En France, la retraite est basée sur un système de répartition, où les cotisations des actifs financent les pensions des retraités. En Allemagne, la retraite est basée sur un système mixte, combinant des cotisations obligatoires et des retraits volontaires. De plus, l'âge de départ à la retraite et les conditions d'admissibilité varient également entre les deux pays.",
+        "latency_s": 8.745,
+        "scores": {
+          "length": 452,
+          "keyword_count": 3,
+          "keyword_max": 15,
+          "coherence": 0.8
+        },
+        "composite": 0.5052
+      },
+      "raw": {
+        "text": "Le système de retraite français est financé par les cotisations des travailleurs et des employeurs, tandis que le système de retraite allemand est financé par les cotisations des travailleurs et des employeurs, ainsi que par des contributions complémentaires. En outre, l'âge de la retraite et les critères d'éligibilité diffèrent entre les deux pays.",
+        "latency_s": 6.372,
+        "scores": {
+          "length": 351,
+          "keyword_count": 4,
+          "keyword_max": 15,
+          "coherence": 0.6
+        },
+        "composite": 0.4151
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 19,
+      "domain": "chat-fr",
+      "prompt": "Donne des conseils pour préparer un entretien d'embauche en France",
+      "full": {
+        "text": "Pour préparer un entretien d'embauche en France, il est important de se renseigner sur l'entreprise, de préparer des réponses aux questions d'entretien, de se renseigner sur la culture d'entreprise, de se présenter de manière professionnelle, et de poser des questions pertinentes sur le poste et l'entreprise.",
+        "latency_s": 6.639,
+        "scores": {
+          "length": 310,
+          "keyword_count": 3,
+          "keyword_max": 15,
+          "coherence": 0.7143
+        },
+        "composite": 0.4482
+      },
+      "raw": {
+        "text": "Pour préparer un entretien d'embauche en France, assurez-vous de faire des recherches sur l'entreprise et le poste. Prépare des réponses à des questions fréquentes d'entretien et des questions à poser à l'intervieweur. Habillez-vous de manière professionnelle, arrivez à l'heure et faites preuve de courtoisie et de confiance. Montrer de l'enthousiasme, de la proactivité et des compétences interpersonnelles est également crucial. Enfin, suivez avec une note de remerciement après l'entretien.",
+        "latency_s": 9.69,
+        "scores": {
+          "length": 494,
+          "keyword_count": 3,
+          "keyword_max": 15,
+          "coherence": 0.7143
+        },
+        "composite": 0.4666
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 20,
+      "domain": "stm32",
+      "prompt": "Configure SPI with DMA on STM32F4 using HAL for SD card communication",
+      "full": {
+        "text": "void RCC_AHB2PeriphClockCmd(uint32_t RCC_AHB2Periph, FunctionalState NewState)\n{\n  /* Check the parameters */\n  assert_param(IS_RCC_AHB2Periph(RCC_AHB2Periph));\n  assert_param(IS_FUNCTIONAL_STATE(NewState));\n\n  if (NewState != DISABLE)\n  {\n    RCC->AHB2ENR |= RCC_AHB2Periph;\n  }",
+        "latency_s": 8.133,
+        "scores": {
+          "length": 279,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.0579
+      },
+      "raw": {
+        "text": "",
+        "latency_s": 10.796,
+        "scores": {
+          "length": 0,
+          "keyword_count": 0,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.0
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 21,
+      "domain": "stm32",
+      "prompt": "How to use the STM32 ADC with DMA for multi-channel sampling",
+      "full": {
+        "text": "void RCC_AHB2PeriphClockCmd(uint32_t RCC_AHB2Periph, FunctionalState NewState)\n{\n  /* Check the parameters */\n  assert_param(IS_RCC_AHB2Periph(RCC_AHB2Periph));\n  assert_param(IS_FUNCTIONAL_STATE(NewState));\n\n  if (NewState != DISABLE)\n  {\n    RCC->AHB2ENR |= RCC_AHB2Periph;\n  }",
+        "latency_s": 7.987,
+        "scores": {
+          "length": 279,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.0579
+      },
+      "raw": {
+        "text": "Just make sure that when you read the data in your DMA interrupt, you don't forget to do it in the same order as you have the ADC channels in the ADC->DR register (i.e. the first channel read in the DMA interrupt is the data from the first channel).",
+        "latency_s": 10.541,
+        "scores": {
+          "length": 249,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.0849
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 22,
+      "domain": "stm32",
+      "prompt": "Implement CAN bus communication between two STM32 boards",
+      "full": {
+        "text": "void RCC_AHB2PeriphClockCmd(uint32_t RCC_AHB2Periph, FunctionalState NewState)\n{\n  /* Check the parameters */\n  assert_param(IS_RCC_AHB2Periph(RCC_AHB2Periph));\n  assert_param(IS_FUNCTIONAL_STATE(NewState));\n\n  if (NewState != DISABLE)\n  {\n    RCC->AHB2ENR |= RCC_AHB2Periph;\n  }",
+        "latency_s": 7.987,
+        "scores": {
+          "length": 279,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.0579
+      },
+      "raw": {
+        "text": "void CAN_Receive(CAN_TypeDef* CANx, uint8_t CAN_FIFO, CAN_ReceiveTypeDef *CAN_ReceiveStruct)\n{\n  /* Check the parameters */\n  assert_param(IS_CAN_LIST(CAN_FIFO));\n  assert_param(IS_CAN_IDTYPE(CAN_ReceiveStruct->IDE));\n  assert_param(IS_CAN_DLC(CAN_ReceiveStruct->DLC));\n\n  /* Receive the message in the chosen FIFO */\n  if (CAN_FIFO == CAN_FIFO0)\n  {\n    CAN_ReceiveStruct->IDE = (uint8_t)((CANx->sFR0 & CAN_SFR0_STDF) >> 3);\n    CAN_ReceiveStruct->DLC = (uint8_t)((CANx->sFR0 & CAN_SFR0_DLC)  >> 2);\n    CAN_ReceiveStruct->ID  = (uint8_t) ((CANx->sFR0 & CAN_S",
+        "latency_s": 15.726,
+        "scores": {
+          "length": 560,
+          "keyword_count": 1,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.071
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 23,
+      "domain": "stm32",
+      "prompt": "Configure the STM32 RTC with backup domain for timestamp logging",
+      "full": {
+        "text": "void RCC_AHB2PeriphClockCmd(uint32_t RCC_AHB2Periph, FunctionalState NewState)\r\n{\r\n  /* Check the parameters */\r\n  assert_param(IS_RCC_AHB2Periph(RCC_AHB2Periph));\r\n  assert_param(IS_FUNCTIONAL_STATE(NewState));\r\n\r\n  if (NewState != DISABLE)\r\n  {\r\n    RCC->AHB2ENR |= RCC_AHB2Periph;\r\n  }",
+        "latency_s": 8.096,
+        "scores": {
+          "length": 288,
+          "keyword_count": 2,
+          "keyword_max": 20,
+          "coherence": 0.0
+        },
+        "composite": 0.0588
+      },
+      "raw": {
+        "text": "void RTC_LowSpeedConfig(uint32_t RTC_LSE_Bypass)\n{\n  /* Check the parameters */\n  assert_param(IS_RTC_LSE_Bypass(RTC_LSE_Bypass));\n\n  RCC_BackupResetCmd(FunctionalState ENABLE);\n\n  /* Set or Reset the LSEON bit */\n  RCC_LSEConfig(RCC_LSE_Bypass);\n\n  /* Reset the BWRST bit */\n  RCC_BackupResetCmd(FunctionalState DISABLE);\n}",
+        "latency_s": 9.249,
+        "scores": {
+          "length": 324,
+          "keyword_count": 1,
+          "keyword_max": 20,
+          "coherence": 0.1429
+        },
+        "composite": 0.1189
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 24,
+      "domain": "stm32",
+      "prompt": "How to implement OTA firmware update on STM32 via UART bootloader",
+      "full": {
+        "text": "I am using the STM32F446RET6 and I want to send the firmware binary over the UART to a new location in the flash. I decide the location for the new binary is 0x08008000. I want to do this through the UART bootloader.\n\nMy questions:\n\n1. How do I send the firmware binary over the UART?\n2. How do I jump to the binary after it has been written to the flash?\n3. How do I program the new firmware binary to the flash?",
+        "latency_s": 10.023,
+        "scores": {
+          "length": 413,
+          "keyword_count": 5,
+          "keyword_max": 20,
+          "coherence": 0.6667
+        },
+        "composite": 0.4496
+      },
+      "raw": {
+        "text": "I have a question regarding how to implement OTA firmware update on an STM32 device via UART bootloader.\n\nMy goal is as follows:\n\n1. Once the STM32 is running, I read the firmware version from the device (e.g. via uart).\n2. If the version of the firmware is older than the latest, I create a new binary file.\n3. I call the UART bootloader to update the firmware.\n\nHere is the problem: I have no idea how to call the UART bootloader.\n\nI am using an STM32L412 (Nucleo-32) and STM32CubeIDE.\n\nI would appreciate any guidance on how to get this done.",
+        "latency_s": 10.599,
+        "scores": {
+          "length": 545,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.6445
+      },
+      "scores": null,
+      "winner": "raw"
+    },
+    {
+      "index": 25,
+      "domain": "power",
+      "prompt": "Design a synchronous buck converter for 12V to 3.3V at 5A",
+      "full": {
+        "text": "To design a synchronous buck converter for 12V to 3.3V at 5A, you can use the following components:\n\n1. Input voltage regulator: Input voltage regulator is used to regulate the input voltage at a constant value.\n2. Output voltage regulator: Output voltage regulator is used to regulate the output voltage at a constant value.\n3. Switching control circuit: Switching control circuit is used to control the switching state of the output voltage regulator.\n4. Inductor: Inductor is used to store energy during the switching state and release it during the output voltage regulation state.\n5. Capacitor: Capacitor is used to store energy during the switching state and release it during the output voltage regulation state.\n6. Diode: Diode is used to protect the switching control circuit from overvoltage.\n7. Transistor: Transistor is used to switch the output voltage regulator.\n8. Resistor:",
+        "latency_s": 16.585,
+        "scores": {
+          "length": 889,
+          "keyword_count": 7,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.6939
+      },
+      "raw": {
+        "text": "I'd like to design a synchronous buck power supply for a few modules in a system.\n\nI'd like to know what the schematic would look like taking input from a 12V source and outputting a 3.3V at 5A.\n\nWhat components would be required and what ratings of those components would be required?",
+        "latency_s": 9.538,
+        "scores": {
+          "length": 285,
+          "keyword_count": 1,
+          "keyword_max": 20,
+          "coherence": 0.8
+        },
+        "composite": 0.4435
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 26,
+      "domain": "power",
+      "prompt": "Calculate the inductor value for a boost converter with 95% efficiency",
+      "full": {
+        "text": "The inductor value can be calculated using the following formula:\n\nL = (Vin * D) / (f * (1 - D))\n\nWhere:\nVin = input voltage\nD = duty cycle\nf = switching frequency\n1 - D = output voltage regulation factor\n\nFor a boost converter with 95% efficiency, the duty cycle D can be approximated as 0.14.\n\nSo the inductor value for a boost converter with 95% efficiency can be calculated as follows:\n\nL = (Vin * 0.14) / (f * (1 - 0.14))\nL = (9V * 0.14) / (100kHz * 0.86)\nL = 17.74uH\n\nTherefore, the inductor value for a boost converter with 95% efficiency is approximately 17.74uH.",
+        "latency_s": 16.556,
+        "scores": {
+          "length": 571,
+          "keyword_count": 8,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.6771
+      },
+      "raw": {
+        "text": "I am trying to design a boost converter with an input voltage of 2.1 to 2.6 V and an output voltage of 3.3 V.\nThe efficiency of the converter is 95%. The input current varies from 50 to 100 mA.\nThe maximum output current is 100 mA.\nCan you help me to calculate the inductor value?",
+        "latency_s": 8.793,
+        "scores": {
+          "length": 280,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.618
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 27,
+      "domain": "power",
+      "prompt": "Compare linear regulators vs switching regulators for battery-powered devices",
+      "full": {
+        "text": "Linear regulators are simple and cheap but waste energy as heat. Switching regulators are more efficient but are more complex and expensive. The choice depends on the power budget and the level of efficiency required.",
+        "latency_s": 4.846,
+        "scores": {
+          "length": 217,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 0.5714
+        },
+        "composite": 0.3674
+      },
+      "raw": {
+        "text": "This is a good question, and it's one I've been debating for myself.\nThe advantages of a linear regulator are:\n\nLow noise\nLow ripple\nSimple - fewer components\nThe disadvantages are:\n\nLow efficiency\nHigh heat when the difference between the input and output voltage is large.\nThis sounds good for a battery powered device.\nThe advantages of a switching regulator are:\n\nHigh efficiency\nLow heat\nThe disadvantages are:\n\nHigh noise\nHigh ripple\nMore components\nThis sounds bad for a battery powered device.\nMy battery powered device will be using a 9v battery, which I will be stepping down to 5v to power a microcontroller and other components.\nSo, with a 9v battery, I'm going to be using a linear regulator, for all of the advantages it has, and its inefficient power usage will be minimal, due to the voltage differential.\nWhat do you guys think?",
+        "latency_s": 15.663,
+        "scores": {
+          "length": 845,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 0.2857
+        },
+        "composite": 0.3174
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 28,
+      "domain": "power",
+      "prompt": "Design a MOSFET gate driver circuit for a half-bridge inverter",
+      "full": {
+        "text": "```spice\n* Half-bridge inverter with MOSFET gate driver\n\n* Input DC voltage source\nVDC 1 0 DC 12\n\n* MOSFET 1\nQ1 2 3 4 N-MOSFET\n\n* MOSFET 2\nQ2 5 6 7 N-MOSFET\n\n* Gate driver 1\nG1 8 3 9 10k\nG2 11 6 12 10k\n\n* Gate driver 2\nV1 13 0 12\nV2 14 0 12\n\n* Resistor R1\nR1 13 14 1k\n\n* Resistor R2\nR2 14 15 1k\n\n* Resistor R3\nR3 15 0 1k\n\n* Inductor 1",
+        "latency_s": 16.695,
+        "scores": {
+          "length": 334,
+          "keyword_count": 5,
+          "keyword_max": 20,
+          "coherence": 0.7143
+        },
+        "composite": 0.4656
+      },
+      "raw": {
+        "text": "The image below shows a half-bridge inverter circuit, which is used for a lot of applications. Depending on the current and voltage requirements, the half-bridge inverter circuit may use either MOSFETs or IGBTs.\nThe circuit consists of two switches (MOSFETs or IGBTs), two diodes, two filters (C1 and C2), and a load. The switching frequency of the half-bridge inverter is controlled by a control circuit, which is not shown in the schematic below.\nThe two MOSFETs are not driven independently. Rather, they are driven in such a way that one is always on when the other is off, and vice versa. The purpose of this is to prevent a short circuit from the positive to the negative power supply (i.e. if both MOSFETs are on at the same time, current will flow through the two MOSFETs causing a short circuit). The",
+        "latency_s": 15.709,
+        "scores": {
+          "length": 809,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 0.5714
+        },
+        "composite": 0.4266
+      },
+      "scores": null,
+      "winner": "full"
+    },
+    {
+      "index": 29,
+      "domain": "power",
+      "prompt": "How to implement soft-start for a DC-DC converter to limit inrush current",
+      "full": {
+        "text": "How to implement soft-start for a DC-DC converter to limit inrush current",
+        "latency_s": 3.041,
+        "scores": {
+          "length": 73,
+          "keyword_count": 4,
+          "keyword_max": 20,
+          "coherence": 1.0
+        },
+        "composite": 0.5673
+      },
+      "raw": {
+        "text": "The maximum inrush current is limited by the total EMI filter capacitance, the output capacitance of the DC converter output and the inductance of the wiring.\n\nIf the inrush current is too large, the inrush current protection of the DC converter will be activated and the power supply will be stopped.\n\nIn this case, the inrush current protection on the converter must be disabled and the wiring must be as short as possible. If the wiring length is 10m or more, the wiring inductance must be reduced by using cables with larger wire diameters.\n\nIf these measures are not sufficient, the following measures may be considered:\n\nUse a soft-start function. The soft-start function gradually increases the power supply voltage until the output voltage is stabilized, thus limiting the inrush current.\n\nIf the soft-start function has not been implemented, a large capacitor is inserted in parallel with the input of the DC converter. The large capacitor acts as",
+        "latency_s": 15.751,
+        "scores": {
+          "length": 956,
+          "keyword_count": 6,
+          "keyword_max": 20,
+          "coherence": 0.8571
+        },
+        "composite": 0.6141
+      },
+      "scores": null,
+      "winner": "raw"
+    }
+  ]
+}
