@@ -293,12 +293,24 @@ class _MLXRuntimeAdapter:
             count, bytes_touched / (1024**3),
         )
 
+    # Merged domain → first on-disk adapter directory.
+    # The router v4 merges some domains for classification accuracy,
+    # but the adapter files on disk keep their original names.
+    _MERGE_TO_ADAPTER: dict[str, str] = {
+        "electronics-hw": "electronics",
+        "kicad": "kicad-dsl",
+    }
+
+    def _resolve_adapter(self, name: str) -> str:
+        """Map a (possibly merged) domain name to an on-disk adapter dir."""
+        return self._MERGE_TO_ADAPTER.get(name, name)
+
     def apply(self, adapters: list[str]) -> None:
         if not adapters:
             # Degraded path: base-model only, no adapter.
             return
         # Only one active adapter supported in V1.0 (first wins).
-        name = adapters[0]
+        name = self._resolve_adapter(adapters[0])
         if name == self._current_adapter:
             return
         from mlx_lm import load as mlx_load
