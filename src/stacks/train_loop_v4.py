@@ -180,9 +180,12 @@ def train_stack(
     # Save LoRA parameters only
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
+
+    # MLX uses tree_flatten to get (key_path, value) pairs
+    import mlx.utils
+    flat = mlx.utils.tree_flatten(model.trainable_parameters())
     lora_params: dict[str, mx.array] = {
-        k: v
-        for k, v in dict(model.named_parameters()).items()
+        k: v for k, v in flat
         if "lora_a" in k or "lora_b" in k
     }
     mx.save_safetensors(str(output_path / "adapters.safetensors"), lora_params)
