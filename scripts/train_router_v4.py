@@ -1,13 +1,14 @@
-"""Train the V4 router: sentence-embedding -> linear head over 34 domains.
+"""Train the V4 router: sentence-embedding -> MLP head over merged domains.
 
 Pipeline:
     1. Load `data/router-v4/{train,valid}.jsonl` + `label_map.json`.
-    2. Encode prompts with sentence-transformers (default: all-MiniLM-L6-v2, 384d).
-    3. Train a single linear layer with BCEWithLogits (multi-label-friendly).
-    4. Save `router.safetensors` (weight + bias) + `meta.json` to `output/router-v4/`.
-    5. `--mode eval` re-computes top-1 / top-3 + a sparse confusion matrix.
+    2. Merge similar domains (electronics/components/power → electronics-hw, etc.).
+    3. Encode prompts with sentence-transformers (default: all-mpnet-base-v2, 768d).
+    4. Train MLP head with CrossEntropyLoss + inverse-frequency class weights.
+    5. Save `router.safetensors` (weight + bias) + `meta.json` to `output/router-v4/`.
+    6. `--mode eval` re-computes top-1 / top-3 + a sparse confusion matrix.
 
-Runs on kxkm-ai (RTX 4090); ~34 domains x 2k samples encodes in <2 min on GPU.
+Runs on kxkm-ai (RTX 4090); ~31 domains x 2k samples encodes in <2 min on GPU.
 
 Usage:
     python scripts/train_router_v4.py --mode train
@@ -39,6 +40,21 @@ logger = logging.getLogger(__name__)
 DEFAULT_DATA = REPO_ROOT / "data" / "router-v4"
 DEFAULT_OUT = REPO_ROOT / "output" / "router-v4"
 DEFAULT_RESULTS = REPO_ROOT / "results" / "router-v4-eval.json"
+
+# --- Domain merge map: collapse similar domains before training ---
+DOMAIN_MERGES: dict[str, str] = {
+    "components": "electronics-hw",
+    "electronics": "electronics-hw",
+    "power": "electronics-hw",
+    "spice-sim": "spice",
+    "kicad-pcb": "kicad",
+    "kicad-dsl": "kicad",
+}
+
+
+def apply_domain_merge(domain: str) -> str:
+    """Map a raw domain label to its merged target (identity if no merge)."""
+    return DOMAIN_MERGES.get(domain, domain)
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -81,13 +97,30 @@ def train(args: argparse.Namespace) -> None:
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    label_map: dict[str, int] = json.loads((data_dir / "label_map.json").read_text())
-    domains = sorted(label_map, key=lambda d: label_map[d])
-    num_domains = len(domains)
-    logger.info("Training router over %d domains", num_domains)
+    # --- Load original label map, then apply domain merges ---
+    raw_label_map: dict[str, int] = json.loads((data_dir / "label_map.json").read_text())
+    logger.info("Original label_map has %d domains", len(raw_label_map))
 
     train_rows = load_jsonl(data_dir / "train.jsonl")
     valid_rows = load_jsonl(data_dir / "valid.jsonl")
+
+    # Apply domain merges to all rows
+    for row in train_rows:
+        row["domain"] = apply_domain_merge(row["domain"])
+    for row in valid_rows:
+        row["domain"] = apply_domain_merge(row["domain"])
+
+    # Build merged label map from actual data
+    merged_domains = sorted({r["domain"] for r in train_rows} | {r["domain"] for r in valid_rows})
+    label_map: dict[str, int] = {d: i for i, d in enumerate(merged_domains)}
+    domains = merged_domains
+    num_domains = len(domains)
+    logger.info(
+        "After domain merges: %d → %d domains  (merges: %s)",
+        len(raw_label_map),
+        num_domains,
+        {k: v for k, v in DOMAIN_MERGES.items() if k in raw_label_map},
+    )
     logger.info("train=%d  valid=%d", len(train_rows), len(valid_rows))
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -103,8 +136,10 @@ def train(args: argparse.Namespace) -> None:
     )
     y_valid = torch.tensor([label_map[r["domain"]] for r in valid_rows], dtype=torch.long)
 
+    # Derive embed_dim from the actual encoder output (adapts to any model)
     embed_dim = x_train.shape[1]
     hidden = args.hidden_dim
+
     if hidden > 0:
         head = nn.Sequential(
             nn.Linear(embed_dim, hidden),
@@ -114,17 +149,31 @@ def train(args: argparse.Namespace) -> None:
         ).to(device)
     else:
         head = nn.Linear(embed_dim, num_domains).to(device)
+
     x_train = x_train.to(device)
     y_train = y_train.to(device)
     x_valid = x_valid.to(device)
     y_valid = y_valid.to(device)
 
-    # Multi-label BCE even though labels are one-hot (matches the MetaRouter sigmoid API).
-    one_hot = torch.zeros(len(y_train), num_domains, device=device)
-    one_hot[torch.arange(len(y_train)), y_train] = 1.0
+    # --- Class weights (inverse frequency, capped) for balanced CE loss ---
+    label_counts = Counter(y_train.cpu().tolist())
+    total_samples = sum(label_counts.values())
+    class_weights = torch.tensor(
+        [total_samples / (num_domains * label_counts.get(i, 1)) for i in range(num_domains)],
+        dtype=torch.float32,
+    )
+    class_weights = torch.clamp(class_weights, max=10.0).to(device)
+    logger.info(
+        "Class weights: min=%.2f  max=%.2f  mean=%.2f",
+        class_weights.min().item(),
+        class_weights.max().item(),
+        class_weights.mean().item(),
+    )
+
+    # CrossEntropyLoss with integer labels (not one-hot) for sharper gradients
+    loss_fn = nn.CrossEntropyLoss(weight=class_weights)
 
     optim = torch.optim.AdamW(head.parameters(), lr=args.lr, weight_decay=1e-4)
-    loss_fn = nn.BCEWithLogitsLoss()
     bs = args.batch_size
 
     for epoch in range(args.epochs):
@@ -135,7 +184,7 @@ def train(args: argparse.Namespace) -> None:
         for i in range(0, len(perm), bs):
             idx = perm[i : i + bs]
             logits = head(x_train[idx])
-            loss = loss_fn(logits, one_hot[idx])
+            loss = loss_fn(logits, y_train[idx])
             optim.zero_grad()
             loss.backward()
             optim.step()
@@ -167,19 +216,20 @@ def train(args: argparse.Namespace) -> None:
         "num_domains": num_domains,
         "domains": domains,
         "label_map": label_map,
+        "domain_merges": DOMAIN_MERGES,
         "arch": (
             "sentence_embedding + MLP(hidden) + linear_head"
             if hidden > 0
             else "sentence_embedding + linear_head"
         )
         + " (sigmoid at inference)",
-        "loss": "BCEWithLogitsLoss (multi-label friendly)",
+        "loss": "CrossEntropyLoss (weighted, inverse-frequency)",
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "lr": args.lr,
     }
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
-    # Copy label_map to out for runtime convenience
+    # Copy merged label_map to out for runtime convenience
     (out_dir / "label_map.json").write_text(
         json.dumps(label_map, indent=2) + "\n", encoding="utf-8"
     )
@@ -201,6 +251,9 @@ def evaluate(args: argparse.Namespace) -> None:
     encoder = get_encoder(meta["embedding_model"], device=device)
 
     valid_rows = load_jsonl(data_dir / "valid.jsonl")
+    # Apply same domain merges used during training
+    for row in valid_rows:
+        row["domain"] = apply_domain_merge(row["domain"])
     x_valid = encode_texts(
         encoder, [r["prompt"] for r in valid_rows], batch_size=args.batch_size, device=device
     ).to(device)
@@ -282,8 +335,8 @@ def main() -> None:
     parser.add_argument("--results", default=str(DEFAULT_RESULTS))
     parser.add_argument(
         "--embedding-model",
-        default="sentence-transformers/all-MiniLM-L6-v2",
-        help="Any sentence-transformers checkpoint (384d default).",
+        default="sentence-transformers/all-mpnet-base-v2",
+        help="Any sentence-transformers checkpoint (768d default with mpnet).",
     )
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--batch-size", type=int, default=128)
