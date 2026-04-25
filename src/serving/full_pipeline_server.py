@@ -885,6 +885,33 @@ class _State:
     cfg: FullPipelineConfig | None = None
 
 
+def _run_inference(
+    runtime: Any,
+    adapters: list[str],
+    prompt: str,
+    max_toks: int,
+    temp: float,
+    k: int,
+) -> list[str]:
+    """Synchronous adapter-apply + K-candidate generation.
+
+    Runs inside ``asyncio.to_thread`` so the event loop stays responsive
+    during MLX Metal inference (~5-30 s).  The caller holds
+    ``_inference_semaphore`` before dispatching, ensuring only one OS
+    thread drives MLX at a time (Metal is single-stream per process).
+    """
+    # Stage 3 — apply adapter (10-50 ms unpatch + weight load).
+    runtime.apply(adapters)
+
+    # Stage 4 — generate K candidates sequentially.
+    candidates: list[str] = []
+    for _ in range(k):
+        candidates.append(
+            runtime.generate(prompt, max_tokens=max_toks, temperature=temp)
+        )
+    return candidates
+
+
 def _build_prompt(messages: list[ChatMessage], recalled: list[dict]) -> str:
     """Assemble a Qwen-style chat prompt with optional recalled context."""
     parts: list[str] = []
@@ -923,6 +950,12 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
     # Serialize /v1/route threshold/top_k mutations on the shared
     # meta_router to prevent TOCTOU races between concurrent clients.
     route_lock = asyncio.Lock()
+
+    # MLX Metal is single-stream: only one inference thread at a time.
+    # This semaphore gates the asyncio.to_thread dispatch so concurrent
+    # HTTP requests queue here (on the event loop) rather than competing
+    # for the GPU inside the thread pool.
+    _inference_semaphore = asyncio.Semaphore(1)
 
     from fastapi import Response as _Response
 
@@ -1073,7 +1106,7 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
             else:
                 recalled = []
 
-            # Stage 3 — apply adapters on the MLX runtime.
+            # Stage 3+4 — adapter swap + K-candidate inference.
             # Filter out domains where MBPP benchmarks show the base model
             # outperforms the adapter (regression >= 5pp). These domains
             # run base-only to avoid quality degradation.
@@ -1084,44 +1117,48 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
                     base_only_filtered,
                 )
             adapters = [a for a in adapters if a not in BASE_ONLY_DOMAINS]
-            try:
-                state.runtime.apply(adapters)
-            except Exception as exc:  # noqa: BLE001 — surface as 503
-                metrics["requests_total"].labels(
-                    model=req.model, status="503"
-                ).inc()
-                log.error("adapter apply failed for %s: %s", adapters, exc)
-                return _err(
-                    503,
-                    f"adapter apply failed: {exc}",
-                    "adapter_apply_failed",
-                )
 
-            # Stage 4 — inference, K candidates (K = cfg.negotiator_k).
             prompt = _build_prompt(req.messages, recalled)
             max_toks = req.max_tokens if req.max_tokens is not None else 512
             temp = req.temperature if req.temperature is not None else 0.7
-            candidates: list[str] = []
-            with metrics["stage_latency"].labels(stage="inference").time():
-                for i in range(state.cfg.negotiator_k):
+
+            # Queue guard fires *before* we try to acquire the semaphore so
+            # callers beyond max_queue_depth get an immediate 429 instead of
+            # parking on the lock while the event loop is (now) free.
+            if state.queue_depth > cfg.max_queue_depth:
+                metrics["rejections_total"].labels(reason="queue_full").inc()
+                metrics["requests_total"].labels(
+                    model=req.model, status="429"
+                ).inc()
+                return _err(429, "queue full, retry later", "queue_full")
+
+            # Acquire semaphore on the event loop (non-blocking wait), then
+            # dispatch the synchronous MLX work to a thread so the event
+            # loop stays alive for health/metrics endpoints while inference
+            # runs (~5-30 s on M3 Ultra).
+            t_inf_start = time.perf_counter()
+            try:
+                async with _inference_semaphore:
                     try:
-                        candidates.append(
-                            state.runtime.generate(
-                                prompt,
-                                max_tokens=max_toks,
-                                temperature=temp,
-                            )
+                        candidates = await asyncio.to_thread(
+                            _run_inference,
+                            state.runtime,
+                            adapters,
+                            prompt,
+                            max_toks,
+                            temp,
+                            state.cfg.negotiator_k,
                         )
                     except Exception as exc:  # noqa: BLE001
                         metrics["requests_total"].labels(
                             model=req.model, status="500"
                         ).inc()
-                        log.error("inference attempt %d failed: %s", i, exc)
-                        return _err(
-                            500,
-                            f"inference failed: {exc}",
-                            "inference_error",
-                        )
+                        log.error("inference failed: %s", exc)
+                        return _err(500, f"inference failed: {exc}", "inference_error")
+            finally:
+                metrics["stage_latency"].labels(stage="inference").observe(
+                    time.perf_counter() - t_inf_start
+                )
 
             # Stage 5 — Negotiator arbitrates K candidates.
             # Skipped when cognitive layer is gated off.
