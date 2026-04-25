@@ -44,6 +44,17 @@ _THINK_PATTERN = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
 def _strip_think(text: str) -> str:
     return _THINK_PATTERN.sub("", text).lstrip()
 
+# Domains where the base model outperforms the V4 adapter on
+# general benchmarks (MBPP). The adapter overfits to narrow
+# task distributions (HumanEval-style) and degrades broader
+# capability. Skip adapter loading for these domains.
+# Based on MBPP N=100 eval 2026-04-25.
+BASE_ONLY_DOMAINS: frozenset[str] = frozenset({
+    "python",       # base 73% vs adapter 66% on MBPP (-7pp)
+    "typescript",   # base 68% vs adapter 58% on MBPP (-10pp)
+    "math",         # base 52% vs adapter 28% on MBPP (-24pp, TOXIC)
+})
+
 # Domains where cognitive augmentation (Aeon + Negotiator + AntiBias) improves quality.
 # Based on A/B eval 2026-04-25: conversational/design domains benefit,
 # purely technical domains (code gen, hardware config) are hurt by noisy recall.
@@ -1021,6 +1032,16 @@ def make_app(cfg: FullPipelineConfig) -> FastAPI:
                 recalled = []
 
             # Stage 3 — apply adapters on the MLX runtime.
+            # Filter out domains where MBPP benchmarks show the base model
+            # outperforms the adapter (regression >= 5pp). These domains
+            # run base-only to avoid quality degradation.
+            base_only_filtered = [a for a in adapters if a in BASE_ONLY_DOMAINS]
+            if base_only_filtered:
+                log.info(
+                    "base-only filter: skipping adapter(s) %s (base > adapter on MBPP)",
+                    base_only_filtered,
+                )
+            adapters = [a for a in adapters if a not in BASE_ONLY_DOMAINS]
             try:
                 state.runtime.apply(adapters)
             except Exception as exc:  # noqa: BLE001 — surface as 503
