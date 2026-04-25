@@ -1,0 +1,713 @@
+{
+  "meta": {
+    "timestamp": "2026-04-25T12:46:08.311855",
+    "base_model": "/Users/clems/KIKI-Mac_tunner/models/Qwen3.6-35B-A3B",
+    "adapters_root": "/Users/clems/KIKI-Mac_tunner/output/micro-kiki/lora-qwen36-35b-v4-sota",
+    "data_root": "/Users/clems/KIKI-Mac_tunner/data/micro-kiki",
+    "elapsed_s": 6335.8,
+    "domains_total": 35,
+    "domains_ok": 35,
+    "domains_improved": 35,
+    "domains_degraded": 0
+  },
+  "summary": {
+    "avg_base_ppl": 10.3104,
+    "avg_adapted_ppl": 3.0073,
+    "avg_delta": -7.303,
+    "best_improvement": {
+      "domain": "spice-sim",
+      "status": "ok",
+      "base_ppl": 63.543,
+      "adapted_ppl": 8.1141,
+      "delta": -55.4289,
+      "improved": true,
+      "n_examples": 180,
+      "timing": {
+        "base_s": 44.3,
+        "adapted_s": 60.7
+      }
+    },
+    "worst_regression": {
+      "domain": "stm32",
+      "status": "ok",
+      "base_ppl": 2.0681,
+      "adapted_ppl": 1.0305,
+      "delta": -1.0376,
+      "improved": true,
+      "n_examples": 38,
+      "timing": {
+        "base_s": 10.1,
+        "adapted_s": 16.2
+      }
+    }
+  },
+  "ranked_by_delta": [
+    {
+      "domain": "spice-sim",
+      "delta": -55.4289,
+      "base": 63.543,
+      "adapted": 8.1141
+    },
+    {
+      "domain": "components",
+      "delta": -53.8611,
+      "base": 62.4489,
+      "adapted": 8.5878
+    },
+    {
+      "domain": "llm-ops",
+      "delta": -21.8052,
+      "base": 25.9298,
+      "adapted": 4.1246
+    },
+    {
+      "domain": "ml-training",
+      "delta": -14.1484,
+      "base": 17.1819,
+      "adapted": 3.0335
+    },
+    {
+      "domain": "music-audio",
+      "delta": -7.4414,
+      "base": 10.8299,
+      "adapted": 3.3885
+    },
+    {
+      "domain": "power",
+      "delta": -7.1272,
+      "base": 10.9632,
+      "adapted": 3.836
+    },
+    {
+      "domain": "chat-fr",
+      "delta": -6.1866,
+      "base": 8.6185,
+      "adapted": 2.4319
+    },
+    {
+      "domain": "iot",
+      "delta": -4.9988,
+      "base": 7.7462,
+      "adapted": 2.7474
+    },
+    {
+      "domain": "sql",
+      "delta": -4.8152,
+      "base": 7.0427,
+      "adapted": 2.2275
+    },
+    {
+      "domain": "yaml-json",
+      "delta": -4.4277,
+      "base": 6.9709,
+      "adapted": 2.5432
+    },
+    {
+      "domain": "llm-orch",
+      "delta": -4.2699,
+      "base": 7.2006,
+      "adapted": 2.9307
+    },
+    {
+      "domain": "web-backend",
+      "delta": -4.1764,
+      "base": 6.644,
+      "adapted": 2.4676
+    },
+    {
+      "domain": "dsp",
+      "delta": -4.1648,
+      "base": 6.8444,
+      "adapted": 2.6796
+    },
+    {
+      "domain": "emc",
+      "delta": -4.055,
+      "base": 6.7231,
+      "adapted": 2.6681
+    },
+    {
+      "domain": "kicad-dsl",
+      "delta": -4.0132,
+      "base": 6.5486,
+      "adapted": 2.5354
+    },
+    {
+      "domain": "electronics",
+      "delta": -3.9563,
+      "base": 7.0133,
+      "adapted": 3.057
+    },
+    {
+      "domain": "embedded",
+      "delta": -3.785,
+      "base": 6.5801,
+      "adapted": 2.7951
+    },
+    {
+      "domain": "shell",
+      "delta": -3.5854,
+      "base": 6.5659,
+      "adapted": 2.9805
+    },
+    {
+      "domain": "platformio",
+      "delta": -3.3299,
+      "base": 6.7396,
+      "adapted": 3.4097
+    },
+    {
+      "domain": "typescript",
+      "delta": -3.2289,
+      "base": 5.8082,
+      "adapted": 2.5793
+    },
+    {
+      "domain": "kicad-pcb",
+      "delta": -2.9782,
+      "base": 6.1476,
+      "adapted": 3.1694
+    },
+    {
+      "domain": "spice",
+      "delta": -2.9502,
+      "base": 6.2409,
+      "adapted": 3.2907
+    },
+    {
+      "domain": "freecad",
+      "delta": -2.8866,
+      "base": 5.4599,
+      "adapted": 2.5733
+    },
+    {
+      "domain": "lua-upy",
+      "delta": -2.7908,
+      "base": 5.3796,
+      "adapted": 2.5888
+    },
+    {
+      "domain": "web-frontend",
+      "delta": -2.6486,
+      "base": 4.5754,
+      "adapted": 1.9268
+    },
+    {
+      "domain": "math",
+      "delta": -2.5833,
+      "base": 5.1675,
+      "adapted": 2.5842
+    },
+    {
+      "domain": "docker",
+      "delta": -2.5435,
+      "base": 5.2256,
+      "adapted": 2.6821
+    },
+    {
+      "domain": "python",
+      "delta": -2.5311,
+      "base": 4.5837,
+      "adapted": 2.0526
+    },
+    {
+      "domain": "rust",
+      "delta": -2.5104,
+      "base": 5.4224,
+      "adapted": 2.912
+    },
+    {
+      "domain": "html-css",
+      "delta": -2.4581,
+      "base": 4.1806,
+      "adapted": 1.7225
+    },
+    {
+      "domain": "security",
+      "delta": -2.3854,
+      "base": 5.2405,
+      "adapted": 2.8551
+    },
+    {
+      "domain": "cpp",
+      "delta": -2.3284,
+      "base": 4.2471,
+      "adapted": 1.9187
+    },
+    {
+      "domain": "devops",
+      "delta": -2.1829,
+      "base": 4.6799,
+      "adapted": 2.497
+    },
+    {
+      "domain": "reasoning",
+      "delta": -1.9862,
+      "base": 4.3008,
+      "adapted": 2.3146
+    },
+    {
+      "domain": "stm32",
+      "delta": -1.0376,
+      "base": 2.0681,
+      "adapted": 1.0305
+    }
+  ],
+  "domains": {
+    "chat-fr": {
+      "domain": "chat-fr",
+      "status": "ok",
+      "base_ppl": 8.6185,
+      "adapted_ppl": 2.4319,
+      "delta": -6.1866,
+      "improved": true,
+      "n_examples": 293,
+      "timing": {
+        "base_s": 43.4,
+        "adapted_s": 68.1
+      }
+    },
+    "reasoning": {
+      "domain": "reasoning",
+      "status": "ok",
+      "base_ppl": 4.3008,
+      "adapted_ppl": 2.3146,
+      "delta": -1.9862,
+      "improved": true,
+      "n_examples": 263,
+      "timing": {
+        "base_s": 68.4,
+        "adapted_s": 92.2
+      }
+    },
+    "python": {
+      "domain": "python",
+      "status": "ok",
+      "base_ppl": 4.5837,
+      "adapted_ppl": 2.0526,
+      "delta": -2.5311,
+      "improved": true,
+      "n_examples": 296,
+      "timing": {
+        "base_s": 49.5,
+        "adapted_s": 76.9
+      }
+    },
+    "kicad-dsl": {
+      "domain": "kicad-dsl",
+      "status": "ok",
+      "base_ppl": 6.5486,
+      "adapted_ppl": 2.5354,
+      "delta": -4.0132,
+      "improved": true,
+      "n_examples": 218,
+      "timing": {
+        "base_s": 52.2,
+        "adapted_s": 71.7
+      }
+    },
+    "kicad-pcb": {
+      "domain": "kicad-pcb",
+      "status": "ok",
+      "base_ppl": 6.1476,
+      "adapted_ppl": 3.1694,
+      "delta": -2.9782,
+      "improved": true,
+      "n_examples": 75,
+      "timing": {
+        "base_s": 14.9,
+        "adapted_s": 24.0
+      }
+    },
+    "spice": {
+      "domain": "spice",
+      "status": "ok",
+      "base_ppl": 6.2409,
+      "adapted_ppl": 3.2907,
+      "delta": -2.9502,
+      "improved": true,
+      "n_examples": 47,
+      "timing": {
+        "base_s": 11.9,
+        "adapted_s": 18.9
+      }
+    },
+    "spice-sim": {
+      "domain": "spice-sim",
+      "status": "ok",
+      "base_ppl": 63.543,
+      "adapted_ppl": 8.1141,
+      "delta": -55.4289,
+      "improved": true,
+      "n_examples": 180,
+      "timing": {
+        "base_s": 44.3,
+        "adapted_s": 60.7
+      }
+    },
+    "emc": {
+      "domain": "emc",
+      "status": "ok",
+      "base_ppl": 6.7231,
+      "adapted_ppl": 2.6681,
+      "delta": -4.055,
+      "improved": true,
+      "n_examples": 181,
+      "timing": {
+        "base_s": 27.0,
+        "adapted_s": 43.7
+      }
+    },
+    "stm32": {
+      "domain": "stm32",
+      "status": "ok",
+      "base_ppl": 2.0681,
+      "adapted_ppl": 1.0305,
+      "delta": -1.0376,
+      "improved": true,
+      "n_examples": 38,
+      "timing": {
+        "base_s": 10.1,
+        "adapted_s": 16.2
+      }
+    },
+    "embedded": {
+      "domain": "embedded",
+      "status": "ok",
+      "base_ppl": 6.5801,
+      "adapted_ppl": 2.7951,
+      "delta": -3.785,
+      "improved": true,
+      "n_examples": 166,
+      "timing": {
+        "base_s": 25.3,
+        "adapted_s": 40.8
+      }
+    },
+    "freecad": {
+      "domain": "freecad",
+      "status": "ok",
+      "base_ppl": 5.4599,
+      "adapted_ppl": 2.5733,
+      "delta": -2.8866,
+      "improved": true,
+      "n_examples": 23,
+      "timing": {
+        "base_s": 4.4,
+        "adapted_s": 9.3
+      }
+    },
+    "platformio": {
+      "domain": "platformio",
+      "status": "ok",
+      "base_ppl": 6.7396,
+      "adapted_ppl": 3.4097,
+      "delta": -3.3299,
+      "improved": true,
+      "n_examples": 23,
+      "timing": {
+        "base_s": 4.6,
+        "adapted_s": 9.4
+      }
+    },
+    "power": {
+      "domain": "power",
+      "status": "ok",
+      "base_ppl": 10.9632,
+      "adapted_ppl": 3.836,
+      "delta": -7.1272,
+      "improved": true,
+      "n_examples": 131,
+      "timing": {
+        "base_s": 26.2,
+        "adapted_s": 39.8
+      }
+    },
+    "dsp": {
+      "domain": "dsp",
+      "status": "ok",
+      "base_ppl": 6.8444,
+      "adapted_ppl": 2.6796,
+      "delta": -4.1648,
+      "improved": true,
+      "n_examples": 100,
+      "timing": {
+        "base_s": 19.0,
+        "adapted_s": 30.2
+      }
+    },
+    "electronics": {
+      "domain": "electronics",
+      "status": "ok",
+      "base_ppl": 7.0133,
+      "adapted_ppl": 3.057,
+      "delta": -3.9563,
+      "improved": true,
+      "n_examples": 203,
+      "timing": {
+        "base_s": 43.0,
+        "adapted_s": 55.7
+      }
+    },
+    "iot": {
+      "domain": "iot",
+      "status": "ok",
+      "base_ppl": 7.7462,
+      "adapted_ppl": 2.7474,
+      "delta": -4.9988,
+      "improved": true,
+      "n_examples": 294,
+      "timing": {
+        "base_s": 44.8,
+        "adapted_s": 69.3
+      }
+    },
+    "components": {
+      "domain": "components",
+      "status": "ok",
+      "base_ppl": 62.4489,
+      "adapted_ppl": 8.5878,
+      "delta": -53.8611,
+      "improved": true,
+      "n_examples": 5799,
+      "timing": {
+        "base_s": 1452.4,
+        "adapted_s": 1725.4
+      }
+    },
+    "cpp": {
+      "domain": "cpp",
+      "status": "ok",
+      "base_ppl": 4.2471,
+      "adapted_ppl": 1.9187,
+      "delta": -2.3284,
+      "improved": true,
+      "n_examples": 296,
+      "timing": {
+        "base_s": 76.1,
+        "adapted_s": 102.6
+      }
+    },
+    "rust": {
+      "domain": "rust",
+      "status": "ok",
+      "base_ppl": 5.4224,
+      "adapted_ppl": 2.912,
+      "delta": -2.5104,
+      "improved": true,
+      "n_examples": 253,
+      "timing": {
+        "base_s": 50.8,
+        "adapted_s": 72.4
+      }
+    },
+    "typescript": {
+      "domain": "typescript",
+      "status": "ok",
+      "base_ppl": 5.8082,
+      "adapted_ppl": 2.5793,
+      "delta": -3.2289,
+      "improved": true,
+      "n_examples": 184,
+      "timing": {
+        "base_s": 28.7,
+        "adapted_s": 46.1
+      }
+    },
+    "html-css": {
+      "domain": "html-css",
+      "status": "ok",
+      "base_ppl": 4.1806,
+      "adapted_ppl": 1.7225,
+      "delta": -2.4581,
+      "improved": true,
+      "n_examples": 290,
+      "timing": {
+        "base_s": 61.7,
+        "adapted_s": 86.8
+      }
+    },
+    "shell": {
+      "domain": "shell",
+      "status": "ok",
+      "base_ppl": 6.5659,
+      "adapted_ppl": 2.9805,
+      "delta": -3.5854,
+      "improved": true,
+      "n_examples": 276,
+      "timing": {
+        "base_s": 55.6,
+        "adapted_s": 80.4
+      }
+    },
+    "sql": {
+      "domain": "sql",
+      "status": "ok",
+      "base_ppl": 7.0427,
+      "adapted_ppl": 2.2275,
+      "delta": -4.8152,
+      "improved": true,
+      "n_examples": 274,
+      "timing": {
+        "base_s": 52.1,
+        "adapted_s": 77.0
+      }
+    },
+    "yaml-json": {
+      "domain": "yaml-json",
+      "status": "ok",
+      "base_ppl": 6.9709,
+      "adapted_ppl": 2.5432,
+      "delta": -4.4277,
+      "improved": true,
+      "n_examples": 143,
+      "timing": {
+        "base_s": 34.1,
+        "adapted_s": 48.5
+      }
+    },
+    "lua-upy": {
+      "domain": "lua-upy",
+      "status": "ok",
+      "base_ppl": 5.3796,
+      "adapted_ppl": 2.5888,
+      "delta": -2.7908,
+      "improved": true,
+      "n_examples": 220,
+      "timing": {
+        "base_s": 44.8,
+        "adapted_s": 63.7
+      }
+    },
+    "web-frontend": {
+      "domain": "web-frontend",
+      "status": "ok",
+      "base_ppl": 4.5754,
+      "adapted_ppl": 1.9268,
+      "delta": -2.6486,
+      "improved": true,
+      "n_examples": 110,
+      "timing": {
+        "base_s": 25.9,
+        "adapted_s": 37.5
+      }
+    },
+    "web-backend": {
+      "domain": "web-backend",
+      "status": "ok",
+      "base_ppl": 6.644,
+      "adapted_ppl": 2.4676,
+      "delta": -4.1764,
+      "improved": true,
+      "n_examples": 163,
+      "timing": {
+        "base_s": 24.0,
+        "adapted_s": 39.2
+      }
+    },
+    "docker": {
+      "domain": "docker",
+      "status": "ok",
+      "base_ppl": 5.2256,
+      "adapted_ppl": 2.6821,
+      "delta": -2.5435,
+      "improved": true,
+      "n_examples": 241,
+      "timing": {
+        "base_s": 49.3,
+        "adapted_s": 70.4
+      }
+    },
+    "devops": {
+      "domain": "devops",
+      "status": "ok",
+      "base_ppl": 4.6799,
+      "adapted_ppl": 2.497,
+      "delta": -2.1829,
+      "improved": true,
+      "n_examples": 293,
+      "timing": {
+        "base_s": 79.3,
+        "adapted_s": 104.6
+      }
+    },
+    "llm-ops": {
+      "domain": "llm-ops",
+      "status": "ok",
+      "base_ppl": 25.9298,
+      "adapted_ppl": 4.1246,
+      "delta": -21.8052,
+      "improved": true,
+      "n_examples": 172,
+      "timing": {
+        "base_s": 39.8,
+        "adapted_s": 51.2
+      }
+    },
+    "llm-orch": {
+      "domain": "llm-orch",
+      "status": "ok",
+      "base_ppl": 7.2006,
+      "adapted_ppl": 2.9307,
+      "delta": -4.2699,
+      "improved": true,
+      "n_examples": 164,
+      "timing": {
+        "base_s": 27.1,
+        "adapted_s": 42.7
+      }
+    },
+    "ml-training": {
+      "domain": "ml-training",
+      "status": "ok",
+      "base_ppl": 17.1819,
+      "adapted_ppl": 3.0335,
+      "delta": -14.1484,
+      "improved": true,
+      "n_examples": 209,
+      "timing": {
+        "base_s": 52.0,
+        "adapted_s": 71.2
+      }
+    },
+    "math": {
+      "domain": "math",
+      "status": "ok",
+      "base_ppl": 5.1675,
+      "adapted_ppl": 2.5842,
+      "delta": -2.5833,
+      "improved": true,
+      "n_examples": 260,
+      "timing": {
+        "base_s": 64.9,
+        "adapted_s": 88.0
+      }
+    },
+    "security": {
+      "domain": "security",
+      "status": "ok",
+      "base_ppl": 5.2405,
+      "adapted_ppl": 2.8551,
+      "delta": -2.3854,
+      "improved": true,
+      "n_examples": 297,
+      "timing": {
+        "base_s": 79.9,
+        "adapted_s": 96.1
+      }
+    },
+    "music-audio": {
+      "domain": "music-audio",
+      "status": "ok",
+      "base_ppl": 10.8299,
+      "adapted_ppl": 3.3885,
+      "delta": -7.4414,
+      "improved": true,
+      "n_examples": 57,
+      "timing": {
+        "base_s": 10.3,
+        "adapted_s": 17.9
+      }
+    }
+  }
+}
