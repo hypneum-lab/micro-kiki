@@ -156,7 +156,7 @@ def direct_inference(
     client: httpx.Client,
     base_url: str,
     prompt: str,
-    model: str = "kiki",
+    model: str = "kiki-meta-coding",
 ) -> InferenceResult:
     """Single-pass inference via /v1/chat/completions."""
     t0 = time.perf_counter()
@@ -195,7 +195,7 @@ def direct_inference(
 def rlm_recursive_inference(
     base_url: str,
     prompt: str,
-    model_name: str = "kiki",
+    model_name: str = "kiki-meta-coding",
 ) -> InferenceResult:
     """RLM recursive decomposition via the rlm library."""
     t0 = time.perf_counter()
@@ -273,7 +273,12 @@ def run_comparison(base_url: str) -> list[dict[str, Any]]:
                 detected_domains = []
                 route = None
 
-            is_multi_domain = len(detected_domains) >= 2
+            # Use expected_domains as ground truth for multi-domain detection.
+            # The MiniLM router is single-label (CrossEntropy) and rarely
+            # returns 2+ domains.  The RLM's value is precisely that it can
+            # decompose WITHOUT relying on the router's multi-label signal.
+            expected_count = len([d for d in expected.split(",") if d.strip()])
+            is_multi_domain = expected_count >= 2
 
             # Step 2a: Direct inference (current behavior)
             try:
