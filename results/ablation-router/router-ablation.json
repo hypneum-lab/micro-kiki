@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-04-24T23:30:54",
+  "n_examples": 14423,
+  "n_domains": 35,
+  "strategies": {
+    "keyword": {
+      "top1": 0.1317,
+      "top3": 0.136,
+      "coverage": 0.2675,
+      "n": 14423
+    },
+    "minilm": {
+      "top1": 0.2942,
+      "top3": 0.3012,
+      "coverage": 0.4973,
+      "n": 14423
+    },
+    "random": {
+      "top1": 0.0276,
+      "top3": 0.0276,
+      "coverage": 1.0,
+      "n": 14423
+    }
+  }
+}
