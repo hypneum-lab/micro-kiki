@@ -37,12 +37,31 @@ _VALID_DOMAINS: frozenset[str] = NICHE_DOMAINS
 
 _DECOMPOSE_SYSTEM = (
     "You are a query decomposer. Given a user query, identify the technical "
-    "domains it spans and split it into domain-specific sub-queries. "
-    "Output ONLY valid JSON.\n\n"
+    "domains it spans and split it into domain-specific sub-queries.\n\n"
+    "IMPORTANT: Your ENTIRE response must be a single JSON object. "
+    "No markdown, no explanation, no code fences. Just the JSON.\n\n"
     "Available domains: " + ", ".join(sorted(_VALID_DOMAINS)) + "\n\n"
     "If the query is simple (single domain), return a single entry. "
     "If complex, decompose into 2-4 sub-queries.\n\n"
-    'Output format: {"sub_queries": [{"domain": "...", "query": "..."}]}'
+    'Output format: {"sub_queries": [{"domain": "...", "query": "..."}]}\n\n'
+    "Examples:\n\n"
+    'User: "Design a battery-powered STM32 system with CAN bus, EMC compliance, '
+    'and a custom KiCad PCB layout"\n'
+    'Output: {"sub_queries": [\n'
+    '  {"domain": "stm32", "query": "Design an STM32 microcontroller system with CAN bus peripheral configuration"},\n'
+    '  {"domain": "power", "query": "Design a battery power supply circuit for an embedded system"},\n'
+    '  {"domain": "emc", "query": "EMC compliance strategy for a mixed-signal PCB with CAN bus"},\n'
+    '  {"domain": "kicad-pcb", "query": "KiCad PCB layout for a 4-layer STM32 board with CAN and power section"}\n'
+    "]}\n\n"
+    'User: "Write a Python script that reads I2C sensor data on ESP32 via PlatformIO"\n'
+    'Output: {"sub_queries": [\n'
+    '  {"domain": "python", "query": "Write a Python script to read I2C sensor data and process the values"},\n'
+    '  {"domain": "platformio", "query": "Configure a PlatformIO project for ESP32 with I2C library dependencies"}\n'
+    "]}\n\n"
+    'User: "Explain the Rust borrow checker"\n'
+    'Output: {"sub_queries": [\n'
+    '  {"domain": "rust", "query": "Explain the Rust borrow checker with ownership and lifetime examples"}\n'
+    "]}"
 )
 
 # ---------------------------------------------------------------------------
