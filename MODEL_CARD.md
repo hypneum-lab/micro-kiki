@@ -15,7 +15,7 @@ pipeline_tag: text-generation
 
 # micro-kiki
 
-**34-domain expert model** built on Qwen3.6-35B-A3B (MoE, 256 experts, 3B active/token) with LoRA adapters and a cognitive layer (memory palace + negotiator + anti-bias).
+**35 v4 domain-expert LoRA stacks + 6 v2 retrains = 41 adapter artefacts** on Qwen3.6-35B-A3B (MoE, 256 experts, 3B active/token) with a cognitive layer (memory palace + negotiator + anti-bias).
 
 ## Model Description
 
@@ -25,8 +25,8 @@ micro-kiki is a multi-domain language model designed for technical applications 
 |----------|-------|
 | Base model | Qwen3.6-35B-A3B |
 | Architecture | MoE (256 experts, 3B active/token) |
-| Adapter | LoRA r=16, alpha=16 (1:1 ratio per arXiv 2602.04998), 32/40 layers, 17 module kinds/layer. 1.03B trainable (2.96% of 35B). |
-| Domains | 34 |
+| Adapter | LoRA alpha=2×rank (stack-NN configs: uniform r=16; mlx-per-domain configs: tiered r∈{4,8,12,16,32} per domain), 32/40 layers, 17 module kinds/layer. 1.03B trainable (2.96% of 35B). |
+| Adapters | 35 v4 stacks + 6 v2 retrains = 41 adapter artefacts |
 | Max active stacks | 4 |
 | Context length | 262,144 tokens |
 | Quantization | Q4_K_M (inference), BF16 (training) |
@@ -153,7 +153,7 @@ Canonical doc: `docs/training/forgetting-gate.md`. Operator runbook for the dual
 | Property | Value |
 |----------|-------|
 | Base model | Qwen3.6-35B-A3B (67 GB BF16; pivot from pre-v3 Qwen3.5-4B + MoE-LoRA) |
-| Adapter | Standard LoRA, r=16, alpha=16 (1:1 ratio per arXiv 2602.04998), 32/40 layers, 17 module kinds/layer |
+| Adapter | Standard LoRA, alpha=2×rank (stack-NN: r=16; mlx-per-domain: r∈{4,8,12,16,32}), 32/40 layers, 17 module kinds/layer |
 | Trainable params | 1.03B (2.96% of 35B) |
 | Learning rate | 1e-5 (MLX quantized/BF16). LR optimal ∝ r^(-1/2) per arXiv 2602.06204. |
 | Iters | 1000 foundations (chat-fr, reasoning, python), 500 coding, 100-200 niches |
@@ -192,12 +192,12 @@ Benchmark on 10 domains: adapter wins 5/10, base wins 0/10, ties 5/10. Average P
 | Metric | Value |
 |--------|-------|
 | Router accuracy (35-class) | [PENDING] |
-| Forgetting check — per-module angle, post-pivot (chat-fr ↔ reasoning, `results/smoke-gate.json`) | mean 79.4°, winrate_drop −0.04, gate PASS |
-| Forgetting sweep — post-pivot (`results/forgetting-matrix.json`) | 5 adapters × 20 pairs, all above 30° |
+| Forgetting check — single pair (chat-fr ↔ reasoning, `results/smoke-gate.json`) | mean 79.4°, winrate_drop −0.04; n_prompts=5; angle-only partial gate PASS. Not a fleet-wide result. |
+| Forgetting sweep — 5 foundational/coding adapters (`results/forgetting-matrix.json`) | 5 adapters × 20 pairs; worst-pair mean 66.56° (typescript↔python); all pair-means >30°. Per-module `mlp.shared_expert_gate` reaches 17.27° (below gate) — excluded from rollback decision by design; see `src/eval/forgetting.py` `DEFAULT_PER_MODULE_IGNORE`. Win-rate side unverified (angle-only). Not a fleet-wide no-forgetting claim. |
 | Forgetting sweep — pre-pivot MoE-LoRA (`results/forgetting-matrix-prepivot.json`) | 35 adapters, all 0° (degenerate — `lora_B = 0`) |
 | Adapter health sweep (`results/adapter-health-sweep.json`) | 35/35 post-pivot healthy · 35/35 pre-pivot degenerate |
-| Perplexity (base) | [PENDING] |
-| Perplexity (debiased) | [PENDING] |
+| Perplexity — 6 tabled domains (mean ΔPPL) | −3.44 (chat-fr −6.19, reasoning −1.99, python −2.53, kicad-dsl −4.01, kicad-pcb −2.98, spice −2.95); single-seed, no CI (see `results/v4-ppl-35domains/ppl-all-domains.json` meta) |
+| Perplexity — all 35 domains (mean ΔPPL) | −7.30; single-seed, no CI; see `results/v4-ppl-35domains/ppl-all-domains.json` |
 | Aeon recall@1 | [PENDING] |
 | Aeon recall@5 | [PENDING] |
 | Aeon recall@10 | [PENDING] |

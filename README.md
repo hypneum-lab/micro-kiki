@@ -1,6 +1,6 @@
 # micro-kiki
 
-**35 domain-expert LoRA adapters + cognitive layer on Qwen3.6-35B-A3B (native MoE, 256 experts, 3B active).**
+**35 v4 domain-expert LoRA stacks + 6 v2 retrains = 41 adapter artefacts, cognitive layer on Qwen3.6-35B-A3B (native MoE, 256 experts, 3B active).**
 
 Deployable artefact of the *dreamOfkiki* research program, part of
 [Hypneum Lab](https://github.com/hypneum-lab). Author: Clément Saillant
@@ -78,7 +78,7 @@ The full pipeline is served by `full_pipeline_server.py` (FastAPI, OpenAI-compat
 - **Base** — `Qwen/Qwen3.6-35B-A3B` (Apache 2.0, 262 K context). (Earlier drafts referenced Qwen3.5; superseded 2026-04-18 per real `adapter_config.json`.)
 - **Teacher** — `Qwen3-Coder-480B-A35B` MLX 4-bit (1.1 TB local Mac Studio).
 - **Adapter surface** — standard LoRA via `mlx_lm lora` on **17 module kinds** per layer: `linear_attn.{in_proj_a,in_proj_b,in_proj_qkv,in_proj_z,out_proj}` (GLA hybrid), `self_attn.{q,k,v,o}_proj`, `mlp.gate` + `mlp.shared_expert_gate` (MoE routers), `mlp.shared_expert.{down,gate,up}_proj`, `mlp.switch_mlp.{down,gate,up}_proj`. (Prior "attention-only, never MoE FFN" rule superseded 2026-04-18 — empirical forgetting test chat-fr↔reasoning mean 79.4° with all modules above 30°.)
-- **Rank** — r=16 for all domains, alpha=16 (1:1 ratio per arXiv 2602.04998 "vanilla LoRA r=16 suffices when LR is tuned"; LR optimal ∝ r^(-1/2) per arXiv 2602.06204). 1.03B trainable params (2.96% of 35B).
+- **Rank / alpha** — `alpha = 2 × rank` everywhere (`validate_rank_schema.py` enforces this). Rank is tiered: `stack-NN-*.yaml` use uniform r=16; `mlx-per-domain/*.yaml` use r∈{4,8,12,16,32} per domain (niches→foundations). LR optimal ∝ r^(-1/2) per arXiv 2602.06204. ~1.03B trainable params (2.96% of 35B).
 - **Layers** — 32/40 optimal. 8 layers undertrained; 40 layers overfits (V3 chat-fr 1.304).
 - **Learning rate** — 1e-5 (MLX quantized/BF16). Iters: 1000 foundations, 500 coding, 100-200 niches.
 - **Metal optimization** — `mx.set_memory_limit(460GB)` + `mx.set_cache_limit(32GB)` required to prevent GPU Hang on M3 Ultra. Peak mem ~107 GB.
@@ -134,7 +134,7 @@ Loads trained adapters, initializes Aeon, routes 50 test prompts, logs routing d
 
 ```bash
 python scripts/validate_domains.py            # domain list consistency across config mirrors
-python scripts/validate_rank_schema.py        # rank = 16 · alpha = 16 (1:1 ratio)
+python scripts/validate_rank_schema.py        # rank in {4,8,12,16,32} · alpha = 2×rank
 python scripts/validate_curriculum_order.py   # foundations before niches
 python scripts/validate_no_pre_pivot.py       # no Qwen3.5-4B leaks in src/
 python scripts/validate_adapter_health.py <adapter.safetensors>  # all lora_B non-zero
@@ -293,14 +293,23 @@ Key changes in V4:
 
 ### Forgetting check (cross-stack interference)
 
-Cross-stack angle mean 79.4°, all stacks above 30° threshold. No catastrophic forgetting detected across any of the 35 trained adapters.
+Measured on the 5 foundational/coding adapters (20 ordered pairs, `results/forgetting-matrix.json`):
+worst-pair mean 66.56° (typescript↔python); all pair-means >30° gate. Per-module
+`mlp.shared_expert_gate` reaches 17.27° on the typescript↔python pair — below the 30° gate, but
+excluded from rollback decisions by `DEFAULT_PER_MODULE_IGNORE` (MoE routing layer requires separate
+treatment). Win-rate side unverified (angle-only, gate_status=`angle_only_partial`).
 
-| Domain | Angle (deg) | Pass |
+Single-pair smoke check (`results/smoke-gate.json`): chat-fr ↔ reasoning, mean 79.4°,
+winrate_drop −0.04, n_prompts=5.
+
+**This is not a fleet-wide no-forgetting claim** — only 5 of 41 adapter artefacts have been
+pairwise checked. Additional sweeps pending.
+
+| Domain pair | Mean angle (deg) | Worst module (deg) |
 |---|---|---|
-| spice | 82.1 | 1.0 |
-| stm32 | 79.4 | 0.78 |
-| electronics | 76.3 | 0.69 |
-| dsp | 74.8 | 0.69 |
+| typescript ↔ python | 66.56 | mlp.shared_expert_gate 17.27 |
+| cpp ↔ typescript | 69.95 | mlp.shared_expert_gate 32.68 |
+| chat-fr ↔ reasoning | 79.37 | mlp.shared_expert_gate 44.20 |
 
 ### Stacks vs base
 
