@@ -20,8 +20,8 @@ Authoritative source for every number the training and runtime pipelines consume
 
 Every `stack-NN-*.yaml` / `mlx-per-domain/*.yaml` MUST satisfy:
 
-- `target_modules` ⊆ `{q_proj, k_proj, v_proj, o_proj}`. Never FFN / experts / router.
-- `rank`: 4–16 niches, 32 foundations. `alpha = 2 * rank`. `scale = 2.0`.
+- `target_modules`: post-pivot doctrine is **all 17 module kinds** (attention `q/k/v/o` + `switch_mlp` + `shared_expert` MoE) per root CLAUDE.md §Hard invariants. ⚠️ On-disk `mlx-per-domain/*.yaml` still encode `q/k/v/o` only (pre-pivot, pending migration — see `mlx-per-domain/CLAUDE.md` drift warning).
+- `rank`: tiered in `mlx-per-domain/*.yaml` (4–16 niches, 32 foundations); uniform r=16 in `stack-NN-*.yaml`. `alpha = 2 * rank`. `scale = 2.0`.
 - `dropout`: 0.01 (don't tune without a specs/ entry justifying it).
 - Quantization: BF16 for training, Q4_K_M for inference recipes. Never below Q4.
 - `max_seq_length`: 2048 niches, 4096 foundations.
@@ -41,7 +41,7 @@ Every `stack-NN-*.yaml` / `mlx-per-domain/*.yaml` MUST satisfy:
 
 ## Anti-patterns (configs-specific)
 
-- Don't add a LoRA target outside `q_proj/k_proj/v_proj/o_proj` "just to test" — it breaks the adapter contract across every stack.
+- Don't change a stack's LoRA target surface ad hoc — the 17-module set is the post-pivot contract; migrating a pre-pivot `q/k/v/o` file is a coupled bump, not a casual edit.
 - Don't bump `rank` past 32 — memory budget on Studio is computed for this ceiling.
 - Don't introduce softmax into the router recipe — 35 sigmoid outputs is load-bearing.
 - Don't edit `mlx-per-domain/*.yaml` paths to point outside `~/KIKI-Mac_tunner/data/micro-kiki/` — dataset ingestion assumes that root.

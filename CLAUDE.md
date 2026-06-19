@@ -22,7 +22,7 @@ Artifacts (`checkpoints/`, `output/`, `outputs/`, `results/`, `models/`, `data/`
 
 - **Base**: `Qwen/Qwen3.6-35B-A3B` (Apache 2.0, 262K ctx, 256 MoE experts, 3B active). **Teacher**: `Qwen3-Coder-480B-A35B` MLX 4bit (local Mac Studio, 1.1 TB).
 - **Adapter surface**: standard LoRA via `mlx_lm lora` on **all 17 module kinds** per layer — `linear_attn.{in_proj_a,in_proj_b,in_proj_qkv,in_proj_z,out_proj}` (GLA hybrid), `self_attn.{q,k,v,o}_proj`, `mlp.gate` + `mlp.shared_expert_gate` (MoE routers), `mlp.shared_expert.{down,gate,up}_proj`, `mlp.switch_mlp.{down,gate,up}_proj`. (Superseded 2026-04-18: prior rule "attention-only, never MoE FFN" contradicted real `adapter_config.json`; empirical forgetting test chat-fr↔reasoning mean 79.4°, all modules >30°, no catastrophic interference.)
-- **Rank**: r=16 for all domains, alpha=16 (1:1 ratio per arXiv 2602.04998 "vanilla LoRA r=16 suffices when LR is tuned"; LR optimal ∝ r^(-1/2) per arXiv 2602.06204). Previous tiered ranks {4,8,12,16,32} superseded. 1.03B trainable params (2.96% of 35B).
+- **Rank / alpha**: `alpha = 2 × rank` (every stack YAML and trainer default — the 1:1 ratio is NOT implemented anywhere). **Rank is split by config tier**: `stack-NN-*.yaml` use uniform r=16; `mlx-per-domain/*.yaml` use tiered {4,8,12,16,32} (niches→foundations) and win at training time. LR optimal ∝ r^(-1/2) per arXiv 2602.06204. ~1.03B trainable params (2.96% of 35B).
 - **Layers**: 32/40 (optimal — not 8, not 40). 8 layers undertrained; 40 layers overfits (V3 chat-fr 1.304).
 - **Learning rate**: 1e-5 (MLX quantized/BF16).
 - **Iters**: 1000 for foundations (chat-fr, reasoning, python), 500 for coding, 100-200 for niches.
@@ -60,7 +60,7 @@ Three distinct serving paths, picked by use case:
 - Don't skip the forgetting check, even for "small" stacks.
 - Don't train router and stacks simultaneously.
 - Don't use DoRA on Qwen3.6 MoE — SwitchLinear incompatible.
-- Don't use alpha = 2*rank (old convention) — use alpha = rank (1:1 ratio per arXiv 2602.04998).
+- Don't write alpha = rank (1:1) — every config and trainer default is alpha = 2*rank; the 1:1 ratio (arXiv 2602.04998) was proposed but never adopted.
 
 ## Agent workflow
 
