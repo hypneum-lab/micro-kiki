@@ -43,11 +43,12 @@ A YAML edit without steps 3–5 silently invalidates every prior R1 claim for th
 
 ## Pre-pivot drift warning
 
-Files here still encode `target_modules = q,k,v,o_proj` and `alpha = 2*rank`. Root
-CLAUDE.md (2026-04-18) supersedes that to **all 17 module kinds** and **alpha = rank
-(1:1)**. Keep both branches in mind: when re-training under the post-pivot rule, write
-the new keys + `alpha = rank` directly, do not hand-edit silently — bump the file under
-the coupled-bump rule above and note the pivot in the commit.
+Files here still encode `target_modules = q,k,v,o_proj` — pre-pivot. Root CLAUDE.md
+(2026-04-18) supersedes the **module surface** to **all 17 module kinds**; when
+re-training under the post-pivot rule, write the new keys directly, do not hand-edit
+silently — bump the file under the coupled-bump rule above and note the pivot in the
+commit. (`alpha = 2*rank` is unchanged across the pivot and stays correct — the earlier
+"alpha = rank (1:1)" note was a doc error, reverted.)
 
 ## Anti-patterns
 

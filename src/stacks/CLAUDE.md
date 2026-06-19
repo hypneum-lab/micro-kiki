@@ -11,7 +11,7 @@ Per-domain LoRA adapters that plug on top of Qwen3.5-35B-A3B at serving time.
 
 ## Adapter discipline
 
-- Target modules = `q_proj, k_proj, v_proj, o_proj` only. Never FFN, never experts, never router.
+- Trained adapter surface = **all 17 module kinds** (attention `q/k/v/o` + `switch_mlp` + `shared_expert` MoE), per the 2026-04-18 pivot (root CLAUDE.md §Hard invariants). ⚠️ The legacy `moe_lora_runtime.py` loader still filters to `q/k/v/o` only — pre-pivot, not yet migrated.
 - One stack = one domain = one `adapters.safetensors` artifact. No merged-into-base checkpoints.
 - Adapters are swappable at runtime; keep them small and independent.
 

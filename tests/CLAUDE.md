@@ -7,7 +7,7 @@
 - **Router math**: thresholds, top-k truncation, sigmoid-not-softmax, dispatcher YAML → meta-intent mapping.
 - **Forgetting gate**: angle math, rollback decision, baseline capture.
 - **Dataset hygiene**: dedup correctness, loader determinism, domain-classifier outputs.
-- **Config validation**: every stack YAML parses + targets only attention projections.
+- **Config validation**: every stack YAML parses. (Module surface is checked by the 17-module forgetting gate in `tests/test_per_module_gate.py`, not an attention-only assertion.)
 - **Bias pipeline**: KnowBias pre/post deltas, RBD detector trigger cases.
 - **Serving glue**: MLX server, vLLM server, `switchable.py`, aeon hook.
 - **Cognitive layer**: negotiator (CAMP + Catfish), consolidation, sleep tagger.
