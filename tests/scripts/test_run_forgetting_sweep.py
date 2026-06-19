@@ -99,6 +99,7 @@ def test_three_adapter_matrix_shape(tmp_path: Path) -> None:
 
     flags = payload["flags"]
     assert flags["any_pair_below_30"] is False
+    assert flags["any_module_below_30"] is False
     assert flags["min_mean_angle"] > 30.0
     assert flags["angle_threshold_degrees"] == 30.0
     assert flags["worst_pair"] is not None

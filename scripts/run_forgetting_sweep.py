@@ -34,7 +34,12 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from src.eval.forgetting import ANGLE_THRESHOLD, measure_forgetting_signal  # noqa: E402
+from src.eval.forgetting import (  # noqa: E402
+    ANGLE_THRESHOLD,
+    DEFAULT_PER_MODULE_IGNORE,
+    apply_per_module_gate,
+    measure_forgetting_signal,
+)
 
 logger = logging.getLogger("forgetting_sweep")
 
@@ -80,11 +85,21 @@ def _discover_adapters(root: Path, filename: str) -> list[tuple[str, Path]]:
 def _sweep(
     adapters: list[tuple[str, Path]],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Run pairwise sweeps; return ``(pairs, flags)``."""
+    """Run pairwise sweeps; return ``(pairs, flags)``.
+
+    Flags two independent conditions:
+
+    * ``any_pair_below_30``: any *pair-mean* angle below ``ANGLE_THRESHOLD``.
+    * ``any_module_below_30``: any *per-module* angle (excluding
+      ``DEFAULT_PER_MODULE_IGNORE``) below ``ANGLE_THRESHOLD``.  Previously
+      only pair-mean was checked, which silently hid sub-threshold modules
+      such as ``mlp.shared_expert_gate`` (17.27° in the committed matrix).
+    """
     pairs: list[dict[str, Any]] = []
     min_mean = float("inf")
     worst: tuple[str, str] | None = None
     any_below = False
+    any_module_below = False
 
     for prior_name, prior_path in adapters:
         for new_name, new_path in adapters:
@@ -119,9 +134,29 @@ def _sweep(
                     worst = (prior_name, new_name)
                 if mean_angle < ANGLE_THRESHOLD:
                     any_below = True
+            # Check per-module angles (excluding known canary modules).
+            if per_module:
+                pm_decision = apply_per_module_gate(
+                    per_module,
+                    winrate_drop=None,  # angle-only sweep; never trip rollback here
+                )
+                if pm_decision.offending_modules:
+                    any_module_below = True
+                    logger.warning(
+                        "pair %s->%s: per-module offenders below %.1f° "
+                        "(excluding %s): %s (min %s=%.2f°)",
+                        prior_name,
+                        new_name,
+                        ANGLE_THRESHOLD,
+                        sorted(DEFAULT_PER_MODULE_IGNORE),
+                        pm_decision.offending_modules,
+                        pm_decision.min_angle_module,
+                        pm_decision.min_angle_value,
+                    )
 
     flags: dict[str, Any] = {
         "any_pair_below_30": any_below,
+        "any_module_below_30": any_module_below,
         "min_mean_angle": min_mean if min_mean != float("inf") else None,
         "worst_pair": list(worst) if worst else None,
         "angle_threshold_degrees": ANGLE_THRESHOLD,

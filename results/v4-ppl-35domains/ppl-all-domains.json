@@ -8,7 +8,8 @@
     "domains_total": 35,
     "domains_ok": 35,
     "domains_improved": 35,
-    "domains_degraded": 0
+    "domains_degraded": 0,
+    "r1_caveat": "single-seed run — no seed parameter recorded, no seed sweep, no CI. Violates R1 reproducibility contract (run_id must key on seed). Treat mean delta_ppl figures as point estimates only. Re-run with explicit --seed and multiple seeds before citing in peer-reviewed claims."
   },
   "summary": {
     "avg_base_ppl": 10.3104,
