@@ -74,7 +74,7 @@ However, multi-adapter serving introduces several unsolved challenges at the sys
   \item The first production multi-LoRA cognitive pipeline on Apple Silicon, serving 35 domain adapters on a MoE 35B model.
   \item An O(10\,ms) adapter swap mechanism via in-place LoRA unpatch on MoE architectures.
   \item A sigmoid multi-label routing scheme with domain merging achieving 70.7\% top-1 accuracy (2.2$\times$ over keyword baselines).
-  \item A negative result: null-space projection~\citep{davison2024brainstacks} is superfluous on native MoE architectures with 256 experts, where adapter weight vectors are naturally quasi-orthogonal at ${\sim}88.6$° in a 3-domain-pair ablation.
+  \item A negative result: null-space projection~\citep{abuayyash2026brainstacks} is superfluous on native MoE architectures with 256 experts, where adapter weight vectors are naturally quasi-orthogonal at ${\sim}88.6$° in a 3-domain-pair ablation.
   \item An honest multi-benchmark evaluation revealing adapter overfitting (HumanEval $+7.3$\,pp vs.\ MBPP $-10$\,pp) and domain-dependent cognitive layer value.
   \item Training data generation for 35 niche technical domains via teacher distillation from Qwen3-Coder-480B-A35B; mean $\Delta$PPL $= -7.30$ across all 35 domains (single-seed artifact; $-3.44$ across 6 tabled domains).
 \end{enumerate}
@@ -89,16 +89,16 @@ However, multi-adapter serving introduces several unsolved challenges at the sys
 LoRA~\citep{hu2022lora} enables parameter-efficient fine-tuning by decomposing weight updates into low-rank matrices. Multi-LoRA serving systems like S-LoRA~\citep{sheng2024slora} and Punica batch requests across adapters on GPUs using custom CUDA kernels. vLLM~\citep{kwon2023efficient} supports LoRA serving through PagedAttention but requires adapter reload on swap. MobiLoRA~\citep{mobilora2025} explores LoRA on mobile devices but targets single adapters, not multi-adapter routing.
 
 \paragraph{Mixture-of-LoRAs.}
-MOLA~\citep{gao2024mola} proposes mixing multiple LoRA experts within a single forward pass, learning per-layer expert routing. Activated LoRA~\citep{activatedlora2024} dynamically activates adapter subsets based on input features. These approaches focus on training-time mixture rather than serving-time adapter selection, and typically require GPU-specific implementations. Our work instead uses a pre-inference classifier to select complete domain adapters before the forward pass.
+MOLA~\citep{gao2024mola} proposes mixing multiple LoRA experts within a single forward pass, learning per-layer expert routing. This line of work focuses on training-time mixture rather than serving-time adapter selection. On the serving side, \citet{activatedlora2024} build a vLLM-based engine that reuses the prefix KV cache across base and adapted models via Activated LoRA (aLoRA), which removes most of the recomputation incurred when multi-turn pipelines switch between adapters; it is GPU/vLLM-specific. Our work instead uses a pre-inference classifier to select complete domain adapters before the forward pass.
 
 \paragraph{Adapter Routing.}
-LoRA rank analysis~\citep{lora_rank2025} demonstrates that vanilla LoRA with $r=16$ suffices when learning rate is properly tuned, simplifying multi-adapter management by standardizing rank across domains.
+A systematic re-evaluation of LoRA variants~\citep{lora_rank2025} finds that, once the learning rate is properly tuned, vanilla LoRA and nine variants reach similar peak performance (within 1--2\%), with only subtle rank-dependent behaviour; this supports keeping vanilla LoRA and a small set of standard ranks across domains.
 
 \paragraph{MoE Inference on Consumer Hardware.}
 Apple's MLX framework enables MoE inference on unified memory architectures. The M3~Ultra's 512\,GB unified memory eliminates the CPU-GPU transfer bottleneck that limits MoE models on discrete GPU systems with limited VRAM.
 
 \paragraph{Cognitive Augmentation.}
-Aeon~\citep{aeon2025} provides episodic memory through dual stores: Atlas (SIMD-accelerated dense retrieval) and Trace (neuro-symbolic graph). CAMP~\citep{camp2026} introduces structured arbitration between competing response perspectives. Catfish~\citep{catfish2025} injects productive dissent into consensus-driven systems. KnowBias~\citep{knowbias2025} detects and quantifies knowledge-correlated biases in LLM outputs, while RBD~\citep{rbd2025} provides residual bias detection as a post-processing filter. Our contribution is wiring these components into an end-to-end pipeline where each stage's output feeds the next within a single inference call.
+Aeon~\citep{aeon2025} structures agent memory into Atlas (a SIMD-accelerated page-clustered vector index) and Trace (a neuro-symbolic episodic graph). CAMP~\citep{camp2026} is a case-adaptive multi-agent panel for clinical prediction: an attending agent assembles a specialist panel per case, specialists vote KEEP/REFUSE/NEUTRAL, and a hybrid router resolves the diagnosis by consensus, fallback to the attending agent, or evidence-based arbitration. The Catfish agent~\citep{catfish2025} injects structured dissent to counter premature (``silent'') agreement in clinical multi-agent question answering. KnowBias~\citep{knowbias2025} mitigates social bias by identifying and enhancing, at inference time, neurons that encode bias knowledge. RBD~\citep{rbd2025} is a reasoning-based bias detector: a plug-in model that flags biased LLM-as-a-judge evaluations and generates reasoning to guide the evaluator's self-correction. Except for Aeon, these methods were developed for other settings (clinical decision making, social-bias mitigation, LLM-as-a-judge); \textsc{micro-kiki} adapts their core mechanisms to multi-adapter technical assistance. Our contribution is wiring these adapted components into an end-to-end pipeline where each stage's output feeds the next within a single inference call.
 
 % ===========================================================================
 % 3. SYSTEM ARCHITECTURE
@@ -113,8 +113,8 @@ Aeon~\citep{aeon2025} provides episodic memory through dual stores: Atlas (SIMD-
   \item \textbf{LoRA Swap} (\S\ref{sec:adapters}): The selected domain adapter(s) are applied via in-place unpatch of LoRA wrappers, achieving O(10\,ms) swap latency.
   \item \textbf{Aeon Memory Recall} (\S\ref{sec:cognitive}): The Atlas SIMD vector store retrieves relevant episodic memories; the Trace graph store provides neuro-symbolic context. Latency: $\sim$62\,ms.
   \item \textbf{MLX Inference}: Qwen3.6-35B-A3B runs in Q4 quantization with 8-bit KV cache and LRU prefix reuse. Inference latency: 3.6--5.2\,s per query. \texttt{strip\_thinking} removes Qwen3's chain-of-thought \texttt{<think>} tags by default.
-  \item \textbf{Negotiation}: CAMP~\citep{camp2026} arbitration resolves conflicts between adapter-enhanced and memory-augmented responses. Catfish~\citep{catfish2025} injects structured dissent to prevent groupthink in multi-adapter scenarios.
-  \item \textbf{Anti-bias Filter}: KnowBias~\citep{knowbias2025} double-application detects knowledge-correlated biases. RBD~\citep{rbd2025} catches residual biases missed by the primary filter.
+  \item \textbf{Negotiation}: a judge stage adapted from CAMP's evidence-based arbitration~\citep{camp2026} resolves conflicts between adapter-enhanced and memory-augmented responses. A dissent stage adapted from the Catfish agent~\citep{catfish2025} challenges premature consensus in multi-adapter scenarios.
+  \item \textbf{Anti-bias Filter}: a bias check that draws on KnowBias-style bias-knowledge neuron probing~\citep{knowbias2025} is applied twice, and a reasoning-based bias detection pass adapted from RBD~\citep{rbd2025} follows.
   \item \textbf{Aeon Memory Write}: The episode (query, routing decision, response, user feedback) is persisted to both Atlas and Trace stores. Latency: $\sim$32\,ms.
 \end{enumerate}
 
@@ -151,7 +151,7 @@ At inference time, when the router selects a merged class, the system loads the 
 
 \subsection{Training}
 
-The classifier is trained with cross-entropy loss and class weights inversely proportional to domain frequency, addressing the severe class imbalance between foundation domains (chat-fr: 12K examples) and niche domains (freecad: 219 examples). This replaces the V3 binary cross-entropy loss which treated each domain independently.
+The classifier is trained with cross-entropy loss and class weights inversely proportional to domain frequency, addressing the severe class imbalance between foundation domains (chat-fr: 12K examples) and niche domains (freecad: 219 examples). This replaces the V3 binary cross-entropy loss which treated each domain independently. Note that V4 training is therefore single-label (one integer domain label per example, \texttt{scripts/train\_router\_v4.py}); the sigmoid is applied only at inference, to obtain independent per-domain scores that are thresholded to activate up to 4 adapters. The multi-label behaviour is a property of the inference-time decision rule, not of the training objective.
 
 Word boundary matching in the classifier was fixed in V4 to prevent partial matches (e.g., ``embedded'' incorrectly matching ``embeddedness''), which alone accounted for $\sim$5\% accuracy improvement.
 
@@ -204,7 +204,7 @@ The neural router outperforms keyword matching by 2.2$\times$ on top-1 accuracy.
 
 \subsection{LoRA Training Strategy}
 
-Adapters follow $\alpha = 2 \times r$ across all configs (enforced by \texttt{validate\_rank\_schema.py}). Rank is tiered by config type: \texttt{stack-NN-*.yaml} use a uniform $r{=}16$ across domains, while \texttt{mlx-per-domain/*.yaml} use $r \in \{4, 8, 12, 16, 32\}$ scaled to domain data volume (niches use lower ranks, foundations use higher ranks). The learning rate $1 \times 10^{-5}$ and BF16 precision are uniform. Each adapter targets 17 module kinds per layer across attention, MoE routers, shared experts, and switch MLP projections, totaling ${\sim}$1.03\,B trainable parameters (2.96\% of the 35\,B total) for the $r{=}16$ stacks.
+Adapters follow $\alpha = 2 \times r$ across all configs (enforced by \texttt{validate\_rank\_schema.py}).\footnote{Caveat on effective scaling. The mlx-lm LoRA layers (v0.31.3) read the \texttt{rank} and \texttt{scale} keys of the LoRA config and do not read \texttt{alpha}; the update is added as $\texttt{scale}\cdot BAx$. The V4 stack trainer (\texttt{scripts/train\_stack\_v4.py}) and the null-space ablation script (\texttt{scripts/eval\_nullspace\_ablation.py}) pass a fixed \texttt{scale} of 20.0. The effective scaling factor of runs produced by these two scripts is therefore 20, not $\alpha/r = 2$. The value recorded in the released \texttt{adapter\_config.json} files has not yet been cross-checked.} Rank is tiered by config type: \texttt{stack-NN-*.yaml} use a uniform $r{=}16$ across domains, while \texttt{mlx-per-domain/*.yaml} use $r \in \{4, 8, 12, 16, 32\}$ scaled to domain data volume (niches use lower ranks, foundations use higher ranks). The learning rate $1 \times 10^{-5}$ and BF16 precision are uniform. Each adapter targets 17 module kinds per layer across attention, MoE routers, shared experts, and switch MLP projections, totaling ${\sim}$1.03\,B trainable parameters (2.96\% of the 35\,B total) for the $r{=}16$ stacks.
 
 Layer depth is fixed at 32 out of 40 total layers. Empirical evaluation showed that 8 layers produced undertrained adapters while 40 layers caused overfitting (V3 chat-fr validation loss: 1.304 vs.\ V4's 0.849).
 
@@ -261,7 +261,7 @@ A pairwise sweep was conducted across the 5 foundational/coding adapters (20 ord
 
 \subsection{Null-Space Projection Ablation}
 
-Brainstacks~\citep{davison2024brainstacks} proposes projecting each new adapter's gradient into the null space of prior adapters to enforce orthogonality and prevent cross-domain interference. We test this on three domain pairs, training with and without null-space projection and measuring the resulting cosine angle between adapter weight vectors.
+Brainstacks~\citep{abuayyash2026brainstacks} uses null-space projection (via randomized SVD) to constrain each new adapter stack to subspaces orthogonal to the directions of prior stacks, preventing cross-domain interference; it was validated on dense bases (TinyLlama-1.1B, Gemma~3 12B). We test this on three domain pairs, training with and without null-space projection and measuring the resulting cosine angle between adapter weight vectors.
 
 \begin{table}[h]
 \centering
@@ -291,7 +291,7 @@ The cognitive layer distinguishes \textsc{micro-kiki} from pure multi-adapter se
 
 \subsection{Aeon Memory}
 
-Aeon~\citep{aeon2025} provides two complementary memory stores:
+Our memory layer follows the Aeon design~\citep{aeon2025}, which provides two complementary memory stores:
 
 \begin{itemize}[nosep]
   \item \textbf{Atlas}: A SIMD-accelerated dense vector store for fast episodic retrieval. Query embeddings are matched against stored episode embeddings using cosine similarity. Retrieval latency: $\sim$62\,ms.
@@ -302,13 +302,13 @@ In production, Aeon achieves 36+ episode recalls per 14-turn dialogue, providing
 
 \subsection{CAMP + Catfish Negotiation}
 
-CAMP~\citep{camp2026} provides structured arbitration when the pipeline produces multiple candidate responses (e.g., from different active adapters or from adapter-enhanced vs.\ memory-augmented perspectives). Rather than simple ensembling, CAMP evaluates candidates along defined quality axes and selects or synthesizes the final response.
+The negotiation stage adapts arbitration ideas from CAMP~\citep{camp2026}, a case-adaptive multi-agent panel for clinical prediction that weighs argument quality over vote counts when specialists disagree. In \textsc{micro-kiki}, it is used when the pipeline produces multiple candidate responses (e.g., from different active adapters or from adapter-enhanced vs.\ memory-augmented perspectives): rather than simple ensembling, a judge extracts each candidate's key argument, evaluates the candidates, and selects or synthesizes the final response.
 
-Catfish~\citep{catfish2025} complements CAMP by injecting productive dissent: when all candidates converge on a similar answer, Catfish generates a contrarian perspective to stress-test the consensus. This is particularly valuable in technical domains where confident-sounding but incorrect answers are common.
+The dissent stage adapts the Catfish agent~\citep{catfish2025}, which was introduced to counter premature agreement among agents in clinical question answering: when all candidates converge on a similar answer with weak arguments, a contrarian (devil's-advocate) perspective is generated to stress-test the consensus. We expect this to be most useful in technical domains where confident-sounding but incorrect answers are common; the original evaluation covers medical benchmarks only.
 
 \subsection{KnowBias + RBD Anti-bias}
 
-KnowBias~\citep{knowbias2025} is applied twice: first on the raw model output, then on the post-negotiation response. This double-application catches biases that emerge during the negotiation process itself. RBD~\citep{rbd2025} provides a final residual bias detection pass, catching subtle patterns that KnowBias's primary detection may miss.
+KnowBias~\citep{knowbias2025} mitigates social bias by identifying, through attribution, the neurons that encode bias knowledge and enhancing them at inference time. Our bias check draws on its neuron-probing step and is applied twice: first on the raw model output, then on the post-negotiation response, to catch biases that emerge during the negotiation process itself. RBD~\citep{rbd2025} is a reasoning-based bias detector originally designed to flag biased LLM-as-a-judge evaluations and guide the evaluator's self-correction; we adapt it as a final reasoning-based bias check on the response.
 
 \subsection{Cognitive Layer A/B Evaluation}
 
@@ -350,7 +350,7 @@ Error analysis shows that remaining misclassifications concentrate on domains wi
 
 \subsection{Adapter Health}
 
-All 35 V4 adapters pass the health validator: no \texttt{lora\_B} weights are identically zero (a failure mode observed in pre-pivot V3 adapters). The tiered-rank configuration ($r{=}16$ for stack-NN, $r \in \{4,8,12,16,32\}$ for mlx-per-domain, always $\alpha = 2r$) produces consistent training dynamics across domains.
+All 35 V4 adapters pass the health validator: no \texttt{lora\_B} weights are identically zero (a failure mode observed in pre-pivot V3 adapters). The tiered-rank configuration ($r{=}16$ for stack-NN, $r \in \{4,8,12,16,32\}$ for mlx-per-domain, always $\alpha = 2r$ in the configs; see the effective-scaling caveat in \S\ref{sec:adapters}) produces consistent training dynamics across domains.
 
 \begin{table}[h]
 \centering
@@ -503,7 +503,7 @@ The system's reliance on MLX and unified memory means it cannot directly port to
 
 \paragraph{Future Work.}
 \begin{enumerate}[nosep]
-  \item \textbf{Recursive Language Model (RLM)}: Replacing the Negotiator with a recursive decomposition model~\citep{rlm2025} for multi-domain queries. RLM decomposes a complex query into domain-specific sub-queries, routes each independently, and recursively composes the results --- a more principled approach than the current CAMP arbitration for queries spanning multiple adapter domains.
+  \item \textbf{Recursive Language Model (RLM)}: Replacing the Negotiator with a recursive decomposition approach inspired by Recursive Language Models~\citep{rlm2025}, in which a model recursively calls itself on parts of its input. For multi-domain queries, a complex query would be decomposed into domain-specific sub-queries, each routed independently, and the results composed recursively --- a more principled approach than the current CAMP-style arbitration for queries spanning multiple adapter domains.
   \item \textbf{Domain-conditional cognitive gating}: Automatically bypassing negotiation and anti-bias stages for domains where the A/B evaluation shows negative $\Delta$.
   \item \textbf{Router V5}: Cross-attention routing and hard-negative mining for sparse domains.
   \item \textbf{Multi-benchmark adapter gates}: Requiring positive $\Delta$ on at least two independent benchmarks before promoting any adapter to production serving.
@@ -542,44 +542,44 @@ Zhimeng Gao, Bosheng Ding, Chengqi Zhao, Junjie Wang, and Lidong Bing.
 \newblock Higher Layers Need More {LoRA} Experts.
 \newblock \emph{arXiv preprint arXiv:2403.03432}, 2024.
 
-\bibitem[{Activated LoRA}(2024)]{activatedlora2024}
-{Activated LoRA Authors}.
-\newblock Activated {LoRA}: Dynamic Adapter Activation for Parameter-Efficient Fine-Tuning.
-\newblock \emph{arXiv preprint arXiv:2512.17910}, 2024.
+\bibitem[Li et~al.(2025)]{activatedlora2024}
+Allison Li, Kristjan Greenewald, Thomas Parnell, and Navid Azizan.
+\newblock Efficient Multi-Adapter {LLM} Serving via Cross-Model {KV}-Cache Reuse with Activated {LoRA}.
+\newblock \emph{arXiv preprint arXiv:2512.17910}, 2025.
 
-\bibitem[{LoRA Rank}(2025)]{lora_rank2025}
-{LoRA Rank Authors}.
-\newblock On the Optimal Rank of {LoRA}: Vanilla {LoRA} r=16 Suffices When Learning Rate Is Tuned.
-\newblock \emph{arXiv preprint arXiv:2602.04998}, 2025.
+\bibitem[Lee et~al.(2026)]{lora_rank2025}
+Yu-Ang Lee, Ching-Yun Ko, Pin-Yu Chen, and Mi-Yen Yeh.
+\newblock Learning Rate Matters: Vanilla {LoRA} May Suffice for {LLM} Fine-tuning.
+\newblock \emph{arXiv preprint arXiv:2602.04998}, 2026.
 
 \bibitem[{MobiLoRA}(2025)]{mobilora2025}
 {MobiLoRA Authors}.
 \newblock {MobiLoRA}: Efficient {LoRA} on Mobile Devices.
 \newblock In \emph{ACL}, 2025.
 
-\bibitem[{Aeon}(2025)]{aeon2025}
-{Aeon Authors}.
-\newblock Aeon: Episodic Memory with {SIMD} Vector and Neuro-Symbolic Graph Stores.
-\newblock \emph{arXiv preprint arXiv:2601.15311}, 2025.
+\bibitem[Arslan(2026)]{aeon2025}
+Mustafa Arslan.
+\newblock Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon {LLM} Agents.
+\newblock \emph{arXiv preprint arXiv:2601.15311}, 2026.
 
-\bibitem[{KnowBias}(2025)]{knowbias2025}
-{KnowBias Authors}.
-\newblock {KnowBias}: Detecting and Quantifying Knowledge-Correlated Biases in {LLM} Outputs.
-\newblock \emph{arXiv preprint arXiv:2601.21864}, 2025.
+\bibitem[Pan et~al.(2026)]{knowbias2025}
+Jinhao Pan, Chahat Raj, Anjishnu Mukherjee, Sina Mansouri, Bowen Wei, Shloka Yada, and Ziwei Zhu.
+\newblock Knowing Bias, Doing Better: Mitigating Social Bias in {LLMs} via Know-Bias Neuron Enhancement.
+\newblock \emph{arXiv preprint arXiv:2601.21864}, 2026.
 
-\bibitem[{CAMP}(2026)]{camp2026}
-{CAMP Authors}.
-\newblock {CAMP}: Structured Multi-Perspective Arbitration for Language Model Outputs.
+\bibitem[Lu et~al.(2026)]{camp2026}
+Yuxing Lu, Yushuhong Lin, and Jason Zhang.
+\newblock One Panel Does Not Fit All: Case-Adaptive Multi-Agent Deliberation for Clinical Prediction.
 \newblock \emph{arXiv preprint arXiv:2604.00085}, 2026.
 
-\bibitem[{Catfish}(2025)]{catfish2025}
-{Catfish Authors}.
-\newblock Catfish: Productive Dissent Injection for Consensus-Driven {AI} Systems.
+\bibitem[Wang et~al.(2025)]{catfish2025}
+Yihan Wang, Qiao Yan, Zhenghao Xing, Lihao Liu, Junjun He, Chi-Wing Fu, Xiaowei Hu, and Pheng-Ann Heng.
+\newblock Silence is Not Consensus: Disrupting Agreement Bias in Multi-Agent {LLMs} via Catfish Agent for Clinical Decision Making.
 \newblock \emph{arXiv preprint arXiv:2505.21503}, 2025.
 
-\bibitem[{RBD}(2025)]{rbd2025}
-{RBD Authors}.
-\newblock Residual Bias Detection as Post-Processing for Language Models.
+\bibitem[Yang et~al.(2025)]{rbd2025}
+Haoyan Yang, Runxue Bao, Cao Xiao, Jun Ma, Parminder Bhatia, Shangqian Gao, and Taha Kass-Hout.
+\newblock Any Large Language Model Can Be a Reliable Judge: Debiasing with a Reasoning-based Bias Detector.
 \newblock \emph{arXiv preprint arXiv:2505.17100}, 2025.
 
 \bibitem[Kwon et~al.(2023)]{kwon2023efficient}
@@ -607,14 +607,14 @@ Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique~Ponde de~Oliveira Pin
 \newblock Qwen3 Technical Report.
 \newblock \emph{arXiv preprint}, 2025.
 
-\bibitem[{Davison et~al.}(2024)]{davison2024brainstacks}
-{Joe Davison, Anish Acharya, and others}.
-\newblock Brainstacks: Orthogonal Adapter Stacking via Null-Space Projection.
-\newblock \emph{arXiv preprint arXiv:2410.15781}, 2024.
+\bibitem[Abu~Ayyash(2026)]{abuayyash2026brainstacks}
+Mohammad~R. Abu~Ayyash.
+\newblock Brainstacks: Cross-Domain Cognitive Capabilities via Frozen {MoE-LoRA} Stacks for Continual {LLM} Learning.
+\newblock \emph{arXiv preprint arXiv:2604.01152}, 2026.
 
-\bibitem[{RLM Authors}(2025)]{rlm2025}
-{RLM Authors}.
-\newblock Recursive Language Models for Multi-Domain Decomposition.
+\bibitem[Zhang et~al.(2025)]{rlm2025}
+Alex~L. Zhang, Tim Kraska, and Omar Khattab.
+\newblock Recursive Language Models.
 \newblock \emph{arXiv preprint arXiv:2512.24601}, 2025.
 
 \end{thebibliography}

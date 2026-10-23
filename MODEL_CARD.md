@@ -36,7 +36,7 @@ micro-kiki is a multi-domain language model designed for technical applications 
 
 LoRA is applied (via `mlx_lm lora`) to:
 
-- `linear_attn.{in_proj_a, in_proj_b, in_proj_qkv, in_proj_z, out_proj}` (GLA hybrid, 5 modules)
+- `linear_attn.{in_proj_a, in_proj_b, in_proj_qkv, in_proj_z, out_proj}` (Gated DeltaNet linear attention, 5 modules)
 - `self_attn.{q_proj, k_proj, v_proj, o_proj}` (4 modules)
 - `mlp.gate`, `mlp.shared_expert_gate` (MoE routers, 2 modules)
 - `mlp.shared_expert.{down_proj, gate_proj, up_proj}` (3 modules)

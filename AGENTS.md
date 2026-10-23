@@ -3,7 +3,7 @@
 # micro-kiki
 
 ## Purpose
-micro-kiki is a 34-domain expert system built on the Qwen3.6-35B-A3B MoE base (256 experts, 3B active per token) via standard LoRA adapters covering 17 module kinds per layer (attention q/k/v/o + `linear_attn` GLA hybrid + MoE routers `mlp.gate`/`mlp.shared_expert_gate` + `mlp.shared_expert.*` + `mlp.switch_mlp.*`). On top of the adapter layer sits a cognitive stack: sigmoid meta-router + YAML dispatcher, Aeon memory palace (Atlas SIMD + Trace graph), CAMP/Catfish negotiator, and KnowBias+RBD anti-bias. Training runs sequentially per domain via MLX on a Mac Studio M3 Ultra 512 GB; inference runs on MLX (Mac) or vLLM Q4 (kxkm-ai RTX 4090). Distillation uses Qwen3-Coder-480B-A35B MLX 4bit as a local teacher. Version 0.2.0-dev.
+micro-kiki is a 34-domain expert system built on the Qwen3.6-35B-A3B MoE base (256 experts, 3B active per token) via standard LoRA adapters covering 17 module kinds per layer (attention q/k/v/o + `linear_attn` Gated DeltaNet linear attention + MoE routers `mlp.gate`/`mlp.shared_expert_gate` + `mlp.shared_expert.*` + `mlp.switch_mlp.*`). On top of the adapter layer sits a cognitive stack: sigmoid meta-router + YAML dispatcher, Aeon memory palace (Atlas SIMD + Trace graph), CAMP/Catfish negotiator, and KnowBias+RBD anti-bias. Training runs sequentially per domain via MLX on a Mac Studio M3 Ultra 512 GB; inference runs on MLX (Mac) or vLLM Q4 (kxkm-ai RTX 4090). Distillation uses Qwen3-Coder-480B-A35B MLX 4bit as a local teacher. Version 0.2.0-dev.
 
 ## Architecture
 
