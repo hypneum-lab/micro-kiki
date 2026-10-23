@@ -210,6 +210,15 @@ def _err(
 # Each does a LAZY import so pytest collection on Linux CI does not crash.
 # ---------------------------------------------------------------------------
 
+# KV cache settings shared by the prompt-cache prefill and generation.
+# 512-token prefill chunks cap the peak Metal RAM of the 8-bit KV cache
+# on long prompts (the mlx_lm default of 2048 dequantizes larger blocks
+# per attention call).
+_KV_BITS = 8
+_KV_GROUP_SIZE = 64
+_PREFILL_STEP_SIZE = 512
+
+
 class _MLXRuntimeAdapter:
     """Thin adapter that exposes the orchestrator's ``apply(list[str])`` /
     ``generate(prompt, max_tokens, temperature)`` contract over the native
@@ -444,54 +453,83 @@ class _MLXRuntimeAdapter:
         max_tokens: int = 512,
         temperature: float = 0.7,
     ) -> str:
-        from mlx_lm.generate import generate_step
-        from mlx_lm.models.cache import make_prompt_cache
-        from mlx_lm.sample_utils import make_sampler
-
-        import mlx.core as mx
-
         from mlx_lm import generate as mlx_generate
         from mlx_lm.models.cache import make_prompt_cache
+        from mlx_lm.sample_utils import make_sampler
         import copy
 
-        tokens = self._tokenizer.encode(prompt)
+        tokens = self._encode(prompt)
         sampler = make_sampler(temp=float(temperature))
 
-        # Reuse KV cache when the new prompt starts with the same
-        # tokens as the previous request (same adapter). The K
-        # Negotiator candidates share the exact same prompt, so
-        # candidates 2+ skip the entire prefill.
-        cache = None
+        # Prompt-cache reuse. The snapshot holds the KV state of
+        # ``tokens[:-1]`` exactly (never generated tokens). On a hit we
+        # only prefill the new suffix, then hand ``mlx_generate`` a copy
+        # of the snapshot plus the last prompt token, as mlx_lm expects
+        # when ``prompt_cache`` is given. Trimming is not an option:
+        # Qwen3.6 linear-attention layers use non-trimmable
+        # ``ArraysCache``. The K Negotiator candidates share the exact
+        # same prompt, so candidates 2+ skip the entire prefill.
+        prefix = tokens[:-1]
+        cached = self._cached_prompt_tokens
         if (
             self._prompt_cache is not None
-            and self._cached_prompt_tokens is not None
-            and tokens[: len(self._cached_prompt_tokens)]
-            == self._cached_prompt_tokens
+            and cached is not None
+            and prefix[: len(cached)] == cached
         ):
-            cache = copy.deepcopy(self._prompt_cache)
-            log.debug(
-                "reusing prompt cache (%d prefix tokens)",
-                len(self._cached_prompt_tokens),
-            )
-
-        if cache is None:
+            cache = self._prompt_cache
+            done = len(cached)
+            log.debug("reusing prompt cache (%d prefix tokens)", done)
+        else:
             cache = make_prompt_cache(self._model)
+            done = 0
+        # Drop the snapshot before prefilling it in place, so an
+        # exception mid-prefill cannot leave a stale token list paired
+        # with a mutated cache.
+        self._prompt_cache = None
+        self._cached_prompt_tokens = None
+        self._prefill(cache, prefix[done:])
+        self._prompt_cache = cache
+        self._cached_prompt_tokens = list(prefix)
 
-        result = mlx_generate(
+        return mlx_generate(
             self._model,
             self._tokenizer,
-            prompt=prompt,
+            prompt=tokens[len(prefix):],
             max_tokens=int(max_tokens),
             sampler=sampler,
-            prompt_cache=cache,
-            kv_bits=8,
-            kv_group_size=64,
+            prompt_cache=copy.deepcopy(cache),
+            prefill_step_size=_PREFILL_STEP_SIZE,
+            kv_bits=_KV_BITS,
+            kv_group_size=_KV_GROUP_SIZE,
         )
 
-        # Save for next request with same prefix.
-        self._cached_prompt_tokens = tokens
-        self._prompt_cache = cache
-        return result
+    def _encode(self, prompt: str) -> list[int]:
+        """Tokenize like ``mlx_lm.stream_generate`` does for str prompts."""
+        bos = getattr(self._tokenizer, "bos_token", None)
+        add_special = bos is None or not prompt.startswith(bos)
+        return list(
+            self._tokenizer.encode(prompt, add_special_tokens=add_special)
+        )
+
+    def _prefill(self, cache: list[Any], tokens: list[int]) -> None:
+        """Run ``tokens`` through the model into ``cache``, chunked and
+        quantized exactly as ``mlx_lm.generate_step`` prefills."""
+        if not tokens:
+            return
+        import mlx.core as mx
+        from mlx_lm.generate import maybe_quantize_kv_cache
+
+        for i in range(0, len(tokens), _PREFILL_STEP_SIZE):
+            chunk = mx.array(tokens[i : i + _PREFILL_STEP_SIZE])
+            self._model(chunk[None], cache=cache)
+            maybe_quantize_kv_cache(
+                cache,
+                quantized_kv_start=0,
+                kv_group_size=_KV_GROUP_SIZE,
+                kv_bits=_KV_BITS,
+            )
+            mx.eval([c.state for c in cache])
+            mx.clear_cache()
 
 
 def _build_runtime(cfg: FullPipelineConfig, swap_metric: Any | None = None) -> Any:
