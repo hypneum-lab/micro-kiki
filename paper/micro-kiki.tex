@@ -86,7 +86,7 @@ However, multi-adapter serving introduces several unsolved challenges at the sys
 \label{sec:related}
 
 \paragraph{Multi-LoRA Serving.}
-LoRA~\citep{hu2022lora} enables parameter-efficient fine-tuning by decomposing weight updates into low-rank matrices. Multi-LoRA serving systems like S-LoRA~\citep{sheng2024slora} and Punica batch requests across adapters on GPUs using custom CUDA kernels. vLLM~\citep{kwon2023efficient} supports LoRA serving through PagedAttention but requires adapter reload on swap. MobiLoRA~\citep{mobilora2025} explores LoRA on mobile devices but targets single adapters, not multi-adapter routing. PReCache~\citep{jeon2026precache} shares a base KV cache computed with the pretrained weights across LoRA agents and adds a compact per-adapter low-rank cache, avoiding both repeated prefill and reliance on a cache produced under another agent's adapter.
+LoRA~\citep{hu2022lora} enables parameter-efficient fine-tuning by decomposing weight updates into low-rank matrices. Multi-LoRA serving systems like S-LoRA~\citep{sheng2024slora} and Punica batch requests across adapters on GPUs using custom CUDA kernels. vLLM~\citep{kwon2023efficient} supports LoRA serving through PagedAttention but requires adapter reload on swap. MobiLoRA~\citep{mobilora2025} accelerates LoRA-based inference on mobile devices through context-aware KV cache optimisation, but does not address routing among multiple domain adapters. PReCache~\citep{jeon2026precache} shares a base KV cache computed with the pretrained weights across LoRA agents and adds a compact per-adapter low-rank cache, avoiding both repeated prefill and reliance on a cache produced under another agent's adapter.
 
 \paragraph{Mixture-of-LoRAs.}
 MOLA~\citep{gao2024mola} proposes mixing multiple LoRA experts within a single forward pass, learning per-layer expert routing. For MoE backbones, MoE$^2$-LoRA~\citep{yang2026moe2lora} argues that uniform adapters which ignore the base router's priors reduce efficiency and risk forgetting, and instead reuses base router activations to route LoRA experts; the uniform 17-module adapter surface used by \textsc{micro-kiki} (\S\ref{sec:adapters}) is of the former kind. This line of work focuses on training-time mixture rather than serving-time adapter selection. On the serving side, \citet{activatedlora2024} build a vLLM-based engine that reuses the prefix KV cache across base and adapted models via Activated LoRA (aLoRA), which removes most of the recomputation incurred when multi-turn pipelines switch between adapters; it is GPU/vLLM-specific. Our work instead uses a pre-inference classifier to select complete domain adapters before the forward pass.
@@ -557,10 +557,11 @@ Yu-Ang Lee, Ching-Yun Ko, Pin-Yu Chen, and Mi-Yen Yeh.
 \newblock Learning Rate Matters: Vanilla {LoRA} May Suffice for {LLM} Fine-tuning.
 \newblock \emph{arXiv preprint arXiv:2602.04998}, 2026.
 
-\bibitem[{MobiLoRA}(2025)]{mobilora2025}
-{MobiLoRA Authors}.
-\newblock {MobiLoRA}: Efficient {LoRA} on Mobile Devices.
-\newblock In \emph{ACL}, 2025.
+\bibitem[{Li et~al.}(2025)]{mobilora2025}
+Borui Li, Yitao Wang, Haoran Ma, Ligeng Chen, Jun Xiao, and Shuai Wang.
+\newblock {MobiLoRA}: Accelerating {LoRA}-based {LLM} inference on mobile devices via context-aware {KV} cache optimization.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 23400--23410, 2025.
+\newblock \url{https://doi.org/10.18653/v1/2025.acl-long.1140}.
 
 \bibitem[Arslan(2026)]{aeon2025}
 Mustafa Arslan.
