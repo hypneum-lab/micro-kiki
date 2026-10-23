@@ -24,7 +24,7 @@ Architecture of Qwen3.5-35B-A3B per transformer block:
 
 Architecture of Qwen3.6-35B-A3B (hybrid attention, 40 layers):
   - full_attention layers (1-in-4): standard self_attn.{q,k,v,o}_proj
-  - linear_attention layers (the rest): GLA-style linear_attn with 5
+  - linear_attention layers (the rest): Gated DeltaNet linear_attn with 5
     projections (in_proj_a, in_proj_b, in_proj_qkv, in_proj_z, out_proj)
     plus 4 non-linear tensors copied verbatim (A_log, conv1d, dt_bias,
     norm). The 5 linear projections use activation="identity".
@@ -99,7 +99,7 @@ LINEAR_ATTN_PASSTHROUGH_TENSORS = (
 
 
 def _is_linear_attention_type(layer_type: str | None) -> bool:
-    """Return True when the given config layer_type denotes GLA linear attention.
+    """Return True when layer_type denotes Gated DeltaNet linear attention.
 
     Accepts the Qwen3.6 spelling ``linear_attention`` and a handful of
     common aliases so future configs don't need a script change.
@@ -167,7 +167,7 @@ def build_layer_map(
         layer_type = layer_types[layer_idx] if layer_types else None
 
         if _is_linear_attention_type(layer_type):
-            # Linear attention block: 5 GLA projections + 4 passthroughs.
+            # Linear attention block: 5 Gated DeltaNet projections + 4 passthroughs.
             for proj in LINEAR_ATTN_PROJ_MODULES:
                 entries.append(
                     {
