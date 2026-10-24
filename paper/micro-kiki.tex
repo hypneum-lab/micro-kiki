@@ -92,7 +92,7 @@ LoRA~\citep{hu2022lora} enables parameter-efficient fine-tuning by decomposing w
 MOLA~\citep{gao2024mola} proposes mixing multiple LoRA experts within a single forward pass, learning per-layer expert routing. For MoE backbones, MoE$^2$-LoRA~\citep{yang2026moe2lora} argues that uniform adapters which ignore the base router's priors reduce efficiency and risk forgetting, and instead reuses base router activations to route LoRA experts; the uniform 17-module adapter surface used by \textsc{micro-kiki} (\S\ref{sec:adapters}) is of the former kind. This line of work focuses on training-time mixture rather than serving-time adapter selection. On the serving side, \citet{activatedlora2024} build a vLLM-based engine that reuses the prefix KV cache across base and adapted models via Activated LoRA (aLoRA), which removes most of the recomputation incurred when multi-turn pipelines switch between adapters; it is GPU/vLLM-specific. Our work instead uses a pre-inference classifier to select complete domain adapters before the forward pass.
 
 \paragraph{Adapter Routing.}
-A systematic re-evaluation of LoRA variants~\citep{lora_rank2025} finds that, once the learning rate is properly tuned, vanilla LoRA and nine variants reach similar peak performance (within 1--2\%), with only subtle rank-dependent behaviour; this supports keeping vanilla LoRA and a small set of standard ranks across domains.
+A systematic re-evaluation of LoRA variants~\citep{lora_rank2025} finds that, once the learning rate is properly tuned, vanilla LoRA and nine variants reach similar peak performance (within 1--2\%), with only subtle rank-dependent behaviour; this supports keeping vanilla LoRA and a small set of standard ranks across domains. As a gate-free alternative to our trained multi-label router, Latent-LoRA~\citep{azghan2026latentlora} selects adapters with a Gaussian mixture over pooled frozen-LLM token embeddings and no trained gate; we have not compared against it, and it is a natural baseline for future work (the present keyword-baseline comparison is weak). Value-of-information routing with an abstain option~\citep{saliencro2026voirouting} is related to our confidence-gated routing, where an explicit ``route to base'' path would play the role of abstention. Descent-aligned routing~\citep{nair2026descent}, which scores each expert by its update rather than by token features, is a further routing baseline left for future work.
 
 \paragraph{MoE Inference on Consumer Hardware.}
 Apple's MLX framework enables MoE inference on unified memory architectures. The M3~Ultra's 512\,GB unified memory eliminates the CPU-GPU transfer bottleneck that limits MoE models on discrete GPU systems with limited VRAM.
@@ -112,7 +112,7 @@ Aeon~\citep{aeon2025} structures agent memory into Atlas (a SIMD-accelerated pag
   \item \textbf{Domain Routing} (\S\ref{sec:routing}): An mpnet-based MLP classifier maps the query embedding to a probability distribution over 31 merged domain classes (from 35 original domains). Up to 4 adapters are activated simultaneously.
   \item \textbf{LoRA Swap} (\S\ref{sec:adapters}): The selected domain adapter(s) are applied via in-place unpatch of LoRA wrappers, achieving O(10\,ms) swap latency.
   \item \textbf{Aeon Memory Recall} (\S\ref{sec:cognitive}): The Atlas SIMD vector store retrieves relevant episodic memories; the Trace graph store provides neuro-symbolic context. Latency: $\sim$62\,ms.
-  \item \textbf{MLX Inference}: Qwen3.6-35B-A3B runs in Q4 quantization with 8-bit KV cache and LRU prefix reuse. Inference latency: 3.6--5.2\,s per query. \texttt{strip\_thinking} removes Qwen3's chain-of-thought \texttt{<think>} tags by default.
+  \item \textbf{MLX Inference}: Qwen3.6-35B-A3B runs in Q4 quantization with 8-bit KV cache and LRU prefix reuse. Inference latency: 3.6--5.2\,s per query. \texttt{strip\_thinking} removes Qwen3's~\citep{qwen3_2025} chain-of-thought \texttt{<think>} tags by default.
   \item \textbf{Negotiation}: a judge stage adapted from CAMP's evidence-based arbitration~\citep{camp2026} resolves conflicts between adapter-enhanced and memory-augmented responses. A dissent stage adapted from the Catfish agent~\citep{catfish2025} challenges premature consensus in multi-adapter scenarios.
   \item \textbf{Anti-bias Filter}: a bias check that draws on KnowBias-style bias-knowledge neuron probing~\citep{knowbias2025} is applied twice, and a reasoning-based bias detection pass adapted from RBD~\citep{rbd2025} follows.
   \item \textbf{Aeon Memory Write}: The episode (query, routing decision, response, user feedback) is persisted to both Atlas and Trace stores. Latency: $\sim$32\,ms.
@@ -134,7 +134,7 @@ The entire system runs on a single Mac Studio M3~Ultra with 512\,GB unified memo
 The router maps input queries to domain probability distributions using a two-stage architecture:
 
 \begin{enumerate}[nosep]
-  \item \textbf{Embedding}: The query is encoded using \texttt{mpnet-base-v2}~\citep{song2020mpnet}, producing a 768-dimensional dense vector. This replaces our V3 router which used MiniLM (384 dimensions).
+  \item \textbf{Embedding}: The query is encoded using \texttt{mpnet-base-v2}~\citep{song2020mpnet}, producing a 768-dimensional dense vector. This replaces our V3 router which used MiniLM (384 dimensions).\footnote{Provenance of the router numbers. The V4 figures in \Cref{tab:router} (mpnet 768d, 31 merged classes, 70.7\% top-1) follow the V4 training recipe in \texttt{scripts/train\_router\_v4.py} and \texttt{README.md}. The strategy ablation in \Cref{tab:router-ablation} (\texttt{results/ablation-router/router-ablation.json}, run by \texttt{scripts/eval\_router\_ablation.py}) instead uses the weights in \texttt{output/router-v4/}, whose \texttt{meta.json} records MiniLM-L6 (384d) with 35 outputs. The deployed server (\texttt{src/serving/full\_pipeline\_server.py}) documents a MiniLM-L6 (384d) router with 34 niche-domain outputs. These are different router configurations, and we have not reconciled them; the V4 and ablation numbers must not be read as measurements of the deployed router.}
   \item \textbf{Classification}: An MLP with architecture $768 \rightarrow 512 \rightarrow 31$ maps embeddings to domain logits. A sigmoid activation (not softmax) produces independent per-domain probabilities, enabling multi-label classification.
 \end{enumerate}
 
@@ -236,7 +236,7 @@ Existing multi-LoRA systems swap adapters by either reloading model weights ($\s
 
 \subsection{KV Cache Optimization}
 
-Inference uses 8-bit quantized KV cache with LRU prefix reuse. When consecutive queries share a common system prompt or context prefix, the cached key-value pairs are reused, providing an approximate 2$\times$ speedup for sequential queries within the same domain. On the hybrid Qwen3.6 base, prefix reuse must also account for the recurrent state of the Gated DeltaNet (linear-attention) layers: unlike token-addressable full-attention KV entries, these states cannot be rolled back to arbitrary prefix boundaries, so reuse requires state checkpoints at the reuse boundary or an approximate reconstruction such as suffix replay~\citep{liu2026suffixreplay}. Reusing independently cached segments (e.g., recalled memory context) at arbitrary positions on hybrid models needs further linear-attention primitives~\citep{liu2026hypic}.
+Inference uses 8-bit quantized KV cache with LRU prefix reuse. When consecutive queries share a common system prompt or context prefix, the cached key-value pairs are reused, providing an approximate 2$\times$ speedup for sequential queries within the same domain. On the hybrid Qwen3.6 base, prefix reuse must also account for the recurrent state of the Gated DeltaNet (linear-attention) layers: unlike token-addressable full-attention KV entries, these states cannot be rolled back to arbitrary prefix boundaries, so reuse requires state checkpoints at the reuse boundary or an approximate reconstruction such as suffix replay~\citep{liu2026suffixreplay} (an earlier version of the same idea by the same authors appears as Tail-Replay~\citep{liu2026tailreplay}; we treat the two as a single line of work and cite SuffixReplay, the later system-level description, as canonical). Checkpoint-side alternatives include decay-aware state compression~\citep{yu2026dasc}. Reusing independently cached segments (e.g., recalled memory context) at arbitrary positions on hybrid models needs further linear-attention primitives~\citep{liu2026hypic,liu2026linearkv}; LinearKV reports that a single cached state per linear layer suffices for position-independent caching, which we have not evaluated. For the prefix-cache path, validating token-ID equality against full recomputation, as done for hybrid-state cache recovery by \citet{li2026hybridstate}, is the appropriate acceptance test; we do not report such a check here.
 
 \subsection{Three-Level Domain Gating}
 \label{sec:domain-gating}
@@ -310,7 +310,7 @@ The dissent stage adapts the Catfish agent~\citep{catfish2025}, which was introd
 
 \subsection{KnowBias + RBD Anti-bias}
 
-KnowBias~\citep{knowbias2025} mitigates social bias by identifying, through attribution, the neurons that encode bias knowledge and enhancing them at inference time. Our bias check draws on its neuron-probing step and is applied twice: first on the raw model output, then on the post-negotiation response, to catch biases that emerge during the negotiation process itself. RBD~\citep{rbd2025} is a reasoning-based bias detector originally designed to flag biased LLM-as-a-judge evaluations and guide the evaluator's self-correction; we adapt it as a final reasoning-based bias check on the response.
+KnowBias~\citep{knowbias2025} mitigates social bias by identifying, through attribution, the neurons that encode bias knowledge and enhancing them at inference time. Our bias check draws on its neuron-probing step and is applied twice: first on the raw model output, then on the post-negotiation response, to catch biases that emerge during the negotiation process itself. RBD~\citep{rbd2025} is a reasoning-based bias detector originally designed to flag biased LLM-as-a-judge evaluations and guide the evaluator's self-correction; we adapt it as a final reasoning-based bias check on the response. Debiasing is a measurement intervention that can also erase real quality differences by turning them into ties~\citep{zhao2026debias}; our bias check reports suppression only, not discrimination or tie rate, which is a limitation. Calibration-based~\citep{barbera2026callm} and self-debiasing~\citep{yin2026selfdebias} judges are zero- or low-training alternatives not compared here.
 
 \subsection{Cognitive Layer A/B Evaluation}
 
@@ -481,7 +481,7 @@ The deployed system passes a full stress test: 10/10 queries routed correctly to
 The primary contribution of \textsc{micro-kiki} is not SOTA adapter performance on any single benchmark, but rather the \emph{system-level integration} of multi-adapter routing, cognitive augmentation, and honest multi-benchmark evaluation on consumer hardware. The ablation results reveal both where the approach works (in-domain PPL, HumanEval) and where it fails (MBPP generalization, cognitive layer on technical domains). We believe that publishing negative and mixed results alongside positive ones is essential for the community to calibrate expectations around multi-LoRA systems.
 
 \paragraph{The null-space negative result.}
-The finding that null-space projection has no effect on MoE architectures (\Cref{tab:nullspace}) has practical implications: it eliminates a complex and computationally expensive training step (projecting gradients into prior adapters' null spaces) for any system built on MoE backbones with sufficient expert count. The ${\sim}88.6$° figure in \Cref{tab:nullspace} is the mean over the \emph{two null-space ablation priors} (chat-fr, python) on 3 domain pairs --- distinct from the 5-adapter pairwise sweep in \Cref{sec:adapters}. The quasi-orthogonality result is consistent across both measurements, but the ablation covers only a subset of adapter pairs and should not be read as a fleet-wide characterization of the full 41-adapter corpus. A further threat to validity: near-orthogonal adapter weight vectors are not by themselves evidence of absent interference. \citet{chowdhury2026routingnotenough} observe negative transfer in MoE+LoRA fine-tuning between domains with near-disjoint expert routing, and attribute it to nearly orthogonal domain gradients competing within the same low-rank adapter subspace. Our ablation measures angles only; whether null-space projection changes \emph{functional} interference (cross-domain win-rate or perplexity) on MoE backbones is untested, and the negative result should be read within that scope.
+The finding that null-space projection has no effect on MoE architectures (\Cref{tab:nullspace}) has practical implications: it eliminates a complex and computationally expensive training step (projecting gradients into prior adapters' null spaces) for any system built on MoE backbones with sufficient expert count. The ${\sim}88.6$° figure in \Cref{tab:nullspace} is the mean over the \emph{two null-space ablation priors} (chat-fr, python) on 3 domain pairs --- distinct from the 5-adapter pairwise sweep in \Cref{sec:adapters}. The quasi-orthogonality result is consistent across both measurements, but the ablation covers only a subset of adapter pairs and should not be read as a fleet-wide characterization of the full 41-adapter corpus. A further threat to validity: near-orthogonal adapter weight vectors are not by themselves evidence of absent interference. \citet{chowdhury2026routingnotenough} observe negative transfer in MoE+LoRA fine-tuning between domains with near-disjoint expert routing, and attribute it to nearly orthogonal domain gradients competing within the same low-rank adapter subspace. Our ablation measures angles only; whether null-space projection changes \emph{functional} interference (cross-domain win-rate or perplexity) on MoE backbones is untested, and the negative result should be read within that scope. More precisely, the supported claim is limited to \emph{pairwise cosine angles between flattened weight deltas}, measured on 3 domain pairs: in a parameter space of this dimensionality even unrelated random vectors are close to $90$°, so such angles cannot by themselves separate ``non-interfering'' from ``merely high-dimensional''. In real LoRA pools, stacked low-rank factors are far from independent: \citet{sathiyalogeswaran2026loraspace} report that stacked factors need far fewer directions than the sum of their ranks, with 46--62\% of the directions retaining 99\% of the energy, which a pairwise angle does not reveal. Moreover, \citet{yoo2026spacelora} show that interference can arise in \emph{activation} space, when an adapter responds along input directions that matter for other tasks, an effect that weight-space angles do not measure. Related evidence points the same way: the minimum principal angle between task gradient subspaces, rather than a mean cosine of weight deltas, is the quantity linked to forgetting by \citet{steele2026subspace}; PermDoRA finds that parameter-space geometry predicts adapter composition only weakly~\citep{sivaramakrishnan2026permdora}; and CoDe-LoRA argues that strict orthogonal isolation can obstruct useful knowledge transfer~\citep{liu2026codelora}. Our gate measures a different quantity from \citeauthor{steele2026subspace}'s. We therefore do not claim that the 41-adapter pool is free of interference. Two checks are left as future work and are not reported here: (i)~a pool-level SVD of the stacked adapter factors (energy-retention ratio over the full pool), and (ii)~an activation-interference probe measuring each adapter's response on inputs from the other domains.
 
 \paragraph{Adapter overfitting.}
 The divergence between HumanEval ($+7.3$\,pp) and MBPP ($-10$\,pp) for the same adapter is a cautionary result. Single-benchmark evaluation would have produced a misleadingly positive narrative. We attribute this to the teacher distillation process: the training data generated by Qwen3-Coder-480B-A35B may favor the structured, docstring-driven format characteristic of HumanEval problems. Multi-benchmark validation gates should be mandatory before any adapter is promoted to production.
@@ -494,11 +494,13 @@ The A/B evaluation (\Cref{tab:cognitive-ab}) shows that cognitive augmentation i
 
 \paragraph{Limitations.}
 
+\emph{KV-cache quantisation and expert routing.} The system serves Q4 weights with an 8-bit KV cache on a 256-expert MoE. \citet{gu2026routeflip} show that quantising the KV cache can flip top-$k$ expert selection even when the router itself is protected, and attribute about 31\% of the quantisation damage on OLMoE to such route flips (their setting uses a more aggressive 4-bit cache than ours, so the effect at 8 bits is open rather than demonstrated). We did not measure expert-selection agreement between the 8-bit KV cache and a BF16 KV cache; this is a limitation of the reported latency and quality numbers, and the agreement check is listed as future work.
+
 Router accuracy on sparse domains remains a challenge. Domains with fewer than 300 training examples (freecad, platformio) show higher misclassification rates. The current sigmoid architecture treats each domain independently; exploring cross-domain attention mechanisms may improve routing for related domains.
 
 STM32 HAL adapter quality is limited by the teacher model's own knowledge gaps in vendor-specific APIs. Generated training data sometimes produces plausible but incorrect register configurations, which the forgetting gate does not catch (it measures interference, not factual accuracy).
 
-The Aeon memory evaluation (36+ recalls per 14-turn dialogue) compares against a stateless LLM only. \citet{bao2026naiverag} find that a naive RAG baseline (dense retrieval and reranking over raw history) ranks first among the compared memory systems in six of seven benchmark--model settings on LoCoMo, LongMemEval, MEME and MemoryAgentBench, and that transformed memory stores lose evidence relative to raw history. A raw-history RAG baseline is therefore needed before attributing value to the Atlas/Trace structure.
+The Aeon memory evaluation (36+ recalls per 14-turn dialogue) compares against a stateless LLM only and counts recalls rather than measuring task utility; a utility-based evaluation in the style of DolphinBench~\citep{rathi2026dolphinbench}, and a comparison of episode against document retrieval at equal budgets~\citep{xu2026episodic}, are left for future work. \citet{bao2026naiverag} find that a naive RAG baseline (dense retrieval and reranking over raw history) ranks first among the compared memory systems in six of seven benchmark--model settings on LoCoMo, LongMemEval, MEME and MemoryAgentBench, and that transformed memory stores lose evidence relative to raw history. A raw-history RAG baseline is therefore needed before attributing value to the Atlas/Trace structure.
 
 The 4--6\,s end-to-end latency, while acceptable for expert consultation use cases, precludes real-time applications. This is fundamentally limited by running a 35B model on CPU/Metal rather than dedicated GPU inference.
 
@@ -509,12 +511,13 @@ The system's reliance on MLX and unified memory means it cannot directly port to
 \begin{enumerate}[nosep]
   \item \textbf{Recursive Language Model (RLM)}: Replacing the Negotiator with a recursive decomposition approach inspired by Recursive Language Models~\citep{rlm2025}, in which a model recursively calls itself on parts of its input. For multi-domain queries, a complex query would be decomposed into domain-specific sub-queries, each routed independently, and the results composed recursively --- a more principled approach than the current CAMP-style arbitration for queries spanning multiple adapter domains.
   \item \textbf{Domain-conditional cognitive gating}: Automatically bypassing negotiation and anti-bias stages for domains where the A/B evaluation shows negative $\Delta$.
+  \item \textbf{Interference and routing checks}: a pool-level SVD of the stacked adapter factors, an activation-interference probe, an expert-selection agreement check between 8-bit and BF16 KV caches, and a Latent-LoRA-style gate-free router baseline.
   \item \textbf{Router V5}: Cross-attention routing and hard-negative mining for sparse domains.
   \item \textbf{Multi-benchmark adapter gates}: Requiring positive $\Delta$ on at least two independent benchmarks before promoting any adapter to production serving.
   \item \textbf{DPO/GRPO alignment}: Currently blocked on MLX native support for preference optimization.
   \item \textbf{Domain-specific benchmarks}: KiCad DSL correctness, SPICE netlist validity, STM32 HAL compilation rates.
   \item \textbf{Multi-node deployment}: Extending the pipeline across the existing 5-node cluster for parallel inference.
-  \item \textbf{Base-model refresh}: Qwen3.8-27B~\citep{qwen2026qwen38_27b} (Apache-2.0) keeps the Gated DeltaNet/gated-attention hybrid layout but is dense, so the MoE-specific parts of this work (router LoRA, the expert-sparsity explanation of quasi-orthogonality) would not transfer directly. Qwen3.8-Flash-Next~\citep{qwen2026qwen38flashnext} is an MoE (125\,B total, 6\,B active parameters) but is released under the \texttt{qwen-community-1.0} license rather than Apache-2.0. A rebase would constitute a new study rather than an update of the present results.
+  \item \textbf{Base-model refresh}: Qwen3.8-27B (official Hugging Face model card~\citep{qwen2026qwen38_27b}, Apache-2.0) keeps the Gated DeltaNet/gated-attention hybrid layout but is dense, so the MoE-specific parts of this work (router LoRA, the expert-sparsity explanation of quasi-orthogonality) would not transfer directly. Qwen3.8-Flash-Next~\citep{qwen2026qwen38flashnext} is an MoE (125\,B total, 6\,B active parameters) but is released under the \texttt{qwen-community-1.0} license rather than Apache-2.0. The unadapted dense model should be benchmarked before any adapter is ported, since a dense 27B model and a 3\,B-active MoE differ substantially in active compute, and adapter transfer cannot be assumed. A rebase would constitute a new study rather than an update of the present results.
 \end{enumerate}
 
 % ===========================================================================
@@ -611,7 +614,7 @@ Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique~Ponde de~Oliveira Pin
 \bibitem[{Qwen Team}(2025)]{qwen3_2025}
 {Qwen Team}.
 \newblock Qwen3 Technical Report.
-\newblock \emph{arXiv preprint}, 2025.
+\newblock \emph{arXiv preprint arXiv:2505.09388}, 2025.
 
 \bibitem[Abu~Ayyash(2026)]{abuayyash2026brainstacks}
 Mohammad~R. Abu~Ayyash.
@@ -671,12 +674,102 @@ Zhengye Bao, Shengtao Zhang, Haokai Zhang, Shiqi Lou, Muning Wen, and Minnan Luo
 \bibitem[{Qwen Team}(2026a)]{qwen2026qwen38_27b}
 {Qwen Team}.
 \newblock {Qwen3.8-27B} model card.
-\newblock \url{https://huggingface.co/Qwen/Qwen3.8-27B}, 2026. Apache-2.0.
+\newblock \url{https://huggingface.co/Qwen/Qwen3.8-27B}, created 2026-08-05. Apache-2.0.
 
 \bibitem[{Qwen Team}(2026b)]{qwen2026qwen38flashnext}
 {Qwen Team}.
 \newblock {Qwen3.8-Flash-Next} model card.
 \newblock \url{https://huggingface.co/Qwen/Qwen3.8-Flash-Next}, 2026. License \texttt{qwen-community-1.0}.
+
+\bibitem[Sathiyalogeswaran et~al.(2026)]{sathiyalogeswaran2026loraspace}
+Thamirawaran Sathiyalogeswaran, Navindu De~Silva, Chamikara Siriwardane, et~al.
+\newblock {LoRASpace}: A Pool-Wide Shared Substrate for Static and Dynamic Multi-{LoRA} Composition.
+\newblock \emph{arXiv preprint arXiv:2610.27444}, 2026.
+
+\bibitem[Yoo et~al.(2026)]{yoo2026spacelora}
+Seunghyun Yoo, Kiseok Kim, Hyeontae Joo, et~al.
+\newblock {SPACE-LoRA}: Allocating Activation-Subspace Protection for Continual Learning.
+\newblock \emph{arXiv preprint arXiv:2609.34453}, 2026.
+
+\bibitem[Gu(2026)]{gu2026routeflip}
+Parvel Gu.
+\newblock Detecting a Route Flip Is Easier Than Knowing Whether to Fix It: Causal Route-Mediated Damage in Quantized Mixture-of-Experts.
+\newblock \emph{arXiv preprint arXiv:2608.11212}, 2026.
+
+\bibitem[Azghan et~al.(2026)]{azghan2026latentlora}
+Reza~Rahimi Azghan, Gautham~Krishna Gudur, Giulia Pedrielli, et~al.
+\newblock {Latent-LoRA}: Compact Latent-Space Adapters with Gradient-Free Routing for Continual Learning.
+\newblock \emph{arXiv preprint arXiv:2607.23837}, 2026.
+
+\bibitem[Saliencro et~al.(2026)]{saliencro2026voirouting}
+Tom Saliencro, Rohan Desai, Priya Nair, et~al.
+\newblock Uncertainty Is Not Enough: Value-of-Information Routing for Mixtures of {LoRA} Experts.
+\newblock \emph{arXiv preprint arXiv:2608.02528}, 2026.
+
+\bibitem[Liu et~al.(2026c)]{liu2026tailreplay}
+Yirui Liu, Ruoling Qi, Xuaner Wu, et~al.
+\newblock Tail-Replay: Escaping the Curse of Linear Attention in Prefix Caching for Hybrid {LLMs}.
+\newblock \emph{arXiv preprint arXiv:2608.30310}, 2026.
+
+\bibitem[Yu et~al.(2026)]{yu2026dasc}
+Yanqi Yu, Pingwei Sun, Jianchao Tan, et~al.
+\newblock {DASC}: Decay-Aware State Compression for Hybrid Linear-Attention Serving.
+\newblock \emph{arXiv preprint arXiv:2608.30386}, 2026.
+
+\bibitem[Liu et~al.(2026d)]{liu2026linearkv}
+Yirui Liu, Ruoling Qi, Longwen Wang, et~al.
+\newblock {LinearKV}: One Cached State Suffices for Position-Independent Caching in Hybrid {LLMs}.
+\newblock \emph{arXiv preprint arXiv:2608.11231}, 2026.
+
+\bibitem[Steele(2026)]{steele2026subspace}
+Brady Steele.
+\newblock Subspace Geometry Governs Catastrophic Forgetting in Low-Rank Adaptation.
+\newblock \emph{arXiv preprint arXiv:2603.02224}, 2026.
+
+\bibitem[Sivaramakrishnan et~al.(2026)]{sivaramakrishnan2026permdora}
+Gowtham Sivaramakrishnan, Sarvesha Kumar~Kombaiah Seetha, et~al.
+\newblock {PermDoRA} -- Understanding Adapter Interference in Language Models: Limits of Parameter-Space Geometry.
+\newblock \emph{arXiv preprint arXiv:2606.11262}, 2026.
+
+\bibitem[Liu et~al.(2026e)]{liu2026codelora}
+Maoqi Liu, Quan Fang, Yufei He, et~al.
+\newblock {CoDe-LoRA}: Mitigating the Orthogonality Dilemma in Continual Learning of {LLMs} via Knowledge Consolidation and Decoupling.
+\newblock \emph{arXiv preprint arXiv:2610.08312}, 2026.
+
+\bibitem[Nair et~al.(2026)]{nair2026descent}
+Priya Nair, Lukas Brenner, et~al.
+\newblock Score the Update, Not the Token: Descent-Aligned Routing for Combinatorial {LoRA} Experts.
+\newblock \emph{arXiv preprint arXiv:2610.00493}, 2026.
+
+\bibitem[Zhao et~al.(2026)]{zhao2026debias}
+Liang Zhao, Yong Wang, et~al.
+\newblock Debiasing as a Measurement Intervention: Calibrated Ties and Resolution Loss in {LLM}-as-a-Judge Evaluation.
+\newblock \emph{arXiv preprint arXiv:2609.12439}, 2026.
+
+\bibitem[Barbera et~al.(2026)]{barbera2026callm}
+Cesare Barbera, Luca Stradiotti, et~al.
+\newblock A {CaLLM} Judge is a Better Judge: Mitigating Bias in {LLM}-as-a-judge.
+\newblock \emph{arXiv preprint arXiv:2610.18108}, 2026.
+
+\bibitem[Yin et~al.(2026)]{yin2026selfdebias}
+Youbing Yin, Jingyu Wu, et~al.
+\newblock The Judge Can Debias Itself: Awareness and Self-Debiasing for Reliable {LLM}-as-a-Judge.
+\newblock \emph{arXiv preprint arXiv:2610.24320}, 2026.
+
+\bibitem[Rathi et~al.(2026)]{rathi2026dolphinbench}
+Soumil Rathi, Deshraj Yadav, et~al.
+\newblock {DolphinBench}: Mapping the Pareto Frontier of Agent Memory.
+\newblock \emph{arXiv preprint arXiv:2609.24971}, 2026.
+
+\bibitem[Xu et~al.(2026)]{xu2026episodic}
+Nuoyue Xu, Jiang Liu, et~al.
+\newblock Agent Memory with Episodic Retrieval for Financial Decision-Making.
+\newblock \emph{arXiv preprint arXiv:2609.28771}, 2026.
+
+\bibitem[Li(2026)]{li2026hybridstate}
+Frank Li.
+\newblock Validating Hybrid-State Cache Recovery for {GLM-5.3-Flash} with {vLLM} and {LMCache}.
+\newblock \emph{arXiv preprint arXiv:2609.15030}, 2026.
 
 \end{thebibliography}
 
