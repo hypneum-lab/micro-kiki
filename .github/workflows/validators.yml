@@ -54,6 +54,6 @@ jobs:
       - name: install deps
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install safetensors numpy pyyaml pytest pytest-asyncio loguru
+          pip install safetensors numpy pyyaml pytest pytest-asyncio loguru httpx==0.28.1
       - name: run forgetting tests
         run: python -m pytest tests/scripts/test_measure_forgetting.py tests/test_forgetting_check_all_previous.py -v
