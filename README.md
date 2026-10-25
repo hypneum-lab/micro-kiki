@@ -10,7 +10,9 @@ Deployable artefact of the *dreamOfkiki* research program, part of
 
 Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on Mac Studio (MLX) or kxkm-ai (RTX 4090 24 GB). Router is 31 sigmoid outputs (35 domains merged to 31 — electronics-hw, kicad, spice consolidated). Metal OOM on M3 Ultra is prevented by raising the MLX cache limit: `mx.set_memory_limit(460 * 1024**3)` + `mx.set_cache_limit(32 * 1024**3)` before training (see `CLAUDE.md` hard invariants). Default `set_cache_limit` is too small and triggers GPU Hang on long runs.
 
-> **Training, datasets, and the `mlx-lm` fork live in the sibling repo [`KIKI-Mac_tunner`](https://github.com/L-electron-Rare/KIKI-Mac_tunner).** This repo holds the runtime: routing, cognitive layer, serving, eval, and the per-domain configs that drive the tuner.
+> **Hosting note (2026-10-25)** — the Mac Studio M3 Ultra that trained and served the adapters is powered down. Adapters, datasets and per-domain configs are preserved ; the RTX 4090 (`kxkm-ai`) path documented below remains the reference for inference. Figures in this README describe the deployment as last measured on that host.
+
+> **Training, datasets, and the `mlx-lm` fork live in the sibling repo [`ailiance-mac-tuner`](https://github.com/ailiance/ailiance-mac-tuner) (formerly `KIKI-Mac_tunner` ; the ailiance organisation is closed since 2026-10, the repository stays public).** This repo holds the runtime: routing, cognitive layer, serving, eval, and the per-domain configs that drive the tuner.
 
 ---
 
@@ -335,8 +337,8 @@ V4 training **complete** — all 35/35 adapters trained and verified. Router V4 
 
 | Repo | Relation |
 |---|---|
-| [**KIKI-Mac_tunner**](https://github.com/L-electron-Rare/KIKI-Mac_tunner) | Sibling — training execution, MLX pipeline, datasets, `mlx-lm` fork |
-| [**KIKI-models-tuning**](https://github.com/L-electron-Rare/KIKI-models-tuning) | Upstream — FineFab QLoRA pipeline for Qwen 2.5-32B domain experts (downstream to micro-kiki) |
+| [**ailiance-mac-tuner**](https://github.com/ailiance/ailiance-mac-tuner) (ex-`KIKI-Mac_tunner`) | Sibling — training execution, MLX pipeline, datasets, `mlx-lm` fork |
+| [**ailiance-models-tuning**](https://github.com/ailiance/ailiance-models-tuning) (ex-`KIKI-models-tuning`) | Upstream — FineFab QLoRA pipeline for Qwen 2.5-32B domain experts (downstream to micro-kiki) |
 | [**mascarade**](https://github.com/electron-rare/mascarade) | Runtime consumer — LLM orchestration across 8 providers, loads adapters at inference |
 | [**dream-of-kiki**](https://github.com/hypneum-lab/dream-of-kiki) | Research sibling — dream-based knowledge consolidation, shares profile concepts. New: [`docs/specs/2026-05-20-biophysical-stratification.md`](https://github.com/hypneum-lab/dream-of-kiki/blob/main/docs/specs/2026-05-20-biophysical-stratification.md) (5 strata, 2026-05-19) |
 | [**kiki-flow-research**](https://github.com/hypneum-lab/kiki-flow-research) | Research sibling — Wasserstein flow engine for consolidation, advisory routing callback |
