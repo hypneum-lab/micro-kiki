@@ -4,7 +4,7 @@
 
 **Routers.**
 - **Random**: picks an expert uniformly among 10 (control).
-- **Torch VQC (ours)**: trained per C3 on 400 remaining samples (train_acc = 0.300 — limited by the 4-qubit ceiling established in C1/C5).
+- **Torch VQC (ours)**: trained per C3 on 400 remaining samples (train_acc = 0.300; the "4-qubit ceiling" formerly attributed to C5 is withdrawn — erratum 2026-10-25, `docs/ERRATA.md` E-2026-10-25-02).
 - **Oracle**: always picks the ground-truth expert (upper bound).
 
 "Expert" here means the system prompt `"You are an expert in {domain}."` — a prompt-based pseudo-adapter, NOT actual LoRA weight swapping.
@@ -49,7 +49,7 @@ This is a **negative result** that Paper A must report honestly. The three posit
 
 1. **Methodological (C1-tested)**: `torch-vqc` enables rigorous quantum-ML benchmarking at 3000× speedup.
 2. **Architectural (C1-tested)**: learned projection is necessary; raw-dim truncation is information-empty.
-3. **Theoretical (C5-proven)**: Holevo+Fano bound quantifies the 4-qubit VQC ceiling (0.911 at MI=2.04 bits).
+3. ~~**Theoretical (C5-proven)**: Holevo+Fano bound quantifies the 4-qubit VQC ceiling (0.911 at MI=2.04 bits).~~ **Withdrawn 2026-10-25** (erratum E-2026-10-25-02): the bound's MI input was a sum of marginal MIs; C5 establishes no ceiling as it stands.
 
 What C2 adds:
 - **Downstream integration test** shows prompt-based routing does NOT pass the kill criterion on this setup.

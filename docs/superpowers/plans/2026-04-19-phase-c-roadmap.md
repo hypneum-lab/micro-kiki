@@ -23,7 +23,7 @@ To move from workshop-track to **main-track publishable**, 5 independent sub-pro
 | **C2-LoRA** | Rerun C2 with real weight-level LoRA adapters | **BLOCKED (infrastructure)** | tasks 1-2 done | **2026-04-20 BLOCKED** — adapter collection heterogeneous (rank 4-16, iters 20-11542, base Qwen3.5 not 3.6). Tasks 1-2 (server + tests) committed. Resuming requires uniform retraining. See `docs/paper-a/c2-lora-blocked.md` |
 | **C3** | Real dialogue corpus (replace `data/final` synthetic with real user queries) | Done | ~1h actual | **Completed 2026-04-19 (commits `f6c688b`..`83b3dee`)** — mascarade-datasets, overlap 0.410, VQC 0.246→0.410 on real. See `docs/paper-a/c3-corpus-validation.md` |
 | **C4** | Scale test (10 → 35 domains with full MoE stack routing) | TBD | 3-4 days | Blocked by C1 + C3 |
-| **C5** | Theoretical analysis (information-capacity bound formal proof, linking 4-qubit ceiling to classical coding theory) | Done | ~45min eng | **Completed 2026-04-19 (commits `41a3432`..`c370001`)** — see `docs/paper-a/c5-info-bound.tex`, bound=0.911 vs empirical 0.246 |
+| **C5** | Theoretical analysis (information-capacity bound formal proof, linking 4-qubit ceiling to classical coding theory) | Done — **bound withdrawn 2026-10-25** | ~45min eng | **Completed 2026-04-19 (commits `41a3432`..`c370001`)** — see `docs/paper-a/c5-info-bound.tex`; the bound=0.911 figure is withdrawn (erratum E-2026-10-25-02, `docs/ERRATA.md`: sum of marginal MIs, 150.74 bits > log₂ 10) |
 
 **Total: 18-29 days of focused work** (vs 6 months with PennyLane parameter-shift).
 

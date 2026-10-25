@@ -14,7 +14,7 @@ Spiking sub-layer; SNN/VQC artefacts here are research, not active runtime.
 | `paper-preamble.tex` | Shared preamble — `\input` it, do not duplicate macros across drafts. |
 | `c1-baseline-results.md`, `c2-diagnostic*.md`, `c2-downstream-results.md` | Source-of-truth result tables; numbers in `.tex` are claims under R1 — do not hand-edit. |
 | `c3-corpus-validation.md` | PII-audit + cluster-taxonomy overlap (0.410 vs chance 0.100) — cited from §2 corpora. |
-| `c5-info-bound.tex`, `c5-bound-figure.pdf`, `c5-references.bib` | Holevo + Fano upper bound (0.911) — the bib is c5-only; merge into a global bib only at submission. |
+| `c5-info-bound.tex`, `c5-bound-figure.pdf`, `c5-references.bib` | Holevo + Fano upper bound — the 0.911 figure is **withdrawn** (erratum 2026-10-25, `docs/ERRATA.md` E-2026-10-25-02: sum of marginal MIs); figure and JSON await recomputation with the joint estimator. The bib is c5-only; merge into a global bib only at submission. |
 | `*.pdf` (`c1-comparison.pdf`, `c2-*.pdf`, `c5-bound-figure.pdf`) | Generated figures — regenerate via the source notebooks; never hand-edit. |
 | `build.sh` | Two-pass `pdflatex` + `bibtex` + final pass; `set -euo pipefail`. |
 
