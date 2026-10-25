@@ -190,10 +190,10 @@ Query → Quantum VQC Router → domain classification
   - SpikingKiki-27B (dense, 30-40h conversion)
   - SpikingKiki-35B-A3B (MoE, 40h, first MoE SNN at 35B scale)
   - Cross-eval picks best variant for v0.3 release
-- **Energy results (theoretical, Loihi-2 target)**:
-  - 35B MoE on Loihi-2: **0.032 mJ/tok**
-  - 91.6x ops reduction via LAS conversion (spike sparsity + event-driven computation)
-  - Efficiency score comparison: 27B dense = 2.23, 35B MoE = 0.055 (MoE routing overhead dominates spike cost at this scale)
+- **Energy — not measured** (erratum 2026-10-25, `docs/ERRATA.md` E-2026-10-25-01):
+  - No J/token has been measured on the target system. The "0.032 mJ/tok on Loihi-2", "91.6x ops reduction" and efficiency scores previously listed here were analytical operation counts (`scripts/eval_spikingkiki_35b.py`) and are withdrawn.
+  - External 2026 measurements are unfavourable: SymbolicLight (194M, from scratch) ~3x more energy and ~4x slower on GPU; SpikingBrain 2.0 gains (-46.5 %) only on dedicated silicon; 0.23-0.34 nats quality cost at equal FLOPs (arXiv:2610.15146).
+  - J/token to be measured: hypothesis NH-81 (micro-kiki issue #14). No energy claim until then.
 - **Akida Mini PCIe deployment**: gated on simulator validation (hardware: $300, optional)
 
 ### 5.4 End-to-End Multi-Turn Cognitive Pipeline
@@ -344,7 +344,7 @@ We present micro-kiki, the first triple-hybrid quantum-neuromorphic-classical sy
 - **10 SFT adapters trained** on 134K total examples across 10 domains; 800+ tests in the evaluation harness
 - **Forgetting gate**: 4/10 PASS (spice 1.0, stm32 0.78, electronics 0.69, dsp 0.69); remaining 6 below angle threshold but no win-rate regression
 - **Stacks vs base**: only 3/10 domains show measurable improvement over base 35B — the base model is already strong; the cognitive layer is the differentiator
-- **SNN energy**: 35B MoE on Loihi-2 = 0.032 mJ/tok; 91.6x ops reduction; 27B efficiency score 2.23 vs 35B 0.055
+- **SNN energy**: not measured on the target system (analytical figures withdrawn 2026-10-25, see `docs/ERRATA.md`); J/token to be measured (NH-81)
 - **VQC unbalanced training** achieves 86.8% accuracy but fails on minority classes (class imbalance confound)
 - **Balanced curriculum** converges to 53% at epoch 5 (improving); confidence target 0.815 at epoch 12
 - **LoRA effectiveness is domain-dependent**: chat-fr +7%, SPICE +0% (no adaptation needed for well-represented domains)

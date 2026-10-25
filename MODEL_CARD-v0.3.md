@@ -8,7 +8,6 @@ tags:
   - moe
   - lora
   - neuromorphic
-  - energy-efficient
 datasets:
   - custom
 base_model: Qwen/Qwen3.5-4B
@@ -22,7 +21,8 @@ pipeline_tag: text-generation
 SpikingKiki v0.3 is a hybrid ANN/SNN language model built on Qwen3.5-4B
 with 32 MoE-LoRA domain expert stacks and a neuroscience-inspired
 cognitive layer. The model uses Lossless ANN-to-SNN (LAS) conversion
-for energy-efficient inference on both GPU and neuromorphic hardware.
+targeting inference on both GPU and neuromorphic hardware; energy savings
+are hypothesised, not measured (erratum 2026-10-25, `docs/ERRATA.md`).
 
 ### Architecture
 
@@ -36,7 +36,7 @@ for energy-efficient inference on both GPU and neuromorphic hardware.
 
 ### Key Features
 
-- **Energy efficient**: 40-60% theoretical energy reduction via spike sparsity
+- **Energy**: not measured. The "40-60% energy reduction" formerly stated here is an analytical spike-sparsity estimate, not a measurement on GPU or neuromorphic hardware (erratum 2026-10-25); J/token measurement pending (NH-81)
 - **Neuromorphic ready**: Compatible with Akida/Loihi via ONNX export
 - **MoE-aware SNN**: Router preserves expert selection semantics during conversion
 - **Mistral-dense support**: Full-attention + SwiGLU MLP pattern conversion
@@ -55,11 +55,11 @@ for energy-efficient inference on both GPU and neuromorphic hardware.
 | PI-depth-10 recall      | >= 95%   | TBD      |
 | Expert routing agreement| >= 98%   | >= 99%   |
 | ANN/SNN output MSE      | <= 1e-3  | <= 1e-3  |
-| Energy ratio (T=4, r=0.3)| 0.6    | 0.6      |
+| Energy ratio (T=4, r=0.3)| 0.6    | not measured (analytical model only) |
 
 ## Intended Use
 
-Research and development of energy-efficient LLM inference.
+Research on spiking LLM inference. Energy benefits are unmeasured.
 Not intended for production deployment without further validation.
 
 ## Limitations
