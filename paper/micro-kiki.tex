@@ -47,7 +47,7 @@
 % ABSTRACT
 % ===========================================================================
 \begin{abstract}
-We present \textsc{micro-kiki}, a production system that serves 35 domain-specialized LoRA adapters on a single Apple Mac Studio M3~Ultra (512\,GB unified memory) using Qwen3.6-35B-A3B, a Mixture-of-Experts model with 256 experts and 3\,B active parameters per token. The system implements a 7-stage cognitive pipeline: (1)~neural domain routing via an mpnet-based multi-label classifier, (2)~O(10\,ms) adapter swap through in-place LoRA unpatch, (3)~episodic memory recall through Aeon's Atlas SIMD and Trace graph stores, (4)~quantized MLX inference with 8-bit KV cache, (5)~multi-perspective negotiation via CAMP and Catfish, (6)~anti-bias filtering through KnowBias and RBD, and (7)~memory persistence. The router achieves 70.7\% top-1 and 89.5\% top-3 accuracy across 31 merged domain classes, outperforming keyword baselines by 2.2$\times$. The 6 tabled adapters reduce in-domain perplexity with mean~$\Delta$PPL~$-3.44$ (single-seed; $-7.30$ across all 35 domains in the artifact) and lift HumanEval pass@1 by up to +7.3\,pp, but regress on MBPP by up to $-10$\,pp, revealing benchmark-specific overfitting. A null-space projection ablation on 3 domain pairs shows that Brainstacks-style orthogonalization is superfluous on native MoE architectures: adapter weight vectors are already quasi-orthogonal at ${\sim}88.6$° in those pairs. The cognitive layer improves response quality on conversational and design domains (+7\,pp composite) but degrades purely technical domains ($-13$\,pp embedded), suggesting domain-dependent value. End-to-end pipeline latency is 4--6\,s per query, with adapter swap at 10\,ms (20$\times$ faster than model reload). To our knowledge, this is the first production multi-LoRA cognitive pipeline running on consumer Apple Silicon hardware.
+We present \textsc{micro-kiki}, a production system that serves 35 domain-specialized LoRA adapters on a single Apple Mac Studio M3~Ultra (512\,GB unified memory) using Qwen3.6-35B-A3B, a Mixture-of-Experts model with 256 experts and 3\,B active parameters per token. The system implements a 7-stage cognitive pipeline: (1)~neural domain routing via a MiniLM-based multi-label classifier, (2)~O(10\,ms) adapter swap through in-place LoRA unpatch, (3)~episodic memory recall through Aeon's Atlas SIMD and Trace graph stores, (4)~quantized MLX inference with 8-bit KV cache, (5)~multi-perspective negotiation via CAMP and Catfish, (6)~anti-bias filtering through KnowBias and RBD, and (7)~memory persistence. The router reaches 46.4\% top-1 and 69.6\% top-3 accuracy across 34 domain classes on the committed evaluation ($n = 5{,}377$), outperforming keyword baselines by 2.2$\times$. The 6 tabled adapters reduce in-domain perplexity with mean~$\Delta$PPL~$-3.44$ (single-seed; $-7.30$ across all 35 domains in the artifact) and lift HumanEval pass@1 by up to +7.3\,pp, but regress on MBPP by up to $-10$\,pp, revealing benchmark-specific overfitting. A null-space projection ablation on 3 domain pairs shows that Brainstacks-style orthogonalization is superfluous on native MoE architectures: adapter weight vectors are already quasi-orthogonal at ${\sim}88.6$° in those pairs. The cognitive layer improves response quality on conversational and design domains (+7\,pp composite) but degrades purely technical domains ($-13$\,pp embedded), suggesting domain-dependent value. End-to-end pipeline latency is 4--6\,s per query, with adapter swap at 10\,ms (20$\times$ faster than model reload). To our knowledge, this is the first production multi-LoRA cognitive pipeline running on consumer Apple Silicon hardware.
 \end{abstract}
 
 % ===========================================================================
@@ -73,7 +73,7 @@ However, multi-adapter serving introduces several unsolved challenges at the sys
 \begin{enumerate}[nosep]
   \item The first production multi-LoRA cognitive pipeline on Apple Silicon, serving 35 domain adapters on a MoE 35B model.
   \item An O(10\,ms) adapter swap mechanism via in-place LoRA unpatch on MoE architectures.
-  \item A sigmoid multi-label routing scheme with domain merging achieving 70.7\% top-1 accuracy (2.2$\times$ over keyword baselines).
+  \item A sigmoid multi-label routing scheme reaching 46.4\% top-1 accuracy on 34 domains (2.2$\times$ over keyword baselines).
   \item A negative result: null-space projection~\citep{abuayyash2026brainstacks} is superfluous on native MoE architectures with 256 experts, where adapter weight vectors are naturally quasi-orthogonal at ${\sim}88.6$° in a 3-domain-pair ablation.
   \item An honest multi-benchmark evaluation revealing adapter overfitting (HumanEval $+7.3$\,pp vs.\ MBPP $-10$\,pp) and domain-dependent cognitive layer value.
   \item Training data generation for 35 niche technical domains via teacher distillation from Qwen3-Coder-480B-A35B; mean $\Delta$PPL $= -7.30$ across all 35 domains (single-seed artifact; $-3.44$ across 6 tabled domains).
@@ -109,7 +109,7 @@ Aeon~\citep{aeon2025} structures agent memory into Atlas (a SIMD-accelerated pag
 \textsc{micro-kiki} implements a 7-stage cognitive pipeline served as an OpenAI-compatible FastAPI application (\texttt{full\_pipeline\_server.py}). The pipeline processes each user query through the following stages:
 
 \begin{enumerate}[nosep]
-  \item \textbf{Domain Routing} (\S\ref{sec:routing}): An mpnet-based MLP classifier maps the query embedding to a probability distribution over 31 merged domain classes (from 35 original domains). Up to 4 adapters are activated simultaneously.
+  \item \textbf{Domain Routing} (\S\ref{sec:routing}): A MiniLM-based MLP classifier maps the query embedding to independent sigmoid scores over 34 domain classes. Up to 4 adapters are activated simultaneously.
   \item \textbf{LoRA Swap} (\S\ref{sec:adapters}): The selected domain adapter(s) are applied via in-place unpatch of LoRA wrappers, achieving O(10\,ms) swap latency.
   \item \textbf{Aeon Memory Recall} (\S\ref{sec:cognitive}): The Atlas SIMD vector store retrieves relevant episodic memories; the Trace graph store provides neuro-symbolic context. Latency: $\sim$62\,ms.
   \item \textbf{MLX Inference}: Qwen3.6-35B-A3B runs in Q4 quantization with 8-bit KV cache and LRU prefix reuse. Inference latency: 3.6--5.2\,s per query. \texttt{strip\_thinking} removes Qwen3's~\citep{qwen3_2025} chain-of-thought \texttt{<think>} tags by default.
@@ -134,24 +134,17 @@ The entire system runs on a single Mac Studio M3~Ultra with 512\,GB unified memo
 The router maps input queries to domain probability distributions using a two-stage architecture:
 
 \begin{enumerate}[nosep]
-  \item \textbf{Embedding}: The query is encoded using \texttt{mpnet-base-v2}~\citep{song2020mpnet}, producing a 768-dimensional dense vector. This replaces our V3 router which used MiniLM (384 dimensions).\footnote{Provenance of the router numbers. The V4 figures in \Cref{tab:router} (mpnet 768d, 31 merged classes, 70.7\% top-1) follow the V4 training recipe in \texttt{scripts/train\_router\_v4.py} and \texttt{README.md}. The strategy ablation in \Cref{tab:router-ablation} (\texttt{results/ablation-router/router-ablation.json}, run by \texttt{scripts/eval\_router\_ablation.py}) instead uses the weights in \texttt{output/router-v4/}, whose \texttt{meta.json} records MiniLM-L6 (384d) with 35 outputs. The deployed server (\texttt{src/serving/full\_pipeline\_server.py}) documents a MiniLM-L6 (384d) router with 34 niche-domain outputs. These are different router configurations, and we have not reconciled them; the V4 and ablation numbers must not be read as measurements of the deployed router.}
-  \item \textbf{Classification}: An MLP with architecture $768 \rightarrow 512 \rightarrow 31$ maps embeddings to domain logits. A sigmoid activation (not softmax) produces independent per-domain probabilities, enabling multi-label classification.
+  \item \textbf{Embedding}: The query is encoded using \texttt{all-MiniLM-L6-v2} (sentence-transformers), producing a 384-dimensional dense vector.\footnote{Provenance of the router numbers (erratum E-2026-10-25-03, \texttt{docs/ERRATA.md}). The figures in \Cref{tab:router} are read from the committed artifact \texttt{results/router-v4-eval.json} (MiniLM-L6 384d, 34 classes, $n = 5{,}377$ validation examples), written by \texttt{scripts/train\_router\_v4.py --mode eval}; the weights in \texttt{output/router-v4/} (\texttt{meta.json}: MiniLM-L6 384d) and the deployed server (\texttt{src/serving/full\_pipeline\_server.py}, 34 niche-domain outputs) belong to the same router. An earlier version of this paper reported 70.7\% top-1 / 89.5\% top-3 for an mpnet-768d retrain over 31 merged classes; that figure exists only in the message of commit \texttt{10c7b6e}, whose weights were superseded by merge \texttt{bf986ba} the same day, and no evaluation file or validation split was committed. It is withdrawn. The strategy ablation in \Cref{tab:router-ablation} uses the augmented validation set and is not comparable in absolute terms.}
+  \item \textbf{Classification}: An MLP with architecture $384 \rightarrow 512 \rightarrow 34$ maps embeddings to domain logits. A sigmoid activation (not softmax) produces independent per-domain probabilities, enabling multi-label classification.
 \end{enumerate}
 
 \subsection{Domain Merging}
 
-The 35 original training domains include several with high semantic overlap. We merge these into 31 routing classes:
-\begin{itemize}[nosep]
-  \item \texttt{electronics-hw}, \texttt{electronics-design}, \texttt{electronics} $\rightarrow$ \texttt{electronics}
-  \item \texttt{kicad-dsl}, \texttt{kicad-pcb} $\rightarrow$ \texttt{kicad}
-  \item \texttt{spice-sim}, \texttt{spice-models} $\rightarrow$ \texttt{spice}
-\end{itemize}
-
-At inference time, when the router selects a merged class, the system loads the most specific adapter (e.g., \texttt{kicad-dsl} for DSL queries, \texttt{kicad-pcb} for layout queries) based on secondary keyword heuristics.
+The training domains include several with high semantic overlap (\texttt{components}, \texttt{electronics}, \texttt{power}; \texttt{kicad-dsl}, \texttt{kicad-pcb}; \texttt{spice}, \texttt{spice-sim}). A 31-class router merging them was trained once (commit \texttt{10c7b6e}: \texttt{components}, \texttt{electronics}, \texttt{power} $\rightarrow$ \texttt{electronics-hw}; \texttt{kicad-dsl}, \texttt{kicad-pcb} $\rightarrow$ \texttt{kicad}; \texttt{spice-sim} $\rightarrow$ \texttt{spice}), but no evaluation of it was committed and its weights were superseded the same day (erratum E-2026-10-25-03). The router evaluated in this paper keeps the 34 unmerged classes, and the predicted class names the adapter directly. The overlap shows up as the dominant confusions in \texttt{results/router-v4-eval.json} (\texttt{components}$\rightarrow$\texttt{electronics}: 55; \texttt{components}$\rightarrow$\texttt{power}: 39).
 
 \subsection{Training}
 
-The classifier is trained with cross-entropy loss and class weights inversely proportional to domain frequency, addressing the severe class imbalance between foundation domains (chat-fr: 12K examples) and niche domains (freecad: 219 examples). This replaces the V3 binary cross-entropy loss which treated each domain independently. Note that V4 training is therefore single-label (one integer domain label per example, \texttt{scripts/train\_router\_v4.py}); the sigmoid is applied only at inference, to obtain independent per-domain scores that are thresholded to activate up to 4 adapters. The multi-label behaviour is a property of the inference-time decision rule, not of the training objective.
+The committed classifier (\texttt{output/router-v4/meta.json}) is trained for 30 epochs with binary cross-entropy over the domain indicators (batch 128, learning rate $10^{-3}$); the sigmoid outputs are thresholded at inference to activate up to 4 adapters. The current default of \texttt{scripts/train\_router\_v4.py} (cross-entropy with inverse-frequency class weights, single-label integer targets) corresponds to the withdrawn mpnet retrain and has no committed evaluation; under that objective the multi-label behaviour is a property of the inference-time decision rule only, not of the training objective. Class imbalance is severe (foundation domains such as \texttt{chat-fr} have an order of magnitude more examples than niches such as \texttt{freecad}, $n = 23$ in the validation split) and drives the per-domain spread behind \Cref{tab:router}.
 
 Word boundary matching in the classifier was fixed in V4 to prevent partial matches (e.g., ``embedded'' incorrectly matching ``embeddedness''), which alone accounted for $\sim$5\% accuracy improvement.
 
@@ -159,16 +152,13 @@ Word boundary matching in the classifier was fixed in V4 to prevent partial matc
 
 \begin{table}[h]
 \centering
-\caption{Router accuracy across versions.}
+\caption{Router accuracy on the committed evaluation artifact (\texttt{results/router-v4-eval.json}: MiniLM-L6 384d, 34 classes, $n = 5{,}377$ validation examples). An earlier version of this table listed an mpnet-768d retrain at 70.7\% / 89.5\% and labelled this row ``V3''; that figure has no committed artifact and is withdrawn (erratum E-2026-10-25-03).}
 \label{tab:router}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Version} & \textbf{Embedding} & \textbf{Loss} & \textbf{Top-1} & \textbf{Top-3} \\
+\textbf{Router} & \textbf{Embedding} & \textbf{Loss} & \textbf{Top-1} & \textbf{Top-3} \\
 \midrule
-V3 & MiniLM (384d) & BCE & 46.4\% & 69.6\% \\
-V4 & mpnet (768d) & CE + class weights & \textbf{70.7\%} & \textbf{89.5\%} \\
-\midrule
-\multicolumn{3}{l}{Improvement} & +24.3pp & +19.9pp \\
+V4 (committed) & MiniLM-L6 (384d) & BCE & 46.4\% & 69.6\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -346,9 +336,9 @@ The cognitive layer provides a clear benefit on conversational and design-orient
 
 \subsection{Router Accuracy}
 
-Router V4 accuracy is reported in \Cref{tab:router}. The improvement from V3 to V4 is driven by three factors: the higher-dimensional embedding (768d vs.\ 384d), the switch from BCE to cross-entropy with class weights, and the domain merge reducing classification ambiguity from 35 to 31 classes.
+Router V4 accuracy is reported in \Cref{tab:router}: 46.4\% top-1 and 69.6\% top-3 over 34 classes on $5{,}377$ validation examples. No V3$\rightarrow$V4 improvement is claimed; the 70.7\% figure given in an earlier version of this paper is withdrawn (erratum E-2026-10-25-03, \texttt{docs/ERRATA.md}).
 
-Error analysis shows that remaining misclassifications concentrate on domains with limited training data (freecad: 219 examples) and domains with high vocabulary overlap (stm32 vs.\ embedded vs.\ arm).
+Per-domain accuracy in the artifact ranges from 1.00 (\texttt{stm32}, $n = 38$) and 0.90 (\texttt{html-css}) down to 0.08 (\texttt{electronics}, \texttt{power}) and 0.04 (\texttt{freecad}, $n = 23$). Misclassifications concentrate on domains with little data (\texttt{freecad}, \texttt{platformio}) and on the electronics cluster (\texttt{components}, \texttt{electronics}, \texttt{power}), whose vocabularies overlap; several niches are also absorbed by \texttt{chat-fr} (\texttt{iot}: 47, \texttt{embedded}: 41, \texttt{typescript}: 37 confusions).
 
 \subsection{Adapter Health}
 
@@ -384,7 +374,7 @@ freecad (niche) & 219 & 0.550 & 100 \\
 \toprule
 \textbf{Stage} & \textbf{Latency} \\
 \midrule
-Router (mpnet + MLP) & 8\,ms \\
+Router (MiniLM + MLP) & 8\,ms \\
 LoRA swap (unpatch) & 10\,ms \\
 Aeon recall (Atlas + Trace) & 62\,ms \\
 MLX inference (Q4 + 8-bit KV) & 3.6--5.2\,s \\
@@ -528,7 +518,7 @@ The system's reliance on MLX and unified memory means it cannot directly port to
 
 We presented \textsc{micro-kiki}, a production system that deploys 35 domain-specialized LoRA adapters with a 7-stage cognitive pipeline on a single Mac Studio M3~Ultra. The system demonstrates that consumer Apple Silicon hardware, combined with MoE model sparsity and efficient adapter management, can serve a meaningful number of specialized domains with sub-second routing and cognitive augmentation.
 
-Key technical contributions include: (1)~O(10\,ms) adapter swap via in-place LoRA unpatch; (2)~sigmoid multi-label routing achieving 70.7\% top-1 accuracy (2.2$\times$ over keyword baselines); (3)~the negative result that null-space projection is superfluous on native MoE architectures due to natural quasi-orthogonality at ${\sim}88.6$° in the null-space ablation; (4)~honest multi-benchmark evaluation revealing that HumanEval gains ($+7.3$\,pp) do not transfer to MBPP ($-10$\,pp); and (5)~evidence that cognitive augmentation is domain-dependent, helping design tasks but degrading technical ones. The 6 tabled adapters reduce in-domain perplexity with mean $\Delta$PPL $= -3.44$; across all 35 domains in the artifact the mean is $-7.30$ (single-seed, no CI). A 5-adapter pairwise forgetting sweep shows all pair-means ${>}30$° with a worst-pair mean of 66.56° (typescript$\leftrightarrow$python); per-module \texttt{mlp.shared\_expert\_gate} reaches 17.27° and is tracked as a known canary.
+Key technical contributions include: (1)~O(10\,ms) adapter swap via in-place LoRA unpatch; (2)~sigmoid multi-label routing at 46.4\% top-1 accuracy on 34 domains (2.2$\times$ over keyword baselines); (3)~the negative result that null-space projection is superfluous on native MoE architectures due to natural quasi-orthogonality at ${\sim}88.6$° in the null-space ablation; (4)~honest multi-benchmark evaluation revealing that HumanEval gains ($+7.3$\,pp) do not transfer to MBPP ($-10$\,pp); and (5)~evidence that cognitive augmentation is domain-dependent, helping design tasks but degrading technical ones. The 6 tabled adapters reduce in-domain perplexity with mean $\Delta$PPL $= -3.44$; across all 35 domains in the artifact the mean is $-7.30$ (single-seed, no CI). A 5-adapter pairwise forgetting sweep shows all pair-means ${>}30$° with a worst-pair mean of 66.56° (typescript$\leftrightarrow$python); per-module \texttt{mlp.shared\_expert\_gate} reaches 17.27° and is tracked as a known canary.
 
 The system is deployed in production and available as open-source under the Apache 2.0 license. The router is published at \texttt{clemsail/micro-kiki-router-v4} on HuggingFace.
 

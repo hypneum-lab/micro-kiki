@@ -6,9 +6,9 @@ Deployable artefact of the *dreamOfkiki* research program, part of
 [Hypneum Lab](https://github.com/hypneum-lab). Author: Clément Saillant
 (L'Electron Rare).
 
-**Status: 35/35 V4 adapters trained and verified healthy.** Router V4 live (top-1 70.7%, top-3 89.5%). Full 7-stage cognitive pipeline deployed (`full_pipeline_server.py`). Stress test: 10/10 queries pass, 8/8 after restart, all domains routed correctly. Post-pivot adapters (35/35) pass the adapter-health validator; pre-pivot MoE-LoRA adapters (stacks-v3-r16) were archived as dead weights after an `lora_B = 0` audit — see `docs/research/2026-04-19-prepivot-moe-lora-audit.md`.
+**Status: 35/35 V4 adapters trained and verified healthy.** Router V4 live (top-1 46.4 %, top-3 69.6 % on the committed evaluation — MiniLM-L6 384d, 34 domains, N = 5 377, `results/router-v4-eval.json`; the 70.7 %/89.5 % previously shown here is withdrawn, see [`docs/ERRATA.md`](docs/ERRATA.md)). Full 7-stage cognitive pipeline deployed (`full_pipeline_server.py`). Stress test: 10/10 queries pass, 8/8 after restart, all domains routed correctly. Post-pivot adapters (35/35) pass the adapter-health validator; pre-pivot MoE-LoRA adapters (stacks-v3-r16) were archived as dead weights after an `lora_B = 0` audit — see `docs/research/2026-04-19-prepivot-moe-lora-audit.md`.
 
-Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on Mac Studio (MLX) or kxkm-ai (RTX 4090 24 GB). Router is 31 sigmoid outputs (35 domains merged to 31 — electronics-hw, kicad, spice consolidated). Metal OOM on M3 Ultra is prevented by raising the MLX cache limit: `mx.set_memory_limit(460 * 1024**3)` + `mx.set_cache_limit(32 * 1024**3)` before training (see `CLAUDE.md` hard invariants). Default `set_cache_limit` is too small and triggers GPU Hang on long runs.
+Sequential per-domain training via MLX on Mac Studio M3 Ultra 512 GB. Q4_K_M inference on Mac Studio (MLX) or kxkm-ai (RTX 4090 24 GB). Router is a sigmoid multi-label head over the niche domains (MiniLM-L6 384d; 34 classes in the committed evaluation — the 31-class merged variant was never committed with an evaluation, see `docs/ERRATA.md`). Metal OOM on M3 Ultra is prevented by raising the MLX cache limit: `mx.set_memory_limit(460 * 1024**3)` + `mx.set_cache_limit(32 * 1024**3)` before training (see `CLAUDE.md` hard invariants). Default `set_cache_limit` is too small and triggers GPU Hang on long runs.
 
 > **Hosting note (2026-10-25)** — the Mac Studio M3 Ultra that trained and served the adapters is powered down. Adapters, datasets and per-domain configs are preserved ; the RTX 4090 (`kxkm-ai`) path documented below remains the reference for inference. Figures in this README describe the deployment as last measured on that host.
 
@@ -23,8 +23,8 @@ Domain query
     │
     ▼
 ┌─ Stage 1 ─┐
-│  Router V4 │  mpnet 768d → MLP(768→512→31) → sigmoid
-│  top-1 70.7%, top-3 89.5%          ≤ 4 active adapters
+│  Router V4 │  MiniLM-L6 384d → MLP(384→512→34) → sigmoid
+│  top-1 46.4%, top-3 69.6%          ≤ 4 active adapters
 └────────────┘
     │
     ▼
@@ -251,17 +251,24 @@ byte-identical default, graceful missing-advisor, alpha-blend math,
 
 ### Router V4 accuracy
 
-| Metric | V3 (MiniLM 384d) | V4 (mpnet 768d) | Improvement |
-|---|---|---|---|
-| Top-1 accuracy | 46.4% | **70.7%** | +24.3pp |
-| Top-3 accuracy | 69.6% | **89.5%** | +19.9pp |
+Measured on the committed evaluation artifact `results/router-v4-eval.json`
+(MiniLM-L6-v2 384d → MLP(384→512→34) → sigmoid; 5 377 validation samples,
+34 domains; weights `output/router-v4/`):
 
-Key changes in V4:
-- Embedding: MiniLM 384d → mpnet-base-v2 768d
-- Classifier: word boundary matching fixed
-- Domain merges: 35→31 (electronics-hw, kicad, spice consolidated)
-- Loss: BCE → CrossEntropy + class weights
-- Architecture: MLP(768→512→31) → sigmoid
+| Metric | Router V4 (committed) |
+|---|---|
+| Top-1 accuracy | **46.4 %** |
+| Top-3 accuracy | **69.6 %** |
+
+Per-domain accuracy and the top confusions are in the same file. The published
+Hugging Face card (`clemsail/micro-kiki-router-v4`) reports the same numbers.
+
+**Withdrawn (2026-10-25, [erratum E-2026-10-25-03](docs/ERRATA.md)):** earlier
+versions of this section reported "V4 (mpnet 768d, 31 merged classes): 70.7 % /
+89.5 %" and labelled the 46.4 % / 69.6 % above as "V3". The 70.7 % figure comes
+from the message of commit `10c7b6e` only; its weights were dropped at merge
+`bf986ba` the same day, and no evaluation JSON or validation split was
+committed. It is not reproducible from this repository and must not be cited.
 
 ### Training history
 
@@ -319,13 +326,22 @@ pairwise checked. Additional sweeps pending.
 
 HumanEval pilot: base 0.80, cpp adapter 0.90 (+10%).
 
-### SNN energy estimate
+### SNN energy (not measured)
 
-35B MoE on Loihi-2 (theoretical): **0.032 mJ/tok**. 91.6x ops reduction via LAS conversion. Efficiency score: 27B dense = 2.23, 35B MoE = 0.055 (MoE routing overhead dominates spike cost).
+**Withdrawn (2026-10-25, [erratum E-2026-10-25-01](docs/ERRATA.md)):** earlier
+versions of this section reported "35B MoE on Loihi-2: 0.032 mJ/tok, 91.6× ops
+reduction". Those were analytical operation counts
+(`scripts/eval_spikingkiki_35b.py`), not measurements. Energy per token has
+not been measured on the target system; external 2026 measurements of spiking
+LLMs are unfavourable (SymbolicLight ≈ 3× more energy and ≈ 4× slower on GPU;
+SpikingBrain 2.0 gains only on dedicated silicon; 0.23–0.34 nats quality cost
+at equal FLOPs, arXiv:2610.15146). J/token is to be measured — hypothesis
+NH-81 ([#14](https://github.com/hypneum-lab/micro-kiki/issues/14)). No energy
+claim is made until then.
 
 ## Current work
 
-V4 training **complete** — all 35/35 adapters trained and verified. Router V4 upgraded (mpnet 768d, 70.7% top-1). Full pipeline server deployed and stress-tested.
+V4 training **complete** — all 35/35 adapters trained and verified. Router V4 measured at 46.4 % top-1 / 69.6 % top-3 on the committed evaluation (the mpnet 70.7 % claim is withdrawn, see `docs/ERRATA.md`). Full pipeline server deployed and stress-tested.
 
 **Next steps:**
 - Expand eval: broader HumanEval coverage, domain-specific benchmarks (KiCad DSL, SPICE netlist generation, STM32 HAL)
@@ -347,7 +363,7 @@ V4 training **complete** — all 35/35 adapters trained and verified. Router V4 
 
 ```
 src/
-  routing/       Router V4, MetaRouter, domain classifier (mpnet + MLP)
+  routing/       Router V4, MetaRouter, domain classifier (MiniLM-L6 + MLP)
   memory/        Aeon — Atlas (SIMD vector) + Trace (neuro-symbolic graph)
   negotiator/    CAMP arbitration + Catfish dissent
   eval/          Reward functions, forgetting gate (forgetting.py, scorers.py), bias metrics
@@ -362,6 +378,13 @@ results/         Eval artefacts — forgetting-matrix.json, adapter-health-sweep
 deploy/          launchd (Mac Studio) + systemd (kxkm-ai) + docker-compose
 .github/         workflows/validators.yml — config-invariants + forgetting-tests jobs
 ```
+
+## Errata
+
+Dated corrections to claims published in this repository live in
+[`docs/ERRATA.md`](docs/ERRATA.md). 2026-10-25: SNN energy figures
+(0.032 mJ/token, 91.6×) withdrawn; C5 information bound (0.911) withdrawn;
+router accuracy restated as the measured 46.4 % / 69.6 %.
 
 ## License
 

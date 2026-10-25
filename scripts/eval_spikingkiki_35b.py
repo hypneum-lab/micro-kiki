@@ -7,6 +7,11 @@ published SNN results (Spikformer, SpikingBERT, SpikingBrain).
 
 Pure Python + numpy. No torch, no GPU.
 
+All energy and throughput numbers produced here are analytical operation
+counts (MACs vs spike-ops) under assumed per-operation energies. They are
+NOT measurements and must not be reported as such (erratum 2026-10-25,
+docs/ERRATA.md E-2026-10-25-01, issue #10).
+
 Usage:
     uv run python scripts/eval_spikingkiki_35b.py
 """

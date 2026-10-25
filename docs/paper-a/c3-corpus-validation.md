@@ -34,7 +34,7 @@
 
 4. **LogReg PCA-4 still beats the VQC on real data** (0.658 vs 0.410, +0.25 gap). The information-matched classical baseline dominates across data regimes, confirming C1's finding: the `π·tanh + StronglyEntanglingLayers + ⟨Z⟩` pipeline loses information compared to PCA + linear head at the same feature budget.
 
-5. **Holevo+Fano bound** (C5, 0.911 for 4-qubit at MI~2 bits) remains well above all empirical values, confirming the bound's theoretical validity while also confirming its looseness for real architectures.
+5. **Holevo+Fano bound** — ~~(C5, 0.911 for 4-qubit at MI~2 bits) remains well above all empirical values, confirming the bound's theoretical validity~~ **Withdrawn 2026-10-25** (`docs/ERRATA.md`, E-2026-10-25-02): the MI estimate summed marginal MIs (150.74 bits > log₂ 10); no valid bound is established.
 
 ## Implications for Paper A
 
@@ -42,7 +42,7 @@ The real-corpus rerun **confirms** the synthetic-corpus findings with higher abs
 
 1. **Report both corpora** in §4, positioning real as the primary numbers and synthetic as an ablation.
 2. **Update the "VQC sub-optimal" claim** to hold across data regimes (robustness).
-3. **Retain the C5 information-capacity framing** — the 3.7× gap between 0.911 (bound) and 0.410 (empirical real) is the headroom for future architectural improvements.
+3. ~~**Retain the C5 information-capacity framing** — the 3.7× gap between 0.911 (bound) and 0.410 (empirical real) is the headroom for future architectural improvements.~~ **Withdrawn 2026-10-25**: the 0.911 bound is void (erratum E-2026-10-25-02); the headroom is unknown until the joint-MI recomputation.
 4. **Reframe the VQC positioning** explicitly as a quantum-ML benchmarking reference, not a competitive classifier, with the 0.748 LogReg-raw ceiling as the "must-beat" target for any future quantum-advantage claim.
 
 The contributions (methodological torch-vqc tooling, architectural learned projection, empirical rigorous ablation) are now supported on both synthetic and teacher-generated-real corpora.
