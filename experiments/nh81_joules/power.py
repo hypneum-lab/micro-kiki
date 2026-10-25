@@ -26,6 +26,9 @@ import re
 import subprocess
 import time
 from dataclasses import dataclass
+from datetime import timezone
+
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # IOReport (sudo-less)
@@ -163,7 +166,12 @@ class PMSample:
 
 
 def parse_powermetrics_plist(blob: bytes) -> list[PMSample]:
-    """Parse a NUL-separated ``powermetrics -f plist`` stream."""
+    """Parse a NUL-separated ``powermetrics -f plist`` stream.
+
+    Plist dates have one-second resolution, so sample end times are rebuilt
+    as ``anchor + cumulative elapsed_ns``; the anchor is the centre of the
+    interval compatible with every (truncated) timestamp.
+    """
     out: list[PMSample] = []
     for chunk in blob.split(b"\x00"):
         chunk = chunk.strip()
@@ -175,7 +183,13 @@ def parse_powermetrics_plist(blob: bytes) -> list[PMSample]:
             continue
         dt = d.get("elapsed_ns", 0) / 1e9
         ts = d.get("timestamp")
-        t_end = ts.timestamp() if hasattr(ts, "timestamp") else float("nan")
+        if hasattr(ts, "timestamp"):
+            # plist <date> values are UTC; plistlib returns them naive.
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            t_end = ts.timestamp()
+        else:
+            t_end = float("nan")
         p = d.get("processor", {})
         gpu = d.get("gpu", {})
 
@@ -192,6 +206,13 @@ def parse_powermetrics_plist(blob: bytes) -> list[PMSample]:
                             energy("gpu_energy", "gpu_power", gpu, p),
                             energy("ane_energy", "ane_power", p),
                             energy("cpu_energy", "cpu_power", p)))
+    if out:
+        cum = np.cumsum([x.dt for x in out])
+        stamps = np.array([x.t_end for x in out])
+        lo, hi = np.max(stamps - cum), np.min(stamps + 1.0 - cum)
+        anchor = (lo + hi) / 2 if lo <= hi else float(np.median(stamps - cum)) + 0.5
+        for x, c in zip(out, cum):
+            x.t_end = float(anchor + c)
     return out
 
 
