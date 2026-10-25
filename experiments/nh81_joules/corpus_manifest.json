@@ -1,0 +1,454 @@
+{
+ "source": "gutendex.com languages=fr sort=popular",
+ "fetched": "2026-10-25T18:16:20Z",
+ "books": [
+  {
+   "id": 78027,
+   "title": "Les enchantements de la forêt",
+   "url": "https://www.gutenberg.org/ebooks/78027.txt.utf-8",
+   "sha256": "53f1abc7f0edf6cd1f6139c472774a3d157d39b753f3250153abeb9d10ccfb8e",
+   "bytes": 323069
+  },
+  {
+   "id": 62215,
+   "title": "Le Fantôme de l'Opéra",
+   "url": "https://www.gutenberg.org/ebooks/62215.txt.utf-8",
+   "sha256": "dad6c90bf73fee7f019edf289ec922e82ee96c6bfdc7fc69b69175d08fe45d56",
+   "bytes": 656196
+  },
+  {
+   "id": 78041,
+   "title": "En pays lointain",
+   "url": "https://www.gutenberg.org/ebooks/78041.txt.utf-8",
+   "sha256": "dce78fa602e14c607d58a1a87eda9023a29211bf3ff669c2f6494399387a248e",
+   "bytes": 347231
+  },
+  {
+   "id": 78064,
+   "title": "Lucifer : $b roman moderne",
+   "url": "https://www.gutenberg.org/ebooks/78064.txt.utf-8",
+   "sha256": "79248b1424bb813dcde08ceaa70ea5db7a8d765fb29a86e44c22922113a5737b",
+   "bytes": 427189
+  },
+  {
+   "id": 78074,
+   "title": "Chroniques de J. Froissart, tome 09/13 : $b 1377-1380 (Depuis la prise de Bergerac jusqu'à la mort de Charles V)",
+   "url": "https://www.gutenberg.org/ebooks/78074.txt.utf-8",
+   "sha256": "3382b589cc9fd7242f6810c4731b98acbddbc9af2c841a8a2b216c408be1d5c7",
+   "bytes": 1018359
+  },
+  {
+   "id": 78063,
+   "title": "Le jeune Européen",
+   "url": "https://www.gutenberg.org/ebooks/78063.txt.utf-8",
+   "sha256": "cb517e4fbca5d7d91b37e92cfa3aa0b80f9f89f961a66f641d7cce955fa6c6eb",
+   "bytes": 218908
+  },
+  {
+   "id": 78069,
+   "title": "Deux générations",
+   "url": "https://www.gutenberg.org/ebooks/78069.txt.utf-8",
+   "sha256": "9ee40f9171cc567de3027d1d1eb97efc54441af3a254a4626ff93f387343b892",
+   "bytes": 223172
+  },
+  {
+   "id": 78021,
+   "title": "L'imposture",
+   "url": "https://www.gutenberg.org/ebooks/78021.txt.utf-8",
+   "sha256": "fd5fc5c61fc67959bcb45efc3f8637a25f20d48263a11f6fd9eb8f45e021d197",
+   "bytes": 549609
+  },
+  {
+   "id": 78101,
+   "title": "L'homme à l'Hispano : $b roman",
+   "url": "https://www.gutenberg.org/ebooks/78101.txt.utf-8",
+   "sha256": "3f2efc0f4932e24eb597638d3a8e9d7a32fa9398625962179283b1e45dd25ebc",
+   "bytes": 391995
+  },
+  {
+   "id": 78036,
+   "title": "Quand le rideau s'est baissé",
+   "url": "https://www.gutenberg.org/ebooks/78036.txt.utf-8",
+   "sha256": "7e644a123c80a5b569f10512ea2012e8d61f6b34ae85988e2587109850f66794",
+   "bytes": 213636
+  },
+  {
+   "id": 78059,
+   "title": "L'homme tout nu",
+   "url": "https://www.gutenberg.org/ebooks/78059.txt.utf-8",
+   "sha256": "91bb41f1d20e12bbb0a4acedc2f7c7c429f85dc3c7d0a57dea00e630ca584acf",
+   "bytes": 342615
+  },
+  {
+   "id": 78098,
+   "title": "L'art d'aimer: ou conseils à un jeune homme qui se destine à l'amour",
+   "url": "https://www.gutenberg.org/ebooks/78098.txt.utf-8",
+   "sha256": "4269df83648a4d2e087c7af24985b31ad9cf05660050227c8da07c27848eb18d",
+   "bytes": 175207
+  },
+  {
+   "id": 78080,
+   "title": "Journal de la société de 1789 - Nº II",
+   "url": "https://www.gutenberg.org/ebooks/78080.txt.utf-8",
+   "sha256": "340e218200ece33c8678b60f96ea1002fb6ad0ed838ce1f8aef43dd634a515ea",
+   "bytes": 66639
+  },
+  {
+   "id": 17989,
+   "title": "Le comte de Monte-Cristo, Tome I",
+   "url": "https://www.gutenberg.org/ebooks/17989.txt.utf-8",
+   "sha256": "9ea7a8b127a9dfa36de0b0cf9c2e26293beea5c37a0fc988fb9308b63160f282",
+   "bytes": 784416
+  },
+  {
+   "id": 13951,
+   "title": "Les trois mousquetaires",
+   "url": "https://www.gutenberg.org/ebooks/13951.txt.utf-8",
+   "sha256": "46c01913219e6ff165256b8cbcaec7034b004f785a147341911b3caee70ccfcc",
+   "bytes": 1450561
+  },
+  {
+   "id": 76412,
+   "title": "Le cas étrange du docteur Jekyll; Un logement pour la nuit",
+   "url": "https://www.gutenberg.org/ebooks/76412.txt.utf-8",
+   "sha256": "f885e00a355b94c60aeaa8353cb9d3da5300feec78aad0565499590958a5ed63",
+   "bytes": 232618
+  },
+  {
+   "id": 4791,
+   "title": "Voyage au Centre de la Terre",
+   "url": "https://www.gutenberg.org/ebooks/4791.txt.utf-8",
+   "sha256": "cc2c572afc2b2965e252ed8626c4e023b54e272f3a83594f10bc8d7bc6a9f5d6",
+   "bytes": 461113
+  },
+  {
+   "id": 18143,
+   "title": "Roméo et Juliette: Tragédie",
+   "url": "https://www.gutenberg.org/ebooks/18143.txt.utf-8",
+   "sha256": "dec49c928b81fddc0016e6be2def4045880142a272d299e5fe7acdcd11455fff",
+   "bytes": 246163
+  },
+  {
+   "id": 2650,
+   "title": "Du côté de chez Swann",
+   "url": "https://www.gutenberg.org/ebooks/2650.txt.utf-8",
+   "sha256": "9ebdb837f733f41d6a822e010d1ccbf14b4ddafad0131482461edb72b55b0936",
+   "bytes": 1084467
+  },
+  {
+   "id": 28718,
+   "title": "Les crimes de l'amour: Précédé d'un avant-propos, suivi des idées sur les romans, de l'auteur des crimes de l'amour à Villeterque, d'une notice bio-bibliographique du marquis de Sade: l'homme et ses écrits et du discours prononcé par le marquis de Sade à la section des piques.",
+   "url": "https://www.gutenberg.org/ebooks/28718.txt.utf-8",
+   "sha256": "fd5e9bf646cc59d5b4565c34613fe30d5320d5be493ba11294d62a829aecd25c",
+   "bytes": 325668
+  },
+  {
+   "id": 32854,
+   "title": "Arsène Lupin, gentleman-cambrioleur",
+   "url": "https://www.gutenberg.org/ebooks/32854.txt.utf-8",
+   "sha256": "c2e449f8db58167e3e903697a9d9e7ac0d6864f11e2acedabd5e60b9526aa036",
+   "bytes": 372949
+  },
+  {
+   "id": 17489,
+   "title": "Les misérables Tome I: Fantine",
+   "url": "https://www.gutenberg.org/ebooks/17489.txt.utf-8",
+   "sha256": "a5de514ba7b9f2e1790e7e259c4e8b7a35ae1d29e4bf9a5f8767039c58b80503",
+   "bytes": 710496
+  },
+  {
+   "id": 14287,
+   "title": "L'île mystérieuse",
+   "url": "https://www.gutenberg.org/ebooks/14287.txt.utf-8",
+   "sha256": "ae5b2c092ee1a1bdeada9a3f27f28f67b5f6247a8ffae0784292a943cc8cc1ef",
+   "bytes": 1292768
+  },
+  {
+   "id": 19919,
+   "title": "Maman Léo: Les Habits Noirs Tome V",
+   "url": "https://www.gutenberg.org/ebooks/19919.txt.utf-8",
+   "sha256": "275922632514069ba292a9302369fca54992c65d710ce5f861356f0bd5f11e96",
+   "bytes": 574196
+  },
+  {
+   "id": 2419,
+   "title": "La dame aux camélias",
+   "url": "https://www.gutenberg.org/ebooks/2419.txt.utf-8",
+   "sha256": "c5b431d8182f2744566844303c448d1a6078fc110a64f0465b46c21a49f4fab1",
+   "bytes": 409473
+  },
+  {
+   "id": 5097,
+   "title": "Vingt mille Lieues Sous Les Mers — Complete",
+   "url": "https://www.gutenberg.org/ebooks/5097.txt.utf-8",
+   "sha256": "53507b025cd3580f4fbfa546baabb36f25adfb48b581c5b5016d91ad69d36c68",
+   "bytes": 942632
+  },
+  {
+   "id": 15113,
+   "title": "Vie de Jésus",
+   "url": "https://www.gutenberg.org/ebooks/15113.txt.utf-8",
+   "sha256": "8239722bf740ef65d18e85f83634b78b411f90fb1f1c1e2736063fc1c04210a4",
+   "bytes": 723790
+  },
+  {
+   "id": 76540,
+   "title": "Les Mémoires d'un Parapluie",
+   "url": "https://www.gutenberg.org/ebooks/76540.txt.utf-8",
+   "sha256": "d6fb61bb377853aa8bdffdafbe731ee4678e46cf381d19f48d7a7b04b1205706",
+   "bytes": 161997
+  },
+  {
+   "id": 76433,
+   "title": "La marque des quatre",
+   "url": "https://www.gutenberg.org/ebooks/76433.txt.utf-8",
+   "sha256": "b29dcbde535275e5facc4005985b8e5c8ae94fd0b13d919745ccdf392796699b",
+   "bytes": 306663
+  },
+  {
+   "id": 25335,
+   "title": "Robert Burns. Vol. 1, La Vie",
+   "url": "https://www.gutenberg.org/ebooks/25335.txt.utf-8",
+   "sha256": "cc8a4a6ae075533ded4320f19fa775889dfeda4b962477b70204fc4d3efba078",
+   "bytes": 1770289
+  },
+  {
+   "id": 76724,
+   "title": "La chasse au météore",
+   "url": "https://www.gutenberg.org/ebooks/76724.txt.utf-8",
+   "sha256": "e3758c82e0c04f984f451f8adb36b2988e9f493c3aec5b5a1eadbf46b0f52896",
+   "bytes": 470377
+  },
+  {
+   "id": 38674,
+   "title": "De la terre à la lune, trajet direct en 97 heures 20 minutes",
+   "url": "https://www.gutenberg.org/ebooks/38674.txt.utf-8",
+   "sha256": "d439aeb99c3227f569210ec8d8cc456229a638c5b0ebe2a1e1474d6b2860019f",
+   "bytes": 381920
+  },
+  {
+   "id": 77086,
+   "title": "Les cœurs les plus farouches",
+   "url": "https://www.gutenberg.org/ebooks/77086.txt.utf-8",
+   "sha256": "8c51517c6c72f08219b57c2e38fb41d7229d992068d80e82e9fce4601bcd9f4d",
+   "bytes": 390570
+  },
+  {
+   "id": 26859,
+   "title": "Histoire de France 1724-1759 (Volume 18/19)",
+   "url": "https://www.gutenberg.org/ebooks/26859.txt.utf-8",
+   "sha256": "ab9a4ec8749ca326b58fb400676250409d4cf0f2b09ea2cfb98d25a0b8191dc5",
+   "bytes": 654795
+  },
+  {
+   "id": 29049,
+   "title": "Histoire amoureuse des Gaules; suivie des Romans historico-satiriques du XVIIe siècle, Tome I",
+   "url": "https://www.gutenberg.org/ebooks/29049.txt.utf-8",
+   "sha256": "74114268af2b8a8c89441963ca7cfc8b3c7e2e03f34924edadf397d25023e5c6",
+   "bytes": 809472
+  },
+  {
+   "id": 14155,
+   "title": "Madame Bovary",
+   "url": "https://www.gutenberg.org/ebooks/14155.txt.utf-8",
+   "sha256": "93f0a2259dbaf5fde6e7b96adc22346d52f80eb1e9319336c8381a045efe40cd",
+   "bytes": 751987
+  },
+  {
+   "id": 27573,
+   "title": "Esprit des lois: livres I à V, précédés d'une introduction de l'éditeur",
+   "url": "https://www.gutenberg.org/ebooks/27573.txt.utf-8",
+   "sha256": "38df6b0d2fb8dfb59cd354b74d17f20f3c96d24ba1f22efbcfe03be24a230cac",
+   "bytes": 767618
+  },
+  {
+   "id": 36635,
+   "title": "Amitié amoureuse",
+   "url": "https://www.gutenberg.org/ebooks/36635.txt.utf-8",
+   "sha256": "57b13e67b94375f00a48c0ea982d8fbd3369e37f6fb4b35cb373f22a73feba2a",
+   "bytes": 502602
+  },
+  {
+   "id": 4650,
+   "title": "Candide, ou l'optimisme",
+   "url": "https://www.gutenberg.org/ebooks/4650.txt.utf-8",
+   "sha256": "1cc10ab3268a76aa01bd3f9722ae2ae0e5e36b869a18b0bb0832b75bc0327806",
+   "bytes": 234120
+  },
+  {
+   "id": 6099,
+   "title": "Les Fleurs du Mal",
+   "url": "https://www.gutenberg.org/ebooks/6099.txt.utf-8",
+   "sha256": "67f9ede9e23455bc8b951fb0cb8af361389b899edc3977a50d41976655050e2c",
+   "bytes": 183738
+  },
+  {
+   "id": 70891,
+   "title": "Notre-Dame de Paris - Tome 1",
+   "url": "https://www.gutenberg.org/ebooks/70891.txt.utf-8",
+   "sha256": "9fcc1f06668d953410c96b00fc5e421a3cc5498abdfce12be835420ef9a19879",
+   "bytes": 528945
+  },
+  {
+   "id": 13846,
+   "title": "Discours de la méthode",
+   "url": "https://www.gutenberg.org/ebooks/13846.txt.utf-8",
+   "sha256": "4e3c7f3329d591408dca1ebe0818cd900622dcf6d090e16240bf0bbfac07370c",
+   "bytes": 729294
+  },
+  {
+   "id": 31628,
+   "title": "Œuvres de P. Corneille, Tome 01",
+   "url": "https://www.gutenberg.org/ebooks/31628.txt.utf-8",
+   "sha256": "003f61acaedfb28c8a109c66f4fc205f15ea1de28ddbc100b695c5337f1412d4",
+   "bytes": 1182583
+  },
+  {
+   "id": 25097,
+   "title": "Cités et ruines américaines: Mitla, Palenqué, Izamal, Chichen-Itza, Uxmal",
+   "url": "https://www.gutenberg.org/ebooks/25097.txt.utf-8",
+   "sha256": "a99bd074041125e0b57e77872f0e01ea92f0323831d27fc3d5f0569bc3c2bc59",
+   "bytes": 776104
+  },
+  {
+   "id": 17519,
+   "title": "Les misérables Tome V: Jean Valjean",
+   "url": "https://www.gutenberg.org/ebooks/17519.txt.utf-8",
+   "sha256": "d78e6ddc87cc5971b1a0107ae06f19b4cc63030553fcdfd94929c7472f0d470d",
+   "bytes": 675293
+  },
+  {
+   "id": 798,
+   "title": "Le rouge et le noir: chronique du XIXe siècle",
+   "url": "https://www.gutenberg.org/ebooks/798.txt.utf-8",
+   "sha256": "b6f04cb3eddb53d7e35889b8910e7f83d8ab6f4c0d83e47c18d827f6b83e53f8",
+   "bytes": 1076208
+  },
+  {
+   "id": 19657,
+   "title": "Notre-Dame de Paris",
+   "url": "https://www.gutenberg.org/ebooks/19657.txt.utf-8",
+   "sha256": "91e3524d6e7816cda822f97fae3f49af204c7e32ad71ca23002de9e83e935f80",
+   "bytes": 1117118
+  },
+  {
+   "id": 48529,
+   "title": "Essais de Montaigne (self-édition) - Volume I",
+   "url": "https://www.gutenberg.org/ebooks/48529.txt.utf-8",
+   "sha256": "5ca39dd68ba57608b562bd7b80313205ff378c9accc24beddc724ca8da9030df",
+   "bytes": 1946697
+  },
+  {
+   "id": 52006,
+   "title": "Les liaisons dangereuses: Lettres recueillies dans une Société et publiées pour l'instruction de quelques autres",
+   "url": "https://www.gutenberg.org/ebooks/52006.txt.utf-8",
+   "sha256": "fd76ccd8de6d787668e6fb423afcdcf3253bdb1d13baed5c33ca52c3f2fe21eb",
+   "bytes": 925107
+  },
+  {
+   "id": 44070,
+   "title": "Le ménagier de Paris (v. 1 & 2)",
+   "url": "https://www.gutenberg.org/ebooks/44070.txt.utf-8",
+   "sha256": "7efccf75dc7480843ac56c38ad594221f9b1305a17905c9444e1255a242ede46",
+   "bytes": 1436967
+  },
+  {
+   "id": 74092,
+   "title": "Missions au Sahara, tome 1 : $b Sahara algérien",
+   "url": "https://www.gutenberg.org/ebooks/74092.txt.utf-8",
+   "sha256": "f8de8fd01c39c438b58c7d75975ce7412b29eca79eb7bdde4e5fd6556502531c",
+   "bytes": 987612
+  },
+  {
+   "id": 52927,
+   "title": "L'Odyssée",
+   "url": "https://www.gutenberg.org/ebooks/52927.txt.utf-8",
+   "sha256": "3d07ac92b394e4e67480efcf8311b8f0d219e3bb25697f7a4a33b53c62c0fc69",
+   "bytes": 399561
+  },
+  {
+   "id": 56327,
+   "title": "Fables de La Fontaine",
+   "url": "https://www.gutenberg.org/ebooks/56327.txt.utf-8",
+   "sha256": "5fffb3fb001c3f84a937d31eebb446c3ec9a6ccd450df94fd934d2f07f6c0269",
+   "bytes": 579409
+  },
+  {
+   "id": 17258,
+   "title": "Oeuvres de Champlain",
+   "url": "https://www.gutenberg.org/ebooks/17258.txt.utf-8",
+   "sha256": "72295300d1581ab229dd30763db1fa1d4ccd475fe4ca2904692bf23009f9078c",
+   "bytes": 3266061
+  },
+  {
+   "id": 24766,
+   "title": "Étude Médico-Légale: Psychopathia Sexualis: avec recherches spéciales sur l'inversion sexuelle",
+   "url": "https://www.gutenberg.org/ebooks/24766.txt.utf-8",
+   "sha256": "3cc582fb1daaba1857f10af855b675338ef90f053ee0d0f1504ee31c4e36086f",
+   "bytes": 1502769
+  },
+  {
+   "id": 36708,
+   "title": "Soeur Thérèse de l'Enfant-Jésus et de la Sainte Face: Histoire d'une âme écrite par elle-même",
+   "url": "https://www.gutenberg.org/ebooks/36708.txt.utf-8",
+   "sha256": "14bbf90f9c81b584e68130fbfbc2f16fce093f4fc5af2644c447f17fd9739f4e",
+   "bytes": 1215175
+  },
+  {
+   "id": 10775,
+   "title": "Le Horla",
+   "url": "https://www.gutenberg.org/ebooks/10775.txt.utf-8",
+   "sha256": "2b79ac5273ebaaa7ac70cb5d9b4b07ea6d85f42c38de5c5d7b34db56d4870fe7",
+   "bytes": 277088
+  },
+  {
+   "id": 17518,
+   "title": "Les misérables Tome IV: L'idylle rue Plumet et l'épopée rue Saint-Denis",
+   "url": "https://www.gutenberg.org/ebooks/17518.txt.utf-8",
+   "sha256": "5ceb65a2be245776a61aaa15f311b9b31964c1826121a3ba65ddd3bfae7fa4af",
+   "bytes": 786691
+  },
+  {
+   "id": 17494,
+   "title": "Les misérables Tome III: Marius",
+   "url": "https://www.gutenberg.org/ebooks/17494.txt.utf-8",
+   "sha256": "79894e327a20044dad5b93dd7d1fae0a8c06b74b86cd9f19d37bb54ffbacd44f",
+   "bytes": 556738
+  },
+  {
+   "id": 45864,
+   "title": "La vie en France au moyen âge d'après quelques moralistes du temps",
+   "url": "https://www.gutenberg.org/ebooks/45864.txt.utf-8",
+   "sha256": "676490c7002ecd5846abb8f6a91e839fec6d14456b3f2b855a1cc84ee7a52ffd",
+   "bytes": 628730
+  },
+  {
+   "id": 23520,
+   "title": "Mon oncle et mon curé; Le voeu de Nadia",
+   "url": "https://www.gutenberg.org/ebooks/23520.txt.utf-8",
+   "sha256": "7c82441abdb1537764b5533fca925b254698462562f54e74ea21930e39a47925",
+   "bytes": 667042
+  },
+  {
+   "id": 800,
+   "title": "Le tour du monde en quatre-vingts jours",
+   "url": "https://www.gutenberg.org/ebooks/800.txt.utf-8",
+   "sha256": "bd89ef4c406ae063a1eeba2ec0689532e8c83ecfb1fce742cdd22bc47cb888da",
+   "bytes": 462173
+  },
+  {
+   "id": 26370,
+   "title": "Mémoires de Hector Berlioz: comprenant ses voyages en Italie, en Allemagne, en Russie et en Angleterre, 1803-1865",
+   "url": "https://www.gutenberg.org/ebooks/26370.txt.utf-8",
+   "sha256": "5d2dcfab3c73d0fbc4cfdedcccfc0115fdaae94d2bc108a91a2d8ab7e110cf98",
+   "bytes": 1404019
+  },
+  {
+   "id": 16816,
+   "title": "Le roman de la rose - Tome I",
+   "url": "https://www.gutenberg.org/ebooks/16816.txt.utf-8",
+   "sha256": "a508531233b18e26000b9073b483cfe5a8704c36bc75c3e8b42d5740418dd284",
+   "bytes": 659259
+  }
+ ]
+}
