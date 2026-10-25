@@ -47,44 +47,45 @@ license: apache-2.0
 # Micro-Kiki Router V4
 
 Lightweight domain router used by the **micro-kiki** project to dispatch
-incoming prompts to the right LoRA adapter from a pool of 31 fine-tuned
+incoming prompts to the right LoRA adapter from a pool of 34 fine-tuned
 domains.
 
 ## Architecture
 
 ```
-sentence-transformers/all-mpnet-base-v2  (768-d embeddings)
+sentence-transformers/all-MiniLM-L6-v2  (384-d embeddings)
     ↓
-Linear(768 → 512) + ReLU
+Linear(384 → 512) + ReLU
     ↓
-Linear(512 → 31) + sigmoid
+Linear(512 → 34) + sigmoid
     ↓
-31 domain scores  (multi-label, thresholded at 0.5)
+34 domain scores  (multi-label, thresholded at 0.5)
 ```
 
-The backbone (`all-mpnet-base-v2`) is **frozen**; only the two linear
-layers are trained.  Total trainable parameters: ~434 K.
+The backbone (`all-MiniLM-L6-v2`) is **frozen**; only the two linear
+layers are trained.  Total trainable parameters: ~215 K.
 
 ## Accuracy (V4, April 2026)
 
 | Metric | Value |
 |--------|-------|
-| Top-1  | **70.7 %** |
-| Top-3  | **89.5 %** |
+| Top-1  | **46.4 %** |
+| Top-3  | **69.6 %** |
 
-Evaluated on a held-out split of the router training dataset
-(~2 k labelled prompts across 31 domains).
+Evaluated on the 5 377-example validation split of the router dataset
+(34 domains; artifact `results/router-v4-eval.json` in the micro-kiki repo).
+An earlier draft of this card quoted 70.7 % / 89.5 % for an mpnet retrain;
+that figure has no committed evaluation and is withdrawn (micro-kiki
+`docs/ERRATA.md`, E-2026-10-25-03).
 
-## Domains (31 after merges)
+## Domains (34)
 
 `chat-fr`, `components`, `cpp`, `devops`, `docker`, `dsp`, `electronics`,
 `embedded`, `emc`, `freecad`, `html-css`, `iot`, `kicad-dsl`, `kicad-pcb`,
 `llm-ops`, `llm-orch`, `lua-upy`, `math`, `ml-training`, `music-audio`,
-`platformio`, `python`, `reasoning`, `rust`, `security`, `shell`, `spice`,
-`sql`, `stm32`, `typescript`, `yaml-json`
-
-*(Domains `power`, `spice-sim`, `web-backend`, `web-frontend` were merged
-into sibling domains before the V4 training run.)*
+`platformio`, `power`, `python`, `reasoning`, `rust`, `security`, `shell`,
+`spice`, `sql`, `stm32`, `typescript`, `web-backend`, `web-frontend`,
+`yaml-json`
 
 ## Usage
 
@@ -95,7 +96,7 @@ import json
 from sentence_transformers import SentenceTransformer
 
 # Load backbone + head weights
-backbone = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
+backbone = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 weights_path = hf_hub_download("clemsail/micro-kiki-router-v4", "router_head.pt")
 label_path   = hf_hub_download("clemsail/micro-kiki-router-v4", "labels.json")
 
