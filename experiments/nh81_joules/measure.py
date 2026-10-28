@@ -193,7 +193,7 @@ def start_guard(log: Log, max_wait_s: float = 3 * 3600) -> bool:
             log(kind="guard_ok", gpu_util_samples=samples, **extra)
             return True
         time.sleep(600)
-    log(kind="abort", reason="macM1 busy for 3 h, not measured")
+    log(kind="abort", reason=f"{HOST} busy for 3 h, not measured")
     return False
 
 

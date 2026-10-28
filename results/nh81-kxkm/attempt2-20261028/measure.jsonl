@@ -1,0 +1,3 @@
+{"kind": "start", "dense": "/ai/saisail/nh81-kxkm/ckpt/ann1_ckpt_12000.npz", "spiking": "/ai/saisail/nh81-kxkm/ckpt/spkt_ckpt_12000.npz", "pid": 1391938, "host": "kxkm", "mlx": "0.31.1", "device": "Device(gpu, 0)", "tf32": "0", "powermetrics_log": false, "logged": 1793215142.2639544}
+{"kind": "guard_wait", "gpu_util": 38, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793215143.304787}
+{"kind": "abort", "reason": "stopped by agent after first guard refusal (coordinator instruction: do not relaunch; report)", "logged": 1793215210.807838340}

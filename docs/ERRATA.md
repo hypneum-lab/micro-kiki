@@ -76,8 +76,12 @@ provisional and is reported. First KXKM attempt (2026-10-28 16:22-19:24
 CET): **not measured** — the start guard never passed (a crash-looping
 `llama-server` user service, then N10-C freeze jobs of another session);
 iso-quality reproduced on the GPU to 5e-5 nats
-(`docs/results/2026-10-28-nh81-kxkm-nvml.md`). Status unchanged:
-withdraw, provisional (IOReport); replication still pending.
+(`docs/results/2026-10-28-nh81-kxkm-nvml.md`). Second attempt 20:18
+CET, after the service was stopped and N10-C ended: refused again; at
+idle the RTX 4090 sits in P8 and NVML reports ~40 % utilisation from a
+light constant background, above the 10 % guard. Status unchanged:
+withdraw, provisional (IOReport); replication still pending, guard
+definition for KXKM to be decided by the PI.
 
 ---
 
