@@ -147,7 +147,7 @@ def start_guard(log: Log, max_wait_s: float = 3 * 3600) -> bool:
             u = power.gpu_utilization()
             bp = power.busy_python()
             samples.append(u)
-            if u >= 10 or bp:
+            if u < 0 or u >= 10 or bp:  # u = -1: read failed, fail closed
                 ok = False
                 log(kind="guard_wait", gpu_util=u, busy_python=[r[2] for r in bp],
                     vm_cpu_pct=power.vm_cpu_percent())

@@ -79,6 +79,11 @@ def test_pairs_subtract_rest_and_apply_rejection():
     assert pytest.approx(st["R_hat"]) == 0.5
 
 
+def test_failed_utilisation_read_rejects_pair():
+    recs = [_rest(0, util=-1.0), _run(0, "dense", 101.0), _run(0, "fused", 201.0), _rest(1)]
+    assert analyze.build_pairs(recs, "W1", "fused")[0]["valid"] is False
+
+
 def test_powermetrics_parser_and_window():
     ts = datetime(2026, 10, 25, 20, 0, 0, tzinfo=timezone.utc)
     blob = b"\x00".join(
@@ -102,10 +107,8 @@ def test_rail_energy_reads_one_channel_per_rail():
     assert r["gpu_j"] == 2.0 and r["cpu_j"] == 1.0
 
 
-mx = pytest.importorskip("mlx.core")
-
-
 def test_lif_matches_numpy_reference():
+    mx = pytest.importorskip("mlx.core")
     import model_mlx
 
     x = np.random.default_rng(0).uniform(0, 1.5, size=(4, 7)).astype(np.float32)
@@ -120,6 +123,7 @@ def test_lif_matches_numpy_reference():
 
 
 def test_fused_and_event_paths_agree():
+    mx = pytest.importorskip("mlx.core")
     import model_mlx
 
     mx.random.seed(0)

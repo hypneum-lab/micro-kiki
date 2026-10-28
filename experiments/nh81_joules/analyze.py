@@ -51,7 +51,9 @@ def select_dense(dense_log: list[dict], spiking_log: list[dict]) -> dict:
 # ---------------------------------------------------------------------------
 
 def rest_ok(r: dict) -> bool:
-    return r["gpu_util_mean"] <= GPU_BG_MAX and not r["busy_python"]
+    # A failed utilisation read (-1) rejects the window (fail closed).
+    return (0 <= r["gpu_util_mean"] <= GPU_BG_MAX and r.get("gpu_util_max", 0) >= 0
+            and not r["busy_python"])
 
 
 def build_pairs(records: list[dict], workload: str, path: str, pm=None) -> list[dict]:
