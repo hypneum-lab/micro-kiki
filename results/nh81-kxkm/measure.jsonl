@@ -1,0 +1,20 @@
+{"kind": "start", "dense": "/ai/saisail/nh81-kxkm/ckpt/ann1_ckpt_12000.npz", "spiking": "/ai/saisail/nh81-kxkm/ckpt/spkt_ckpt_12000.npz", "pid": 1095192, "host": "kxkm", "mlx": "0.31.1", "device": "Device(gpu, 0)", "tf32": "0", "powermetrics_log": false, "logged": 1793200953.3747902}
+{"kind": "guard_wait", "gpu_util": 16, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793200954.4159021}
+{"kind": "guard_wait", "gpu_util": 17, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793201573.587966}
+{"kind": "guard_wait", "gpu_util": 18, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793202192.694772}
+{"kind": "guard_wait", "gpu_util": 19, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793202793.7665098}
+{"kind": "guard_wait", "gpu_util": 18, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793203406.8455856}
+{"kind": "guard_wait", "gpu_util": 16, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793204026.0096948}
+{"kind": "guard_wait", "gpu_util": 21, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793204627.0459304}
+{"kind": "guard_wait", "gpu_util": 19, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793205228.1791544}
+{"kind": "guard_wait", "gpu_util": 19, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793205829.3047032}
+{"kind": "guard_wait", "gpu_util": 18, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793206436.4304824}
+{"kind": "guard_wait", "gpu_util": 11, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793207037.5539424}
+{"kind": "guard_wait", "gpu_util": 18, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793207644.6816525}
+{"kind": "guard_wait", "gpu_util": 19, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793208269.8699872}
+{"kind": "guard_wait", "gpu_util": 18, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793208883.0275476}
+{"kind": "guard_wait", "gpu_util": 39, "busy_python": [], "vm_cpu_pct": 0.0, "logged": 1793209484.0898926}
+{"kind": "guard_wait", "gpu_util": 68, "busy_python": ["/ai/saisail/n10c-run/.venv/bin/python"], "vm_cpu_pct": 0.0, "logged": 1793210085.222521}
+{"kind": "guard_wait", "gpu_util": 27, "busy_python": ["/ai/saisail/n10c-run/.venv/bin/python"], "vm_cpu_pct": 0.0, "logged": 1793210686.3494747}
+{"kind": "guard_wait", "gpu_util": 55, "busy_python": ["/ai/saisail/n10c-run/.venv/bin/python"], "vm_cpu_pct": 0.0, "logged": 1793211287.4729214}
+{"kind": "abort", "reason": "macM1 busy for 3 h, not measured", "logged": 1793211887.572027}

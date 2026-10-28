@@ -1,0 +1,13 @@
+{
+ "source": "isoquality.json (RTX 4090, MLX 0.31.1 CUDA, TF32 off)",
+ "spiking_step": 12000,
+ "spiking_val": 3.588131457567215,
+ "spiking_test": 3.644491821527481,
+ "spiking_test_fire": 0.1378442207351327,
+ "dense_star_step": 12000,
+ "dense_star_val": 3.588420197367668,
+ "dense_star_test": 3.637163281440735,
+ "gap_test_nats": 0.007328540086746216,
+ "iso_quality": true,
+ "iso_direction": "iso"
+}
