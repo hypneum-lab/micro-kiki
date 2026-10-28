@@ -1,0 +1,19 @@
+{
+ "vocab": 16000,
+ "D": 384,
+ "L": 6,
+ "SEQ": 128,
+ "arm": "spkt",
+ "T": 6,
+ "data": "/Users/electron/scratch/nh81/split",
+ "out": "/Users/electron/scratch/nh81/runs/spkt",
+ "steps": 12000,
+ "bs": 16,
+ "lr": 0.0005,
+ "seed": 0,
+ "ticks": 6,
+ "ckpt_every": 250,
+ "mem_gb": 6.0,
+ "spike_l1": 0.2,
+ "params": 26548864
+}

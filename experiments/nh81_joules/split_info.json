@@ -1,0 +1,10 @@
+{
+ "tokens_total": 13115392,
+ "vocab": 16000,
+ "tokens_train": 11804672,
+ "sha256_train": "831725652023f5fafdb8649b9de33af68c2cf8c271d4631a900b41f7260a178b",
+ "tokens_val": 655360,
+ "sha256_val": "bc7038948319eaed68c7ee45e61b950bda706cd6bd4d2e3109fd16687d94257a",
+ "tokens_test": 655360,
+ "sha256_test": "ad59a2f13afab4f47983561f6f12dd269e31076e4a411a8e0dd071c1021cfd2d"
+}

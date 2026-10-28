@@ -1,0 +1,15 @@
+{
+ "spiking_step": 12000,
+ "spiking_val": 3.58817820250988,
+ "spiking_test": 3.644508123397827,
+ "spiking_test_fire": 0.13784421049058437,
+ "dense_star_step": 12000,
+ "dense_star_val": 3.588420122861862,
+ "dense_star_test": 3.6371632516384125,
+ "dense_final_step": 12000,
+ "dense_final_test": 3.6371632516384125,
+ "gap_test_nats": 0.007344871759414673,
+ "gap_final_test_nats": 0.007344871759414673,
+ "iso_quality": true,
+ "iso_direction": "iso"
+}
