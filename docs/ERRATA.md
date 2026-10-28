@@ -58,6 +58,14 @@ evidence.
 measure J/token, spiking vs dense, at iso-quality. No new BSK run before that
 measurement (roadmap §7.5).
 
+**Update 2026-10-28 (NH-81 measured).** On the macM1 GPU rail, a 26.5 M
+BSK spiking LM at iso-quality with its dense twin (test gap 0.007 nats)
+uses as much or more energy per token: R = J_dense/J_spiking = 0.91
+(95 % CI 0.83-1.01) in generation, 0.73 in batched scoring. The energy
+argument is withdrawn for GPU/M1-class hardware
+(`docs/results/2026-10-25-nh81-joules.md`); NVML replication on the RTX
+4090 pending.
+
 ---
 
 ## E-2026-10-25-02 — C5 information bound "0.911" (issue #11, master table MK-23)
