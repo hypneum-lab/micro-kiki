@@ -1,8 +1,8 @@
 # NH-81 replication preregistration: NVML on the KXKM RTX 4090
 
 **Level:** L1 (frozen in git: commit + annotated tag
-`prereg-nh81-kxkm-20261028`, pushed before any energy measurement on
-KXKM).
+`prereg-nh81-kxkm-20261028-r2`, pushed before any energy measurement on
+KXKM; see "Revision before measurement" at the end).
 **Date:** 2026-10-28.
 **Issue:** hypneum-lab/micro-kiki#14 (NH-81).
 **Parent:** `docs/prereg/2026-10-25-nh81-joules-per-token.md` (tag
@@ -11,9 +11,13 @@ measurement with NVML energy counters on the KXKM RTX 4090 ... with the
 same code, models, workloads and criteria"), and amendment 1
 (`2026-10-28-nh81-amendment-1.md`, A1: "the independent confirmation
 remains the NVML measurement on the KXKM RTX 4090").
-**PI decision:** go for the KXKM replication, 2026-10-28.
+**PI decisions (2026-10-28):** go for the KXKM replication; the macM1
+verdict stays **"withdraw, provisional (IOReport)"** and this
+preregistered NVML replication decides whether it becomes definitive
+(section 5).
 **macM1 result being replicated:** W1 fused R-hat = 0.91 [0.83, 1.01],
-decision "withdraw" (`docs/results/2026-10-25-nh81-joules.md`).
+decision "withdraw, provisional (IOReport)"
+(`docs/results/2026-10-25-nh81-joules.md`).
 
 Everything not stated below is inherited unchanged from the parent
 preregistration: hypothesis and estimand (section 1), iso-quality rule
@@ -138,19 +142,31 @@ power, SM clock, temperature and P-state are logged instead.
 
 ## 5. Decision and replication reading
 
-* The parent decision rule (section 7) is applied to the KXKM primary
-  block (W1, fused path, NVML board energy) with no change: withdraw if
-  R-hat <= 1.1; reopen if R-hat >= 2 and CI lower bound > 1.1;
-  inconclusive otherwise or with < 10 valid pairs.
-* **Replication reading:** the macM1 verdict ("withdraw") is
-  **replicated** if the KXKM primary decision is also "withdraw";
-  **contradicted** if it is "reopen"; **not replicated (inconclusive)**
-  otherwise. R-hat of KXKM and of macM1 are reported side by side for the
-  four blocks, with the ratio R_KXKM / R_macM1; this comparison is
-  descriptive (different hardware, different instrument).
-* A "contradicted" or "not replicated" outcome does not overwrite the
-  macM1 result; both are reported and the ERRATA entry states the scope
-  of each.
+* **Primary criterion, identical to the parent:** the parent decision
+  rule (section 7) is applied to the KXKM primary block (W1 generation,
+  standard = fused spiking path, NVML board energy) with no change:
+  withdraw if R-hat <= 1.1; reopen if R-hat >= 2 and CI lower bound
+  > 1.1; inconclusive otherwise, with < 10 valid pairs, or under the
+  iso-quality restrictions.
+* **Status of the NH-81 verdict (PI rule, 2026-10-28):**
+  * KXKM primary decision **"withdraw"** (R-hat <= 1.1): the two
+    measurements agree; the verdict becomes **"withdraw, definitive"**
+    for GPU/M1-class hardware (macM1 IOReport + KXKM NVML).
+  * KXKM primary **R-hat > 1.1** (decision "inconclusive" or "reopen"):
+    the measurements **diverge**; the verdict **stays "withdraw,
+    provisional (IOReport)"**, the divergence is reported with both
+    R-hat and CIs in the note, in `docs/ERRATA.md` and on issue #14, and
+    no definitive verdict is drawn. A KXKM "reopen" is reported as a
+    contradiction of the macM1 result.
+  * No valid KXKM primary result (fewer than 10 valid pairs, KXKM busy,
+    reproduction check of section 3 failed): the verdict stays
+    provisional, and the reason is reported.
+* R-hat of KXKM and of macM1 are reported side by side for the four
+  blocks, with the ratio R_KXKM / R_macM1; this comparison is
+  descriptive (different hardware, different instrument). Secondary
+  blocks (W2, event path) cannot change the status.
+* Neither outcome overwrites the macM1 numbers; both are reported and the
+  ERRATA entry states the scope of each.
 
 ## 6. Scope
 
@@ -164,3 +180,25 @@ sparse/event kernels that would exploit spike sparsity.
 `results/nh81-kxkm/` (`isoquality.json`, raw log `measure.jsonl`,
 `idle_probe.json`, `summary.json`), note
 `docs/results/2026-10-28-nh81-kxkm-nvml.md`.
+
+## Revision before measurement
+
+* A first version of this file was committed on top of the PR #18 branch
+  (commit `e85cdb8`) and tagged `prereg-nh81-kxkm-20261028` (tag object
+  `8846f43`, pushed 2026-10-28 ~15:45 CET). Before any energy
+  measurement, the PI asked (1) to base the branch on `main` (PR #18
+  merged as `3a3a5ba`, which adds fail-closed handling of failed GPU
+  reads in `measure.py` / `analyze.py`; kept here) and (2) to write the
+  verdict-status rule of section 5 into this preregistration. This
+  revision adds the PI decision lines in the header and the status rule
+  of section 5; nothing else changes. It is frozen as
+  `prereg-nh81-kxkm-20261028-r2`; the first tag is kept as a record.
+* Done between the two tags, none of it an energy measurement used for
+  the analysis: the feasibility smoke test of MLX CUDA and NVML (random
+  weights), the TF32 check of section 2, the GPU iso-quality check of
+  section 3 (dense test 3.637163 vs macM1 3.637163, spiking 3.644492 vs
+  3.644508; max deviation 5e-5 nats), and a quick-mode code dry run of
+  `measure.py` (`NH81_QUICK=1`: 2 s windows, 2 pairs per block, log under
+  `/ai/saisail/nh81-kxkm/dryrun/`). The dry-run log is excluded from the
+  analysis and from `results/`; its energy values were not inspected
+  before this revision.
