@@ -28,6 +28,7 @@ from power import rail_energy  # noqa: F401  (re-exported for measure.py)
 _NVML = None
 _HANDLE = None
 N10C_DIR = os.environ.get("NH81_N10C_DIR", "/ai/saisail/n10c-run/campaign")
+POWER_REST_MAX_W = 90.0  # prereg r3: board power at rest (W)
 
 
 class _ProcInfo(ctypes.Structure):
@@ -203,15 +204,22 @@ def n10c_active(campaign_dir: str = N10C_DIR, minutes: float = 10.0) -> str:
     return ""
 
 
+def board_power_w() -> float:
+    """Instantaneous board power (W); -1 if the read fails."""
+    lib, h = _nv()
+    p = ctypes.c_uint()
+    return p.value / 1000 if lib.nvmlDeviceGetPowerUsage(h, ctypes.byref(p)) == 0 else -1.0
+
+
 def pause_reason() -> str:
-    """Non-empty if the pair must wait (prereg section 4, pause rule)."""
+    """Non-empty if the pair must wait (prereg r3, pause rule)."""
     r = n10c_active()
     if r:
         return f"N10-C: {r}"
     fp = foreign_gpu_pids()
     if fp:
         return f"foreign GPU compute pids {sorted(fp)}"
-    u = gpu_utilization()
-    if u < 0 or u >= 10:  # -1: failed read, fail closed
-        return f"GPU utilisation {u} %"
+    w = board_power_w()
+    if w < 0 or w >= POWER_REST_MAX_W:  # -1: failed read, fail closed
+        return f"board power {w:.1f} W"
     return ""

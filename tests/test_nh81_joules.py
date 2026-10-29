@@ -123,6 +123,24 @@ def test_foreign_gpu_process_rejects_pair_and_replay_indexing():
     assert pytest.approx(pairs[1]["ratio_gross"]) == 101.0 / 201.0
 
 
+def test_power_guard_on_nvml_rest_windows():
+    def nv_rest(pair, watts):
+        r = _rest(pair, util=40.0)  # P8 utilisation artefact, descriptive only
+        r.update(gpu_j=watts * 20.0, foreign_gpu_pids=[])
+        return r
+
+    assert analyze.rest_ok(nv_rest(0, 69.0))
+    assert not analyze.rest_ok(nv_rest(0, 95.0))
+    recs = [nv_rest(0, 60.0), _run(0, "dense", 1101.0), _run(0, "fused", 1601.0), nv_rest(1, 69.0)]
+    for r in recs[1:3]:
+        r["foreign_gpu_pids"] = []
+    pairs = analyze.build_pairs(recs, "W1", "fused")
+    assert pairs[0]["valid"] is True
+    st = analyze.summarize(pairs)
+    assert pytest.approx(st["rest_w_median"]) == 60.0
+    assert pytest.approx(st["R_fixed_ref_hat"]) == st["R_hat"]
+
+
 def test_busy_between_uses_window_ticks():
     import power_nvml
 

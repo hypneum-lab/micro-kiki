@@ -170,7 +170,33 @@ def rest(meter: power.IOReportEnergy) -> dict:
     return window(meter, lambda: (time.sleep(REST_S), 0)[1])
 
 
+def start_guard_power(log: Log, max_wait_s: float = 3 * 3600) -> bool:
+    """Prereg r3 start guard (kxkm): board power, foreign pids, CPU, N10-C."""
+    t_start = time.time()
+    while time.time() - t_start < max_wait_s:
+        base = power.set_baseline()  # B frozen at the start of each check
+        ok, t0, samples = True, time.time(), []
+        while time.time() - t0 < CLEAN_S:
+            r = power.pause_reason()
+            bp = power.busy_python()
+            samples.append(power.board_power_w())
+            if r or bp:
+                ok = False
+                log(kind="guard_wait", reason=r, gpu_util=power.gpu_utilization(),
+                    board_w=samples[-1], busy_python=[x[2] for x in bp], baseline_gpu_pids=base)
+                break
+            time.sleep(5)
+        if ok:
+            log(kind="guard_ok", board_w_samples=samples, baseline_gpu_pids=base)
+            return True
+        time.sleep(600)
+    log(kind="abort", reason=f"{HOST} busy for 3 h, not measured")
+    return False
+
+
 def start_guard(log: Log, max_wait_s: float = 3 * 3600) -> bool:
+    if hasattr(power, "board_power_w"):
+        return start_guard_power(log, max_wait_s)
     t_start = time.time()
     while time.time() - t_start < max_wait_s:
         reason = power.n10c_active()

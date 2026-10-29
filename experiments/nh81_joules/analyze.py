@@ -16,7 +16,8 @@ import os
 import numpy as np
 
 ISO_MARGIN = 0.02      # nats
-GPU_BG_MAX = 10.0      # % mean background GPU utilisation in a rest window
+GPU_BG_MAX = 10.0      # % mean background GPU utilisation in a rest window (macM1)
+POWER_REST_MAX_W = 90.0  # W mean board power in a rest window (KXKM, prereg r3)
 MIN_PAIRS = 10
 
 
@@ -56,6 +57,9 @@ def window_ok(r: dict) -> bool:
 
 
 def rest_ok(r: dict) -> bool:
+    if "foreign_gpu_pids" in r:  # KXKM/NVML record: power guard (prereg r3)
+        w = r["gpu_j"] / r["dur_s"] if r.get("dur_s", 0) > 0 else -1.0
+        return 0 <= w <= POWER_REST_MAX_W and not r["busy_python"] and window_ok(r)
     # A failed utilisation read (-1) rejects the window (fail closed).
     return (0 <= r["gpu_util_mean"] <= GPU_BG_MAX and r.get("gpu_util_max", 0) >= 0
             and not r["busy_python"] and window_ok(r))
@@ -83,6 +87,8 @@ def build_pairs(records: list[dict], workload: str, path: str, pm=None) -> list[
                 key = "dense" if arm == "dense" else "spiking"
                 rec[f"{key}_j_per_tok"] = net / r["tokens"]
                 rec[f"{key}_gross_j_per_tok"] = (e["gpu_j"] + e["ane_j"]) / r["tokens"]
+                rec[f"{key}_gross_j"], rec[f"{key}_dur_s"] = e["gpu_j"] + e["ane_j"], r["dur_s"]
+                rec[f"{key}_tokens"] = r["tokens"]
                 rec[f"{key}_tok_s"] = r["tokens"] / r["dur_s"]
                 rec[f"{key}_cpu_w"] = e["cpu_j"] / r["dur_s"]
                 rec[f"{key}_vm_cpu_pct"] = r["vm_cpu_pct"]
@@ -112,6 +118,17 @@ def geomean(x: np.ndarray) -> float:
     return float(np.exp(np.mean(np.log(x))))
 
 
+def fixed_reference(valid: list[dict]) -> dict:
+    """Sensitivity (descriptive): one rest reference for all pairs."""
+    w0 = float(np.median([p["rest_gpu_w"] for p in valid]))
+
+    def jpt(p, k):
+        return (p[f"{k}_gross_j"] - w0 * p[f"{k}_dur_s"]) / p[f"{k}_tokens"]
+
+    r = np.array([jpt(p, "dense") / jpt(p, "spiking") for p in valid])
+    return {"rest_w_median": w0, "R_fixed_ref_hat": geomean(r) if np.all(r > 0) else float("nan")}
+
+
 def summarize(pairs: list[dict]) -> dict:
     valid = [p for p in pairs if p["valid"]]
     res = {"pairs_total": len(pairs), "pairs_valid": len(valid)}
@@ -122,6 +139,7 @@ def summarize(pairs: list[dict]) -> dict:
     res.update({
         "R_hat": geomean(r), "R_ci95": bootstrap(r, geomean),
         "R_gross_hat": geomean(np.array([p["ratio_gross"] for p in valid])),
+        **fixed_reference(valid),
         "diff_j_per_tok_mean": float(diff.mean()), "diff_ci95": bootstrap(diff, np.mean),
         "dense_j_per_tok_mean": float(np.mean([p["dense_j_per_tok"] for p in valid])),
         "spiking_j_per_tok_mean": float(np.mean([p["spiking_j_per_tok"] for p in valid])),
