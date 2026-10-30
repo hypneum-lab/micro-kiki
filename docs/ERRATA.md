@@ -66,6 +66,32 @@ argument is withdrawn for GPU/M1-class hardware
 (`docs/results/2026-10-25-nh81-joules.md`); NVML replication on the RTX
 4090 pending.
 
+**Update 2026-10-28, evening (verdict status; KXKM replication).** PI
+decision: the macM1 verdict reads **"withdraw, provisional (IOReport)"**
+until the preregistered NVML replication on the KXKM RTX 4090
+(`docs/prereg/2026-10-28-nh81-kxkm-replication.md`, tag
+`prereg-nh81-kxkm-20261028-r2`) decides: agreement (KXKM R <= 1.1 in
+generation, fused path) makes it definitive; divergence keeps it
+provisional and is reported. First KXKM attempt (2026-10-28 16:22-19:24
+CET): **not measured** — the start guard never passed (a crash-looping
+`llama-server` user service, then N10-C freeze jobs of another session);
+iso-quality reproduced on the GPU to 5e-5 nats
+(`docs/results/2026-10-28-nh81-kxkm-nvml.md`). Second attempt 20:18
+CET, after the service was stopped and N10-C ended: refused again; at
+idle the RTX 4090 sits in P8 and NVML reports ~40 % utilisation from a
+light constant background, above the 10 % guard. Status unchanged:
+withdraw, provisional (IOReport); replication still pending, guard
+definition for KXKM to be decided by the PI.
+
+**Update 2026-10-30 (third platform, M3 Pro).** Preregistered
+replication on macM3 (Apple M3 Pro, IOReport GPU rail, tag
+`prereg-nh81-m3pro-20261030`): W1 generation, fused path, R = 0.670
+(95 % CI 0.662-0.677), 12/12 valid pairs, iso-quality reproduced to
+2e-5 nats; every block "withdraw" (`docs/results/2026-10-30-nh81-m3pro.md`).
+Agreement with macM1, so no veto; fixed in advance as descriptive, it
+cannot make the verdict definitive. Status: withdraw, provisional
+(IOReport); KXKM NVML replication (amendment r4) still pending.
+
 ---
 
 ## E-2026-10-25-02 — C5 information bound "0.911" (issue #11, master table MK-23)

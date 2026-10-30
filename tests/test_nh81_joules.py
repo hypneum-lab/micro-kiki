@@ -107,6 +107,65 @@ def test_rail_energy_reads_one_channel_per_rail():
     assert r["gpu_j"] == 2.0 and r["cpu_j"] == 1.0
 
 
+def test_foreign_gpu_process_rejects_pair_and_replay_indexing():
+    # attempt 0 sees a foreign compute pid in its spiking run -> rejected;
+    # attempt 1 is the replay; attempt 2 was paused (rest only, no runs).
+    r0 = _run(0, "fused", 201.0)
+    r0["foreign_gpu_pids"] = [4242]
+    recs = [_rest(0), _run(0, "dense", 101.0), r0, _rest(1),
+            _run(1, "dense", 101.0), _run(1, "fused", 201.0), _rest(2), _rest(3)]
+    pairs = analyze.build_pairs(recs, "W1", "fused")
+    assert [p["pair"] for p in pairs] == [0, 1]
+    assert pairs[0]["valid"] is False and pairs[1]["valid"] is True
+    rest_bad = _rest(2)
+    rest_bad["foreign_gpu_pids"] = [4242]
+    assert analyze.rest_ok(_rest(2)) and not analyze.rest_ok(rest_bad)
+    assert pytest.approx(pairs[1]["ratio_gross"]) == 101.0 / 201.0
+
+
+def test_power_guard_on_nvml_rest_windows():
+    def nv_rest(pair, watts):
+        r = _rest(pair, util=40.0)  # P8 utilisation artefact, descriptive only
+        r.update(gpu_j=watts * 20.0, foreign_gpu_pids=[])
+        return r
+
+    assert analyze.rest_ok(nv_rest(0, 69.0))
+    assert not analyze.rest_ok(nv_rest(0, 95.0))
+    recs = [nv_rest(0, 60.0), _run(0, "dense", 1101.0), _run(0, "fused", 1601.0), nv_rest(1, 69.0)]
+    for r in recs[1:3]:
+        r["foreign_gpu_pids"] = []
+    pairs = analyze.build_pairs(recs, "W1", "fused")
+    assert pairs[0]["valid"] is True
+    st = analyze.summarize(pairs)
+    assert pytest.approx(st["rest_w_median"]) == 60.0
+    assert pytest.approx(st["R_fixed_ref_hat"]) == st["R_hat"]
+
+
+def test_m3pro_rest_rule_and_cputime():
+    import power_m3
+
+    assert power_m3._cputime("1:02.50") == pytest.approx(62.5)
+    assert power_m3._cputime("1-01:00:00") == pytest.approx(90000.0)
+    r = _rest(0, util=50.0)
+    r.update(rest_rule="m3pro", rest_max_w=0.25, load_max=6.0, load1=2.0)
+    assert analyze.rest_ok(r)  # 2 J / 20 s = 0.1 W; utilisation is descriptive
+    r2 = dict(r, gpu_j=10.0)
+    r3 = dict(r, load1=7.0)
+    r4 = dict(r, busy_python=["/x/python"])
+    assert not analyze.rest_ok(r2) and not analyze.rest_ok(r3) and not analyze.rest_ok(r4)
+
+
+def test_busy_between_uses_window_ticks():
+    import power_nvml
+
+    hz = __import__("os").sysconf("SC_CLK_TCK")
+    a = {10: ("python a", 0), 11: ("python b", 0), 12: ("python c", 0)}
+    b = {10: ("python a", int(0.5 * hz * 10)), 11: ("python b", int(0.1 * hz * 10)),
+         13: ("python new", 999)}
+    rows = power_nvml.busy_between(a, b, 10.0, exclude_pid=99)
+    assert [r[1] for r in rows] == [10]
+
+
 def test_lif_matches_numpy_reference():
     mx = pytest.importorskip("mlx.core")
     import model_mlx
