@@ -83,6 +83,15 @@ light constant background, above the 10 % guard. Status unchanged:
 withdraw, provisional (IOReport); replication still pending, guard
 definition for KXKM to be decided by the PI.
 
+**Update 2026-10-30 (third platform, M3 Pro).** Preregistered
+replication on macM3 (Apple M3 Pro, IOReport GPU rail, tag
+`prereg-nh81-m3pro-20261030`): W1 generation, fused path, R = 0.670
+(95 % CI 0.662-0.677), 12/12 valid pairs, iso-quality reproduced to
+2e-5 nats; every block "withdraw" (`docs/results/2026-10-30-nh81-m3pro.md`).
+Agreement with macM1, so no veto; fixed in advance as descriptive, it
+cannot make the verdict definitive. Status: withdraw, provisional
+(IOReport); KXKM NVML replication (amendment r4) still pending.
+
 ---
 
 ## E-2026-10-25-02 — C5 information bound "0.911" (issue #11, master table MK-23)

@@ -1,0 +1,37 @@
+{
+ "device": "Device(gpu, 0)",
+ "mlx": "0.31.1",
+ "tf32": "0",
+ "models": {
+  "dense": {
+   "path": "/Users/electron/scratch/nh81-m3/ckpt/ann1_ckpt_12000.npz",
+   "sha256": "3c0891fbb528f122b5ac8179b180fab879d38415e385c29b7acb7be7ef12afd7",
+   "val_nats": 3.588420182466507,
+   "val_fire": 0.0,
+   "val_macm1": 3.588420122861862,
+   "val_dev": 5.960464477539063e-08,
+   "test_nats": 3.6371633112430573,
+   "test_fire": 0.0,
+   "test_macm1": 3.6371632516384125,
+   "test_dev": 5.960464477539063e-08
+  },
+  "spiking": {
+   "path": "/Users/electron/scratch/nh81-m3/ckpt/spkt_ckpt_12000.npz",
+   "sha256": "e9a3c9294c4737eddf019fa2ace51f2fe967c942d89039fcbd2870aa26eaa074",
+   "val_nats": 3.588169276714325,
+   "val_fire": 0.1378312734887004,
+   "val_macm1": 3.58817820250988,
+   "val_dev": -8.925795555114746e-06,
+   "test_nats": 3.6444887220859528,
+   "test_fire": 0.1378442645072937,
+   "test_macm1": 3.644508123397827,
+   "test_dev": -1.940131187438965e-05
+  }
+ },
+ "gap_test_nats": 0.007325410842895508,
+ "iso_quality": true,
+ "iso_direction": "iso",
+ "repro_max_dev": 1.940131187438965e-05,
+ "repro_ok": true,
+ "spiking_test_fire": 0.1378442645072937
+}
