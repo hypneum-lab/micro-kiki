@@ -57,6 +57,10 @@ def window_ok(r: dict) -> bool:
 
 
 def rest_ok(r: dict) -> bool:
+    if r.get("rest_rule") == "m3pro":  # macM3 (prereg 2026-10-30-nh81-m3pro)
+        w = r["gpu_j"] / r["dur_s"] if r.get("dur_s", 0) > 0 else -1.0
+        return (0 <= w <= r["rest_max_w"] and not r["busy_python"]
+                and 0 <= r["load1"] <= r["load_max"])
     if "foreign_gpu_pids" in r:  # KXKM/NVML record: power guard (prereg r3)
         w = r["gpu_j"] / r["dur_s"] if r.get("dur_s", 0) > 0 else -1.0
         return 0 <= w <= POWER_REST_MAX_W and not r["busy_python"] and window_ok(r)

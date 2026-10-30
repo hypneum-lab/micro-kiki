@@ -141,6 +141,20 @@ def test_power_guard_on_nvml_rest_windows():
     assert pytest.approx(st["R_fixed_ref_hat"]) == st["R_hat"]
 
 
+def test_m3pro_rest_rule_and_cputime():
+    import power_m3
+
+    assert power_m3._cputime("1:02.50") == pytest.approx(62.5)
+    assert power_m3._cputime("1-01:00:00") == pytest.approx(90000.0)
+    r = _rest(0, util=50.0)
+    r.update(rest_rule="m3pro", rest_max_w=0.25, load_max=6.0, load1=2.0)
+    assert analyze.rest_ok(r)  # 2 J / 20 s = 0.1 W; utilisation is descriptive
+    r2 = dict(r, gpu_j=10.0)
+    r3 = dict(r, load1=7.0)
+    r4 = dict(r, busy_python=["/x/python"])
+    assert not analyze.rest_ok(r2) and not analyze.rest_ok(r3) and not analyze.rest_ok(r4)
+
+
 def test_busy_between_uses_window_ticks():
     import power_nvml
 

@@ -35,6 +35,8 @@ from model_mlx import LM
 HOST = os.environ.get("NH81_HOST", "macm1")
 if HOST == "kxkm":
     import power_nvml as power
+elif HOST == "m3pro":
+    import power_m3 as power
 else:
     import power
 import analyze
@@ -163,6 +165,8 @@ def window(meter: power.IOReportEnergy, fn) -> dict:
             v = [st[k] for st in us.state]
             rec[f"{k}_mean"] = float(np.mean(v)) if v else -1
         rec["pstates"] = sorted({st["pstate"] for st in us.state})
+    if hasattr(power, "window_extra"):
+        rec.update(power.window_extra())
     return rec
 
 
