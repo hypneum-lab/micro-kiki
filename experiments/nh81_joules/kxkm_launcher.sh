@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# NH-81 KXKM NVML replication launcher (prereg tag prereg-nh81-kxkm-20261028-r2).
+# NH-81 KXKM NVML replication launcher (prereg r2, r3, amendment r4: tag prereg-nh81-kxkm-20261030-r4).
 # Usage: nh81-measure.sh [quick]   -- quick = code dry run (NH81_QUICK=1)
 # Never stops or touches any service; read-only on everything but NH81 dirs.
 set -euo pipefail

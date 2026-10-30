@@ -171,21 +171,30 @@ def rest(meter: power.IOReportEnergy) -> dict:
 
 
 def start_guard_power(log: Log, max_wait_s: float = 3 * 3600) -> bool:
-    """Prereg r3 start guard (kxkm): board power, foreign pids, CPU, N10-C."""
+    """Start guard (kxkm): board power, foreign pids and N10-C sampled every
+    5 s (prereg r3); other Python CPU averaged over the window (amendment r4)."""
     t_start = time.time()
     while time.time() - t_start < max_wait_s:
         base = power.set_baseline()  # B frozen at the start of each check
         ok, t0, samples = True, time.time(), []
+        tk0 = power.python_ticks()
         while time.time() - t0 < CLEAN_S:
             r = power.pause_reason()
-            bp = power.busy_python()
             samples.append(power.board_power_w())
-            if r or bp:
+            if r:
                 ok = False
                 log(kind="guard_wait", reason=r, gpu_util=power.gpu_utilization(),
-                    board_w=samples[-1], busy_python=[x[2] for x in bp], baseline_gpu_pids=base)
+                    board_w=samples[-1], busy_python=[], baseline_gpu_pids=base)
                 break
             time.sleep(5)
+        if ok:
+            bp = power.busy_between(tk0, power.python_ticks(), time.time() - t0)
+            if bp:
+                ok = False
+                log(kind="guard_wait", reason="busy python over the window",
+                    gpu_util=power.gpu_utilization(), board_w=samples[-1],
+                    busy_python=[x[2] for x in bp],
+                    busy_python_pct=[round(x[0], 1) for x in bp], baseline_gpu_pids=base)
         if ok:
             log(kind="guard_ok", board_w_samples=samples, baseline_gpu_pids=base)
             return True
