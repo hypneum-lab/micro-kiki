@@ -66,6 +66,19 @@ argument is withdrawn for GPU/M1-class hardware
 (`docs/results/2026-10-25-nh81-joules.md`); NVML replication on the RTX
 4090 pending.
 
+**Addendum 2026-10-31 (correction to the root cause).** The sentence "No
+ANN→SNN conversion of the 35B model was ever run" is wrong. A partial
+conversion of Qwen3.6-35B-A3B was run on 2026-04-21
+(`results/spikingkiki-35b-convert.json`, `"status": "ok"`, 8 543 of 31 070
+layers converted; `docs/research/2026-04-21-spikingkiki-c2-moe-blocker.md`).
+It was never evaluated: the repository holds only module-level sanity
+checks (`results/spiking-e-validation*.json`), no quality or energy
+measurement. Nothing ran on neuromorphic hardware, so the energy
+withdrawal is unchanged. Concerned Hub repos: `clemsail/spikingkiki-35b-a3b-v4`
+(partial upload) and `hypneum-lab/spikingkiki-v4-lif-metadata`; both cards
+were updated on 2026-10-31. Found during an independent review of the
+Hugging Face cards, 2026-10-31.
+
 ---
 
 ## E-2026-10-25-02 — C5 information bound "0.911" (issue #11, master table MK-23)
