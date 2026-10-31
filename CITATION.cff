@@ -15,6 +15,7 @@ authors:
   - name: "hypneum-lab contributors"
   - family-names: Saillant
     given-names: Clément
+    orcid: "https://orcid.org/0000-0002-8414-185X"
     email: clement@saillant.cc
     affiliation: "L'Electron Rare, Grandris, France"
 repository-code: "https://github.com/hypneum-lab/micro-kiki"
@@ -51,6 +52,7 @@ preferred-citation:
     - name: "dreamOfkiki project contributors"
     - family-names: Saillant
       given-names: Clément
+      orcid: "https://orcid.org/0000-0002-8414-185X"
       email: clement@saillant.cc
       affiliation: "L'Electron Rare, Grandris, France"
   year: 2026
