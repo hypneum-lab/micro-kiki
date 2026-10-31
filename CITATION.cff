@@ -17,7 +17,7 @@ authors:
     given-names: Clément
     orcid: "https://orcid.org/0000-0002-8414-185X"
     email: clement@saillant.cc
-    affiliation: "L'Electron Rare, Grandris, France"
+    affiliation: "Hypneum Lab (L'Électron Rare), Grandris, France"
 repository-code: "https://github.com/hypneum-lab/micro-kiki"
 url: "https://github.com/hypneum-lab/micro-kiki"
 license: Apache-2.0
@@ -54,7 +54,7 @@ preferred-citation:
       given-names: Clément
       orcid: "https://orcid.org/0000-0002-8414-185X"
       email: clement@saillant.cc
-      affiliation: "L'Electron Rare, Grandris, France"
+      affiliation: "Hypneum Lab (L'Électron Rare), Grandris, France"
   year: 2026
   url: "https://github.com/hypneum-lab/dream-of-kiki"
   notes: "Paper 1 draft v0.2. MIT code + CC-BY-4.0 docs. OSF pre-registration DOI 10.17605/OSF.IO/Q6JYN. arXiv preprint forthcoming."
