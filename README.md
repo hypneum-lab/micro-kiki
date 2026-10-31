@@ -406,4 +406,4 @@ co-author of a publication or as a co-author of a commit.
 
 ## License
 
-Apache License 2.0. See [`LICENSE`](./LICENSE).
+Apache-2.0 (code) + CC-BY-4.0 (docs). See [`LICENSE`](./LICENSE).
