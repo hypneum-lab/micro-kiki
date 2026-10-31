@@ -85,7 +85,10 @@ def summarize(runs: list[dict]) -> dict:
                                  "short_runs": 0, "excluded_nonpositive": 0,
                                  "_net": [], "_gross": [], "_tps": []})
         o["valid_runs"] += 1
-        o["short_runs"] += int(r["dur_s"] < MIN_RUN_S)
+        if r["dur_s"] < MIN_RUN_S:  # kept, reported separately, not in medians
+            o["short_runs"] += 1
+            o.setdefault("short_j_per_token", []).append(r["j_per_token"])
+            continue
         if r["j_per_token"] is None or r["j_per_token"] <= 0:
             o["excluded_nonpositive"] += 1
         else:

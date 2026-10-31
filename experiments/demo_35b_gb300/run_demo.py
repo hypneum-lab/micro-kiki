@@ -112,16 +112,40 @@ def main() -> int:
                             D.sha256_bytes(json.dumps(ids).encode()), **g})
         return n, res
 
-    # P1 in this process: stabilisation on base runs, then 60 s idle.
-    t0 = time.time()
-    i = 0
-    while time.time() - t0 < R.STAB_S:
-        run_domain(D.DOMAINS[i % len(D.DOMAINS)], 1)
-        i += 1
-    rest_t0 = time.time()
-    time.sleep(RP.P1_REST_S)
+    # P1 in this process: stabilisation on base runs, then 60 s idle,
+    # watched for foreign GPU/CPU activity; voided once, then abandoned.
+    def p1_once() -> tuple[float, float] | None:
+        bad: list[str] = []
+        stop = threading.Event()
+
+        def watch():
+            while not stop.is_set():
+                r = RP.clean_reason(p, set()) or RP.cpu_window(p, set(), 5.0)
+                if r:
+                    bad.append(r)
+                    stop.wait(5.0)
+        th = threading.Thread(target=watch, daemon=True)
+        t0 = time.time()
+        th.start()
+        i = 0
+        while time.time() - t0 < R.STAB_S:
+            run_domain(D.DOMAINS[i % len(D.DOMAINS)], 1)
+            i += 1
+        rest_t0 = time.time()
+        time.sleep(RP.P1_REST_S)
+        stop.set()
+        th.join()
+        if bad or not sampler.clean(t0, time.time()):
+            print(json.dumps({"kind": "p1_void", "reason": bad[:3] or "instrument fault"}), flush=True)
+            return None
+        return rest_t0, time.time()
+
+    w = p1_once() or (RP.exclusivity(p) and p1_once())
+    if not w:
+        raise SystemExit("P1 voided twice: not run")
+    rest_t0, rest_t1 = w
     tl, el = sampler.between(rest_t0 - 60, rest_t0)
-    tr, er = sampler.between(rest_t0, time.time())
+    tr, er = sampler.between(rest_t0, rest_t1)
     p_load = (el[-1] - el[0]) / (tl[-1] - tl[0])
     p_rest = R.max_sliding_mean(tr, er, 20.0)
     T = R.threshold(p_rest)

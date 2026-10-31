@@ -21,14 +21,17 @@ START=$(date +%s); DEADLINE=$(( START + 3 * 3600 ))   # PI: 3 h from the downloa
 # 1. Download by URL and exact revision (curl), then SHA-256 against the manifest.
 fetch() { local repo=$1 rev=$2 path=$3 dest=$4
   mkdir -p "$(dirname "$dest")"
-  [ -s "$dest" ] || curl -fL --retry 3 -o "$dest" "https://huggingface.co/$repo/resolve/$rev/$path"; }
-grep -v '^#' "$PRE/sources-sha256.txt" | while read -r sha ref; do
+  local left=$(( DEADLINE - $(date +%s) ))
+  [ "$left" -gt 0 ] || { echo "deadline reached during download"; exit 3; }
+  [ -s "$dest" ] || curl -fL --retry 3 --max-time "$left" -o "$dest" "https://huggingface.co/$repo/resolve/$rev/$path"; }
+grep -v '^#' "$PRE/sources-sha256.txt" > "$ROOT/sources.list"
+while read -r sha ref; do
   path=${ref#*:}
   case $ref in
     Qwen/*) fetch "$BASE" "$BREV" "$path" "$ROOT/base/$path"; echo "$sha  $ROOT/base/$path" ;;
     hypneum-lab/*) fetch "$AD" "$AREV" "$path" "$ROOT/adapters/$path"; echo "$sha  $ROOT/adapters/$path" ;;
   esac
-done > "$ROOT/expected.sha256"
+done < "$ROOT/sources.list" > "$ROOT/expected.sha256"
 sha256sum -c "$ROOT/expected.sha256"
 
 # 2. Environment (same instrument as NH-81 GB300).
@@ -56,10 +59,12 @@ $PY -c "import mlx.core as mx; mx.eval(mx.ones(4) @ mx.ones(4)); print('smoke ok
 LEFT=$(( DEADLINE - $(date +%s) ))
 [ "$LEFT" -gt 0 ] || { echo "deadline reached before the demo"; exit 3; }
 set +e
-timeout --signal=INT "$LEFT" $PY "$HERE/run_demo.py" --base "$ROOT/base" --adapters "$ROOT/adapters" \
+timeout --signal=INT --kill-after=60 "$LEFT" $PY "$HERE/run_demo.py" --base "$ROOT/base" --adapters "$ROOT/adapters" \
   --prompts "$PRE/prompts.json" --out "$OUT"
-echo "demo exit $?" | tee "$OUT/demo_exit.txt"
+RC=$?
+echo "demo exit $RC" | tee "$OUT/demo_exit.txt"
 set -e
 
 # 5. Weights deleted after the slot (PI decision 8), results kept.
 [ "${KEEP_WEIGHTS:-0}" = 1 ] || rm -rf "$ROOT/base" "$ROOT/adapters"
+exit "$RC"
