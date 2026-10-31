@@ -1,5 +1,13 @@
 # NH-81 GB300: packages to hash and have reviewed by the PI
 
+**Status 2026-10-31 (after the PI decisions):** step 1 is done (list
+below validated by the PI); step 2, the resolved and hashed set, is in
+`requirements-gb300-nh81.txt` (fallback `requirements-gb300-nh81-cuda13.txt`),
+with the readable summary `requirements-review.md` and the file hashes
+in `requirements-gb300-nh81.sha256`. It waits for the PI's second
+review; the freeze waits for it. CUDA headers: `nvidia-cuda-runtime-cu12`
+and `nvidia-cuda-cccl-cu12` 12.9 wheels (PI decision 8). uv: 0.13.5.
+
 Repository policy: no blind upgrade, every third-party artefact pinned
 and reviewed by a human before use. **No lockfile is generated before
 this list is reviewed.** Two review steps, both before any access,
