@@ -30,7 +30,8 @@ and contains no inferential comparison between hosts.
    alone, the list of processes allowed on the host during the run
    (proposed: system services and the display stack only, identified by
    name in `host.json`), and the CPU rule (proposed: no process other
-   than ours above 20 % CPU over a window, Python or not, and 1-min
+   than ours above 20 % CPU over a window, Python or not, host CPU
+   time outside our process <= 1 core-equivalent per window, and 1-min
    load average <= 4.0).
 4. **CUDA-12 fallback** (section 3): if the MLX CUDA-12 smoke test
    fails on sm_103, may `mlx-cuda-13==0.31.1` replace
@@ -197,7 +198,9 @@ written amendment before the first pair.
   windows stay >= 15 s for runs and 20 s for rest.
 * **During the run:** a counter read that fails, decreases or stalls
   (no increase over a whole run) invalidates that window (fail closed);
-  three such events end the run ("instrument failure").
+  under the fallback, a failed power read or a gap of more than 1 s
+  between successful samples invalidates the window likewise. Three
+  such events in the run end it ("instrument failure").
 * **Power sharing:** both GPUs' power and enforced caps, and the GB110
   cap / sloshing mode, are logged per window; the item-11 policy
   applies to changes. Grace CPU or module power, if exposed (hwmon,
@@ -280,8 +283,13 @@ system). Replacing the KXKM baseline rule (r2 "baseline B"):
 * **CPU rule (item 3):** no process other than ours above 20 % CPU
   averaged over a window (all processes, not only Python), and the
   1-min load average under the item-3 bound, at the start guard and in
-  every rest window. Processes shorter than a window are caught only
-  through the load average; this limit is stated.
+  every rest window. Per-process CPU is computed from `/proc` ticks at
+  both ends of the window, a process that appears during the window
+  counting from zero ticks; in addition, host CPU time outside our
+  process (from `/proc/stat`) must stay at or below the equivalent of
+  one core over the window (item 3). A process that both starts and
+  ends inside a window is caught only by this host-level figure; this
+  limit is stated.
 * **Pause rule:** r3 pause rule with the slot's other studies in place
   of the N10-C rule; the start guard is re-checked every 10 min within
   the item-2 window; cumulative pause within the item-2 budget.
@@ -370,3 +378,6 @@ card; selection check not specified in-process; text/code gaps (seed 3,
 calibration, guard before loading, CPU during runs); `decision` and
 `catalogue` fields; non-positive nets; second package review. All are
 addressed above; one MINEUR (macM1 `selection.json`) also fixed.
+A targeted second pass on `1e3633d` marked 8 of 10 resolved and 2
+partial (transient CPU processes, fallback read failures); both are
+now specified in sections 4.4 and 4.1.
