@@ -23,7 +23,7 @@ fetch() { local repo=$1 rev=$2 path=$3 dest=$4
   mkdir -p "$(dirname "$dest")"
   local left=$(( DEADLINE - $(date +%s) ))
   [ "$left" -gt 0 ] || { echo "deadline reached during download"; exit 3; }
-  [ -s "$dest" ] || curl -fL --retry 3 --max-time "$left" -o "$dest" "https://huggingface.co/$repo/resolve/$rev/$path"; }
+  [ -s "$dest" ] || timeout --signal=TERM --kill-after=5 "$left" curl -fL --retry 3 --max-time "$left" -o "$dest" "https://huggingface.co/$repo/resolve/$rev/$path"; }
 grep -v '^#' "$PRE/sources-sha256.txt" > "$ROOT/sources.list"
 while read -r sha ref; do
   path=${ref#*:}

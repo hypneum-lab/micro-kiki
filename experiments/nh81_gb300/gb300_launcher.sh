@@ -70,6 +70,6 @@ timeout --signal=INT --kill-after=60 "$LEFT" $PY "$HERE/measure_gb300.py" "${ARG
 RC=$?
 echo "measure exit $RC" | tee "$OUT/measure_exit.txt"
 set -e
-$PY "$HERE/rest_probe_gb300.py" --final --out "$OUT/final_probe.json"
+timeout --signal=INT --kill-after=60 120 $PY "$HERE/rest_probe_gb300.py" --final --out "$OUT/final_probe.json"
 $PY "$HERE/describe.py" --measure "$OUT/measure.jsonl" --out "$OUT/summary.json"
 exit "$RC"

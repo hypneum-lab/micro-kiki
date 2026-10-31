@@ -43,6 +43,7 @@ class Sampler(threading.Thread):
     def __init__(self, p, mode: str) -> None:
         super().__init__(daemon=True)
         self.p, self.mode, self.rows, self.stop = p, mode, [], threading.Event()
+        self.last_faults = p.FAULTS
         self.integ = p._Integrator() if mode == "power_integrated" else None
         self.faults: list[float] = []  # times of bad reads
 
@@ -51,9 +52,11 @@ class Sampler(threading.Thread):
 
     def run(self) -> None:
         while not self.stop.is_set():
-            f0, e, now = self.p.FAULTS, self.read(), time.time()
-            if e is None or (self.rows and e < self.rows[-1][1]) or self.p.FAULTS > f0:
+            e, now = self.read(), time.time()
+            faults = self.p.FAULTS
+            if e is None or (self.rows and e < self.rows[-1][1]) or faults > self.last_faults:
                 self.faults.append(now)
+            self.last_faults = faults
             if e is not None:
                 self.rows.append((now, e))
             self.stop.wait(1.0)

@@ -6,6 +6,7 @@ import importlib
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -48,6 +49,30 @@ def test_cpu_busy_counts_new_processes_from_zero():
 
 def test_host_foreign_cores():
     assert R.host_foreign_cores(0, 300, 0, 100, hz=100, dt=1.0) == pytest.approx(2.0)
+
+
+@pytest.mark.parametrize("inter_read_fault", [False, True])
+def test_sampler_detects_integrator_fault_between_reads(monkeypatch, inter_read_fault):
+    import rest_probe_gb300 as RP
+
+    p = SimpleNamespace(FAULTS=7, _Integrator=lambda: SimpleNamespace(value=lambda: 10.0))
+    s = RP.Sampler(p, "power_integrated")
+
+    def wait(_):
+        if len(s.rows) == 1 and inter_read_fault:
+            p.FAULTS += 1  # Integrator fault while the sampler is waiting.
+
+    s.stop = SimpleNamespace(is_set=lambda: len(s.rows) >= 3, wait=wait)
+    monkeypatch.setattr(RP, "time", SimpleNamespace(time=iter([100.0, 101.0, 102.0]).__next__))
+    s.run()
+    assert s.faults == ([101.0] if inter_read_fault else [])
+    assert s.clean(100.0, 102.0) is (not inter_read_fault)
+
+
+def test_final_probe_has_timeout():
+    script = (ROOT / "experiments" / "nh81_gb300" / "gb300_launcher.sh").read_text()
+    line = next(line for line in script.splitlines() if 'rest_probe_gb300.py" --final' in line)
+    assert line.startswith('timeout --signal=INT --kill-after=60 120 $PY ')
 
 
 def _rest(w, **kw):

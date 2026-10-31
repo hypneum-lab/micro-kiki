@@ -2,7 +2,7 @@
 
 Freeze of `docs/prereg/nh81-gb300/` (L1). This list is checked on the merge commit of
 the PR; the SHA-256 of this file is written in the message of the
-annotated tag `nh81-gb300-freeze-20261031`, and the Software Heritage revision SWHID of the
+annotated tag `nh81-gb300-freeze-20261031b`, and the Software Heritage revision SWHID of the
 tagged commit is recorded in the confirmation commit that follows.
 
 Frozen NH-81 measurement code, exported unchanged by the launchers:
@@ -13,6 +13,7 @@ Frozen NH-81 measurement code, exported unchanged by the launchers:
 
 ```
 f0cbe25bf4ed1275f8701d539f4384b3f982dcbbb91430a2a018ee8a2efe381e  docs/prereg/nh81-gb300/2026-10-31-nh81-gb300-descriptive.md
+08a3caa3a18794d4f1b15b6e6f731bfffc6b1b31359fd0922d41be61ebdb4d62  docs/prereg/nh81-gb300/amendment-2026-10-31.md
 e7e04627b1822640a9e5ae4dc48b0d09b6195be099bbbe9815679d398a7db29e  docs/prereg/nh81-gb300/hitl-packages.md
 12c63efd5a255eb850f3e2822715e3e2ce6e7f165927df21590a4feeaecc5b59  docs/prereg/nh81-gb300/requirements-gb300-nh81-cuda13.in
 a19e33bedd51357cddbbd67ee726cc2047e1ca0f8e4c0391dc745fdd829d2f17  docs/prereg/nh81-gb300/requirements-gb300-nh81-cuda13.txt
@@ -22,11 +23,11 @@ a19e33bedd51357cddbbd67ee726cc2047e1ca0f8e4c0391dc745fdd829d2f17  docs/prereg/nh
 6356c76f1061368289e59b310ae45da04346df933bded8d14d15d0e72c78d53c  docs/prereg/nh81-gb300/requirements-review.md
 96849b2bd974098bb2a90bb6669a14b915bfe995ea820f1731e8987f329d2137  docs/prereg/nh81-gb300/review/codex-code-review-2026-10-31.md
 4dbcb8214e77e644aef142c83a819d49805ce19f3b87ae817e24022f840b8f77  experiments/nh81_gb300/describe.py
-328bc0b36dc5e8ec94b5409a555843762c19da953c38de33f134898b0a5c2e1f  experiments/nh81_gb300/gb300_launcher.sh
-02fc49e2d40555d9eb6d0a528914eb50c88f2c5a855f27c5b188354a60606cf9  experiments/nh81_gb300/gb300_rules.py
+c2916d0b382b72b6f6a83eeea25993d0fe402677ca6bde3bebb478bea37871a3  experiments/nh81_gb300/gb300_launcher.sh
+341bdc28ab08bf8108767383d4d61f031c15e004f7fec613c26c8866582c711a  experiments/nh81_gb300/gb300_rules.py
 e867161debb881796d8734c26a98064b0ee9dbf4083830872c2ea6a3b89bbffc  experiments/nh81_gb300/measure_gb300.py
 c6d5d2fe59765e2a623ae77e279b3c0af6ff912752a9cf77295696252707a326  experiments/nh81_gb300/power_gb300.py
-21a7e4a86cd94544e9af127ba7a7bb853a01c156c101fa5acbc09d6f1d4d259a  experiments/nh81_gb300/rest_probe_gb300.py
+4716a38f6d19ea82608e470511c3fc0c3749e5a824b0c132cfa5e6b97f147489  experiments/nh81_gb300/rest_probe_gb300.py
 81056e24fe78258698f9e9c4ab3edf1fa40d99351a9516ec7161b31b5523ad2f  experiments/nh81_gb300/tf32_check.py
-e712ea751c6ed835d07bf9aa8c728d1c1ceb3bbacf29d8890787171bd085fb77  tests/test_nh81_gb300.py
+3c26aff6cb15d48d0951124990611eceafcd6ecec05901f0e69b67ee7c021513  tests/test_nh81_gb300.py
 ```
