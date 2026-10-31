@@ -2,10 +2,19 @@
 
 Repository policy: no blind upgrade, every third-party artefact pinned
 and reviewed by a human before use. **No lockfile is generated before
-this list is reviewed.** After review, the resolved set (with the exact
-versions of the NVIDIA runtime wheels) is written to
-`docs/prereg/nh81-gb300/requirements-gb300.lock` with `--require-hashes`
-entries, committed in this PR and covered by the freeze manifest.
+this list is reviewed.** Two review steps, both before any access,
+installation or freeze:
+
+1. The PI reviews this list (names, versions, constraints).
+2. The set is then resolved for `aarch64` / CPython 3.12 (transitive
+   NVIDIA wheels included, and the CUDA-13 fallback set if item 4 is
+   accepted); the resolved artefacts, with their SHA-256, are reviewed
+   by the PI a second time. Only then is the result committed as
+   `docs/prereg/nh81-gb300/requirements-gb300.lock` with
+   `--require-hashes` entries and covered by the freeze manifest.
+
+Reviewing names is not reviewing artefacts: every row marked "to
+record" must carry a reviewed hash before the freeze.
 
 Hashes below were read from the PyPI JSON API on 2026-10-31 (files not
 downloaded). They are re-checked on the GB300 before installation; a
