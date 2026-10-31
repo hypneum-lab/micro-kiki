@@ -61,13 +61,15 @@ sys.exit('not replicable as specified: %s' % bad if bad else 0)"
 # 6. Rest threshold (deadline: 2 h from here), measurement, final probe.
 DEADLINE=$(( $(date +%s) + 7200 ))
 ARGS=(--dense "$ROOT/ckpt/ann1_ckpt_12000.npz" --spiking "$ROOT/ckpt/spkt_ckpt_12000.npz" --test "$ROOT/data/test.i32")
-$PY "$HERE/rest_probe_gb300.py" --out "$OUT/rest_threshold.json" "${ARGS[@]}"
+timeout --signal=INT --kill-after=60 "$(( DEADLINE - $(date +%s) ))" $PY "$HERE/rest_probe_gb300.py" --out "$OUT/rest_threshold.json" "${ARGS[@]}"
 export NH81_REST_THRESHOLD=$OUT/rest_threshold.json NH81_REST_THRESHOLD_IN=$OUT/rest_threshold.json
 LEFT=$(( DEADLINE - $(date +%s) ))
 [ "$LEFT" -gt 0 ] || { echo "deadline reached before measurement"; exit 3; }
 set +e
-timeout --signal=INT "$LEFT" $PY "$HERE/measure_gb300.py" "${ARGS[@]}" --out "$OUT/measure.jsonl"
-echo "measure exit $?" | tee "$OUT/measure_exit.txt"
+timeout --signal=INT --kill-after=60 "$LEFT" $PY "$HERE/measure_gb300.py" "${ARGS[@]}" --out "$OUT/measure.jsonl"
+RC=$?
+echo "measure exit $RC" | tee "$OUT/measure_exit.txt"
 set -e
 $PY "$HERE/rest_probe_gb300.py" --final --out "$OUT/final_probe.json"
 $PY "$HERE/describe.py" --measure "$OUT/measure.jsonl" --out "$OUT/summary.json"
+exit "$RC"

@@ -44,16 +44,26 @@ class Sampler(threading.Thread):
         super().__init__(daemon=True)
         self.p, self.mode, self.rows, self.stop = p, mode, [], threading.Event()
         self.integ = p._Integrator() if mode == "power_integrated" else None
+        self.faults: list[float] = []  # times of bad reads
 
     def read(self) -> float | None:
         return self.integ.value() if self.integ else self.p.counter_j()
 
     def run(self) -> None:
         while not self.stop.is_set():
-            e = self.read()
+            f0, e, now = self.p.FAULTS, self.read(), time.time()
+            if e is None or (self.rows and e < self.rows[-1][1]) or self.p.FAULTS > f0:
+                self.faults.append(now)
             if e is not None:
-                self.rows.append((time.time(), e))
+                self.rows.append((now, e))
             self.stop.wait(1.0)
+
+    def clean(self, t0: float, t1: float) -> bool:
+        """No bad read and no gap > 2 s between t0 and t1."""
+        t, _ = self.between(t0, t1)
+        gaps = [b - a for a, b in zip(t, t[1:])]
+        return (not any(t0 <= f <= t1 for f in self.faults) and len(t) >= 2
+                and t[0] - t0 <= 2 and t1 - t[-1] <= 2 and all(g <= 2.0 for g in gaps))
 
     def between(self, t0: float, t1: float) -> tuple[list[float], list[float]]:
         sel = [(t, e) for t, e in self.rows if t0 <= t <= t1]
@@ -158,13 +168,16 @@ def p1(p, s: Sampler, a) -> dict | None:
                                               for l in proc.stdout if l.startswith('{"phase"')], daemon=True)
     reader.start()
     while proc.poll() is None:
-        r = clean_reason(p, {proc.pid})
-        if r and not bad:
-            bad = r
-        time.sleep(5)
+        r = clean_reason(p, {proc.pid}) or cpu_window(p, {proc.pid}, 5.0)
+        if r:
+            bad = bad or r
+            time.sleep(5)
     reader.join(5)
     if proc.returncode != 0 or bad or "done" not in marks:
         print(json.dumps({"kind": "p1_void", "reason": bad or f"child rc {proc.returncode}"}), flush=True)
+        return None
+    if not s.clean(marks["load_start"], marks["done"]):
+        print(json.dumps({"kind": "p1_void", "reason": "instrument fault during P1"}), flush=True)
         return None
     tl, el = s.between(marks["rest_start"] - 60, marks["rest_start"])
     tr, er = s.between(marks["rest_start"], marks["done"])
@@ -207,6 +220,9 @@ def main() -> int:
     t0 = time.time()
     time.sleep(120)
     t, e = s.between(t0, time.time())
+    if not s.clean(t0, time.time()):
+        json.dump({"outcome": "not measured", "reason": "instrument fault during P0"}, open(a.out, "w"))
+        return 2
     ws = [(e[i + 1] - e[i]) / (t[i + 1] - t[i]) for i in range(len(t) - 1)]
     res = None
     for attempt in range(2):  # one retry after a clean 2 min (prereg 4.2)

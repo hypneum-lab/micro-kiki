@@ -42,6 +42,7 @@ _FAULTS_SEEN = 0            # faults already attributed to a window
 _SNAPS: list[dict] = []     # last meter snapshots (time, energy, cap)
 _TICKS: list[dict] = []     # last CPU snapshots (stat, own)
 _CFG: dict | None = None
+_FAULT_LOCK = threading.Lock()
 
 
 class _ProcInfo(ctypes.Structure):
@@ -151,7 +152,8 @@ def check_identity() -> dict:
 
 def _fault(why: str) -> None:
     global FAULTS
-    FAULTS += 1
+    with _FAULT_LOCK:
+        FAULTS += 1
     print(json.dumps({"kind": "instrument_fault", "why": why, "faults": FAULTS}), flush=True)
 
 
@@ -185,6 +187,14 @@ class _Integrator:
 
     def _loop(self) -> None:
         while True:
+            try:
+                self._step()
+            except Exception as exc:  # never die silently: count a fault
+                _fault(f"integrator error {exc!r}")
+            time.sleep(0.1)
+
+    def _step(self) -> None:
+        if True:
             w, now = board_power_w(), time.time()
             with self.lock:
                 if w < 0:
@@ -195,10 +205,11 @@ class _Integrator:
                     self.e += 0.5 * (w + self.p) * (now - self.t)
                 if w >= 0:
                     self.t, self.p = now, w
-            time.sleep(0.1)
 
     def value(self) -> float:
         with self.lock:
+            if self.t is None or time.time() - self.t > R.MAX_SAMPLE_GAP_S:
+                _fault("integrator stale")
             return self.e
 
 
@@ -256,23 +267,22 @@ def gpu_pids() -> list[int] | None:
     """Compute and graphics processes on the GB300 only; None on failure."""
     lib, h = _nv()
     pids: set[int] = set()
-    for fn in ("nvmlDeviceGetComputeRunningProcesses_v3", "nvmlDeviceGetGraphicsRunningProcesses_v3"):
-        f = getattr(lib, fn, None)
-        buf = (_ProcInfo * 256)()
-        n = ctypes.c_uint(256)
-        if f is None or f(h, ctypes.byref(n), buf) != NVML_SUCCESS:
-            break
-        got = [int(buf[i].pid) for i in range(n.value)]
-        if not all(os.path.exists(f"/proc/{p}") for p in got):
-            break  # implausible pid: layout mismatch
+    for kind in ("Compute", "Graphics"):
+        got = None
+        for fn in (f"nvmlDeviceGet{kind}RunningProcesses_v3", f"nvmlDeviceGet{kind}RunningProcesses_v2"):
+            f = getattr(lib, fn, None)
+            buf = (_ProcInfo * 256)()
+            n = ctypes.c_uint(256)
+            if f is None or f(h, ctypes.byref(n), buf) != NVML_SUCCESS:
+                continue
+            cand = [int(buf[i].pid) for i in range(n.value)]
+            if all(os.path.exists(f"/proc/{p}") for p in cand):
+                got = cand
+                break
+        if got is None:
+            return None  # a category could not be queried: fail closed
         pids |= set(got)
-    else:
-        return sorted(pids)
-    r = subprocess.run(["nvidia-smi", f"--id={uuid()}", "--query-compute-apps=pid",
-                        "--format=csv,noheader"], capture_output=True, text=True)
-    if r.returncode != 0:
-        return None
-    return sorted(int(x) for x in r.stdout.split() if x.strip().isdigit())
+    return sorted(pids)
 
 
 def set_baseline() -> list[int]:
@@ -411,16 +421,15 @@ def other_gpus() -> list[dict]:
 def window_extra() -> dict:
     """GB300 fields added to every window record (measure.window hook)."""
     global _FAULTS_SEEN
-    invalid = FAULTS > _FAULTS_SEEN
-    _FAULTS_SEEN = FAULTS
     cap_changed = False
     if len(_SNAPS) == 2:
         a, b = _SNAPS
-        if cfg().get("instrument", "counter") == "counter" and b["t"] - a["t"] >= 1.0 and b["e"] <= a["e"]:
-            _fault("counter stalled over a window")
-            invalid = True
-            _FAULTS_SEEN = FAULTS
+        if b["t"] - a["t"] >= 1.0 and b["e"] <= a["e"]:
+            _fault("energy stalled over a window")
         cap_changed = a["cap"] != b["cap"]
+    with _FAULT_LOCK:
+        invalid = FAULTS > _FAULTS_SEEN
+        _FAULTS_SEEN = FAULTS
     if FAULTS >= R.MAX_INSTRUMENT_FAULTS:
         raise SystemExit(5)  # instrument failure: run ends (prereg 4.1)
     return {"rest_rule": "gb300", "rest_max_w": rest_max_w(), "load1": load1(),
