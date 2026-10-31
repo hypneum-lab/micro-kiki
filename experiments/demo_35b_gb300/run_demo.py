@@ -54,7 +54,11 @@ def probe_before_model(p, outdir: str) -> dict:
     s.start()
     t0 = time.time()
     time.sleep(120)
-    t, e = s.between(t0, time.time())
+    t1 = time.time()
+    if not s.clean(t0, t1):
+        s.stop.set()
+        raise SystemExit("instrument fault during P0: not run")
+    t, e = s.between(t0, t1)
     return {**q, "P0_mean_w": (e[-1] - e[0]) / (t[-1] - t[0]), "_sampler": s}
 
 
@@ -119,11 +123,14 @@ def main() -> int:
         stop = threading.Event()
 
         def watch():
-            while not stop.is_set():
-                r = RP.clean_reason(p, set()) or RP.cpu_window(p, set(), 5.0)
-                if r:
-                    bad.append(r)
-                    stop.wait(5.0)
+            try:
+                while not stop.is_set():
+                    r = RP.clean_reason(p, set()) or RP.cpu_window(p, set(), 5.0)
+                    if r:
+                        bad.append(r)
+                        stop.wait(5.0)
+            except Exception as exc:
+                bad.append(f"watch error {exc!r}")
         th = threading.Thread(target=watch, daemon=True)
         t0 = time.time()
         th.start()
@@ -159,12 +166,16 @@ def main() -> int:
 
     def window(fn) -> dict:
         pids: set[int] = set()
+        watch_errors: list[str] = []
         stop = threading.Event()
 
         def watch():
-            while not stop.is_set():
-                pids.update(p.foreign_gpu_pids())
-                stop.wait(0.5)
+            try:
+                while not stop.is_set():
+                    pids.update(p.foreign_gpu_pids())
+                    stop.wait(0.5)
+            except Exception as exc:
+                watch_errors.append(f"watch error {exc!r}")
         th = threading.Thread(target=watch, daemon=True)
         tk0 = p.python_ticks()
         th.start()
@@ -178,6 +189,7 @@ def main() -> int:
         rec = {"t0": s0[0], "t1": s1[0], "dur_s": s1[0] - s0[0],
                "gpu_j": s1[1]["GPU Energy"] - s0[1]["GPU Energy"],
                "busy_python": [b[2] for b in busy], "foreign_gpu_pids": sorted(pids),
+               "watch_errors": watch_errors,
                **p.window_extra()}
         return rec, payload
 
@@ -210,9 +222,9 @@ def main() -> int:
                      rest_power_w=before["gpu_j"] / before["dur_s"])
             r["j_per_token"] = D.jpt(r, before)
             r["j_per_token_gross"] = r["gpu_j"] / n if n else None
-            r["valid"] = (R.rest_ok_gb300(before) and R.rest_ok_gb300(after)
-                          and R.window_ok_gb300(r))
             r["short"] = r["dur_s"] < D.MIN_RUN_S
+            r["valid"] = (not r["short"] and R.rest_ok_gb300(before) and R.rest_ok_gb300(after)
+                          and R.window_ok_gb300(r))
             out.run(kind="run", **r)
             for x in res:
                 out.text(domain=d, arm=arm, attempt=att, prompt_id=x["prompt_id"],

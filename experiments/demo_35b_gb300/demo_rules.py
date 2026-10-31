@@ -78,17 +78,18 @@ def summarize(runs: list[dict]) -> dict:
     tokens/s, short runs; ratio of medians adapter/base, descriptive."""
     out: dict = {}
     for r in runs:
-        if not r.get("valid"):
+        short = r["dur_s"] < MIN_RUN_S
+        if not r.get("valid") and not short:
             continue
         key = f"{r['domain']}|{r['arm']}"
         o = out.setdefault(key, {"domain": r["domain"], "arm": r["arm"], "valid_runs": 0,
                                  "short_runs": 0, "excluded_nonpositive": 0,
                                  "_net": [], "_gross": [], "_tps": []})
-        o["valid_runs"] += 1
-        if r["dur_s"] < MIN_RUN_S:  # kept, reported separately, not in medians
+        if short:  # kept, reported separately, not in valid counts or medians
             o["short_runs"] += 1
             o.setdefault("short_j_per_token", []).append(r["j_per_token"])
             continue
+        o["valid_runs"] += 1
         if r["j_per_token"] is None or r["j_per_token"] <= 0:
             o["excluded_nonpositive"] += 1
         else:

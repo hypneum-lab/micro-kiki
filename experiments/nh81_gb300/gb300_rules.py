@@ -89,7 +89,7 @@ def host_foreign_cores(stat_a: int, stat_b: int, own_a: int, own_b: int,
 
 def window_ok_gb300(r: dict) -> bool:
     return (not r.get("foreign_gpu_pids") and not r.get("instrument_invalid")
-            and not r.get("cap_changed"))
+            and not r.get("cap_changed") and not r.get("watch_errors"))
 
 
 def rest_ok_gb300(r: dict) -> bool:
