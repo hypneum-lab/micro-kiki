@@ -79,3 +79,10 @@ Input (`requirements-gb300-demo.in`):
 | typing-extensions | 4.16.0 | 2026-07-02 | `typing_extensions-4.16.0-py3-none-any.whl` | `481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8` | yes |
 
 SHA-256 of the requirement files: `requirements-gb300-demo.sha256`.
+
+## PI approval
+
+**Approved by the PI on 2026-10-31 at 22:48 CET** (HITL review of the
+resolved set `requirements-gb300-demo.txt` listed above). The PI
+checked that `httpx2` and `httpcore2` are the legitimate packages of
+Tom Christie / pydantic, required by `huggingface-hub` 2.2.0.
