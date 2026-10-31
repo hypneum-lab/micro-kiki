@@ -29,6 +29,8 @@ please ensure your submissions are compatible with that licence.
   an LLM to assist your contribution, attribution to you remains —
   please flag LLM assistance in the PR description so reviewers can
   account for it.
+  The tools in use and their role are declared in the README
+  section "AI assistance (transparency)".
 - **External contributors** : welcome via pull requests. If your
   contribution is substantive enough to warrant authorship on a
   future publication, we will discuss explicitly at merge time and
