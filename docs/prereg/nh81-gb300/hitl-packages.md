@@ -4,8 +4,8 @@
 below validated by the PI); step 2, the resolved and hashed set, is in
 `requirements-gb300-nh81.txt` (fallback `requirements-gb300-nh81-cuda13.txt`),
 with the readable summary `requirements-review.md` and the file hashes
-in `requirements-gb300-nh81.sha256`. It waits for the PI's second
-review; the freeze waits for it. CUDA headers: `nvidia-cuda-runtime-cu12`
+in `requirements-gb300-nh81.sha256`. The PI approved it on
+2026-10-31 at 22:48 CET (second review). CUDA headers: `nvidia-cuda-runtime-cu12`
 and `nvidia-cuda-cccl-cu12` 12.9 wheels (PI decision 8). uv: 0.13.5.
 
 Repository policy: no blind upgrade, every third-party artefact pinned

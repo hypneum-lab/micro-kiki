@@ -69,3 +69,9 @@ Input (`requirements-gb300-nh81-cuda13.in`):
 | nvidia-nccl-cu13 | 2.32.3 | 2026-09-22 | `nvidia_nccl_cu13-2.32.3-py3-none-manylinux_2_27_aarch64.whl` | `a5bee92b2f4af218c109f8d221c3c9adcc752b94ae0ffcb0ed5abf9341a7724c` | yes |
 
 SHA-256 of the requirement files: `requirements-gb300-nh81.sha256`.
+
+## PI approval
+
+**Approved by the PI on 2026-10-31 at 22:48 CET** (HITL review of the
+resolved sets `requirements-gb300-nh81.txt` and
+`requirements-gb300-nh81-cuda13.txt`, as listed above).
