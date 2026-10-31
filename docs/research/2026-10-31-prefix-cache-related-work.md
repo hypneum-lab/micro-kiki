@@ -24,7 +24,7 @@ All ids resolved via the arXiv API on 2026-10-31.
 
 | arXiv | Date | Title (first author) | Relation to micro-kiki |
 |---|---|---|---|
-| [2609.33477](https://arxiv.org/abs/2609.33477) | 2026-09-27 | Just Let Linear States Forget the Distant Past: Prefix Caching via Suffix Replay for Hybrid LLMs (Liu) | Same mechanism as PR #6, published one month earlier; cite when the serving layer is described. |
+| [2609.33477](https://arxiv.org/abs/2609.33477) | 2026-09-27 | Just Let Linear States Forget the Distant Past: Prefix Caching via Suffix Replay for Hybrid LLMs (Liu) | Neighbouring mechanism to PR #6, not the same one: both avoid rewinding the linear-attention state on a prefix hit, but PR #6 restores a saved snapshot of the prompt cache and prefills only the new suffix, whereas Liu et al. rebuild the linear state by replaying a suffix window. Published one month before PR #6; cite when the serving layer is described. |
 | [2609.34054](https://arxiv.org/abs/2609.34054) | 2026-09-28 | PReCache: Efficient KV Cache Sharing for Multi-LoRA Agents via Low-Rank Precomputation (Jeon) | Sharing one prefix cache across up to 4 active stacks; not implemented here. |
 | [2609.17109](https://arxiv.org/abs/2609.17109) | 2026-09-15 | Shared-Prefix KV Reuse Across Standard LoRA Adapters: Quality and Serving Tradeoffs (Rajput) | Measures the quality loss of reusing a base-model prefix cache under a LoRA adapter; a control to run before sharing caches between stacks. |
 | [2609.30884](https://arxiv.org/abs/2609.30884) | 2026-09-25 | CacheReforge: Bounded Recovery for Stale KV Caches under Evolving Adapters (Cao) | Cache staleness after an adapter update; relevant to post-consolidation serving. |
