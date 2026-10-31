@@ -1,9 +1,9 @@
 # NH-81 on Blackwell (DGX Station GB300): descriptive third-hardware point
 
 **Level:** L0 (draft on a branch, not frozen). It becomes L1 only after
-every "TBD by PI" item below is closed, the code delta of section 6 is
-committed, tested and reviewed, the resolved package set of
-`hitl-packages.md` is reviewed, the PR is merged on green CI, and an
+the PI decisions below (recorded 2026-10-31), the code delta of
+section 6 (committed and tested) and the resolved package set
+(`requirements-gb300-nh81.txt`) are reviewed by the PI, the PR is merged on green CI, and an
 annotated tag plus a Software Heritage revision SWHID are recorded. No
 energy measurement on the GB300 may start before that tag is pushed.
 If a hardware qualification step of section 3 or 4 fails on the day,
@@ -17,53 +17,51 @@ pre-registrations for tomorrow's 24-h DGX Station GB300 slot.
 change the NH-81 status in any direction (no confirmation, no veto),
 and contains no inferential comparison between hosts.
 
-## TBD by PI (blocking the freeze)
+## PI decisions 2026-10-31
 
-1. **Rest-guard factor k** (section 4.2): threshold T = k x P_rest.
-   Proposed: k = 1.25.
-2. **Time budgets inside the slot** (section 4.4): start-guard window,
-   cumulative pause budget and the global deadline after which a
-   partial run stops (blocks already complete are reported, the others
-   "not measured"). Proposed: 1 h, 1 h, and a hard stop 3 h after the
-   first probe.
-3. **Slot exclusivity** (section 4.4): the slot hour when NH-81 runs
-   alone, the list of processes allowed on the host during the run
-   (proposed: system services and the display stack only, identified by
-   name in `host.json`), and the CPU rule (proposed: no process other
-   than ours above 20 % CPU over a window, Python or not, host CPU
-   time outside our process <= 1 core-equivalent per window, and 1-min
-   load average <= 4.0).
-4. **CUDA-12 fallback** (section 3): if the MLX CUDA-12 smoke test
-   fails on sm_103, may `mlx-cuda-13==0.31.1` replace
-   `mlx-cuda-12==0.31.1`? Proposed: yes, pre-declared here, recorded
-   in the run log; otherwise "not measured".
-5. **Energy-instrument rules** (section 4.1): accept the
-   power-integration fallback if the energy counter is unsupported or
-   fails its checks (proposed: yes, labelled), and the counter/power
-   consistency tolerance (proposed: 10 % over the 60-s check).
-6. **Code delta** (section 6): who writes it, who reviews it, in which
-   PR (proposed: this PR, before the freeze).
-7. **Checkpoint transfer source** (section 2): copy of the checkpoints,
-   splits and `selection.json` taken from which host, and when (not
-   tonight; KXKM, macM1 and macM3 are not touched tonight). SHA-256
-   checked on arrival.
-8. **Python, uv and CUDA headers**: exact CPython 3.12.x build, uv
-   version and the source of the CUDA headers for `CUDA_HOME`
-   (`hitl-packages.md`), and the second review of the resolved set.
-9. **Exploratory precision blocks** (parent r2 section 2): run TF32 /
-   fp16 after the primary run, or not. Proposed: not run.
-10. **Non-discriminative guard** (section 4.2): if P_load <= T, proceed
-    (each pair flagged) or stop. Proposed: proceed, flagged, reported.
-11. **Power-cap and MIG policy** (sections 4.1, 4.3): proposed: MIG
-    must be disabled (else "not measured"); caps are logged, not
-    changed; a pair during which the GB300 enforced cap or the
-    sloshing mode changes is rejected and replayed.
-12. **Thermal stabilisation** (section 4.2): duration of the
-    unmeasured dense load before P_rest. Proposed: 300 s.
-13. **Non-positive net energies** (section 5): rule as written in
-    section 5 (proposed) or another.
-14. **Descriptive summary schema** (section 6 item 6): field list of
-    the GB300 summary without decision or catalogue fields.
+Recorded from the PI's answers of 2026-10-31, 22:20 CET ("validate
+everything"). Items marked (proposed) are the values this draft had
+proposed and the PI validated as such. No "TBD by PI" item remains;
+the freeze still waits for the PI review of the resolved requirements
+(`requirements-gb300-nh81.txt`, `requirements-review.md`).
+
+1. **Rest-guard factor:** k = 1.25, T = 1.25 x P_rest measured at the
+   start of the slot.
+2. **Time budgets:** start-guard window 1 h, cumulative pause budget
+   1 h (proposed); **global deadline 2 h** from the first probe.
+3. **Exclusivity:** the machine runs nothing else during the
+   measurement: 1-min load average <= 4.0, no process of ours other
+   than the instrument; no foreign process above 20 % CPU over a
+   window, host CPU outside our process <= 1 core-equivalent per
+   window, allowed GPU processes: none on the GB300 (proposed);
+   pause patterns `run_campaign`, `run.sh`, `compare_nh01`, `procgen`
+   (proposed).
+4. **CUDA-12 fallback:** `mlx-cuda-13==0.31.1` allowed if the CUDA-12
+   smoke test fails, logged (proposed).
+5. **Instrument:** counter/power tolerance 10 %; power-integration
+   fallback allowed, labelled (proposed).
+6. **Code delta:** written in this PR by the agent preparing the
+   preregistration (`experiments/nh81_gb300/`), reviewed by the PI
+   before the freeze (proposed).
+7. **Checkpoint source:** copied on the day from the host holding the
+   frozen copies (macM1 reference copy), SHA-256 checked on arrival by
+   the launcher (proposed).
+8. **Python, uv, headers:** CPython 3.12 (uv-managed), uv 0.13.5 (the
+   version reviewed on electron-server on 2026-10-24), CUDA headers
+   from the `nvidia-cuda-runtime-cu12` / `nvidia-cuda-cccl-cu12` 12.9
+   wheels of the hashed set (proposed); the resolved set gets a second
+   PI review.
+9. **Exploratory TF32 / fp16 blocks:** not run.
+10. **Non-discriminative guard** (P_load <= T): proceed, each pair
+    flagged, reported (proposed).
+11. **Power cap and MIG:** no power cap is set and MIG is not used (MIG
+    enabled means "not measured"); caps are logged; a pair during which
+    the enforced GB300 cap changes is rejected and replayed (proposed).
+12. **Thermal stabilisation:** 10 min of unmeasured dense load before
+    P_rest.
+13. **Non-positive net energies:** excluded from the net R-hat and
+    counted (section 5).
+14. **Summary schema:** `experiments/nh81_gb300/describe.py` (proposed).
 
 ## 1. What is identical to the KXKM / M3 Pro protocol
 
@@ -157,18 +155,18 @@ and power limits are not changed.
 
 A dedicated virtual environment, outside the repository lockfile,
 created only from the reviewed resolved package set
-(`hitl-packages.md`): CPython 3.12 (uv-managed, item 8), `mlx==0.31.1`,
+(`hitl-packages.md`): CPython 3.12 (uv-managed, PI decision 8), `mlx==0.31.1`,
 `mlx-cuda-12==0.31.1` with its NVIDIA runtime dependencies, and
 `numpy==2.2.6` (the repository lock version). No `pynvml`: NVML is
 called through `ctypes` on the driver's `libnvidia-ml.so.1`, as on KXKM.
 `CUDA_HOME` points to the CUDA headers needed by MLX's JIT kernels
-(same requirement as KXKM; source under item 8).
+(same requirement as KXKM; source under PI decision 8).
 
 Smoke test before anything else (not an energy measurement):
 `import mlx.core as mx; mx.eval(mx.ones(4) @ mx.ones(4))` on the
 selected GPU. `mlx-cuda-12` 0.31.1 pins `nvidia-cuda-nvrtc-cu12==12.9.*`;
 CUDA 12.9 is the first toolkit with `sm_103` targets. If the smoke test
-fails, the pre-declared fallback is `mlx-cuda-13==0.31.1` (item 4); the
+fails, the pre-declared fallback is `mlx-cuda-13==0.31.1` (PI decision 4); the
 change is logged. Any other version change is a deviation and needs a
 written amendment before the first pair.
 
@@ -183,12 +181,12 @@ written amendment before the first pair.
   call returns success at every read; the value never decreases; and
   the counter-derived mean power over the 60 s agrees with the mean of
   `nvmlDeviceGetPowerUsage` sampled every 0.5 s within the tolerance of
-  item 5. Its scope (GPU only or module) is not documented for this
+  PI decision 5. Its scope (GPU only or module) is not documented for this
   product: it is recorded as "NVML total energy, scope as reported by
   the driver"; if NVML power field values with a GPU / module scope
   exist, both are logged (descriptive). Whether Grace is included is
   neither assumed nor excluded.
-* **Pre-declared fallback (item 5):** if the counter is unsupported or
+* **Pre-declared fallback (PI decision 5):** if the counter is unsupported or
   fails qualification, every energy figure of the run (probes, rest
   windows, runs) is the trapezoidal integral of `nvmlDeviceGetPowerUsage`
   (mW; documented as a 1-s average since Ampere), sampled every 0.1 s
@@ -202,7 +200,7 @@ written amendment before the first pair.
   between successful samples invalidates the window likewise. Three
   such events in the run end it ("instrument failure").
 * **Power sharing:** both GPUs' power and enforced caps, and the GB110
-  cap / sloshing mode, are logged per window; the item-11 policy
+  cap / sloshing mode, are logged per window; the PI-decision-11 policy
   applies to changes. Grace CPU or module power, if exposed (hwmon,
   power capping), is logged, descriptive only.
 
@@ -221,7 +219,7 @@ order:
    every 0.5 s and energy with the instrument of 4.1. Descriptive.
 3. **Probe P1** (separate unmeasured process): loads both checkpoints,
    runs the unmeasured warm-up, then dense W1 passes continuously for
-   the stabilisation time of item 12, then stays alive with the models
+   10 min (PI decision 12), then stays alive with the models
    loaded and nothing running for 60 s, then exits. P_rest = the
    largest mean power over any 20-s sliding window (1-s steps) of
    those 60 s; P_load = mean power over the last 60 s of the dense
@@ -229,11 +227,11 @@ order:
    are checked throughout P1; a violation voids P1 and it is retried
    once after a clean 2 min, else "not measured". P1 numbers are never
    used in the analysis.
-4. **Threshold:** T = k x P_rest (item 1; the 4090 ratio was
+4. **Threshold:** T = k x P_rest (PI decision 1; the 4090 ratio was
    90 / 76 = 1.18), written to `rest_threshold.json` and to the run log
    before the start guard, fixed for the whole run, never re-adjusted.
 5. **Discriminability:** if P_load <= T the guard cannot separate a
-   foreign load of the size of ours from rest (item 10). Even with
+   foreign load of the size of ours from rest (PI decision 10). Even with
    P_load > T, a foreign load smaller than P_load - P_rest may go
    undetected by power; the process rules of 4.4 are the main
    protection, and this limit is stated in the note.
@@ -264,7 +262,7 @@ device 0:
   `cuDeviceGetCount`, `cuDeviceGetPCIBusId`, `cuDeviceGetUuid`) must
   show exactly one device whose PCI bus ID and UUID equal the NVML
   ones. Any mismatch aborts ("GPU selection mismatch").
-* MIG must be disabled on the GB300 (item 11), else "not measured".
+* MIG must be disabled on the GB300 (PI decision 11), else "not measured".
 * Compute processes, power and energy are read on that handle only.
   The `nvidia-smi` fallback of `gpu_compute_pids` is restricted to that
   GPU (`--id=<UUID>`); a failed process query fails closed (the window
@@ -276,23 +274,23 @@ Nothing else runs on the GB300 GPU and no other heavy job runs on the
 Grace CPU during the NH-81 window (shared power budget, shared memory
 system). Replacing the KXKM baseline rule (r2 "baseline B"):
 
-* **Allowed GPU processes:** only those of the item-3 allowed list,
+* **Allowed GPU processes:** only those of the PI-decision-3 allowed list,
   identified by name and PID in `host.json` at the start; any other
   compute or graphics process on the GB300 rejects the window. B is no
   longer "whatever is present when the guard passes".
-* **CPU rule (item 3):** no process other than ours above 20 % CPU
+* **CPU rule (PI decision 3):** no process other than ours above 20 % CPU
   averaged over a window (all processes, not only Python), and the
-  1-min load average under the item-3 bound, at the start guard and in
+  1-min load average under the PI-decision-3 bound, at the start guard and in
   every rest window. Per-process CPU is computed from `/proc` ticks at
   both ends of the window, a process that appears during the window
   counting from zero ticks; in addition, host CPU time outside our
   process (from `/proc/stat`) must stay at or below the equivalent of
-  one core over the window (item 3). A process that both starts and
+  one core over the window (PI decision 3). A process that both starts and
   ends inside a window is caught only by this host-level figure; this
   limit is stated.
 * **Pause rule:** r3 pause rule with the slot's other studies in place
   of the N10-C rule; the start guard is re-checked every 10 min within
-  the item-2 window; cumulative pause within the item-2 budget.
+  the PI-decision-2 window; cumulative pause within the PI-decision-2 budget.
   Exceeding either, or the global deadline, ends the run; complete
   blocks are reported, the run is not relaunched without a PI decision.
 
@@ -306,13 +304,13 @@ system). Replacing the KXKM baseline rule (r2 "baseline B"):
   this machine; it is not a generalisation to other machines, and no
   block is singled out after seeing the results (all four are reported
   in the fixed order).
-* **Non-positive net energies:** every valid pair is kept with its
-  gross and net values. If any valid pair of a block has a net energy
-  <= 0 for either model, the block's net R-hat and CI are reported as
-  "undefined (non-positive net energy)"; the gross ratio of the block is
-  reported as usual. No pair is dropped for this reason.
+* **Non-positive net energies (PI decision 13):** a valid pair whose
+  net energy is <= 0 for either model is kept in the log, excluded from
+  the net R-hat, CI and paired difference, and counted
+  (`pairs_nonpositive_net_excluded`); the gross ratio uses every valid
+  pair.
 * **No verdict.** The GB300 summary is written by a descriptive
-  summary function (section 6 item 6) without the `decision` and
+  summary function (section 6 PI decision 6) without the `decision` and
   `catalogue` fields of `analyze.py stats`; those words do not appear
   in the note, the ERRATA or issue #14 for this run.
 * **No inferential comparison between hosts.** A table places the
@@ -323,33 +321,40 @@ system). Replacing the KXKM baseline rule (r2 "baseline B"):
 * The NH-81 status ("withdraw, provisional (IOReport)", PI rule of
   KXKM r2 section 5) is unchanged by any GB300 outcome.
 
-## 6. Code delta required before the freeze (not written tonight)
+## 6. Code delta (written 2026-10-31, `experiments/nh81_gb300/`)
 
-Additions only; models, workloads, calibration and statistics do not
-change. Each item gets a unit test that runs without a GPU, including
-boundary tests of T (window power equal to T passes, above fails).
+Additions only, in a separate directory: the frozen tree is exported
+unchanged from the tag by the launcher (git tree hash checked) and
+never edited. `measure_gb300.py` runs the frozen `measure.py` with
+`power_gb300` in place of `power_nvml` and the GB300 rules in place of
+`analyze.rest_ok` / `analyze.window_ok` (the frozen code therefore logs
+`host=kxkm`, meaning its NVML path; a first `gb300_start` record names
+the host). Unit tests without GPU: `tests/test_nh81_gb300.py`, including
+the boundary of T (window power equal to T passes, above fails).
 
-1. `NH81_HOST=gb300` in `measure.py`, reusing `power_nvml` with the
-   PCI-bus-ID handle, the in-process CUDA/NVML identity check, MIG
-   check and the restricted `nvidia-smi` fallback of 4.3.
-2. T read from `rest_threshold.json`, stored in every rest-window
-   record (`rest_max_w`, `rest_rule: "gb300"`), and used by a
-   `rest_ok` branch of `analyze.py` that reads it from the record, as
-   the existing M3 Pro branch does, so acquisition and re-analysis use
-   the same T (instead of the constant `POWER_REST_MAX_W = 90.0`).
-3. `rest_probe_gb300.py`: exclusivity check, P0, P1 of 4.2, writes
-   `rest_threshold.json` (P0, P_rest, P_load, k, T, instrument).
-4. Counter qualification, failure handling and the power-integration
-   fallback of 4.1; per-window logging of both GPUs' power and caps.
-5. Exclusivity of 4.4 (allowed list, all-process CPU rule, load
-   average), item-2 budgets and deadline; `gb300_launcher.sh` with the
-   SHA-256 checks of section 1, environment (`MLX_ENABLE_TF32=0`,
-   `NH81_HOST=gb300`, `CUDA_VISIBLE_DEVICES`, `NH81_PROMPT_IDS`,
-   `CUDA_HOME`), smoke test, TF32 check, `isoquality.py`, rest probe,
-   measurement, final idle probe; refuses to overwrite an existing
+1. `power_gb300.py`: PCI-bus-ID handle, in-process CUDA/NVML identity
+   and MIG check (4.3), GPU-restricted process queries failing closed,
+   counter / power-integration instrument with fault handling (4.1),
+   all-process CPU rule, host CPU and load average (4.4), pause rule,
+   per-window GB300 fields (`rest_rule: "gb300"`, `rest_max_w` = T,
+   load, host CPU, caps, both GPUs' power).
+2. `gb300_rules.py`: pure rules shared by acquisition and analysis
+   (T = 1.25 x P_rest, sliding mean, CPU accounting, `rest_ok_gb300`,
+   `window_ok_gb300`), so acquisition and re-analysis use the same T.
+3. `rest_probe_gb300.py`: exclusivity check, counter qualification,
+   P0, P1 (10 min stabilisation, 60 s rest), writes
+   `rest_threshold.json`; `--final` probe after the last pair.
+4. `measure_gb300.py`: wrapper of the frozen `measure.py` (start-guard
+   and pause budgets of 1 h each).
+5. `gb300_launcher.sh`: frozen-tree export and tree-hash check, SHA-256
+   checks of section 1, environment (`MLX_ENABLE_TF32=0`,
+   `CUDA_VISIBLE_DEVICES=<UUID>`, `NH81_PROMPT_IDS`, `CUDA_HOME`), host
+   record, smoke test, TF32 check (`tf32_check.py`), `isoquality.py`
+   with the 0.005-nat stop, rest probe, measurement under the 2-h
+   deadline, final probe, summary; refuses to overwrite an existing
    `measure.jsonl`.
-6. A descriptive summary writer (`analyze.py describe`) applying
-   section 5 (no `decision` / `catalogue`, the non-positive-net rule).
+6. `describe.py`: descriptive summary of section 5 (no `decision` /
+   `catalogue`, non-positive nets excluded and counted).
 
 ## 7. Artifacts
 
