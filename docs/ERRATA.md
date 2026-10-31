@@ -75,8 +75,8 @@ It was never evaluated: the repository holds only module-level sanity
 checks (`results/spiking-e-validation*.json`), no quality or energy
 measurement. Nothing ran on neuromorphic hardware, so the energy
 withdrawal is unchanged. Concerned Hub repos: `clemsail/spikingkiki-35b-a3b-v4`
-(partial upload) and `hypneum-lab/spikingkiki-v4-lif-metadata`; both cards
-were updated on 2026-10-31. Found during an independent review of the
+(partial upload, card not updated) and `hypneum-lab/spikingkiki-v4-lif-metadata`
+(card updated on 2026-10-31). Found during an independent review of the
 Hugging Face cards, 2026-10-31.
 
 ---
