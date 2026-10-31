@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite both this repository and the parent research program's pre-registration (OSF DOI 10.17605/OSF.IO/Q6JYN)."
-title: "micro-kiki: 35 Domain-Expert LoRA Adapters with Cognitive Layer on Qwen3.5 MoE"
+title: "micro-kiki: 35 Domain-Expert LoRA Adapters with Cognitive Layer on Qwen3.6-35B-A3B MoE"
 abstract: >
   micro-kiki is a deployable 3B-active MoE-LoRA instantiation of the
   dreamOfkiki framework. It pairs 35 domain-expert LoRA adapters
@@ -27,7 +27,7 @@ keywords:
   - LoRA adaptation
   - continual learning
   - MLX
-  - Qwen3.5
+  - Qwen3.6
   - domain experts
   - quantized inference
   - Q4_K_M
