@@ -1,17 +1,16 @@
-# 35B demo GB300 freeze manifest (prepared 2026-10-31, NOT a freeze)
+# 35B demo GB300 freeze manifest
 
-Demo, not a scientific claim. Prepared for the L1 freeze of
-`docs/prereg/demo-35b-lora-gb300/`; it builds on the NH-81 GB300 files
-(`docs/prereg/nh81-gb300/freeze-manifest.md`). **No tag, no Software
-Heritage save yet:** the freeze waits for the PI review of the resolved
-requirements. At freeze time: merge on green CI after the NH-81 PR,
-recompute this list on the merge commit, record the SHA-256 of this
-file in the annotated tag message `demo-35b-gb300-freeze-YYYYMMDD`,
-then save to Software Heritage and record the revision SWHID.
+Freeze of `docs/prereg/demo-35b-lora-gb300/` (L1). This list is checked on the merge commit of
+the PR; the SHA-256 of this file is written in the message of the
+annotated tag `demo-35b-gb300-freeze-20261031`, and the Software Heritage revision SWHID of the
+tagged commit is recorded in the confirmation commit that follows.
 
-Weights: `sources-sha256.txt` (base `Qwen/Qwen3.6-35B-A3B@995ad96e`,
-adapters `hypneum-lab/micro-kiki-v4-sota@9add98c2`). Prompts:
-`prompts.json`.
+Frozen NH-81 measurement code, exported unchanged by the launchers:
+`experiments/nh81_joules` at tag `prereg-nh81-m3pro-20261030`
+(commit `4b4dafd`), git tree `d1b67e6ea1f1d6c7064ac8a9bea59152de00101c`.
+
+Demo, not a scientific claim. Shared instrument code: see
+`docs/prereg/nh81-gb300/freeze-manifest.md` and tag `nh81-gb300-freeze-20261031`.
 
 ## Files (SHA-256)
 
@@ -22,9 +21,9 @@ cf94740fbafec15be40cc812fb7d6996b9fc4bc2dee867a10164c3dc39f2cb10  docs/prereg/de
 1b3d108ddb9c62649aaaa62176cac6ecfc4c13ed34f394bb4ae53eddd4099652  docs/prereg/demo-35b-lora-gb300/requirements-gb300-demo.in
 c4692382f9f26337d14c7a15c5452c8e36c9050f7a03e536fa8888e188c445ef  docs/prereg/demo-35b-lora-gb300/requirements-gb300-demo.sha256
 0dbb54cca1c06426020cb4d42f62a1f8e4a428102d1af0ea9d61b5437249b7ef  docs/prereg/demo-35b-lora-gb300/requirements-gb300-demo.txt
-1793e3194594e3e0f9ffe3448a013927a3c4aa9d4c0059b37c1a7501c3fe1973  docs/prereg/demo-35b-lora-gb300/requirements-review.md
-dd24811dbb59da924e20fc4d148f09cde4648f3c7f1731cc5e93b1a0dcf4a324  experiments/demo_35b_gb300/demo_launcher.sh
-28d42787ed1c8ddcb5a741d4e807ad3259fca4007518c5ee6ac2ebb0dfb7986a  experiments/demo_35b_gb300/demo_rules.py
-0bb6e8780e0753cdf522533ebafe2965102925802a70b70ff8b2e456a73b9676  experiments/demo_35b_gb300/run_demo.py
+cfded03820d54c08c869b8a03bb5faeca03ab518352926183fdbdfe28e8bc447  docs/prereg/demo-35b-lora-gb300/requirements-review.md
+af251d52e16de36c495ac0fdc47e46a7045845e820d5c30aa3667a5d3726db4d  experiments/demo_35b_gb300/demo_launcher.sh
+ccf55692f30f0dc1a067b091c5b19c63b9372ca0edeb7a4597f1963c503f9b9c  experiments/demo_35b_gb300/demo_rules.py
+b40a21950e2fe3ec50dbad70cc0a4628388954f80304bcca20be0d2ad4c0d688  experiments/demo_35b_gb300/run_demo.py
 0df7903e71c71f5b9b8ca7a340fa2bbe1175a704720c85c94101152c788f0b41  tests/test_demo_35b_gb300.py
 ```
