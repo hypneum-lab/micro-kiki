@@ -558,7 +558,7 @@ Les resultats de conversion LAS a grande echelle et les benchmarks sur hardware 
 
 [6] OPLoRA (2025). Orthogonal Projection for Low-Rank Adaptation. *arXiv preprint* arXiv:2510.13003.
 
-[7] Aeon Memory (2026). Neuro-Symbolic Episodic Memory with Sleep Consolidation. *arXiv preprint* arXiv:2601.15311.
+[7] Arslan, M. (2026). Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents. *arXiv preprint* arXiv:2601.15311.
 
 [8] CAMP (2026). Cognitive Arbitration for Multi-Perspective Output. *arXiv preprint* arXiv:2604.00085.
 

@@ -512,7 +512,7 @@ Full-scale LAS conversion results and neuromorphic hardware benchmarks remain as
 4. Pan, Y. et al. (2025). SpikingBrain Technical Report: Spiking Brain-inspired Large Models. arXiv:2509.05276.
 5. Zhou, Z. et al. (2024). Spikingformer: Spike-driven Residual Learning for Transformer-based Spiking Neural Network. arXiv:2304.11954.
 6. OPLoRA (2025). Orthogonal Projection for Low-Rank Adaptation. arXiv:2510.13003.
-7. Aeon Memory (2026). Neuro-Symbolic Episodic Memory with Sleep Consolidation. arXiv:2601.15311.
+7. Arslan, M. (2026). Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents. arXiv:2601.15311.
 8. CAMP (2026). Cognitive Arbitration for Multi-Perspective Output. arXiv:2604.00085.
 9. Catfish (2025). Constructive Adversarial Feedback for Response Quality. arXiv:2505.21503.
 10. KnowBias (2026). Knowledge-Aware Bias Detection in LLM Outputs. arXiv:2601.21864.
