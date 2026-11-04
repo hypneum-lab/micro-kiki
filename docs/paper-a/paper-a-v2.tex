@@ -166,7 +166,9 @@ The negative C2 result is honest, small-sample, and does \emph{not} disprove the
 
 \section{Related Work}
 
-\citet{du2020expressive} establish the expressivity ordering of parameterised quantum circuits via MPS-bond-dimension arguments; their Theorem 4 bounds \texttt{StronglyEntanglingLayers} expressivity with Pauli-$Z$ measurements. \citet{abbas2021effective} define effective dimension as a capacity measure and show VQCs can exceed classical NNs of equal parameter count on certain tasks. \citet{caro2022generalization} give a generalisation bound scaling with $\sqrt{\log d_{\mathrm{eff}}/n}$. Our work differs in focus: rather than argue for VQC superiority, we provide tooling (\torchvqc) and rigorous baselines that enable honest comparison, and we report where current VQC architectures fall short.
+% unverified (2026-11-04): the scope of Du et al.'s Theorem 4 with respect to
+% StronglyEntanglingLayers was not checked against the full text.
+\citet{du2020expressive} establish the expressivity ordering of parameterised quantum circuits via MPS-bond-dimension arguments; their Theorem 4 bounds \texttt{StronglyEntanglingLayers} expressivity with Pauli-$Z$ measurements. \citet{abbas2021effective} define effective dimension as a capacity measure and show VQCs can exceed classical NNs of equal parameter count on certain tasks. \citet{caro2022generalization} give a generalisation bound scaling at worst as $\sqrt{T/N}$, with $T$ trainable gates and $N$ training points. Our work differs in focus: rather than argue for VQC superiority, we provide tooling (\torchvqc) and rigorous baselines that enable honest comparison, and we report where current VQC architectures fall short.
 
 The Holevo bound \citep{holevo1973bounds}, rediscovered many times and formalised in \citet{nielsen2010quantum} \S12.1.1, upper-bounds extractable classical information from $N$ qubits at $N$ bits. Fano's inequality \citep{fano1961transmission} converts mutual information lower bounds to classification error lower bounds. We compose these to produce a practical accuracy upper bound for any VQC classifier on a given task.
 

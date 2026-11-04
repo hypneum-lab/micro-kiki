@@ -10,7 +10,7 @@
 
 Le plan initial (`paper-outline-triple-hybrid.md`) positionnait micro-kiki comme "First hybrid quantum-neuromorphic-classical routing for domain-expert LLM inference". Trois raisons de pivoter :
 
-1. **Cadre théorique plus solide**. LeCun's "A Path Towards Autonomous Machine Intelligence" (arXiv:2206.15331, 2022) fournit un cadre modulaire (7 modules) où nos composants se rangent naturellement. La communauté AMI/JEPA (I-JEPA, V-JEPA 2, LeJEPA/SIGReg arXiv:2511.08544) cherche précisément des implémentations concrètes du Module 7.
+1. **Cadre théorique plus solide**. LeCun's "A Path Towards Autonomous Machine Intelligence" (OpenReview, 2022) fournit un cadre modulaire (7 modules) où nos composants se rangent naturellement. La communauté AMI/JEPA (I-JEPA, V-JEPA 2, LeJEPA/SIGReg arXiv:2511.08544) cherche précisément des implémentations concrètes du Module 7.
 
 2. **Les résultats empiriques orientent le framing**. Le PoC B v2 (`2026-04-17-aeon-predictor-poc-alpha.md`) a prouvé que centrage DinoV3 + rollback produit +22 % MRR sur flux structurés (condition D), mais que stack-conditioning est fragile sous centrage (0 % win_stack D, 1 % E). La contribution principale n'est donc pas "quantum router" mais **working memory JEPA-alignée avec garde-fous runtime**.
 
@@ -39,10 +39,10 @@ Le papier se concentre sur les lignes 1 (compressed) et 7 (working memory). Les 
 ## 4. Section-by-section outline
 
 ### §1 Introduction
-LeCun's AMI framework and the open question of concrete Module 7 implementations for text/dialogue. JEPA successes in vision vs. the gap for symbolic state. Thesis statement (§2). *Draws from*: PoC B α §1–§2, arXiv:2206.15331, arXiv:2511.08544.
+LeCun's AMI framework and the open question of concrete Module 7 implementations for text/dialogue. JEPA successes in vision vs. the gap for symbolic state. Thesis statement (§2). *Draws from*: PoC B α §1–§2, LeCun 2022 (OpenReview), arXiv:2511.08544.
 
 ### §2 Related Work
-JEPA family (I-JEPA, V-JEPA 2, LeJEPA/SIGReg) ; generative world models contrast (DreamerV3 arXiv:2301.04104, TD-MPC2 arXiv:2410.16662) ; DINO self-distillation (DINO/v2/v3, arXiv:2104.14294 / 2304.07193 / 2508.10104) ; memory-augmented LMs (MemGPT arXiv:2310.08560, Larimar arXiv:2403.11901, RETRO arXiv:2112.04426). *Draws from*: `related-work-aeon-predictor.md` (104 lines, directly reusable).
+JEPA family (I-JEPA, V-JEPA 2, LeJEPA/SIGReg) ; generative world models contrast (DreamerV3 arXiv:2301.04104, TD-MPC2 arXiv:2310.16828) ; DINO self-distillation (DINO/v2/v3, arXiv:2104.14294 / 2304.07193 / 2508.10104) ; memory-augmented LMs (MemGPT arXiv:2310.08560, Larimar arXiv:2403.11901, RETRO arXiv:2112.04426). *Draws from*: `related-work-aeon-predictor.md` (104 lines, directly reusable).
 
 ### §3 Aeon Architecture
 Substrate (Atlas SIMD + Trace NetworkX) ; LatentMLP 384→256→384 numpy cosine loss (< 1 MB) ; DinoV3-style centering (stateless, no EMA) ; collapse detector + weight rollback (runtime safety) ; cold-start fallback (identity below 500 pairs). *Draws from*: `src/memory/aeon_predictor.py`, PoC B α §2.

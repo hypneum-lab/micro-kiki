@@ -963,7 +963,7 @@ Replace the `## 7. Limitations and scope` stub with:
 1. Ba, Kiros, Hinton. *Layer Normalization*. arXiv:1607.06450.
 2. Caron et al. *DINOv3*. (See companion paper's §2 for full cite.)
 3. Vershynin. *High-Dimensional Probability*. Cambridge, 2018 (concentration of LN statistics, Ch. 3).
-4. LeCun. *A Path Towards Autonomous Machine Intelligence*. arXiv:2206.15331.
+4. LeCun. *A Path Towards Autonomous Machine Intelligence*. OpenReview, 2022 (no arXiv version).
 5. Assran et al. *I-JEPA*. arXiv:2301.08243.
 6. Companion paper: *Stack-Conditioned Prediction under Centering Regularization: A Case Study in Latent Predictors*, same authors, 2026-04-19, docs/papers/stack-conditioning-case-study.md.
 ```
