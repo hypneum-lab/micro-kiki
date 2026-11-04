@@ -135,7 +135,7 @@ The router maps input queries to domain probability distributions using a two-st
 
 \begin{enumerate}[nosep]
   \item \textbf{Embedding}: The query is encoded using \texttt{all-MiniLM-L6-v2} (sentence-transformers), producing a 384-dimensional dense vector.\footnote{Provenance of the router numbers (erratum E-2026-10-25-03, \texttt{docs/ERRATA.md}). The figures in \Cref{tab:router} are read from the committed artifact \texttt{results/router-v4-eval.json} (MiniLM-L6 384d, 34 classes, $n = 5{,}377$ validation examples), written by \texttt{scripts/train\_router\_v4.py --mode eval}; the weights in \texttt{output/router-v4/} (\texttt{meta.json}: MiniLM-L6 384d) and the deployed server (\texttt{src/serving/full\_pipeline\_server.py}, 34 niche-domain outputs) belong to the same router. An earlier version of this paper reported 70.7\% top-1 / 89.5\% top-3 for an mpnet-768d retrain over 31 merged classes; that figure exists only in the message of commit \texttt{10c7b6e}, whose weights were superseded by merge \texttt{bf986ba} the same day, and no evaluation file or validation split was committed. It is withdrawn. The strategy ablation in \Cref{tab:router-ablation} uses the augmented validation set and is not comparable in absolute terms.}
-  \item \textbf{Classification}: An MLP with architecture $384 \rightarrow 512 \rightarrow 34$ maps embeddings to domain logits. A sigmoid activation (not softmax) produces independent per-domain probabilities, enabling multi-label classification.
+  \item \textbf{Classification}: An MLP with architecture $384 \rightarrow 512 \rightarrow 34$ maps embeddings to domain logits. A sigmoid activation (not softmax) produces independent per-domain probabilities, enabling multi-label classification. See also energy-based multi-label classification with modular restricted Boltzmann machines~\citep{agliari2026modularrbm} and multilayer hetero-associative networks~\citep{agliari2026heteroexp}.
 \end{enumerate}
 
 \subsection{Domain Merging}
@@ -590,6 +590,16 @@ Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody~Hao Yu, 
 Ying Sheng, Shiyi Cao, Dacheng Li, Coleman Hooper, Nicholas Lee, Shuo Yang, Christopher Chou, Banghua Zhu, Lianmin Zheng, Kurt Keutzer, Joseph~E. Gonzalez, and Ion Stoica.
 \newblock {S-LoRA}: Serving Thousands of Concurrent {LoRA} Adapters.
 \newblock In \emph{MLSys}, 2024.
+
+\bibitem[Agliari et~al.(2026a)]{agliari2026heteroexp}
+Elena Agliari, Adriano Barra, Andrea Ladiana, and Andrea Lepre.
+\newblock Exponential Capacity in Multilayer Hetero-Associative Neural Networks.
+\newblock \emph{arXiv preprint arXiv:2607.29554}, 2026.
+
+\bibitem[Agliari et~al.(2026b)]{agliari2026modularrbm}
+Elena Agliari, Andrea Lepre, and Edoardo Roscani.
+\newblock Classifications in modular restricted {Boltzmann} machines.
+\newblock \emph{arXiv preprint arXiv:2610.08612}, 2026.
 
 \bibitem[Song et~al.(2020)]{song2020mpnet}
 Kaitao Song, Xu~Tan, Tao Qin, Jianfeng Lu, and Tie-Yan Liu.

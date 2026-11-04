@@ -308,11 +308,11 @@ DreamerV3 (arXiv:2301.04104) and TD-MPC2 (arXiv:2310.16828) are latent world mod
 
 ### Memory-augmented LLMs
 
-MemGPT (arXiv:2310.08560), Larimar (arXiv:2403.11901), and RETRO (arXiv:2112.04426) form the deployment substrate family. These systems solve where state lives but not what the model needs next. Aeon operates upstream of the retriever: given a predicted `ĥ_{t+1}`, the Atlas/Trace substrate can pre-fetch or pre-rank the memory region likely to be requested. Stack-conditioning adds expert-mixture routing to this picture. To our knowledge, no prior work learns expert-selection via latent-state prediction — our search has not surfaced a direct analogue.
+MemGPT (arXiv:2310.08560), Larimar (arXiv:2403.11901), and RETRO (arXiv:2112.04426) form the deployment substrate family. These systems solve where state lives but not what the model needs next. Aeon operates upstream of the retriever: given a predicted `ĥ_{t+1}`, the Atlas/Trace substrate can pre-fetch or pre-rank the memory region likely to be requested. Stack-conditioning adds expert-mixture routing to this picture. To our knowledge, no prior work learns expert-selection via latent-state prediction — our search has not surfaced a direct analogue. See also hetero-associative Hebbian networks that learn pattern-to-pattern associations (arXiv:2505.18796, arXiv:2503.04454) [22, 23].
 
 ### Conditioning mechanisms
 
-MTL concatenation (our failed baseline when combined with centering), MoE routing (arXiv:1701.06538), and hypernetworks (arXiv:1609.09106) represent the space of conditioning mechanisms. One-hot concatenation is the simplest — and, as Section 5 shows, the most exposed to batch-level regularization interference. Dense conditioning (via a softmax router output, for example) and weight-level conditioning (hypernetworks) remain untested mitigations that the case study flags for future work.
+MTL concatenation (our failed baseline when combined with centering), MoE routing (arXiv:1701.06538), and hypernetworks (arXiv:1609.09106) represent the space of conditioning mechanisms. One-hot concatenation is the simplest — and, as Section 5 shows, the most exposed to batch-level regularization interference. Dense conditioning (via a softmax router output, for example) and weight-level conditioning (hypernetworks) remain untested mitigations that the case study flags for future work. See also modular networks of Hebbian networks and dense auto-hetero associative memories (arXiv:2501.16789, arXiv:2609.32605) [24, 25].
 
 ---
 
@@ -394,6 +394,14 @@ We scope the contribution to Module 7 and the Configurator compression path; we 
 [20] Rubinstein, R. Y. (1997). *Optimization of Computer Simulation Models with Rare Events.* European Journal of Operational Research 99:89–112. (Cross-entropy method foundation; cited in Configurator context.)
 
 [21] Arslan, M. (2026). *Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents.* arXiv:2601.15311.
+
+[22] Alessandrelli, A., Barra, A., Ladiana, A., Lepre, A., Ricci-Tersenghi, F. (2025). *Supervised and Unsupervised protocols for hetero-associative neural networks.* Physica A 676, 130871. doi:10.1016/j.physa.2025.130871. arXiv:2505.18796.
+
+[23] Alessandrelli, A., Barra, A., Ladiana, A., Lepre, A., Ricci-Tersenghi, F. (2025). *Beyond Disorder: Unveiling Cooperativeness in Multidirectional Associative Memories.* arXiv:2503.04454.
+
+[24] Agliari, E., Alessandrelli, A., Barra, A., Centonze, M. S., Ricci-Tersenghi, F. (2026). *Networks of neural networks: more is different.* Neural Networks 194, 108181. arXiv:2501.16789.
+
+[25] Agliari, E., Alessandrelli, A., Barra, A., Fachechi, A. (2026). *Dense auto-hetero associative memories applied to noisy communication channels.* arXiv:2609.32605.
 
 ---
 
