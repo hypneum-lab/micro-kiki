@@ -574,7 +574,7 @@ Les resultats de conversion LAS a grande echelle et les benchmarks sur hardware 
 
 [14] Balestriero, R., & LeCun, Y. (2025). LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics. *arXiv preprint* arXiv:2511.08544.
 
-[15] LeCun, Y. (2022). A Path Towards Autonomous Machine Intelligence. *Open Review* (Version 0.9.2, June 2022).
+[15] LeCun, Y. (2022). A Path Towards Autonomous Machine Intelligence. *Open Review* (Version 0.9.2, June 2022) https://openreview.net/forum?id=BZ5a1r-kVsf
 
 [16] Simeoni, O., Vo, H. V., Seitzer, M., Baldassarre, F., Oquab, M., et al. (2025). DINOv3. *arXiv preprint* arXiv:2508.10104.
 

@@ -373,7 +373,7 @@ Nous scopons la contribution au Module 7 et à la voie de compression Configurat
 
 [9] Balestriero, R., LeCun, Y. (2025). *LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics (SIGReg).* arXiv:2511.08544.
 
-[10] LeCun, Y. (2022). *A Path Towards Autonomous Machine Intelligence.* Version 0.9.2, OpenReview position paper (no arXiv version). <!-- OpenReview forum id not API-resolved on 2026-11-04 (403 challenge); add the forum URL once checked. -->
+[10] LeCun, Y. (2022). *A Path Towards Autonomous Machine Intelligence.* Version 0.9.2, 27 June 2022, OpenReview position paper (no arXiv version). https://openreview.net/forum?id=BZ5a1r-kVsf <!-- forum id confirmed on 2026-11-04 from the OpenReview page opened by the PI; the API was not reachable (403 challenge). -->
 
 [11] Packer, C., et al. (2023). *MemGPT: Towards LLMs as Operating Systems.* arXiv:2310.08560.
 
