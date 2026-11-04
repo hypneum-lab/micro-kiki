@@ -371,7 +371,7 @@ We scope the contribution to Module 7 and the Configurator compression path; we 
 
 [9] Balestriero, R., LeCun, Y. (2025). *LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics (SIGReg).* arXiv:2511.08544.
 
-[10] LeCun, Y. (2022). *A Path Towards Autonomous Machine Intelligence.* arXiv:2206.15331.
+[10] LeCun, Y. (2022). *A Path Towards Autonomous Machine Intelligence.* Version 0.9.2, OpenReview position paper (no arXiv version). <!-- OpenReview forum id not API-resolved on 2026-11-04 (403 challenge); add the forum URL once checked. -->
 
 [11] Packer, C., et al. (2023). *MemGPT: Towards LLMs as Operating Systems.* arXiv:2310.08560.
 
@@ -392,6 +392,8 @@ We scope the contribution to Module 7 and the Configurator compression path; we 
 [19] Tschannen, M., et al. (2025). *SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features.* arXiv:2502.14786.
 
 [20] Rubinstein, R. Y. (1997). *Optimization of Computer Simulation Models with Rare Events.* European Journal of Operational Research 99:89–112. (Cross-entropy method foundation; cited in Configurator context.)
+
+[21] Arslan, M. (2026). *Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents.* arXiv:2601.15311.
 
 ---
 
