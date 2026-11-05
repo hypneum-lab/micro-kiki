@@ -21,7 +21,7 @@ where $\hat{F}(\theta)$ is the (normalized) Fisher information matrix. Theorem 3
 
 ## Caro et al. 2022 — "Generalization in quantum ML from few training data"
 
-**Main claim:** The generalization error of a quantum machine learning model with $T$ parameterized local quantum channels (gates) trained on $N$ i.i.d. samples scales at worst as $\widetilde{\mathcal{O}}(\sqrt{T/N})$, and improves to $\widetilde{\mathcal{O}}(\sqrt{K/N})$ when only $K \ll T$ gates change substantially during optimization.
+**Main claim:** The generalization error of a quantum machine learning model with $T$ parameterized local quantum channels (gates) trained on $N$ i.i.d. samples is in $\mathcal{O}(\sqrt{T \log T / N})$ with high probability (Theorem 1, Eq. 5, p. 3), and improves to $\mathcal{O}(\sqrt{K \log(MT) / N} + \sum_{k>K} M\Delta_k)$ when only $K \ll T$ gates change substantially during optimization (Theorem 3, Eq. 7, p. 3).
 
 **Key inequality:** Theorem 1 (Basic QMLM bound), paraphrased: for a quantum learning model with $T$ trainable two-qubit local channels trained on $N$ i.i.d. samples $S_N$, with high probability over $S_N$,
 \[
@@ -29,7 +29,7 @@ where $\hat{F}(\theta)$ is the (normalized) Fisher information matrix. Theorem 3
 \]
 The refined Theorem (light cone / few-changed-gates) replaces $T$ by $K$, the number of gates whose parameter moves substantially during training.
 
-**Relevance to us:** Our 4-qubit circuit uses a StronglyEntanglingLayers ansatz with on the order of $T \approx 12$-$36$ trainable two-qubit+single-qubit gates, trained on $N \approx 10^3$-$10^4$ routing examples. Caro's bound predicts a generalization error on the order of $\sqrt{T/N} \sim 0.03$-$0.2$, i.e., essentially negligible compared to the Holevo+Fano accuracy floor our paper derives. This is exactly why our paper argues the bottleneck is *capacity*, not *sample complexity*: with realistic $N$ we are nowhere near Caro's $\sqrt{T/N}$ regime.
+**Relevance to us:** Our 4-qubit circuit uses a StronglyEntanglingLayers ansatz with on the order of $T \approx 12$-$36$ trainable two-qubit+single-qubit gates, trained on $N \approx 10^3$-$10^4$ routing examples. Caro's bound scales as $\sqrt{T \log T / N} \sim 0.06$-$0.36$ for these values (natural log, constants hidden in $\mathcal{O}$), i.e., essentially negligible compared to the Holevo+Fano accuracy floor our paper derives. This is exactly why our paper argues the bottleneck is *capacity*, not *sample complexity*: with realistic $N$ we are nowhere near Caro's $\sqrt{T \log T / N}$ regime.
 
 **Caveats:** The bound assumes each trainable channel acts locally (bounded locality $k$), the loss is bounded, and training produces the empirical risk minimizer $\alpha^*$. It does not distinguish quantum from classical capacity — a classical neural network with the same number of parameters obeys an analogous Rademacher-style $\sqrt{\text{params}/N}$ bound. Hence Caro is a *sufficient* condition for good generalization but does not predict *achievable risk*; it cannot be used to argue quantum advantage or disadvantage on its own.
 
