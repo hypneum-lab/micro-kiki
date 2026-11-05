@@ -599,7 +599,7 @@ Full-scale LAS conversion results and neuromorphic hardware benchmarks remain as
 
 [11] RBD (2025). Runtime Bias Detection for Language Model Inference. *arXiv preprint* arXiv:2505.17100.
 
-[12] Gao, Z., et al. (2025). MoLA: Higher Layers Need More LoRA Experts. *Proceedings of NAACL 2025*.
+[12] Gao, C., Chen, K., Rao, J., Sun, B., Liu, R., et al. (2024). Higher Layers Need More LoRA Experts. arXiv:2402.08562. Published as "MoLA: MoE LoRA with Layer-wise Expert Allocation", *Findings of the Association for Computational Linguistics: NAACL 2025*. doi:10.18653/v1/2025.findings-naacl.284.
 
 [13] Assran, M., Bardes, A., Fan, D., Garrido, Q., Howes, R., et al. (2025). V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning. *arXiv preprint* arXiv:2506.09985.
 

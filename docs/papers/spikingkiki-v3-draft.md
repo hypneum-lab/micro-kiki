@@ -54,7 +54,7 @@ SpikingKiki bridges these two research directions. We apply LoRA domain speciali
 
 ### 2.4 MoE-LoRA Systems
 
-**Brainstacks** proposes stacking domain-specific adapters on MoE architectures. **MixLoRA** (TUDB-Labs) places MoE routing within FFN LoRA blocks. **MoLA** (NAACL 2025) explores layer-wise LoRA expert allocation. **HMoRA** adds hierarchical token and task routing. None of these systems integrate SNN conversion or cognitive memory.
+**Brainstacks** proposes stacking domain-specific adapters on MoE architectures. **MixLoRA** (TUDB-Labs) places MoE routing within FFN LoRA blocks. **MoLA** (Findings of NAACL 2025; arXiv:2402.08562) explores layer-wise LoRA expert allocation. **HMoRA** adds hierarchical token and task routing. None of these systems integrate SNN conversion or cognitive memory.
 
 ### 2.5 Compact and Efficient Models
 
