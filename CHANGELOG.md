@@ -132,8 +132,10 @@ not summarised):
 - Results committed as artifacts (titles verbatim, see `results/`):
   "v3 <domain> gate" for 14 domains (2026-04-20/21); "eval: null-space
   ablation results (negative)"; "eval: cognitive A/B results (14-16
-  split)"; "eval: router ablation results"; "eval: PPL 35 domains - all
-  improved, mean -70.8%"; "chore(results): GSM8K sweep finds reasoning
+  split)"; "eval: router ablation results"; PPL evaluation over 35 domains
+  (figure corrected in `f9453c3`: mean -7.30, `avg_delta` -7.303 in
+  `results/v4-ppl-35domains/ppl-all-domains.json`, single-seed, no CI;
+  see Changed); "chore(results): GSM8K sweep finds reasoning
   toxic"; "chore(results): SOTA sweep small-N directional". Read the
   committed JSON and `docs/ERRATA.md` (claims-scope correction above)
   before citing any of them.
