@@ -1,4 +1,4 @@
-# Anti-collapse choices in a 100K-parameter latent predictor: synthetic gains that do not survive real conversational streams
+# Anti-collapse choices in a ~267K-parameter latent predictor: synthetic gains that do not survive real conversational streams
 
 **Date:** 2026-11-08
 **Status:** Negative note — single seed throughout; all findings are exploratory
@@ -7,7 +7,8 @@
 **Errata:** E-2026-10-25-02 (MK-23, C5 bound), E-2026-11-08-01 (MK-20, Text-JEPA retracted)
 
 > Résumé (FR) :
-> En avril 2026, le prédictor latent Aeon (LatentMLP numpy, ~267 K paramètres) montrait +22 % MRR
+> En avril 2026, le prédictor latent Aeon (LatentMLP numpy, ~267 K paramètres,
+> `src/memory/aeon_predictor.py`) montrait +20,6 % MRR (initialement décrit comme +22 %)
 > sur des flux synthétiques structurés avec centrage DinoV3 (hypothèse MK-11 du catalogue). Quatre
 > évaluations sur données réelles (10 domaines, 1 000 tours) infirment ce gain : MRR exacts proches
 > de zéro dans tous les cas, et dans le scénario le plus favorable (soft-domain interleaved) le null
@@ -19,7 +20,7 @@
 
 ## Abstract
 
-A 100K-parameter numpy MLP (LatentMLP, `src/memory/aeon_predictor.py`) was trained
+A ~267K-parameter numpy MLP (LatentMLP, `src/memory/aeon_predictor.py`) was trained
 on synthetic conversational streams in April 2026. Under stack-structured streams with
 shared DinoV3-style centering, predictive MRR rose from 0.413 to 0.498 (+20.6 %) relative
 to a no-centering baseline, a result cited as evidence for hypothesis MK-11 and framed as
@@ -48,7 +49,8 @@ with a *predicted successor* ĥ\_{t+1}. The rationale is that ĥ\_{t+1} should l
 upcoming turns than h\_q itself.
 
 The architecture (LatentMLP: 384 → 256 → 256 → 384 with a residual skip, one-hot stack
-conditioning of size 16, numpy cosine loss, < 1 MB weights) is explicitly aligned with
+conditioning of size 16, numpy cosine loss, ~2 MB in float64 / ~1 MB in float32;
+dims from `src/memory/aeon_predictor.py`) is explicitly aligned with
 LeCun's Autonomous Machine Intelligence framework (arXiv:2206.15331), specifically
 Module 7 (Short-Term Memory). The April 2026 reframe plan (`docs/papers/paper-a-reframe-aeon-ami.md`)
 also cited the LeJEPA / SIGReg line of work (arXiv:2511.08544) as framing for JEPA-style
@@ -58,7 +60,8 @@ latent prediction.
 
 The reframe plan stated three "strong" empirical findings (§4):
 
-1. Shared centering delivers +22 % MRR on structured streams (MK-11, condition D).
+1. Shared centering delivers +20.6 % MRR on structured streams (MK-11, condition D;
+   originally reported as "+22 %").
 2. LayerNorm(δ) preserves stack-conditioning signal at 300 epochs: 59 % win\_stack
    (condition L2).
 3. Text-JEPA compression retains 97 % VQC routing accuracy at 3× compression
@@ -107,16 +110,16 @@ place of the true stack\_id.
 
 | Condition | Mechanism | Epochs | baseline\_mrr | predictive\_mrr | null\_mrr | win\_pred | win\_stack\_vs\_null | recall@5 (pred) | Source |
 |---|---|---|---|---|---|---|---|---|---|
-| C | No centering | 50 | 0.413 | 0.415 | 0.412 | 5 % | 5 % | 1.00 | `aeon-baseline-no-centering.json` |
-| D | Shared centering | 50 | 0.413 | 0.498 | 0.498 | 51 % | 0 % | 1.00 | `aeon-baseline-shared-centering.json` |
-| F1 | Per-stack centering | 50 | 0.413 | 0.413 | 0.495 | 9 % | 0 % | 1.00 | `aeon-poc-F1-per-stack.json` |
-| F2 | Per-stack centering | 300 | 0.413 | 0.433 | 0.498 | 14 % | 0 % | 1.00 | `aeon-poc-F2-per-stack-long.json` |
-| L1 | LayerNorm(δ) | 50 | 0.413 | 0.012 | 0.015 | 2 % | 3 % | 0.03 | `aeon-poc-L1-layernorm.json` |
-| L2 | LayerNorm(δ) | 300 | 0.413 | 0.447 | 0.090 | 40 % | 59 % | 0.67 | `aeon-poc-L2-layernorm-long.json` |
-| L3 | LN(δ) + centering | 50 | 0.413 | 0.005 | 0.012 | 1 % | 1 % | 0.01 | `aeon-poc-L3-ln-plus-cent.json` |
+| C | No centering | 50 | 0.413 | 0.415 | 0.412 | 5 % | 5 % | 1.00 | `2026-04-19-aeon-baseline-no-centering.json` |
+| D | Shared centering | 50 | 0.413 | 0.498 | 0.498 | 51 % | 0 % | 1.00 | `2026-04-19-aeon-baseline-shared-centering.json` |
+| F1 | Per-stack centering | 50 | 0.413 | 0.413 | 0.495 | 9 % | 0 % | 1.00 | `2026-04-19-aeon-poc-F1-per-stack.json` |
+| F2 | Per-stack centering | 300 | 0.413 | 0.433 | 0.498 | 14 % | 0 % | 1.00 | `2026-04-19-aeon-poc-F2-per-stack-long.json` |
+| L1 | LayerNorm(δ) | 50 | 0.413 | 0.012 | 0.015 | 2 % | 3 % | 0.03 | `2026-04-19-aeon-poc-L1-layernorm.json` |
+| L2 | LayerNorm(δ) | 300 | 0.413 | 0.447 | 0.090 | 40 % | 59 % | 0.67 | `2026-04-19-aeon-poc-L2-layernorm-long.json` |
+| L3 | LN(δ) + centering | 50 | 0.413 | 0.005 | 0.012 | 1 % | 1 % | 0.01 | `2026-04-19-aeon-poc-L3-ln-plus-cent.json` |
 
-All files under `results/` prefix. All sourced from commit `804bf02` (conditions C, L1–L3)
-or `2d2ca3e` (F1, F2), dated 2026-04-18. Metric definitions from `eval_aeon_predictor.py`:
+All files under `results/` prefix. Sourced from commit `850048d` (C, D),
+`804bf02` (L1–L3), `2d2ca3e` (F1, F2), all dated 2026-04-18. Metric definitions from `eval_aeon_predictor.py`:
 `baseline_mrr` = MRR of raw retrieval; `predictive_mrr` = MRR of retrieval from ĥ;
 `null_stack_mrr` = MRR of retrieval from ĥ using a *wrong* stack\_id; `win_rate_stack_vs_null`
 = fraction of queries where predictive > null.
@@ -128,6 +131,11 @@ predictor with a *wrong* stack id. The centering gain is therefore not attributa
 stack conditioning; it is a regime effect where the centred embedding space saturates at the
 top of the recall@5 distribution for both correct and incorrect stack ids. MK-11 describes
 this as "+22 % MRR" but the null comparison is unfavourable to any stack-conditioning claim.
+
+Per-stack centering (F1, F2) shows a reversed pattern: null\_stack\_mrr (0.495, 0.498) far
+exceeds predictive\_mrr (0.413, 0.433) at both 50 and 300 epochs, with `win_rate_stack_vs_null
+= 0 %` in both cases. The per-stack running means appear to encode no information the predictor
+can leverage; if anything they degrade retrieval relative to the null.
 
 Condition L2 is the only one where `win_rate_stack_vs_null > 50 %`, suggesting LayerNorm(δ)
 at 300 epochs genuinely uses stack information. However this is a single seed, the recall@5
