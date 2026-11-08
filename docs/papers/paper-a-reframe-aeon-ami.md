@@ -15,7 +15,7 @@ Le plan initial (`paper-outline-triple-hybrid.md`) positionnait micro-kiki comme
 
 1. **Cadre théorique plus solide**. LeCun's "A Path Towards Autonomous Machine Intelligence" (OpenReview, 2022) fournit un cadre modulaire (7 modules) où nos composants se rangent naturellement. La communauté AMI/JEPA (I-JEPA, V-JEPA 2, LeJEPA/SIGReg arXiv:2511.08544) cherche précisément des implémentations concrètes du Module 7.
 
-2. **Les résultats empiriques orientent le framing**. Le PoC B v2 (`2026-04-17-aeon-predictor-poc-alpha.md`) a prouvé que centrage DinoV3 + rollback produit +22 % MRR sur flux structurés (condition D), mais que stack-conditioning est fragile sous centrage (0 % win_stack D, 1 % E). La contribution principale n'est donc pas "quantum router" mais **working memory JEPA-alignée avec garde-fous runtime**.
+2. **Les résultats empiriques orientent le framing**. Le PoC B v2 (`2026-04-17-aeon-predictor-poc-alpha.md`) a prouvé que centrage DinoV3 + rollback produit +22 % MRR sur flux structurés (condition D) [2026-11-08: null == prédictif sur données réelles, voir docs/notes/2026-11-08-aeon-anti-collapse-negative-note.md], mais que stack-conditioning est fragile sous centrage (0 % win_stack D, 1 % E). La contribution principale n'est donc pas "quantum router" mais **working memory JEPA-alignée avec garde-fous runtime**.
 
 3. **Quantique et neuromorphique pas mûrs pour papier unique**. VQC reste simulateur, SNN LAS en cours, Akida non livré. Mieux vaut isoler la contribution défendable (Aeon-Module-7) et déferer VQC/SNN à un Paper B.
 
@@ -76,11 +76,11 @@ A. Test coverage (33 tests) ; B. Compute budget (M5, ~2 s / 1000 turns, no GPU) 
 
 | Finding | Evidence | Strength |
 |---------|----------|----------|
-| Centering delivers +22 % MRR on structured streams | Condition D vs baseline, MRR 0.413 → 0.498 | **Strong** |
+| Centering delivers +22 % MRR on structured streams | Condition D vs baseline, MRR 0.413 → 0.498 | **Strong** [2026-11-08: null == predictive, see note] |
 | LayerNorm(delta) stack preservation | Condition L2 at 300 epochs: win_stack = 59%, predictive_mrr 0.447 vs null_mrr 0.090. Per-sample normalization of residual delta preserves stack-specific offsets. | **Strong** |
 | Text-JEPA compression validates Configurator path | 3× embedding compression (384→128 dims) retains 97% VQC routing accuracy (baseline 0.925, Text-JEPA 0.900 on 10-domain classification). | **Strong**  [retracted, E-2026-11-08-01] |
 | Rollback on std-collapse works deterministically | Unit test `test_collapse_detector_triggers` | **Strong** |
-| 100K-param numpy deployment feasible | Code size + < 1 MB weights, runtime measured on M5 | **Strong** |
+| ~267K-param numpy deployment feasible [2026-11-08: corrected from 100K; ~2 MB float64, ~1 MB float32] | Code size + < 1 MB weights, runtime measured on M5 | **Strong** |
 | Cross-session memory via AeonSleep | AeonSleep existing design, 36 recalls / 14 turns | **Strong** |
 | Cold-start fallback is graceful | `predict_next()` returns h_t when not ready | **Strong** |
 
