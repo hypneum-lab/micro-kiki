@@ -135,12 +135,17 @@ estimator (code fix d25e701) from the C1 embedding cache
 (`scripts/bench_info_bound.py`, unchanged). MI before -> after: PCA-4
 2.04 -> 1.167 bits, PCA-16 -> 1.556, PCA-128 -> 0.351, d = 384
 150.74 -> 1.426 bits; `bound_vqc_4qubit` 0.9110 -> 0.6356. All values are
-now below H(Y) = 3.32 bits. The MK-23 requalification is pending the PI's
-decision (refs [#11](https://github.com/hypneum-lab/micro-kiki/issues/11));
-this item does not change any verdict. The master-table rows in
-hypneum-lab/.github (`synthese/01-table-maitresse-hypotheses.md`, MK-23;
-`inventaires/babybrain-microkiki-quantum.md`, MK-23) are to be updated in that
-repository.
+now below H(Y) = 3.32 bits. PI decision of 2026-11-08 (refs
+[#11](https://github.com/hypneum-lab/micro-kiki/issues/11)): MK-23 stays
+**refuted**. The requalification concerned the published statement (Holevo+Fano
+bound 0.911 for a 4-qubit VQC), whose derivation was invalid. The corrected
+value (`bound_vqc_4qubit` 0.6356 at joint MI 1.167 bits on PCA-4) is a
+different statement: a plain Fano/DPI bound, since the Holevo cap never binds
+(N = 4 >= log2 K = 3.32 bits). This matches the hypothesis catalogue v3 of
+hypneum-lab/.github (MK-23, "reformulated"). Catalogue v3 (reference since
+2026-11-07) already carries the reformulation; the 2026-10-24 master table
+(`synthese/01-table-maitresse-hypotheses.md`,
+`inventaires/babybrain-microkiki-quantum.md`) is historical.
 
 ---
 
