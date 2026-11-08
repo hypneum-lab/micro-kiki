@@ -93,7 +93,7 @@ Navigation master des livrables de la session. Organisé par type d'artefact, pa
 |-----------|--------|-------|---------|
 | Centering (synthetic) | MRR D | 0.413 → 0.498 (+22%) | Strong |
 | LayerNorm(δ) (synthetic) | win_stack L2 | 59% (300 ep, lr=5e-3) | Strong |
-| Text-JEPA compression | VQC acc | 0.900 @128d vs 0.925 @384d (97% retention, 3×) | Strong | [retracted, E-2026-11-08-01]
+| Text-JEPA compression | VQC acc | 0.900 @128d vs 0.925 @384d (97% retention, 3×) | Strong  [retracted, E-2026-11-08-01] |
 | Real-data soft-domain | recall@5 interleaved | 11% → 31% (+181%, 4× MRR) | Strong ✅ |
 | Per-stack centering | win_stack | 0% | FAIL (documented) |
 | Combined LN(δ) + centering | win_stack | 1% | Catastrophe (documented) |

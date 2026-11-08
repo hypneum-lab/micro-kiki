@@ -179,8 +179,8 @@ La voie Configurator est validée sur des embeddings conversationnels réels. Le
 
 | Représentation | Dim | Précision de routage VQC | Ratio de compression | Rétention (même budget) |
 |----------------|-----|--------------------------|----------------------|-----------|
-| MiniLM-L6 (non compressé, budget Task 14) | 384 | 0.925 | 1.0× | — | [rétracté, E-2026-11-08-01]
-| **Text-JEPA (compressé, budget Task 14)** | **128** | **0.900** | **3.0×** | **97 %** | [rétracté, E-2026-11-08-01]
+| MiniLM-L6 (non compressé, budget Task 14) | 384 | 0.925 | 1.0× | —  [rétracté, E-2026-11-08-01] |
+| **Text-JEPA (compressé, budget Task 14)** | **128** | **0.900** | **3.0×** | **97 %**  [rétracté, E-2026-11-08-01] |
 | MiniLM-L6 (non compressé, budget Task 15.5) | 384 | 0.19 | 1.0× | — |
 | **Text-JEPA (compressé, budget Task 15.5)** | **64** | **0.18** | **6.0×** | **95 %** |
 
@@ -223,7 +223,7 @@ En télémétrie long-run sur la condition E (300 epochs), le tripwire s'est dé
 |-----------|--------|-------|
 | Centrage + rollback | +22 % MRR condition D (0.413 → 0.498) | **Strong** |
 | LayerNorm(delta) | 59 % win_stack L2 (0.447 vs 0.090 null) | **Strong** |
-| Compression Text-JEPA | 97 % rétention à 3× compression | **Strong** | [rétracté, E-2026-11-08-01]
+| Compression Text-JEPA | 97 % rétention à 3× compression | **Strong**  [rétracté, E-2026-11-08-01] |
 | Rollback std-ratio | Test unitaire `test_collapse_detector_triggers` passe | **Strong** |
 | Runtime numpy 100K paramètres | < 1 MB de poids, < 2 s / 1000 tours sur M5 | **Strong** |
 | Le centrage nuit au random-walk | 0.263 → 0.228 sur A/B | **Divulgué** |
@@ -277,7 +277,7 @@ Nous mappons chaque mécanisme validé sur la structure modulaire AMI du positio
 
 | Module AMI | Composant Aeon | Force de la claim | Notes |
 |------------|----------------|-------------------|-------|
-| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + compresseur Text-JEPA (384 → 128, 97 % rétention) | **Strong (compression) ; Partial (VQC comme policy)** | La claim de compression Text-JEPA est validée sur données conversationnelles réelles. Le VQC est un petit classifieur, pas un générateur complet de policy sans gradient ; son rôle ici est la voie de *compression d'entrée* du Configurator. | [rétracté, E-2026-11-08-01]
+| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + compresseur Text-JEPA (384 → 128, 97 % rétention) | **Strong (compression) ; Partial (VQC comme policy)** | La claim de compression Text-JEPA est validée sur données conversationnelles réelles. Le VQC est un petit classifieur, pas un générateur complet de policy sans gradient ; son rôle ici est la voie de *compression d'entrée* du Configurator.  [rétracté, E-2026-11-08-01] |
 | **2. Perception** | n/a | **Aucune** | Nos entrées sont des embeddings texte, pas des observations brutes. |
 | **3. World Model** | Aeon LatentMLP (transition single-step) | **Partielle** | Nous prédisons `h_t → h_{t+1}` dans l'espace sentence-embedding à horizon 1, pas la dynamique complète du monde. |
 | **4. Cost** | n/a (juge CAMP externe dans le système plus large) | **Aucune dans ce papier** | L'arbitrage CAMP (arXiv:2604.00085) vit dans micro-kiki mais n'est pas revendiqué ici. |

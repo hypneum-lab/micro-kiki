@@ -16,8 +16,8 @@
 
 | Condition   | Embedding dim | VQC test accuracy | VQC params |
 |-------------|---------------|-------------------|------------|
-| Baseline    | 384           | 0.925             | 20         | [retracted, E-2026-11-08-01]
-| Text-JEPA   | 128           | 0.900             | 20         | [retracted, E-2026-11-08-01]
+| Baseline    | 384           | 0.925             | 20          [retracted, E-2026-11-08-01] |
+| Text-JEPA   | 128           | 0.900             | 20          [retracted, E-2026-11-08-01] |
 
 **Compression ratio:** 3× smaller latent (128 vs 384) with **97% accuracy retention** (0.900 / 0.925). [retracted, E-2026-11-08-01]
 

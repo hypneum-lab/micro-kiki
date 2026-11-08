@@ -177,8 +177,8 @@ The Configurator path is validated on real conversational embeddings. Table 3 re
 
 | Representation | Dim | VQC Routing Accuracy | Compression Ratio | Retention (same-budget) |
 |----------------|-----|----------------------|-------------------|-----------|
-| MiniLM-L6 (uncompressed, Task 14 budget) | 384 | 0.925 | 1.0× | — | [retracted, E-2026-11-08-01]
-| **Text-JEPA (compressed, Task 14 budget)** | **128** | **0.900** | **3.0×** | **97%** | [retracted, E-2026-11-08-01]
+| MiniLM-L6 (uncompressed, Task 14 budget) | 384 | 0.925 | 1.0× | —  [retracted, E-2026-11-08-01] |
+| **Text-JEPA (compressed, Task 14 budget)** | **128** | **0.900** | **3.0×** | **97%**  [retracted, E-2026-11-08-01] |
 | MiniLM-L6 (uncompressed, Task 15.5 budget) | 384 | 0.19 | 1.0× | — |
 | **Text-JEPA (compressed, Task 15.5 budget)** | **64** | **0.18** | **6.0×** | **95%** |
 
@@ -221,7 +221,7 @@ Across the three validated mechanisms:
 |-----------|----------|----------|
 | Centering + rollback | +22% MRR condition D (0.413 → 0.498) | **Strong** |
 | LayerNorm(delta) | 59% win_stack L2 (0.447 vs 0.090 null) | **Strong** |
-| Text-JEPA compression | 97% retention at 3× compression | **Strong** | [retracted, E-2026-11-08-01]
+| Text-JEPA compression | 97% retention at 3× compression | **Strong**  [retracted, E-2026-11-08-01] |
 | Std-ratio rollback | Unit-test `test_collapse_detector_triggers` passes | **Strong** |
 | 100K-param numpy runtime | < 1 MB weights, < 2s / 1000 turns on M5 | **Strong** |
 | Centering harms random-walk | 0.263 → 0.228 on A/B | **Disclosed** |
@@ -275,7 +275,7 @@ We map each validated mechanism onto the AMI module structure of LeCun's positio
 
 | AMI module | Aeon component | Claim strength | Notes |
 |------------|----------------|----------------|-------|
-| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + Text-JEPA compressor (384 → 128, 97% retention) | **Strong (compression); Partial (VQC as policy)** | The Text-JEPA compression claim is validated on real conversational data. VQC is a small classifier, not a full gradient-free policy generator; its role here is the Configurator's *input compression* path. | [retracted, E-2026-11-08-01]
+| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + Text-JEPA compressor (384 → 128, 97% retention) | **Strong (compression); Partial (VQC as policy)** | The Text-JEPA compression claim is validated on real conversational data. VQC is a small classifier, not a full gradient-free policy generator; its role here is the Configurator's *input compression* path.  [retracted, E-2026-11-08-01] |
 | **2. Perception** | n/a | **None** | Our inputs are text embeddings, not raw observations. |
 | **3. World Model** | Aeon LatentMLP (single-step transition) | **Partial** | We predict `h_t → h_{t+1}` in sentence-embedding space at horizon 1, not full world dynamics. |
 | **4. Cost** | n/a (external CAMP judge in the wider system) | **None in this paper** | CAMP arbitration (arXiv:2604.00085) lives in micro-kiki but is not claimed here. |

@@ -29,7 +29,7 @@ Le plan initial (`paper-outline-triple-hybrid.md`) positionnait micro-kiki comme
 
 | AMI module | micro-kiki component | Claim strength | Notes |
 |------------|----------------------|----------------|-------|
-| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + Text-JEPA compression | **Strong** | VQC: 86.8 % val_acc unbalanced, 53 % balanced. Text-JEPA: 3× compression (384→128 dims) retains 97% routing accuracy (0.925 → 0.900 on 10-domain classification). This is the Configurator path of AMI Module 1 in full pipeline. | [retracted, E-2026-11-08-01]
+| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + Text-JEPA compression | **Strong** | VQC: 86.8 % val_acc unbalanced, 53 % balanced. Text-JEPA: 3× compression (384→128 dims) retains 97% routing accuracy (0.925 → 0.900 on 10-domain classification). This is the Configurator path of AMI Module 1 in full pipeline.  [retracted, E-2026-11-08-01] |
 | **2. Perception** | n/a | **None** | Pas d'environnement externe ; entrées sont directement des embeddings texte (MiniLM-L6) |
 | **3. World Model** | Aeon LatentMLP (h_t → h_{t+1}) | **Partial** | Prédit transitions latentes 1-pas, pas dynamique complète du monde |
 | **4. Cost** | CAMP judge (arXiv:2604.00085) | **Partial** | Évaluation post-hoc ; pas de feedback d'apprentissage bouclé |
@@ -78,7 +78,7 @@ A. Test coverage (33 tests) ; B. Compute budget (M5, ~2 s / 1000 turns, no GPU) 
 |---------|----------|----------|
 | Centering delivers +22 % MRR on structured streams | Condition D vs baseline, MRR 0.413 → 0.498 | **Strong** |
 | LayerNorm(delta) stack preservation | Condition L2 at 300 epochs: win_stack = 59%, predictive_mrr 0.447 vs null_mrr 0.090. Per-sample normalization of residual delta preserves stack-specific offsets. | **Strong** |
-| Text-JEPA compression validates Configurator path | 3× embedding compression (384→128 dims) retains 97% VQC routing accuracy (baseline 0.925, Text-JEPA 0.900 on 10-domain classification). | **Strong** | [retracted, E-2026-11-08-01]
+| Text-JEPA compression validates Configurator path | 3× embedding compression (384→128 dims) retains 97% VQC routing accuracy (baseline 0.925, Text-JEPA 0.900 on 10-domain classification). | **Strong**  [retracted, E-2026-11-08-01] |
 | Rollback on std-collapse works deterministically | Unit test `test_collapse_detector_triggers` | **Strong** |
 | 100K-param numpy deployment feasible | Code size + < 1 MB weights, runtime measured on M5 | **Strong** |
 | Cross-session memory via AeonSleep | AeonSleep existing design, 36 recalls / 14 turns | **Strong** |
