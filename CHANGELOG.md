@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.4.0] — 2026-11-06
+## [0.4.0] — 2026-11-08
 
-Covers `v0.3.0..main` (223 commits, 26 merged pull requests; most commits
+Covers `v0.3.0..main` (223 commits, 28 merged pull requests; most commits
 landed directly on `main`, so entries without a PR number cite commit
 subjects). Scientific statements below are quoted from files in this
 repository; follow the links for scope, limits and caveats. Nothing here
@@ -108,8 +108,14 @@ not summarised):
 - E-2026-10-25-02, C5 information bound "0.911" (issue #11, MK-23):
   "The 0.911 figure is withdrawn in every document listed above. MK-23
   is requalified from 'confirmed' to **refuted**: the derivation is
-  invalid and no valid bound has been established." `results/c5-info-bound.json`
-  "must not be cited" until recomputed (#16).
+  invalid and no valid bound has been established." Update 2026-11-08
+  (#39, #40): `results/c5-info-bound.json` and
+  `docs/paper-a/c5-bound-figure.pdf` regenerated with the joint k-NN
+  estimator; `bound_vqc_4qubit` 0.9110 -> 0.6356 (joint MI 1.167 bits on
+  PCA-4, all values below H(Y) = 3.32 bits). PI decision: MK-23 stays
+  **refuted**; the corrected value is a different statement (plain
+  Fano/DPI bound, the Holevo cap never binds), not a confirmation of the
+  withdrawn 0.911.
 - E-2026-10-25-03, router accuracy "70.7 % top-1 / 89.5 % top-3"
   (issue #12, MK-01): "The 70.7 % / 89.5 % figure is withdrawn: it is not
   reproducible from the repository."
