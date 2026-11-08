@@ -1,0 +1,21 @@
+{
+ "t0": 1793314643.045825,
+ "t1": 1793314703.142228,
+ "energy_j": 1099.9510000050068,
+ "mean_power_w": 18.303108792331148,
+ "sampled_power_w_mean": 18.315275,
+ "gpu_util_mean": 40.2,
+ "gpu_util_max": 43,
+ "compute_pids": [
+  712018
+ ],
+ "busy_python": [],
+ "n10c": "",
+ "state_end": {
+  "power_w": 18.367,
+  "sm_mhz": 210,
+  "temp_c": 37,
+  "pstate": 8,
+  "mem_used_mb": 1887.4375
+ }
+}

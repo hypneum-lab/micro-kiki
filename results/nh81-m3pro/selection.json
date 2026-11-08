@@ -1,0 +1,13 @@
+{
+ "source": "isoquality.json (M3 Pro, MLX 0.31.1 Metal)",
+ "spiking_step": 12000,
+ "spiking_val": 3.588169276714325,
+ "spiking_test": 3.6444887220859528,
+ "spiking_test_fire": 0.1378442645072937,
+ "dense_star_step": 12000,
+ "dense_star_val": 3.588420182466507,
+ "dense_star_test": 3.6371633112430573,
+ "gap_test_nats": 0.007325410842895508,
+ "iso_quality": true,
+ "iso_direction": "iso"
+}
