@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite both this repository and the parent research program's pre-registration (OSF DOI 10.17605/OSF.IO/Q6JYN)."
-title: "micro-kiki: 35 Domain-Expert LoRA Adapters with Cognitive Layer on Qwen3.5 MoE"
+title: "micro-kiki: 35 Domain-Expert LoRA Adapters with Cognitive Layer on Qwen3.6-35B-A3B MoE"
 abstract: >
   micro-kiki is a deployable 3B-active MoE-LoRA instantiation of the
   dreamOfkiki framework. It pairs 35 domain-expert LoRA adapters
@@ -15,18 +15,19 @@ authors:
   - name: "hypneum-lab contributors"
   - family-names: Saillant
     given-names: Clément
+    orcid: "https://orcid.org/0000-0002-8414-185X"
     email: clement@saillant.cc
-    affiliation: "L'Electron Rare, Grandris, France"
+    affiliation: "Hypneum Lab (L'Électron Rare), Grandris, France"
 repository-code: "https://github.com/hypneum-lab/micro-kiki"
 url: "https://github.com/hypneum-lab/micro-kiki"
-license: MIT
+license: Apache-2.0
 license-url: "https://github.com/hypneum-lab/micro-kiki/blob/main/LICENSE"
 keywords:
   - mixture of experts
   - LoRA adaptation
   - continual learning
   - MLX
-  - Qwen3.5
+  - Qwen3.6
   - domain experts
   - quantized inference
   - Q4_K_M
@@ -43,7 +44,8 @@ identifiers:
   - type: url
     value: "https://osf.io/v7a2j"
     description: "Parent research program OSF project"
-date-released: 2026-04-19
+version: 0.4.0
+date-released: 2026-11-08
 preferred-citation:
   type: unpublished
   title: "dreamOfkiki: A Substrate-Agnostic Formal Framework for Dream-Based Knowledge Consolidation in Artificial Cognitive Systems"
@@ -51,8 +53,9 @@ preferred-citation:
     - name: "dreamOfkiki project contributors"
     - family-names: Saillant
       given-names: Clément
+      orcid: "https://orcid.org/0000-0002-8414-185X"
       email: clement@saillant.cc
-      affiliation: "L'Electron Rare, Grandris, France"
+      affiliation: "Hypneum Lab (L'Électron Rare), Grandris, France"
   year: 2026
   url: "https://github.com/hypneum-lab/dream-of-kiki"
   notes: "Paper 1 draft v0.2. MIT code + CC-BY-4.0 docs. OSF pre-registration DOI 10.17605/OSF.IO/Q6JYN. arXiv preprint forthcoming."

@@ -12,6 +12,17 @@ replication (r2, r3, amendment r4), which it does not change.
 **PI decision (2026-10-30 13:39):** replicate NH-81 on a third
 platform, macM3 (M3 Pro), with IOReport, at any hour.
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `prereg-nh81-m3pro-20261030.zip`, SHA-256
+`6df4b866ed534276e4d1c6058088d49f7630c7102df018f2f5d9647dd463311d`) gives the freeze tag
+`prereg-nh81-m3pro-20261030` (commit `4b4dafd9632b1bf8e7210f6ba84e5ae420730042`,
+`swh:1:rev:4b4dafd9632b1bf8e7210f6ba84e5ae420730042`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+Restored on the default branch on 2026-11-08 from the tag; the document was
+previously only on branch `exp/nh81-kxkm-nvml`.
+
 ## 1. What is identical to the macM1 measurement
 
 * **Models and data:** the two step-12 000 checkpoints and the held-out

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Close the 5× absolute-accuracy gap between Task 14 (baseline=0.925) and Task 15.5 (baseline=0.19) by auditing every source of non-determinism, hardening the benchmark harness, and re-running dim ∈ {64, 128, 256} under identical matched conditions so the "Xx compression at Y% retention" claims become reproducible.
+**Goal:** Close the 5× absolute-accuracy gap between Task 14 (baseline=0.925) and Task 15.5 (baseline=0.19) by auditing every source of non-determinism, hardening the benchmark harness, and re-running dim ∈ {64, 128, 256} under identical matched conditions so the "Xx compression at Y% retention" claims become reproducible. [historical reference, baseline 0.925 retracted; see docs/ERRATA.md E-2026-11-08-01]
 
 **Architecture:** (1) instrumentation layer that logs every pseudo-randomness source, (2) deterministic harness that pins numpy, PyTorch, sentence-transformers, and VQC seeds, (3) matched grid sweep re-running the 3 dims with the same data split and initialization, (4) paper update to replace budget-dependent caveat with a single comparable table.
 
@@ -26,7 +26,7 @@
 
 **Success criteria:**
 - `diff <(run --seed 0) <(run --seed 0)` produces zero differences for all JSON fields (floats within 1e-6).
-- Across the 3 dims, the table uses a single consistent baseline accuracy per run (not 2 different baselines at 0.925 vs 0.19).
+- Across the 3 dims, the table uses a single consistent baseline accuracy per run (not 2 different baselines at 0.925 vs 0.19). [historical reference, baseline 0.925 retracted; see docs/ERRATA.md E-2026-11-08-01]
 - Absolute `retention_ratio = text_jepa_acc / baseline_acc` reported with 95% CI (bootstrap over N=100 test samples).
 
 **Kill criteria:**
@@ -621,7 +621,7 @@ The Configurator path is validated on real conversational embeddings. Table 3 re
 | **Text-JEPA** | **128** | **3.0×** | **<FILL>** | **<FILL>%** |
 | **Text-JEPA** | **64**  | **6.0×** | **<FILL>** | **<FILL>%** |
 
-The matched-grid protocol (seeded data split + cached baseline embeddings + deterministic VQC init) resolves the reproducibility gap between earlier runs (Task 14 at 0.925 baseline, Task 15.5 at 0.19 baseline): both earlier runs used the same command but differed in un-seeded randomness sources. All four numbers here are apples-to-apples.
+The matched-grid protocol (seeded data split + cached baseline embeddings + deterministic VQC init) resolves the reproducibility gap between earlier runs (Task 14 at 0.925 baseline, Task 15.5 at 0.19 baseline): both earlier runs used the same command but differed in un-seeded randomness sources. All four numbers here are apples-to-apples. [historical reference, baseline 0.925 retracted; see docs/ERRATA.md E-2026-11-08-01]
 ```
 
 Replace the `<FILL>` placeholders with actual numbers from the JSON.

@@ -27,7 +27,7 @@
 
 ### 2.1 MoE-LoRA Systems
 - MixLoRA (TUDB-Labs) — MoE LoRA in FFN blocks
-- MoLA (NAACL 2025) — layer-wise LoRA expert allocation
+- MoLA (Findings of NAACL 2025; arXiv:2402.08562) — layer-wise LoRA expert allocation
 - HMoRA — hierarchical token+task routing
 - **Gap**: none add cognitive memory or SNN/quantum routing
 

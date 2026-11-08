@@ -42,7 +42,7 @@ convergence per epoch thanks to the compressed latent space — but the correct 
 
 For reference, Task 14 at VQC epochs=10 on 50 samples/domain achieved baseline=0.925 and
 text_jepa=0.900 — so at full VQC convergence the baseline is actually slightly ahead. The
-ablation here measures *VQC-budget efficiency*, not asymptotic accuracy.
+ablation here measures *VQC-budget efficiency*, not asymptotic accuracy. [historical reference, baseline 0.925 retracted; see docs/ERRATA.md E-2026-11-08-01]
 
 ### Accuracy is flat across dims (0.180 → 0.185 → 0.190)
 

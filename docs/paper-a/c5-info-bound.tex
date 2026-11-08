@@ -97,11 +97,13 @@ The bound~\eqref{eq:bound} is necessary, not sufficient. Reaching
 $\mathrm{acc}_\mathrm{max}$ requires (i) a projection $\pi_\theta$ that
 preserves all the class-relevant information in $X$, and (ii) a circuit +
 measurement that achieves the Holevo cap. Neither is automatic: the naive
-$\pi \tanh$ projection saturates and destroys signal, and the expressivity of
-\texttt{StronglyEntanglingLayers} with $\langle Z \rangle$ measurement is
-bounded by MPS bond-dimension-equivalent results (Du et al.~\cite{du2020expressive},
-Theorem 4: deep circuits with bond dimension $D$ are covered by
-$\mathcal{O}(\mathrm{poly}(\log D))$ Pauli-$Z$ expectation-value blocks). Since
+$\pi \tanh$ projection saturates and destroys signal, and we know of no
+published bound on the expressivity of \texttt{StronglyEntanglingLayers} with
+$\langle Z \rangle$ measurement for classification
+% Du et al. 2020 (PRR 2:033125): Lemma 1 p. 6; Theorem 4 (IQP), App. C p. 13.
+(Du et al.~\cite{du2020expressive} relate multilayer circuits to MPS bond
+dimensions in their Lemma~1, for generative models, but do not analyse this
+ansatz; their Theorem~4 concerns IQP circuits). Since
 no valid ceiling has been established for this configuration (erratum above),
 the gap between our measured $0.246$ and the information-theoretic limit cannot
 currently be quantified: the Holevo term is inactive at $N = 4$, $K = 10$, and

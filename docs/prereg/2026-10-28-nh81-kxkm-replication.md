@@ -19,6 +19,17 @@ preregistered NVML replication decides whether it becomes definitive
 decision "withdraw, provisional (IOReport)"
 (`docs/results/2026-10-25-nh81-joules.md`).
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `prereg-nh81-kxkm-20261030-r4.zip`, SHA-256
+`09efab1c216925883dc927024950f7c8917cb3820f1d74a1c69669cef843679b`) gives the freeze tag
+`prereg-nh81-kxkm-20261030-r4` (commit `979771f0cf1f061ad906d8e420bad0664da9c5a0`,
+`swh:1:rev:979771f0cf1f061ad906d8e420bad0664da9c5a0`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+Restored on the default branch on 2026-11-08 from the tag; the document was
+previously only on branch `exp/nh81-kxkm-nvml`.
+
 Everything not stated below is inherited unchanged from the parent
 preregistration: hypothesis and estimand (section 1), iso-quality rule
 (section 3), workloads W1/W2 and spiking paths fused/event (section 4),

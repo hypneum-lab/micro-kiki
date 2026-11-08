@@ -558,7 +558,7 @@ Les resultats de conversion LAS a grande echelle et les benchmarks sur hardware 
 
 [6] OPLoRA (2025). Orthogonal Projection for Low-Rank Adaptation. *arXiv preprint* arXiv:2510.13003.
 
-[7] Aeon Memory (2026). Neuro-Symbolic Episodic Memory with Sleep Consolidation. *arXiv preprint* arXiv:2601.15311.
+[7] Arslan, M. (2026). Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents. *arXiv preprint* arXiv:2601.15311.
 
 [8] CAMP (2026). Cognitive Arbitration for Multi-Perspective Output. *arXiv preprint* arXiv:2604.00085.
 
@@ -568,13 +568,13 @@ Les resultats de conversion LAS a grande echelle et les benchmarks sur hardware 
 
 [11] RBD (2025). Runtime Bias Detection for Language Model Inference. *arXiv preprint* arXiv:2505.17100.
 
-[12] Gao, Z., et al. (2025). MoLA: Higher Layers Need More LoRA Experts. *Proceedings of NAACL 2025*.
+[12] Gao, C., Chen, K., Rao, J., Sun, B., Liu, R., et al. (2024). Higher Layers Need More LoRA Experts. arXiv:2402.08562. Published as "MoLA: MoE LoRA with Layer-wise Expert Allocation", *Findings of the Association for Computational Linguistics: NAACL 2025*. doi:10.18653/v1/2025.findings-naacl.284.
 
 [13] Assran, M., Bardes, A., Fan, D., Garrido, Q., Howes, R., et al. (2025). V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning. *arXiv preprint* arXiv:2506.09985.
 
 [14] Balestriero, R., & LeCun, Y. (2025). LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics. *arXiv preprint* arXiv:2511.08544.
 
-[15] LeCun, Y. (2022). A Path Towards Autonomous Machine Intelligence. *Open Review* (Version 0.9.2, June 2022).
+[15] LeCun, Y. (2022). A Path Towards Autonomous Machine Intelligence. *Open Review* (Version 0.9.2, June 2022) https://openreview.net/forum?id=BZ5a1r-kVsf
 
 [16] Simeoni, O., Vo, H. V., Seitzer, M., Baldassarre, F., Oquab, M., et al. (2025). DINOv3. *arXiv preprint* arXiv:2508.10104.
 

@@ -6,11 +6,14 @@
 
 ---
 
+> **Erratum 2026-11-08 (E-2026-11-08-01):** the Text-JEPA/VQC figures 0.925 → 0.900 (97 %) below are retracted; see docs/ERRATA.md
+
+
 ## 1. Motivation for the reframe
 
 Le plan initial (`paper-outline-triple-hybrid.md`) positionnait micro-kiki comme "First hybrid quantum-neuromorphic-classical routing for domain-expert LLM inference". Trois raisons de pivoter :
 
-1. **Cadre théorique plus solide**. LeCun's "A Path Towards Autonomous Machine Intelligence" (arXiv:2206.15331, 2022) fournit un cadre modulaire (7 modules) où nos composants se rangent naturellement. La communauté AMI/JEPA (I-JEPA, V-JEPA 2, LeJEPA/SIGReg arXiv:2511.08544) cherche précisément des implémentations concrètes du Module 7.
+1. **Cadre théorique plus solide**. LeCun's "A Path Towards Autonomous Machine Intelligence" (OpenReview, 2022) fournit un cadre modulaire (7 modules) où nos composants se rangent naturellement. La communauté AMI/JEPA (I-JEPA, V-JEPA 2, LeJEPA/SIGReg arXiv:2511.08544) cherche précisément des implémentations concrètes du Module 7.
 
 2. **Les résultats empiriques orientent le framing**. Le PoC B v2 (`2026-04-17-aeon-predictor-poc-alpha.md`) a prouvé que centrage DinoV3 + rollback produit +22 % MRR sur flux structurés (condition D), mais que stack-conditioning est fragile sous centrage (0 % win_stack D, 1 % E). La contribution principale n'est donc pas "quantum router" mais **working memory JEPA-alignée avec garde-fous runtime**.
 
@@ -18,7 +21,7 @@ Le plan initial (`paper-outline-triple-hybrid.md`) positionnait micro-kiki comme
 
 ## 2. New thesis
 
-**Aeon is a candidate implementation of the Short-Term Memory module (Module 7) in LeCun's Autonomous Machine Intelligence architecture, built on JEPA-aligned principles: it predicts latent successor states via a numpy MLP, applies runtime anti-collapse mechanisms (DinoV3-style centering as the default; LayerNorm(delta) as the stack-preserving alternative), and detects representational collapse via a deterministic std-ratio tripwire that triggers weight rollback.** We demonstrate three aligned findings: (1) centering delivers +22 % MRR on structured streams without adding runtime cost (< 1 MB weights, < 2 s training per 1000 turns on M5); (2) LayerNorm(delta)-based anti-collapse preserves stack-conditioning signal (59% win_stack at 300 epochs, 0.447 predictive_mrr vs 0.090 null_mrr, condition L2); (3) Text-JEPA compression of the Configurator embedding achieves 3× compression (384→128 dims) while retaining 97% VQC routing accuracy (0.925 → 0.900). Together, these mechanisms form the AMI Module 7 substrate: working memory with anti-collapse robustness, stack-conditioning compatibility, and signal-compressible routing.
+**Aeon is a candidate implementation of the Short-Term Memory module (Module 7) in LeCun's Autonomous Machine Intelligence architecture, built on JEPA-aligned principles: it predicts latent successor states via a numpy MLP, applies runtime anti-collapse mechanisms (DinoV3-style centering as the default; LayerNorm(delta) as the stack-preserving alternative), and detects representational collapse via a deterministic std-ratio tripwire that triggers weight rollback.** We demonstrate three aligned findings: (1) centering delivers +22 % MRR on structured streams without adding runtime cost (< 1 MB weights, < 2 s training per 1000 turns on M5); (2) LayerNorm(delta)-based anti-collapse preserves stack-conditioning signal (59% win_stack at 300 epochs, 0.447 predictive_mrr vs 0.090 null_mrr, condition L2); (3) Text-JEPA compression of the Configurator embedding achieves 3× compression (384→128 dims) while retaining 97% VQC routing accuracy (0.925 → 0.900). Together, these mechanisms form the AMI Module 7 substrate: working memory with anti-collapse robustness, stack-conditioning compatibility, and signal-compressible routing. [retracted, E-2026-11-08-01]
 
 **Ce que nous NE revendiquons PAS** : (a) implémentation AMI complète — Module 7 seul, pas de Perception / World Model / Cost / Critic / Actor bouclés en feedback ; (b) world model génératif — transition latente, pas observation ou token ; (c) planification multi-étapes — horizon = 1 ; (d) validation complète quantique / neuromorphique — VQC + Text-JEPA Configurator mentionnés comme composants intégrés hors-scope ici, spin-off à Paper B ; (e) comparaison en production contre competitors — tous les expériments sur données synthétiques et conversationnelles, disclosed.
 
@@ -26,7 +29,7 @@ Le plan initial (`paper-outline-triple-hybrid.md`) positionnait micro-kiki comme
 
 | AMI module | micro-kiki component | Claim strength | Notes |
 |------------|----------------------|----------------|-------|
-| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + Text-JEPA compression | **Strong** | VQC: 86.8 % val_acc unbalanced, 53 % balanced. Text-JEPA: 3× compression (384→128 dims) retains 97% routing accuracy (0.925 → 0.900 on 10-domain classification). This is the Configurator path of AMI Module 1 in full pipeline. |
+| **1. Configurator** | VQC router (6 qubits, 35 classes, ~180 params) + Text-JEPA compression | **Strong** | VQC: 86.8 % val_acc unbalanced, 53 % balanced. Text-JEPA: 3× compression (384→128 dims) retains 97% routing accuracy (0.925 → 0.900 on 10-domain classification). This is the Configurator path of AMI Module 1 in full pipeline.  [retracted, E-2026-11-08-01] |
 | **2. Perception** | n/a | **None** | Pas d'environnement externe ; entrées sont directement des embeddings texte (MiniLM-L6) |
 | **3. World Model** | Aeon LatentMLP (h_t → h_{t+1}) | **Partial** | Prédit transitions latentes 1-pas, pas dynamique complète du monde |
 | **4. Cost** | CAMP judge (arXiv:2604.00085) | **Partial** | Évaluation post-hoc ; pas de feedback d'apprentissage bouclé |
@@ -39,10 +42,10 @@ Le papier se concentre sur les lignes 1 (compressed) et 7 (working memory). Les 
 ## 4. Section-by-section outline
 
 ### §1 Introduction
-LeCun's AMI framework and the open question of concrete Module 7 implementations for text/dialogue. JEPA successes in vision vs. the gap for symbolic state. Thesis statement (§2). *Draws from*: PoC B α §1–§2, arXiv:2206.15331, arXiv:2511.08544.
+LeCun's AMI framework and the open question of concrete Module 7 implementations for text/dialogue. JEPA successes in vision vs. the gap for symbolic state. Thesis statement (§2). *Draws from*: PoC B α §1–§2, LeCun 2022 (OpenReview), arXiv:2511.08544.
 
 ### §2 Related Work
-JEPA family (I-JEPA, V-JEPA 2, LeJEPA/SIGReg) ; generative world models contrast (DreamerV3 arXiv:2301.04104, TD-MPC2 arXiv:2410.16662) ; DINO self-distillation (DINO/v2/v3, arXiv:2104.14294 / 2304.07193 / 2508.10104) ; memory-augmented LMs (MemGPT arXiv:2310.08560, Larimar arXiv:2403.11901, RETRO arXiv:2112.04426). *Draws from*: `related-work-aeon-predictor.md` (104 lines, directly reusable).
+JEPA family (I-JEPA, V-JEPA 2, LeJEPA/SIGReg) ; generative world models contrast (DreamerV3 arXiv:2301.04104, TD-MPC2 arXiv:2310.16828) ; DINO self-distillation (DINO/v2/v3, arXiv:2104.14294 / 2304.07193 / 2508.10104) ; memory-augmented LMs (MemGPT arXiv:2310.08560, Larimar arXiv:2403.11901, RETRO arXiv:2112.04426). *Draws from*: `related-work-aeon-predictor.md` (104 lines, directly reusable).
 
 ### §3 Aeon Architecture
 Substrate (Atlas SIMD + Trace NetworkX) ; LatentMLP 384→256→384 numpy cosine loss (< 1 MB) ; DinoV3-style centering (stateless, no EMA) ; collapse detector + weight rollback (runtime safety) ; cold-start fallback (identity below 500 pairs). *Draws from*: `src/memory/aeon_predictor.py`, PoC B α §2.
@@ -53,7 +56,7 @@ Synthetic streams (random-walk + stack-structured), 1000 turns, 100 held-out que
 ### §5 Results
 - **5.1 Centering delivers anti-collapse** — condition D MRR 0.413 → 0.498 (+22 %), E stabilizes at 0.500. Tested on structured streams (saturation regime).
 - **5.2 LayerNorm(delta) restores stack signal** — condition L2 at 300 epochs: win_stack = 59%, predictive_mrr 0.447 vs null_mrr 0.090. Per-sample normalization of residual preserves stack-specific offsets that running-mean centering destroys.
-- **5.3 Text-JEPA validates Configurator compression** — 3× compression (384→128) retains 97% VQC routing accuracy (0.925 → 0.900 on 10-domain classification). Real conversational embeddings.
+- **5.3 Text-JEPA validates Configurator compression** — 3× compression (384→128) retains 97% VQC routing accuracy (0.925 → 0.900 on 10-domain classification). Real conversational embeddings. [retracted, E-2026-11-08-01]
 - **5.4 Centering harms on random-walk** — A–B MRR 0.263 → 0.228 ; bounds claim to saturation regime. Disclosed.
 - **5.5 Rollback activation** — Unit test + deterministic collapse detection; telemetry from long-run PoC B v2.
 - **5.6 Cross-session persistence** — AeonSleep: 36 recalls / 14 turns vs 0 for raw LLM.
@@ -75,7 +78,7 @@ A. Test coverage (33 tests) ; B. Compute budget (M5, ~2 s / 1000 turns, no GPU) 
 |---------|----------|----------|
 | Centering delivers +22 % MRR on structured streams | Condition D vs baseline, MRR 0.413 → 0.498 | **Strong** |
 | LayerNorm(delta) stack preservation | Condition L2 at 300 epochs: win_stack = 59%, predictive_mrr 0.447 vs null_mrr 0.090. Per-sample normalization of residual delta preserves stack-specific offsets. | **Strong** |
-| Text-JEPA compression validates Configurator path | 3× embedding compression (384→128 dims) retains 97% VQC routing accuracy (baseline 0.925, Text-JEPA 0.900 on 10-domain classification). | **Strong** |
+| Text-JEPA compression validates Configurator path | 3× embedding compression (384→128 dims) retains 97% VQC routing accuracy (baseline 0.925, Text-JEPA 0.900 on 10-domain classification). | **Strong**  [retracted, E-2026-11-08-01] |
 | Rollback on std-collapse works deterministically | Unit test `test_collapse_detector_triggers` | **Strong** |
 | 100K-param numpy deployment feasible | Code size + < 1 MB weights, runtime measured on M5 | **Strong** |
 | Cross-session memory via AeonSleep | AeonSleep existing design, 36 recalls / 14 turns | **Strong** |

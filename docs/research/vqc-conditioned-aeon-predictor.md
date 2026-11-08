@@ -16,7 +16,7 @@ Le PoC B v2 a empiriquement démontré deux choses sur l'`AeonPredictor` conditi
 
 L'hypothèse opérationnelle : le signal de conditionnement sparse (1 coordonnée active sur `n_stacks=16`) est **trop pauvre** pour coexister avec un mécanisme de centrage agressif. De plus, un `stack_id` discret n'a aucune structure de similarité — le predictor ne peut pas exploiter le fait que `stack-stm32`, `stack-embedded`, et `stack-platformio` partagent une dynamique latente commune.
 
-**Direction D** propose de remplacer le one-hot par la **distribution soft** (probabilités post-softmax) du VQC router. Ce signal est dense (toutes les coordonnées sont non-nulles), structuré (les domaines sémantiquement proches reçoivent des probabilités proches), et aligné avec le module Configurator de l'architecture AMI de LeCun (arXiv:2206.15331, §3.4). Cela ouvre deux gains :
+**Direction D** propose de remplacer le one-hot par la **distribution soft** (probabilités post-softmax) du VQC router. Ce signal est dense (toutes les coordonnées sont non-nulles), structuré (les domaines sémantiquement proches reçoivent des probabilités proches), et aligné avec le module Configurator de l'architecture AMI de LeCun (OpenReview 2022, §3.4). Cela ouvre deux gains :
 
 - **Robustesse au centrage** : un vecteur dense perd moins de signal qu'un one-hot quand on lui soustrait une moyenne courante.
 - **Transfert inter-domaines** : le predictor apprend une dynamique par *cluster* de domaines, pas par identité unique.

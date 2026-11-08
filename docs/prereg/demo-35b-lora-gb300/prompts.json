@@ -1,0 +1,183 @@
+{
+ "source": "scripts/benchmark_base_vs_lora.py, DOMAIN_PROMPTS, commit 5d36ae0, first 3 prompts per domain, verbatim",
+ "domains": [
+  "chat-fr",
+  "python",
+  "cpp",
+  "rust",
+  "kicad-dsl",
+  "spice",
+  "embedded",
+  "power"
+ ],
+ "prompts": [
+  {
+   "id": "chat-fr-0",
+   "domain": "chat-fr",
+   "source_index": 0,
+   "text": "Explique de manière accessible la différence entre l'intelligence artificielle générative et discriminative, avec un exemple concret pour chaque type.",
+   "text_sha256": "b5ec381f58afc55868cdc96771494b49972cff4fdb92f32fdc1b47ac1433987d"
+  },
+  {
+   "id": "chat-fr-1",
+   "domain": "chat-fr",
+   "source_index": 1,
+   "text": "Rédige un email professionnel pour demander un report de réunion en préservant un ton courtois et en proposant deux créneaux alternatifs.",
+   "text_sha256": "926ace1602e838decdce64c8f62a3fcfaed46ff66f8435f69cf98d2aca962e3d"
+  },
+  {
+   "id": "chat-fr-2",
+   "domain": "chat-fr",
+   "source_index": 2,
+   "text": "Comment expliquer le concept de 'prompt engineering' à un chef de projet non-technique ? Donne une analogie claire.",
+   "text_sha256": "dd6ee62f3cfc6fb2612e8338691b42fef7ab6708d159a0461e58652725156244"
+  },
+  {
+   "id": "python-0",
+   "domain": "python",
+   "source_index": 0,
+   "text": "Write a Python context manager that wraps a `sqlite3` connection: commits on success, rolls back on exception, and ensures the connection is closed.",
+   "text_sha256": "9e6475e51c711b51b27ee9d9bd487d07d4771c20bde4f9fb7396dc8ba04e713b"
+  },
+  {
+   "id": "python-1",
+   "domain": "python",
+   "source_index": 1,
+   "text": "Implement a generic `LRUCache` class using `collections.OrderedDict` with `get(key)` and `put(key, value)` in O(1) time.",
+   "text_sha256": "c9ba569764c07b10d533d33628012cedffdb382dde2c0582b871865f12ac902e"
+  },
+  {
+   "id": "python-2",
+   "domain": "python",
+   "source_index": 2,
+   "text": "Explain Python's GIL: why does it exist, when does it NOT prevent parallelism (I/O bound vs CPU bound), and how does `multiprocessing` work around it?",
+   "text_sha256": "5b9cf56f03d1c4f101388e34059456354ebe0930e74335f1c00ccc119658ce73"
+  },
+  {
+   "id": "cpp-0",
+   "domain": "cpp",
+   "source_index": 0,
+   "text": "Implement a thread-safe `ObjectPool<T>` in C++17 using `std::mutex`, `std::condition_variable`, and move semantics, with `acquire()` blocking when the pool is empty.",
+   "text_sha256": "c2dd9d1b7642fb8cf8178cf161afdd63a93804f329c38b257fde5e7f53dfc030"
+  },
+  {
+   "id": "cpp-1",
+   "domain": "cpp",
+   "source_index": 1,
+   "text": "Explain the Rule of Five in C++11: copy constructor, copy assignment, move constructor, move assignment, destructor. When is it necessary vs the Rule of Zero?",
+   "text_sha256": "4c55243c8eca7bec6a029039e064a910c41203f0fc257c7cf79035d4ee5a0bca"
+  },
+  {
+   "id": "cpp-2",
+   "domain": "cpp",
+   "source_index": 2,
+   "text": "Write a variadic template `type_list` that supports `type_list::get<N>`, `type_list::size`, and `type_list::contains<T>` at compile time (C++17).",
+   "text_sha256": "d80afe84dccabe4737fdc9bb412e34b1e3186874ce53fb1608c21db40a85afef"
+  },
+  {
+   "id": "rust-0",
+   "domain": "rust",
+   "source_index": 0,
+   "text": "Implement a lock-free MPSC queue in Rust using `std::sync::atomic` and `Arc<AtomicPtr<Node<T>>>`. Explain the memory ordering choices.",
+   "text_sha256": "29b869362eeb83a8bc1bb5edc378784d34847f7ad0f6c070b70c15f8a51cf2ca"
+  },
+  {
+   "id": "rust-1",
+   "domain": "rust",
+   "source_index": 1,
+   "text": "Explain Rust's borrow checker rules: why can't you have a mutable reference while an immutable reference is alive? Give an example that compiles and one that doesn't.",
+   "text_sha256": "4113b515736d6ea31dfbdb99786d7b2ee46e44d16e13176c3701554aeb9f9a3d"
+  },
+  {
+   "id": "rust-2",
+   "domain": "rust",
+   "source_index": 2,
+   "text": "Write a Rust procedural macro `#[derive(Builder)]` that generates a builder pattern struct for any struct with named fields.",
+   "text_sha256": "cfec01bb41cc29dc79db54f117b580ec7f01da019708a63a54e50d2a98e87a98"
+  },
+  {
+   "id": "kicad-dsl-0",
+   "domain": "kicad-dsl",
+   "source_index": 0,
+   "text": "Write a KiCad schematic symbol DSL definition for a 16-pin STM32F103C8T6. Include pin types (power, I/O, bidirectional) and multi-unit split.",
+   "text_sha256": "564a6f83d7713035bddb5c4b8a93fbf835542bea3032ad8d05486591a5ef6924"
+  },
+  {
+   "id": "kicad-dsl-1",
+   "domain": "kicad-dsl",
+   "source_index": 1,
+   "text": "In KiCad 8 footprint scripting (Python API), write a function that creates a THT resistor footprint from pitch, pad_size, and drill parameters.",
+   "text_sha256": "82dc0a249c845bada91e5fcf4e16bbd990b80133aa40e8bce6d6633803e5dc3c"
+  },
+  {
+   "id": "kicad-dsl-2",
+   "domain": "kicad-dsl",
+   "source_index": 2,
+   "text": "Explain the difference between `B.Cu`, `In1.Cu`, and `F.Mask` layer meanings in a KiCad PCB file (.kicad_pcb) and when each is referenced in an s-expression.",
+   "text_sha256": "fd9faca6472ad155682390674da333c50ea22e27e52f6820d83baf10c4f42107"
+  },
+  {
+   "id": "spice-0",
+   "domain": "spice",
+   "source_index": 0,
+   "text": "Write a SPICE netlist for a non-inverting op-amp with gain 10 using TL071, with AC analysis from 1 Hz to 10 MHz and .MEASURE to extract -3 dB bandwidth.",
+   "text_sha256": "b64bcc4ad1e1e077ae1780b0894f8e7fb9fa9d82c0d93d1902a2332d97b1375a"
+  },
+  {
+   "id": "spice-1",
+   "domain": "spice",
+   "source_index": 1,
+   "text": "Explain the difference between SPICE `.TRAN`, `.AC`, `.DC`, and `.NOISE` analyses, including what each sweeps and what it outputs.",
+   "text_sha256": "55f36bae1c240c40fdc50b3b1dc30b6a5887961bcd9bd302bd31a47b19e84285"
+  },
+  {
+   "id": "spice-2",
+   "domain": "spice",
+   "source_index": 2,
+   "text": "In ngspice, write a behavioral voltage source using B-elements that models a PWM signal with variable duty cycle controlled by a voltage V(ctrl).",
+   "text_sha256": "0b305b37e2eac7604c61489dcf394bf03c6a5cf474a87534e0d22f97ef2fb67c"
+  },
+  {
+   "id": "embedded-0",
+   "domain": "embedded",
+   "source_index": 0,
+   "text": "Write an interrupt-safe ring buffer in C for bare-metal ARM Cortex-M, ensuring head/tail pointer updates are atomic using `__disable_irq()` and `__enable_irq()` critical sections.",
+   "text_sha256": "c8169a92023d29b51e724bf419bc7397d64a19ea7a1301a9b91ff7c6cafde423"
+  },
+  {
+   "id": "embedded-1",
+   "domain": "embedded",
+   "source_index": 1,
+   "text": "Explain the startup sequence of a bare-metal ARM Cortex-M4: from reset vector fetch through stack pointer load, `.data` copy, `.bss` zero-fill, to `main()` call.",
+   "text_sha256": "89e0d9632e1fd72a19a843de926ac59140d20cce11a6d68dad90ae5bbfcaf6d5"
+  },
+  {
+   "id": "embedded-2",
+   "domain": "embedded",
+   "source_index": 2,
+   "text": "A Cortex-M hard fault handler must preserve crash context. Write the assembly stub that saves EXC_RETURN, r0-r3, r12, lr, pc, xpsr into a struct and calls a C fault logger.",
+   "text_sha256": "dcc69b2e5243d6c2af6f357005c79681d90c6ddb6933b89ad1b292d0f80c3612"
+  },
+  {
+   "id": "power-0",
+   "domain": "power",
+   "source_index": 0,
+   "text": "Design a synchronous buck converter for 12V→3.3V at 5A, 400 kHz. Calculate the inductor value, output capacitor ESR requirement, and peak-to-peak ripple current.",
+   "text_sha256": "7cff55f7ed8572b75079c880141455a53675ab9a93de41e35ef5a1944cd08860"
+  },
+  {
+   "id": "power-1",
+   "domain": "power",
+   "source_index": 1,
+   "text": "A flyback converter has Np:Ns=8:1, Vin=48V, Vout=5V, Iout=2A, f=100kHz. Calculate the transformer AL value needed, peak flux density, and duty cycle.",
+   "text_sha256": "cf6a93cad6616f15de1a49141ff5fd5ee11f0db06d0bb883c8d2f124c1573bb2"
+  },
+  {
+   "id": "power-2",
+   "domain": "power",
+   "source_index": 2,
+   "text": "Explain the differences between CCM, DCM, and BCM in a boost converter: which mode has lower peak current, which has simpler control loop?",
+   "text_sha256": "ae4cea1b75fcd09881f2a6fc6a137336b09bf8d85b27f1456e261f04bc74fbd6"
+  }
+ ]
+}
