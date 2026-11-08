@@ -9,6 +9,15 @@ Frozen NH-81 measurement code, exported unchanged by the launchers:
 `experiments/nh81_joules` at tag `prereg-nh81-m3pro-20261030`
 (commit `4b4dafd`), git tree `d1b67e6ea1f1d6c7064ac8a9bea59152de00101c`.
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `nh81-gb300-freeze-20261031b.zip`, SHA-256
+`095353244acaa8e70d33c3132cbc8740d67c979df4a27e8bf8b2e76a68427724`) gives the freeze tag
+`nh81-gb300-freeze-20261031b` (commit `185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`,
+`swh:1:rev:185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+
 ## Files (SHA-256)
 
 ```
