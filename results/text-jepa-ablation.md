@@ -40,7 +40,7 @@ The Text-JEPA students are all 2x above chance at epoch=2, which is genuinely be
 convergence per epoch thanks to the compressed latent space — but the correct reading is *not*
 "JEPA doubles accuracy", it is "JEPA converges faster under the same VQC budget".
 
-For reference, Task 14 at VQC epochs=10 on 50 samples/domain achieved baseline=0.925 and
+For reference, Task 14 at VQC epochs=10 on 50 samples/domain achieved baseline=0.925 and [historical reference, baseline 0.925 retracted; see docs/ERRATA.md E-2026-11-08-01]
 text_jepa=0.900 — so at full VQC convergence the baseline is actually slightly ahead. The
 ablation here measures *VQC-budget efficiency*, not asymptotic accuracy.
 

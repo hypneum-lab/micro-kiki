@@ -1,3 +1,6 @@
+
+> **Erratum 2026-11-08 (E-2026-11-08-01):** the Text-JEPA/VQC figures 0.925 → 0.900 (97 %) below are retracted; see docs/ERRATA.md
+
 # Text-JEPA mini VQC router — PoC results
 
 **Date:** 2026-04-18  
@@ -13,10 +16,10 @@
 
 | Condition   | Embedding dim | VQC test accuracy | VQC params |
 |-------------|---------------|-------------------|------------|
-| Baseline    | 384           | 0.925             | 20         |
-| Text-JEPA   | 128           | 0.900             | 20         |
+| Baseline    | 384           | 0.925             | 20         | [retracted, E-2026-11-08-01]
+| Text-JEPA   | 128           | 0.900             | 20         | [retracted, E-2026-11-08-01]
 
-**Compression ratio:** 3× smaller latent (128 vs 384) with **97% accuracy retention** (0.900 / 0.925).
+**Compression ratio:** 3× smaller latent (128 vs 384) with **97% accuracy retention** (0.900 / 0.925). [retracted, E-2026-11-08-01]
 
 ## Training curve
 
@@ -32,7 +35,7 @@ Loss decreased monotonically across all 3 epochs (0.3491 → 0.3309 → 0.3199) 
 
 - [X] **Success**: Text-JEPA ≥ baseline − 2.5 pt at 3× smaller latent → **proceed to ablation (Task 15)**
 
-Text-JEPA achieved 97% of baseline accuracy (0.900 vs 0.925) with 1/3 the embedding dimension. This is a strong result indicating successful dimensionality reduction via the student encoder while preserving downstream task performance on VQC domain classification.
+Text-JEPA achieved 97% of baseline accuracy (0.900 vs 0.925) with 1/3 the embedding dimension. This is a strong result indicating successful dimensionality reduction via the student encoder while preserving downstream task performance on VQC domain classification. [retracted, E-2026-11-08-01]
 
 ## Notes
 
@@ -74,13 +77,13 @@ Budget-constrained sweep (see caveat below):
 | 256        | 164,864        | 0.190        | 1.5×        | no        |
 | baseline 384 | n/a          | 0.095        | 1×          | n/a       |
 
-**Caveat**: this ablation was run with `--vqc-epochs 2` (budget-constrained), where baseline was at chance-level. At full VQC budget (Task 14, `--vqc-epochs 10`), baseline reached 0.925 and dim=128 reached 0.900.
+**Caveat**: this ablation was run with `--vqc-epochs 2` (budget-constrained), where baseline was at chance-level. At full VQC budget (Task 14, `--vqc-epochs 10`), baseline reached 0.925 and dim=128 reached 0.900. [retracted, E-2026-11-08-01]
 
 **Interpretation**: All Text-JEPA dims converge 2× above chance at a budget where the baseline stays at chance. This suggests Text-JEPA embeddings are more VQC-learnable, but **absolute accuracy at dim=64 vs dim=128 at full VQC budget is still open**. Task 15.5 (dim=64 full-budget validation) is running to close this question.
 
 ## Final verdict (Task 16, 2026-04-19)
 
-- [X] **Success** (Task 14 at full VQC budget): 3× compression at 97% retention (0.900 vs 0.925)
+- [X] **Success** (Task 14 at full VQC budget): 3× compression at 97% retention (0.900 vs 0.925) [retracted, E-2026-11-08-01]
 - [ ] **Further validation pending** (Task 15.5): dim=64 full-budget test to confirm 6× compression claim
 - [X] **Regression suite**: 40 tests passed, 8 skipped (torch-dependent) — no breakage from Tasks 1-15
 
