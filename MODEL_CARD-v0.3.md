@@ -73,7 +73,7 @@ Not intended for production deployment without further validation.
 
 ```bibtex
 @misc{spikingkiki2026,
-  title={SpikingKiki: Energy-Efficient LLM Inference via Lossless ANN-to-SNN Conversion},
+  title={SpikingKiki: LLM Inference via Lossless ANN-to-SNN Conversion},
   author={L'Electron Rare},
   year={2026},
   url={https://github.com/electron-rare/micro-kiki}
