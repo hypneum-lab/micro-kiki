@@ -2,7 +2,7 @@
 
 ## [0.4.0] — 2026-11-08
 
-Covers `v0.3.0..main` (223 commits, 28 merged pull requests; most commits
+Covers `v0.3.0..main` (223 commits, 29 merged pull requests; most commits
 landed directly on `main`, so entries without a PR number cite commit
 subjects). Scientific statements below are quoted from files in this
 repository; follow the links for scope, limits and caveats. Nothing here
@@ -48,6 +48,7 @@ is a new result unless it links to a committed artifact.
   work and limits, literature actions of 2026-10-23, Makefile for the
   LaTeX build (#7, #9).
 - `docs/ERRATA.md`: dated errata log (see Docs).
+- `CONTRIBUTING.md` and GitHub issue / pull request templates (#36).
 - Declarations: AI-assistance note and CONTRIBUTORS pointer (#21, #22),
   author ORCID in `CITATION.cff` (#20), CC BY 4.0 for docs (#29).
 
