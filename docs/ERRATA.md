@@ -200,3 +200,48 @@ spice-sim → spice) as a withdrawn variant; the previously printed merge list
 `--mode eval` JSON on a committed (or hashed) validation split, and report
 both protocols side by side. MK-01 in the master table stays "non concluant
 (provenance)" until then; the row's measured value is 46.4 / 69.6.
+
+---
+
+## E-2026-11-08-01 — Text-JEPA "97 % retention at 3x compression" (0.925 -> 0.900) (master table MK-20)
+
+**Claim as published.** "3x embedding compression (384 -> 128 dims) retains
+97 % of VQC routing accuracy (baseline 0.925, Text-JEPA 0.900) on a 10-domain
+classification", with a 10-class VQC test set of 80 samples.
+
+**Where.** `results/text-jepa-vqc.md` (lines 16-19) and
+`results/text-jepa-vqc.json` (Task 14); `docs/papers/paper-a-draft-v1.md`
+(lines 12, 36, 115, 165, 177-184, 221, 255, 275, 348) and its French twin
+`docs/papers/paper-a-draft-v1-fr.md` (lines 14, 38, 117, 167, 179-186, 223,
+257, 277, 350); `docs/papers/paper-a-reframe-aeon-ami.md` (lines 21, 29, 56,
+78) and `-fr.md` (lines 23, 31, 58, 80); `docs/SESSION-2026-04-19-INDEX.md`
+(lines 86, 96). Master table row MK-20 of the 2026-11-06 catalogue v3:
+"retracted".
+
+**What is true.** The 0.925 baseline is not reproducible: on identical code
+and data a rigorous torch VQC loop gives about 0.20 on the reconstructed
+Task 14 configuration and 0.08 +/- 0.03 at 4 qubits on 10 classes (chance is
+0.10), so the ratio 0.900 / 0.925 compares Text-JEPA against an
+irreproducible reference (`results/plan6-findings.md`, lines 10-12, 63-70).
+Task 14's `n_params = 20` and `n_test = 80` match 4 classes x 100 samples
+with no variational layer (`n_layers = 0`), not the 10 domains written in
+the JSON; this reconstruction is an inference from the parameter count, not
+a recorded setting. `results/plan6-findings.md` (2026-04-19) already
+recommended retracting the Paper A section 4.4 numbers; that retraction
+was never carried into the files above.
+
+**Root cause.** Baseline missing: the headline ratio depended on a single
+run whose configuration was not committed (the findings note states Task 14
+"must have been run with uncommitted local modifications"; the scripts and
+data are byte-identical to HEAD and do not reproduce it). The retraction
+lived only in a findings note, not in the documents that carry the claim.
+
+**Correction.** This entry. The claim "97 % retention at 3x compression"
+is withdrawn; no Text-JEPA compression-retention figure is established by
+this repository.
+
+**Open.** The occurrences listed under "Where" still carry the figure and
+must be amended (flag or remove) in a follow-up PR; this entry does not
+edit them. A valid test needs a committed configuration, >= 5 seeds, a
+bootstrap CI and the learned-projection baseline of
+`results/plan6-findings.md`. Refs hypneum-lab/.github#10.
