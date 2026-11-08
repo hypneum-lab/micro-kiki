@@ -24,6 +24,15 @@ uv pip compile <set>.in --python-platform aarch64-manylinux_2_35 \
 * Install on the GB300 (operator, after review):
   `uv pip install --require-hashes --no-deps -r <requirements file>`.
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `demo-35b-gb300-freeze-20261031b.zip`, SHA-256
+`e1143bdfcdd23f14bd2e62c83f7e246af26aeb455c20580c203b8f2f55a31ad7`) gives the freeze tag
+`demo-35b-gb300-freeze-20261031b` (commit `185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`,
+`swh:1:rev:185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+
 ## `requirements-gb300-demo.txt`
 
 Input (`requirements-gb300-demo.in`):

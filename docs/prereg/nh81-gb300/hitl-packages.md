@@ -8,6 +8,15 @@ in `requirements-gb300-nh81.sha256`. The PI approved it on
 2026-10-31 at 22:48 CET (second review). CUDA headers: `nvidia-cuda-runtime-cu12`
 and `nvidia-cuda-cccl-cu12` 12.9 wheels (PI decision 8). uv: 0.13.5.
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `nh81-gb300-freeze-20261031b.zip`, SHA-256
+`095353244acaa8e70d33c3132cbc8740d67c979df4a27e8bf8b2e76a68427724`) gives the freeze tag
+`nh81-gb300-freeze-20261031b` (commit `185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`,
+`swh:1:rev:185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+
 Repository policy: no blind upgrade, every third-party artefact pinned
 and reviewed by a human before use. **No lockfile is generated before
 this list is reviewed.** Two review steps, both before any access,

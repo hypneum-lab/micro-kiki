@@ -17,6 +17,15 @@ pre-registrations for tomorrow's 24-h DGX Station GB300 slot.
 change the NH-81 status in any direction (no confirmation, no veto),
 and contains no inferential comparison between hosts.
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `nh81-gb300-freeze-20261031b.zip`, SHA-256
+`095353244acaa8e70d33c3132cbc8740d67c979df4a27e8bf8b2e76a68427724`) gives the freeze tag
+`nh81-gb300-freeze-20261031b` (commit `185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`,
+`swh:1:rev:185c5d44b50de76a73c9a2a45ef56c6e28fbcedc`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+
 ## PI decisions 2026-10-31
 
 Recorded from the PI's answers of 2026-10-31, 22:20 CET ("validate

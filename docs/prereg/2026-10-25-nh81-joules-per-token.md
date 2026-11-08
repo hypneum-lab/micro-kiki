@@ -11,6 +11,15 @@ primary metric, interleaved pairs, rejection rule, NVML follow-up).
 (`scripts/eval_spikingkiki_35b.py`, `results/spikingkiki-35b-eval.json`,
 `"status": "theoretical"`). This study replaces counting by measurement.
 
+**L2 deposit (annotation added 2026-11-08):** restricted Zenodo record
+[10.5281/zenodo.24053794](https://doi.org/10.5281/zenodo.24053794) (Hypneum Lab lot of
+2026-11-08, file `prereg-nh81-20261025.zip`, SHA-256
+`f24ae5984896fcd02a9008a92ea7ac90219ecf0932ac4e3aeb362eedf022e676`) gives the freeze tag
+`prereg-nh81-20261025` (commit `52461ee321a1c9bdd27ff2433cbcbd4d3dbe932f`,
+`swh:1:rev:52461ee321a1c9bdd27ff2433cbcbd4d3dbe932f`) a verifiable deposit date, level
+L2 of PROJECT-MANAGEMENT section 4. The deposit holds this file as it was at the tag;
+anything dated after the tag in this live file is not in the deposit.
+
 ## 1. Hypothesis
 
 Catalogue entry NH-81 (hypneum-lab/.github, review of 2026-10-24,
