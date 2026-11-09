@@ -1,5 +1,7 @@
 # micro-kiki
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19666759.svg)](https://doi.org/10.5281/zenodo.19666759)
+
 **35 v4 domain-expert LoRA stacks + 6 v2 retrains = 41 adapter artefacts, cognitive layer on Qwen3.6-35B-A3B (native MoE, 256 experts, 3B active).**
 
 Deployable artefact of the *dreamOfkiki* research program, part of
