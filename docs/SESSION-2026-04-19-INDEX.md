@@ -75,6 +75,8 @@ Navigation master des livrables de la session. Organisé par type d'artefact, pa
 
 ### 5.2 Real-data Aeon (5 runs)
 
+[2026-11-24: all five runs use LayerNorm(δ) without centering; centering was never run on real data, see E-2026-11-24-01]
+
 - `results/aeon-realdata.json` — exact match interleaved (negative)
 - `results/aeon-realdata-within-topic.json` — exact match within-topic (negative)
 - `results/aeon-realdata-soft-interleaved.json` — soft-domain interleaved (+20pts ✅) [2026-11-08: negative on the null comparison: null_stack_mrr 0.1765 > predictive 0.1628, see docs/notes/2026-11-08-aeon-anti-collapse-negative-note.md]
@@ -92,7 +94,7 @@ Navigation master des livrables de la session. Organisé par type d'artefact, pa
 | Mécanisme | Metric | Value | Verdict |
 |-----------|--------|-------|---------|
 | Centering (synthetic) | MRR D | 0.413 → 0.498 (+22%) | Strong [2026-11-08: null == predictive (0.498 = 0.498), exploratory, see note] |
-| LayerNorm(δ) (synthetic) | win_stack L2 | 59% (300 ep, lr=5e-3) | Strong |
+| LayerNorm(δ) (synthetic) | win_stack L2 | 59% (300 ep, lr=5e-3) | Strong [2026-11-24: not established; the null is an all-zero stack input never seen in training and LayerNorm(δ) is not part of training, see E-2026-11-24-01] |
 | Text-JEPA compression | VQC acc | 0.900 @128d vs 0.925 @384d (97% retention, 3×) | Strong  [retracted, E-2026-11-08-01] |
 | Real-data soft-domain | recall@5 interleaved | 11% → 31% (+181%, 4× MRR) | Strong ✅ [2026-11-08: negative vs null, see note] |
 | Per-stack centering | win_stack | 0% | FAIL (documented) |

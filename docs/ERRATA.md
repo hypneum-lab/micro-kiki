@@ -270,3 +270,123 @@ must be amended (flag or remove) in a follow-up PR; this entry does not
 edit them. A valid test needs a committed configuration, >= 5 seeds, a
 bootstrap CI and the learned-projection baseline of
 `results/plan6-findings.md`. Refs hypneum-lab/.github#10.
+
+---
+
+## E-2026-11-24-01 — Aeon negative note v1: "synthetic gains that do not survive real conversational streams" (master table MK-11)
+
+**Claim as published.** Title: "Anti-collapse choices in a ~267K-parameter
+latent predictor: synthetic gains that do not survive real conversational
+streams". Abstract: the +20.6 % MRR obtained with shared centering on
+synthetic streams "do[es] not transfer" to real 10-domain data; MK-11 is
+"refuted (real data)". Section 5 explained the gap by the behaviour of
+centering on real embeddings (hypotheses H2, H3).
+
+**Where.** `docs/notes/2026-11-08-aeon-anti-collapse-negative-note.md`,
+version 1 (commit `3bf44c1`, PR #45), deposited unchanged on Zenodo on
+2026-11-24 as 10.5281/zenodo.24496729 (concept DOI
+10.5281/zenodo.24496728). Pointers added by PR #46 carried two of the
+errors: "~2 MB float64" (`docs/papers/paper-a-draft-v1.md` line 15 and
+`-fr.md` line 17; `docs/papers/paper-a-reframe-aeon-ami.md` line 83 and
+`-fr.md` line 85) and "null == prédictif sur données réelles" attached
+to the centering claim (`paper-a-reframe-aeon-ami.md` line 18, `-fr.md`
+line 20). The other pointers of PR #46 ("null == predictive" for
+condition D, "negative vs null" for the soft interleaved run, in
+`docs/SESSION-2026-04-19-INDEX.md` and the same drafts) stand.
+
+**What is wrong.** Found by an independent review on 2026-11-24 (items
+1-6) and during the revision (items 7-9); each was checked against the
+code at commit `ba5b1f5` and the result files.
+
+1. Centering was never run on real data. The four files
+   `results/aeon-realdata.json`, `-within-topic`, `-soft-interleaved`,
+   `-soft-withintopic` record `"use_centering": false,
+   "use_layernorm_delta": true`. The title, the abstract and H2/H3
+   compared a centering run with LayerNorm(delta) runs.
+2. arXiv:2206.15331 is "GitHub Copilot AI pair programmer: Asset or
+   Liability?" (Moradi Dakhel et al.), not LeCun (2022), which is an
+   OpenReview position paper (forum id `BZ5a1r-kVsf`). The wrong id
+   appeared four times, in the note only.
+3. arXiv:2511.08544 (LeJEPA) is by Balestriero and LeCun, not "Xiong et
+   al.".
+4. Mechanisms misdescribed. Centering is subtracted from the output
+   (`src/memory/aeon_predictor.py:141-162`), not from the input.
+   LayerNorm normalises the residual predicted by the MLP (lines
+   134-140), not h_{t+1} - h_t. `backward_cosine` recomputes
+   `h_hat = x + delta` without either (lines 184-186), and
+   `_ln_gamma` / `_ln_beta` are never updated: neither mechanism enters
+   training. `final_train_loss` is identical across C, D, F1, L1, L3
+   (0.5667058005928993) and across F2, L2 (0.5203294903039932).
+5. Null predictor misdescribed as "random" / "wrong" / "arbitrary"
+   stack id. It is `stack_id = -1`
+   (`scripts/eval_aeon_predictor.py:201-202`,
+   `scripts/eval_aeon_realdata.py:283-284`), an all-zero stack input
+   (`aeon_predictor.py:408-409`) that never occurs in training. With
+   per-stack centering it also uses a separate running mean (line 147).
+   `predict_next` goes through `forward` (line 389), which updates the
+   running mean at every query, so the predictive and null calls share
+   mutable state.
+6. Real-data protocol misdescribed. The stream is made of the first
+   user message of each of 100 records per domain, shuffled, then
+   interleaved or concatenated (`scripts/eval_aeon_realdata.py:101-150`);
+   consecutive items are independent draws, not conversation turns.
+   Exact-match MRR below 0.005 is the chance level, not a sign that
+   "the latent palace is too sparse". The soft within-topic baseline of
+   0.99 follows from the construction. All 1 000 items, queries
+   included, are ingested and trained on (lines 226-235), although the
+   docstring says "train on first 80%".
+7. F2 and L2 used a learning rate of 5e-3, not only more epochs. The
+   JSON files record neither; a re-run on 2026-11-24 (seed 0; 50 epochs
+   at 1e-3, or 300 epochs at 5e-3) reproduces all seven synthetic files
+   to the last digit.
+8. In the synthetic stream the stack id stored with turn i is the stack
+   of the transition that produced turn i
+   (`scripts/eval_aeon_predictor.py:150-156`), not of the transition to
+   be predicted, which is drawn independently. The statement that
+   condition L2 "genuinely uses stack information" is withdrawn.
+9. Smaller points: "~2 MB in float64" (weights are float32, about
+   1 MB); "HNSW store" (the index is `src/memory/atlas.py`); the
+   std-ratio rollback lives in `AeonSleep.sleep_cycle` and is not run by
+   the evaluation scripts; the power statement of section 7.1 had no
+   calculation behind it; internal references a reader could not
+   resolve.
+
+**What is true.** In synthetic condition D, `predictive_mrr` equals
+`null_stack_mrr` (0.4983 = 0.4983) and `win_rate_stack_vs_null` is 0.0:
+the +20.6 % over raw retrieval (0.4133) is not attributable to stack
+conditioning. In the four real-data pilots, which test the
+LayerNorm(delta) variant only, the conditioned predictor shows no
+benefit over the null (soft interleaved: 0.1628 vs 0.1765). All runs
+are single-seed and exploratory. Whether the synthetic centering gain
+transfers to real data was not tested.
+
+**Root cause (as far as known).** PR #45 states that the numbers were
+copied from the JSON keys, with no code change and no re-run. The
+metric values are indeed correct; the configuration flags in the same
+files, the forward and backward passes of `LatentMLP` and the two
+evaluation scripts were not compared with the text, which took its
+description of the mechanisms and of the protocol from the April
+documents. The two citations were not checked against arXiv. The JSON
+files record neither seed, epochs nor learning rate, which hid item 7.
+
+**Correction.** The note is replaced in place by version 2
+(2026-11-24), which carries a "Changes from version 1" section, a new
+title and abstract, and code-based descriptions of the mechanisms and
+protocols. The numbers of its two tables are unchanged. Dated
+annotations are appended, nothing deleted: two in
+`docs/SESSION-2026-04-19-INDEX.md` (real-data runs; L2 row) and one
+after each of the six pointers listed under "Where". No result file,
+script or source file is modified.
+
+**Open.** (a) Zenodo: record 10.5281/zenodo.24496729 still carries
+version 1; depositing version 2 as a new version is for the PI.
+(b) Catalogue v3 (hypneum-lab/.github) labels MK-11 "réfuté (données
+réelles)" on the basis of `results/aeon-realdata.json`, a run without
+centering; whether to relabel is a PI decision. (c) The docstrings of
+`scripts/eval_aeon_realdata.py` ("train on first 80%") and
+`scripts/eval_aeon_predictor.py` ("held-out indices", stack id of the
+transition) do not match the code; not edited here. (d) The paper
+drafts under `docs/papers/` still describe centering and
+LayerNorm(delta) as training-time anti-collapse mechanisms; not edited
+here. (e) No valid test of either mechanism exists; requirements are
+listed in section 8 of the note.
