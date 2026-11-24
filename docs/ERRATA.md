@@ -433,10 +433,10 @@ centering row; L2 row) and one after each of the six pointers listed
 under "Where". No existing result file, script or source file is
 modified.
 
-**Open.** (a) Zenodo: record 10.5281/zenodo.24496729 still carries the
-files of version 1; its description was edited on 2026-11-24 and lists
-three known errors (items 1-3). Depositing version 2 as a new version
-is for the PI. (b) Closed on 2026-11-24: catalogue v3
+**Open.** (a) Closed on 2026-11-24: version 2 is deposited as
+10.5281/zenodo.24501245, a new version of the same record. Record
+10.5281/zenodo.24496729 keeps the files of version 1; its description
+lists three known errors (items 1-3). (b) Closed on 2026-11-24: catalogue v3
 (hypneum-lab/.github) labelled MK-11 "réfuté (données réelles)" on the
 basis of `results/aeon-realdata.json`, a run without centering; the PI
 relabelled it "non testé" (hypneum-lab/.github #53). (c) The
