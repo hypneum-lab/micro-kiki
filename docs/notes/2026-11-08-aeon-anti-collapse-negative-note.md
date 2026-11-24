@@ -687,7 +687,8 @@ réelles) ; gain synthétique non attribuable au prédicteur" (hypneum-lab/.gith
   https://openreview.net/forum?id=BZ5a1r-kVsf
 - Hypothesis catalogue v3: hypneum-lab/.github,
   `docs/research/2026-11-06-refresh-hypotheses/catalogue-v3.md`.
-  Row MK-11: "centering +22 % MRR on structured streams — réfuté (données réelles)".
+  Row MK-11: "centering +22 % MRR on structured streams", labelled "réfuté (données
+  réelles)" until 2026-11-24 and "non testé" since (§7).
   Row MK-20: retracted (E-2026-11-08-01).
 - NH-85 / issue #13 (hypneum-lab/micro-kiki): Aeon vs raw RAG baseline, deferred.
 - `docs/ERRATA.md` (this repository): E-2026-11-24-01 (version 1 of this note);
