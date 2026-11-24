@@ -436,9 +436,10 @@ modified.
 **Open.** (a) Zenodo: record 10.5281/zenodo.24496729 still carries the
 files of version 1; its description was edited on 2026-11-24 and lists
 three known errors (items 1-3). Depositing version 2 as a new version
-is for the PI. (b) Catalogue v3 (hypneum-lab/.github) labels MK-11
-"réfuté (données réelles)" on the basis of `results/aeon-realdata.json`,
-a run without centering; whether to relabel is a PI decision. (c) The
+is for the PI. (b) Closed on 2026-11-24: catalogue v3
+(hypneum-lab/.github) labelled MK-11 "réfuté (données réelles)" on the
+basis of `results/aeon-realdata.json`, a run without centering; the PI
+relabelled it "non testé" (hypneum-lab/.github #53). (c) The
 docstrings of `scripts/eval_aeon_realdata.py` ("train on first 80%") and
 `scripts/eval_aeon_predictor.py` ("held-out indices", stack id of the
 transition) do not match the code; not edited here. (d) The paper

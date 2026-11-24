@@ -630,9 +630,9 @@ exploratory.
 
 ## 7. Status of MK-11
 
-Catalogue v3 records MK-11 ("centering +22 % MRR on structured streams") as "réfuté
-(données réelles)" and cites `results/aeon-realdata.json`. That file is a LayerNorm(δ)
-run without centering.
+Until 2026-11-24, catalogue v3 recorded MK-11 ("centering +22 % MRR on structured
+streams") as "réfuté (données réelles)" and cited `results/aeon-realdata.json`. That
+file is a LayerNorm(δ) run without centering.
 
 On the evidence in this repository, the descriptive figure of MK-11 is reproduced on
 the synthetic stream (0.413 → 0.498, +20.6 %, not +22 %), but it is not attributable to
@@ -640,9 +640,9 @@ stack conditioning (null equal to predictive) nor to training (weights identical
 condition C). It is obtained only when the queries are scored in stream order with the
 running mean updated during evaluation (0.410 to 0.430 with shuffled queries, 0.423
 with the running mean frozen), and it is reproduced without the predictor (§3.4). It is
-untested on real data. The label "réfuté (données réelles)" rests on a run without
-centering. Whether the catalogue label should change is a decision for the principal
-investigator; this note does not change it.
+untested on real data. The label "réfuté (données réelles)" rested on a run without
+centering. On 2026-11-24 the principal investigator changed it to "non testé (données
+réelles) ; gain synthétique non attribuable au prédicteur" (hypneum-lab/.github #53).
 
 ---
 
