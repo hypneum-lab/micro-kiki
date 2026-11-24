@@ -3,6 +3,7 @@
 **Date:** 2026-11-08
 **Version:** 2 (2026-11-24)
 **Supersedes** the text deposited as 10.5281/zenodo.24496729; see erratum E-2026-11-24-01 (`docs/ERRATA.md`).
+**DOI of this version:** 10.5281/zenodo.24501245 (deposited 2026-11-24 from commit `7867de1`; all versions: 10.5281/zenodo.24496728).
 **Status:** Negative note — single seed throughout; all findings are exploratory
 **File path:** kept from version 1, although `docs/CLAUDE.md` prefers a new dated note
 for a revision: the erratum, `docs/SESSION-2026-04-19-INDEX.md` and the paper drafts
