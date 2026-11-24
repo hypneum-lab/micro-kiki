@@ -1,4 +1,4 @@
-# Output centering in a small latent next-state predictor for retrieval: a synthetic gain matched by a null control, and real-data pilots that did not test it
+# Test-time output centering in a small latent next-state predictor: a synthetic retrieval gain that needs no predictor, and real-data pilots that did not test it
 
 **Date:** 2026-11-08
 **Version:** 2 (2026-11-24)

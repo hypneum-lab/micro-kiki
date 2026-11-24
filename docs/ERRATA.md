@@ -410,14 +410,15 @@ the construction makes trivial. All runs are single-seed and
 exploratory. Whether the synthetic centering gain transfers to real
 data was not tested.
 
-**Root cause (as far as recorded).** The metric values of version 1
+**Root cause.** The metric values of version 1
 match the JSON files; the errors are in what the text says about them.
 Recorded facts: PR #45 states that the numbers were copied from the
 JSON keys, with no code change and no re-run; it was merged on
 2026-11-08 with no review and no comment on GitHub; the JSON files
 record neither seed, epochs nor learning rate; the evaluation-time
-update of the running mean leaves no trace in any output. How the text
-of version 1 was drafted and checked is not recorded in the repository.
+update of the running mean leaves no trace in any output. Version 1 was
+drafted with LLM assistance and merged the same evening; its prose was
+not checked against the code or the run configurations.
 
 **Correction.** The note is replaced in place by version 2
 (2026-11-24), which carries a "Changes from version 1" section, a new
