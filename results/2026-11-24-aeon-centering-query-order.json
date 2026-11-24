@@ -5,6 +5,8 @@
   "seed": 0,
   "n_turns": 1000,
   "n_queries": 100,
+  "dim": 384,
+  "centering_momentum": 0.9,
   "stream_type": "stack-structured",
   "shuffle_seeds": [
     1,
@@ -20,6 +22,7 @@
       "epochs": 50,
       "lr": 0.001,
       "final_train_loss": 0.5667058005928993,
+      "weights_all_finite": true,
       "post_train_shared_running_mean_norm": 0.0,
       "baseline_mrr": 0.41333333333333333,
       "baseline_gold_rank_hist": [
@@ -31,6 +34,14 @@
         0
       ],
       "baseline_query_itself_at_rank_1": 100,
+      "baseline_per_query": {
+        "gold_ranks": "3323323232323233222323322332332233223232333232323222322332232332323232323232323233322323322323322332",
+        "second_place": {
+          "previous_turn": 52,
+          "gold_turn": 48,
+          "other": 0
+        }
+      },
       "variants": {
         "as_run": {
           "predictive_mrr": 0.415,
@@ -52,7 +63,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+            "second_place": {
+              "previous_turn": 51,
+              "gold_turn": 49,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+            "second_place": {
+              "previous_turn": 53,
+              "gold_turn": 47,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "null_first": {
           "predictive_mrr": 0.415,
@@ -74,7 +102,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+            "second_place": {
+              "previous_turn": 51,
+              "gold_turn": 49,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+            "second_place": {
+              "previous_turn": 53,
+              "gold_turn": 47,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "reversed": {
           "predictive_mrr": 0.4150000000000001,
@@ -96,7 +141,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+            "second_place": {
+              "previous_turn": 51,
+              "gold_turn": 49,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+            "second_place": {
+              "previous_turn": 53,
+              "gold_turn": 47,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "frozen": {
           "predictive_mrr": 0.415,
@@ -118,7 +180,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+            "second_place": {
+              "previous_turn": 51,
+              "gold_turn": 49,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+            "second_place": {
+              "previous_turn": 53,
+              "gold_turn": 47,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "shuffled": {
           "1": {
@@ -141,7 +220,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "2": {
             "predictive_mrr": 0.415,
@@ -163,7 +259,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "3": {
             "predictive_mrr": 0.4149999999999999,
@@ -185,7 +298,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "4": {
             "predictive_mrr": 0.415,
@@ -207,7 +337,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "5": {
             "predictive_mrr": 0.415,
@@ -229,7 +376,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323223322333232322333222322233323223322323222323322332",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           }
         }
       },
@@ -242,6 +406,7 @@
       "epochs": 50,
       "lr": 0.001,
       "final_train_loss": 0.5667058005928993,
+      "weights_all_finite": true,
       "post_train_shared_running_mean_norm": 0.21469904482364655,
       "baseline_mrr": 0.41333333333333333,
       "baseline_gold_rank_hist": [
@@ -253,6 +418,14 @@
         0
       ],
       "baseline_query_itself_at_rank_1": 100,
+      "baseline_per_query": {
+        "gold_ranks": "3323323232323233222323322332332233223232333232323222322332232332323232323232323233322323322323322332",
+        "second_place": {
+          "previous_turn": 52,
+          "gold_turn": 48,
+          "other": 0
+        }
+      },
       "variants": {
         "as_run": {
           "predictive_mrr": 0.4983333333333333,
@@ -274,7 +447,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "null_first": {
           "predictive_mrr": 0.4983333333333333,
@@ -296,7 +486,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "reversed": {
           "predictive_mrr": 0.16183333333333333,
@@ -318,7 +525,24 @@
             23,
             15
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "4033030403030550354043445503404540340004000303040053004400454000540304530353050330403030004035043442",
+            "second_place": {
+              "previous_turn": 99,
+              "gold_turn": 1,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "4043040503530540305033544504454400530003000303050053504530454000030405040334040340004040000034043542",
+            "second_place": {
+              "previous_turn": 99,
+              "gold_turn": 1,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "frozen": {
           "predictive_mrr": 0.42333333333333334,
@@ -340,7 +564,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3323323232323233222323322332232233223232333232323222322333222332223222323233323222222323222323322332",
+            "second_place": {
+              "previous_turn": 46,
+              "gold_turn": 54,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332233232223232323232323222322332222332223232333233323233322323322323322332",
+            "second_place": {
+              "previous_turn": 50,
+              "gold_turn": 50,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "shuffled": {
           "1": {
@@ -363,7 +604,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232322233222323222332333233223222333232323222322332222322323232323232323233322323322322323332",
+              "second_place": {
+                "previous_turn": 48,
+                "gold_turn": 52,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323333232322233223323222332333232333232333232323322322322222332323232323232323233322323322322323332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "2": {
             "predictive_mrr": 0.4216666666666667,
@@ -385,7 +643,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232223233222322322332233232223233332222323322322333333332223222323233323233222223322322322232",
+              "second_place": {
+                "previous_turn": 47,
+                "gold_turn": 53,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232223233222322322332233232233233323222333322322322333332223232323223323233332223322322322332",
+              "second_place": {
+                "previous_turn": 50,
+                "gold_turn": 50,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "3": {
             "predictive_mrr": 0.4100000000000001,
@@ -407,7 +682,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222333322332232233223232233232323223322333333333223232223223323223332323322333322322",
+              "second_place": {
+                "previous_turn": 54,
+                "gold_turn": 46,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222332322332233232223232233232323223322333233333223232233222323233332323322333322322",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "4": {
             "predictive_mrr": 0.42999999999999994,
@@ -429,7 +721,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233222322322332232232223222333232322223322333222322323232322232322232222323222223323332",
+              "second_place": {
+                "previous_turn": 42,
+                "gold_turn": 58,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232223233232322322332232232223232333232322323332333222322323232333232322232322323332223323332",
+              "second_place": {
+                "previous_turn": 50,
+                "gold_turn": 50,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "5": {
             "predictive_mrr": 0.41833333333333333,
@@ -451,7 +760,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232322233222323223332232233233232333233323232323332222332233232332232223233222323222323322322",
+              "second_place": {
+                "previous_turn": 49,
+                "gold_turn": 51,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232322233223323223332232233233232233233323232323322222332223232333222323233322323322323322332",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           }
         }
       },
@@ -465,7 +791,16 @@
             1,
             0,
             0
-          ]
+          ],
+          "per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "gold_ranks_identical_to_as_run_predictive": true
         },
         "init_post_train_mean_updates_2": {
           "mrr": 0.4983333333333333,
@@ -476,7 +811,16 @@
             1,
             0,
             0
-          ]
+          ],
+          "per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "gold_ranks_identical_to_as_run_predictive": true
         },
         "init_zero_updates_1": {
           "mrr": 0.4983333333333333,
@@ -487,7 +831,16 @@
             1,
             0,
             0
-          ]
+          ],
+          "per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "gold_ranks_identical_to_as_run_predictive": true
         },
         "init_zero_updates_2": {
           "mrr": 0.4983333333333333,
@@ -498,7 +851,16 @@
             1,
             0,
             0
-          ]
+          ],
+          "per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "gold_ranks_identical_to_as_run_predictive": true
         }
       },
       "committed_file": "results/2026-04-19-aeon-baseline-shared-centering.json",
@@ -510,6 +872,7 @@
       "epochs": 50,
       "lr": 0.001,
       "final_train_loss": 0.5667058005928993,
+      "weights_all_finite": true,
       "post_train_shared_running_mean_norm": 0.0,
       "baseline_mrr": 0.41333333333333333,
       "baseline_gold_rank_hist": [
@@ -521,6 +884,14 @@
         0
       ],
       "baseline_query_itself_at_rank_1": 100,
+      "baseline_per_query": {
+        "gold_ranks": "3323323232323233222323322332332233223232333232323222322332232332323232323232323233322323322323322332",
+        "second_place": {
+          "previous_turn": 52,
+          "gold_turn": 48,
+          "other": 0
+        }
+      },
       "variants": {
         "as_run": {
           "predictive_mrr": 0.41333333333333333,
@@ -542,7 +913,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3322323232323233232323322332322332223222323232333222222332223332323233323223323233332323223323323332",
+            "second_place": {
+              "previous_turn": 52,
+              "gold_turn": 48,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3322222232222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 3,
+              "gold_turn": 97,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "null_first": {
           "predictive_mrr": 0.41333333333333333,
@@ -564,7 +952,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3322323232323233232323322332322332223222323232333222222332223332323233323223323233332323223323323332",
+            "second_place": {
+              "previous_turn": 52,
+              "gold_turn": 48,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3322222232222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 3,
+              "gold_turn": 97,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "reversed": {
           "predictive_mrr": 0.4016666666666667,
@@ -586,7 +991,24 @@
             3,
             3
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3333323232323233232322323332332232223222323232333223322332323332323233333233323233332323223323323332",
+            "second_place": {
+              "previous_turn": 59,
+              "gold_turn": 41,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3433333302334333333533333353333333333333333333333333333333333333333333334333333333333333333333533332",
+            "second_place": {
+              "previous_turn": 98,
+              "gold_turn": 2,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "frozen": {
           "predictive_mrr": 0.4066666666666666,
@@ -608,7 +1030,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3322323232323233232323322332332332223232323232323223322332223332323233323233323233332323223323323332",
+            "second_place": {
+              "previous_turn": 56,
+              "gold_turn": 44,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332332233223232333232323222322333232332323232323232323233322323322323322332",
+            "second_place": {
+              "previous_turn": 53,
+              "gold_turn": 47,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "shuffled": {
           "1": {
@@ -631,7 +1070,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3322323232323233232323323332332332223232323232323223322332223332323233323223323233322323223323323332",
+              "second_place": {
+                "previous_turn": 55,
+                "gold_turn": 45,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232322233223323222332333233223232333232323222322322222322323232323232323233322323322322323332",
+              "second_place": {
+                "previous_turn": 49,
+                "gold_turn": 51,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "2": {
             "predictive_mrr": 0.40833333333333344,
@@ -653,7 +1109,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233232323322332322332223222323232323223322332323332323233323223323233332323223323323332",
+              "second_place": {
+                "previous_turn": 55,
+                "gold_turn": 45,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232223233222322322332232232223233323222323322322323232332223232323233323233332323322322322332",
+              "second_place": {
+                "previous_turn": 48,
+                "gold_turn": 52,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "3": {
             "predictive_mrr": 0.4116666666666666,
@@ -675,7 +1148,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3322323232323233232322322332322332223222323232333223322332223332323233323223323233332323223323323332",
+              "second_place": {
+                "previous_turn": 53,
+                "gold_turn": 47,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222323322332233232223232233232323223322333233332223232223222323233332323322333322322",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "4": {
             "predictive_mrr": 0.40333333333333343,
@@ -697,7 +1187,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3333323232323233232323323332322332223232323232323223322332323332323233323223323233332323223323323332",
+              "second_place": {
+                "previous_turn": 58,
+                "gold_turn": 42,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233232322322332232233223232333232322323332333222332323232323232323233322323332223323332",
+              "second_place": {
+                "previous_turn": 54,
+                "gold_turn": 46,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "5": {
             "predictive_mrr": 0.4016666666666667,
@@ -719,7 +1226,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3333323232323233232323323332332332223232323232333222222332323332323233323233323233332323223323323332",
+              "second_place": {
+                "previous_turn": 59,
+                "gold_turn": 41,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232322233223323223332232233233232233232323232323332222332223232333232323233322323322323322322",
+              "second_place": {
+                "previous_turn": 51,
+                "gold_turn": 49,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           }
         }
       },
@@ -733,6 +1257,7 @@
       "epochs": 300,
       "lr": 0.005,
       "final_train_loss": 0.5203294903039932,
+      "weights_all_finite": true,
       "post_train_shared_running_mean_norm": 0.0,
       "baseline_mrr": 0.41333333333333333,
       "baseline_gold_rank_hist": [
@@ -744,6 +1269,14 @@
         0
       ],
       "baseline_query_itself_at_rank_1": 100,
+      "baseline_per_query": {
+        "gold_ranks": "3323323232323233222323322332332233223232333232323222322332232332323232323232323233322323322323322332",
+        "second_place": {
+          "previous_turn": 52,
+          "gold_turn": 48,
+          "other": 0
+        }
+      },
       "variants": {
         "as_run": {
           "predictive_mrr": 0.43333333333333335,
@@ -765,7 +1298,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3322323232323233222322322332322232223222322232323222222332223332223222323223323233322323222323322232",
+            "second_place": {
+              "previous_turn": 40,
+              "gold_turn": 60,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "null_first": {
           "predictive_mrr": 0.43333333333333335,
@@ -787,7 +1337,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3322323232323233222322322332322232223222322232323222222332223332223222323223323233322323222323322232",
+            "second_place": {
+              "previous_turn": 40,
+              "gold_turn": 60,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222",
+            "second_place": {
+              "previous_turn": 1,
+              "gold_turn": 99,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "reversed": {
           "predictive_mrr": 0.40833333333333344,
@@ -809,7 +1376,24 @@
             5,
             1
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3333323232323233232322322332232233223222322232333223322332323332323233323223323233332323323323322332",
+            "second_place": {
+              "previous_turn": 55,
+              "gold_turn": 45,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3433333302334333333533333343333333333333333333333333333333333333333333334333333333333333333333433332",
+            "second_place": {
+              "previous_turn": 98,
+              "gold_turn": 2,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "frozen": {
           "predictive_mrr": 0.4216666666666667,
@@ -831,7 +1415,24 @@
             0,
             0
           ],
-          "predictive_query_itself_at_rank_1": 100
+          "predictive_query_itself_at_rank_1": 100,
+          "predictive_per_query": {
+            "gold_ranks": "3323323232323233222322322332332232223222322232323223322332223332223222323223323233332323322323322332",
+            "second_place": {
+              "previous_turn": 47,
+              "gold_turn": 53,
+              "other": 0
+            }
+          },
+          "null_per_query": {
+            "gold_ranks": "3323323232323233222323322332232232223232333222323222322332232332223232323232323233322323322323322332",
+            "second_place": {
+              "previous_turn": 48,
+              "gold_turn": 52,
+              "other": 0
+            }
+          },
+          "outputs_all_finite": true
         },
         "shuffled": {
           "1": {
@@ -854,7 +1455,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3322323232323233222322322332332232223222323232323223322332223332223222323223323233322323222323322332",
+              "second_place": {
+                "previous_turn": 45,
+                "gold_turn": 55,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232322233222323222332332233223232332232323222322322222322323232323232323233322323322322323332",
+              "second_place": {
+                "previous_turn": 46,
+                "gold_turn": 54,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "2": {
             "predictive_mrr": 0.4216666666666667,
@@ -876,7 +1494,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233232322322332322232223222322232323223322332323332323232323223323233322323222323322232",
+              "second_place": {
+                "previous_turn": 47,
+                "gold_turn": 53,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232223233222322322332232232223233322222323322322323232332223232223233323233322323322322322332",
+              "second_place": {
+                "previous_turn": 45,
+                "gold_turn": 55,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "3": {
             "predictive_mrr": 0.42500000000000004,
@@ -898,7 +1533,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3322323232323233222322322332222232223222322232333223322332223332223233323223323233322323322323322232",
+              "second_place": {
+                "previous_turn": 45,
+                "gold_turn": 55,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232323233222322322332232232223232233232323223322333232332223232223222323233332323322323322322",
+              "second_place": {
+                "previous_turn": 47,
+                "gold_turn": 53,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "4": {
             "predictive_mrr": 0.4216666666666667,
@@ -920,7 +1572,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3323323232323233232322322332322232223222322232323223322332322332323233323223323233322323222323322232",
+              "second_place": {
+                "previous_turn": 47,
+                "gold_turn": 53,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232223233232322322332232232223222333232322323322332222332323232323232323233322323332223323332",
+              "second_place": {
+                "previous_turn": 49,
+                "gold_turn": 51,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           },
           "5": {
             "predictive_mrr": 0.42,
@@ -942,7 +1611,24 @@
               0,
               0
             ],
-            "predictive_query_itself_at_rank_1": 100
+            "predictive_query_itself_at_rank_1": 100,
+            "predictive_per_query": {
+              "gold_ranks": "3333323232323233222323322332332232223222322232323222222322323332323232323223323233322323322323323232",
+              "second_place": {
+                "previous_turn": 48,
+                "gold_turn": 52,
+                "other": 0
+              }
+            },
+            "null_per_query": {
+              "gold_ranks": "3323323232222223222323223332232233233232233232323232323322222332223232333232323233322323322323322322",
+              "second_place": {
+                "previous_turn": 47,
+                "gold_turn": 53,
+                "other": 0
+              }
+            },
+            "outputs_all_finite": true
           }
         }
       },

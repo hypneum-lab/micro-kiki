@@ -15,12 +15,23 @@ only how that state evolves during evaluation:
   frozen       centering state restored to its post-training value before
                every call (no evaluation-time update)
 
+The "frozen" variant is not confounded by the update that `forward` still
+performs inside each call: with a batch of one and momentum 0.9 the output is
+out - (0.9*m + 0.1*out) = 0.9*(out - m), i.e. the output centered by the frozen
+mean m up to a positive scale, and cosine retrieval is scale-invariant.
+
 and, for shared centering only, a control without any MLP:
 
   no_mlp_ema   retrieval with (raw query - EMA of the raw queries seen so far)
 
-It also records `final_train_loss` for three (epochs, lr) settings, to document
-which settings reproduce the committed April result files.
+It also records, per query (in stream order), the rank of the gold turn and
+which turn holds second place (the previous turn i-1, the gold turn i+1, or
+another one), and `final_train_loss` for three (epochs, lr) settings, to
+document which settings reproduce the committed April result files.
+
+numpy emits spurious "encountered in matmul" RuntimeWarnings on some BLAS
+builds (they occur here for every condition, including C); only that message
+is silenced, and the JSON records that weights and outputs are finite.
 
 Exploratory, single seed, same limits as the runs it re-scores (query stored in
 the index, queries part of the training pairs). No new training recipe.
@@ -53,7 +64,6 @@ from eval_aeon_predictor import (  # noqa: E402
 from src.memory.aeon_predictor import AeonPredictor, PredictorConfig  # noqa: E402
 from src.memory.aeonsleep import AeonSleep  # noqa: E402
 
-DIM = 384
 N_STACKS = 16
 MOMENTUM = 0.9
 
@@ -67,15 +77,22 @@ CONDITIONS: dict[str, tuple[bool, bool, int, float, str]] = {
 
 
 def _build(
-    use_centering: bool, per_stack: bool, epochs: int, lr: float, seed: int, n_turns: int
+    use_centering: bool,
+    per_stack: bool,
+    epochs: int,
+    lr: float,
+    seed: int,
+    n_turns: int,
+    dim: int,
+    cold_start: int,
 ) -> tuple[AeonSleep, AeonPredictor, list[np.ndarray], list[int], float]:
     """Same construction as eval_aeon_predictor.py --stream stack-structured."""
-    palace = AeonSleep(dim=DIM)
+    palace = AeonSleep(dim=dim)
     cfg = PredictorConfig(
-        dim=DIM,
-        hidden=256,
+        dim=dim,
+        hidden=min(256, dim),
         n_stacks=N_STACKS,
-        cold_start_threshold=500,
+        cold_start_threshold=cold_start,
         seed=seed,
         use_centering=use_centering,
         centering_momentum=MOMENTUM,
@@ -84,7 +101,7 @@ def _build(
     pred = AeonPredictor(palace=palace, config=cfg)
     palace.attach_predictor(pred)
     stream, transition_stacks = _build_stack_structured_stream(
-        n_turns, DIM, n_stacks=N_STACKS, seed=seed
+        n_turns, dim, n_stacks=N_STACKS, seed=seed
     )
     stack_ids = [0] + transition_stacks
     t0 = datetime(2026, 4, 17, 10, 0)
@@ -119,6 +136,27 @@ def _rank_hist(ids_per_query: list[list[str]], golds: list[str]) -> list[int]:
     return hist
 
 
+def _per_query(ids_by_turn: dict[int, list[str]]) -> dict:
+    """Per-query detail, in stream order whatever the scoring order.
+
+    gold_ranks: one digit per query, rank of turn i+1 in the top 5 (0 = absent).
+    second_place: which turn is at rank 2 (previous turn i-1, gold turn i+1, other).
+    """
+    ranks = []
+    second = {"previous_turn": 0, "gold_turn": 0, "other": 0}
+    for i in sorted(ids_by_turn):
+        ids = ids_by_turn[i]
+        gold = f"t{i + 1}"
+        ranks.append(str(ids.index(gold) + 1 if gold in ids else 0))
+        if ids[1] == f"t{i - 1}":
+            second["previous_turn"] += 1
+        elif ids[1] == gold:
+            second["gold_turn"] += 1
+        else:
+            second["other"] += 1
+    return {"gold_ranks": "".join(ranks), "second_place": second}
+
+
 def _score(
     palace: AeonSleep,
     pred: AeonPredictor,
@@ -135,6 +173,9 @@ def _score(
     null_ids: list[list[str]] = []
     golds: list[str] = []
     query_top1 = 0
+    pred_by_turn: dict[int, list[str]] = {}
+    null_by_turn: dict[int, list[str]] = {}
+    finite = True
     for i in order:
         h_q = stream[i]
         calls = [("pred", stack_ids[i]), ("null", -1)]
@@ -144,7 +185,11 @@ def _score(
         for tag, sid in calls:
             if frozen:
                 _restore(pred, post_train)
-            got[tag] = _top5(palace, pred.predict_next(h_q, horizon=1, stack_id=sid))
+            vec = pred.predict_next(h_q, horizon=1, stack_id=sid)
+            finite = finite and bool(np.isfinite(vec).all())
+            got[tag] = _top5(palace, vec)
+        pred_by_turn[i] = got["pred"]
+        null_by_turn[i] = got["null"]
         pred_ids.append(got["pred"])
         null_ids.append(got["null"])
         golds.append(f"t{i + 1}")
@@ -158,6 +203,9 @@ def _score(
         "predictive_gold_rank_hist": _rank_hist(pred_ids, golds),
         "null_gold_rank_hist": _rank_hist(null_ids, golds),
         "predictive_query_itself_at_rank_1": int(query_top1),
+        "predictive_per_query": _per_query(pred_by_turn),
+        "null_per_query": _per_query(null_by_turn),
+        "outputs_all_finite": finite,
     }
 
 
@@ -172,14 +220,20 @@ def _no_mlp_ema(
     mean = init.astype(np.float32).copy()
     ids_all: list[list[str]] = []
     golds: list[str] = []
+    by_turn: dict[int, list[str]] = {}
     for i in order:
         h_q = stream[i].astype(np.float32)
         for _ in range(updates_per_query):
             mean = (MOMENTUM * mean + (1.0 - MOMENTUM) * h_q).astype(np.float32)
         ids_all.append(_top5(palace, h_q - mean))
+        by_turn[i] = ids_all[-1]
         golds.append(f"t{i + 1}")
     rr = [_reciprocal_rank(ids, g) for ids, g in zip(ids_all, golds)]
-    return {"mrr": float(np.mean(rr)), "gold_rank_hist": _rank_hist(ids_all, golds)}
+    return {
+        "mrr": float(np.mean(rr)),
+        "gold_rank_hist": _rank_hist(ids_all, golds),
+        "per_query": _per_query(by_turn),
+    }
 
 
 def main() -> int:
@@ -187,11 +241,15 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-turns", type=int, default=1000)
     ap.add_argument("--n-queries", type=int, default=100)
+    ap.add_argument("--dim", type=int, default=384)
+    ap.add_argument("--cold-start", type=int, default=500)
     ap.add_argument("--shuffle-seeds", default="1,2,3,4,5")
     ap.add_argument("--results-dir", type=Path, default=_PROJECT_ROOT / "results")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
-    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    warnings.filterwarnings(
+        "ignore", message=".*encountered in matmul", category=RuntimeWarning
+    )
 
     held_start = max(1, args.n_turns - args.n_queries - 1)
     natural = [i for i in range(held_start, held_start + args.n_queries) if i + 1 < args.n_turns]
@@ -204,6 +262,8 @@ def main() -> int:
         "seed": args.seed,
         "n_turns": args.n_turns,
         "n_queries": len(natural),
+        "dim": args.dim,
+        "centering_momentum": MOMENTUM,
         "stream_type": "stack-structured",
         "shuffle_seeds": shuffle_seeds,
         "conditions": {},
@@ -211,7 +271,7 @@ def main() -> int:
 
     for label, (use_c, per_stack, epochs, lr, committed) in CONDITIONS.items():
         palace, pred, stream, stack_ids, loss = _build(
-            use_c, per_stack, epochs, lr, args.seed, args.n_turns
+            use_c, per_stack, epochs, lr, args.seed, args.n_turns, args.dim, args.cold_start
         )
         post_train = _snapshot(pred)
 
@@ -226,6 +286,12 @@ def main() -> int:
             "epochs": epochs,
             "lr": lr,
             "final_train_loss": loss,
+            "weights_all_finite": bool(
+                all(
+                    np.isfinite(getattr(pred.mlp, name)).all()
+                    for name in ("w1", "b1", "w2", "b2", "w3", "b3")
+                )
+            ),
             "post_train_shared_running_mean_norm": float(np.linalg.norm(post_train["shared"])),
             "baseline_mrr": float(
                 np.mean([_reciprocal_rank(ids, g) for ids, g in zip(base_ids, golds)])
@@ -234,6 +300,7 @@ def main() -> int:
             "baseline_query_itself_at_rank_1": int(
                 sum(ids[0] == f"t{i}" for ids, i in zip(base_ids, natural))
             ),
+            "baseline_per_query": _per_query(dict(zip(natural, base_ids))),
             "variants": {
                 "as_run": score(natural),
                 "null_first": score(natural, null_first=True),
@@ -254,10 +321,15 @@ def main() -> int:
                 f"init_{init_name}_updates_{k}": _no_mlp_ema(palace, stream, natural, init, k)
                 for init_name, init in (
                     ("post_train_mean", post_train["shared"]),
-                    ("zero", np.zeros(DIM, dtype=np.float32)),
+                    ("zero", np.zeros(args.dim, dtype=np.float32)),
                 )
                 for k in (1, 2)
             }
+            as_run_ranks = entry["variants"]["as_run"]["predictive_per_query"]["gold_ranks"]
+            for ema in entry["no_mlp_ema"].values():
+                ema["gold_ranks_identical_to_as_run_predictive"] = bool(
+                    ema["per_query"]["gold_ranks"] == as_run_ranks
+                )
 
         committed_path = args.results_dir / committed
         if committed_path.exists():
@@ -278,7 +350,9 @@ def main() -> int:
     payload["training_settings_check"] = {
         "50_epochs_lr_1e-3": payload["conditions"]["C"]["final_train_loss"],
         "300_epochs_lr_5e-3": payload["conditions"]["F2"]["final_train_loss"],
-        "300_epochs_lr_1e-3": _build(False, False, 300, 1e-3, args.seed, args.n_turns)[4],
+        "300_epochs_lr_1e-3": _build(
+            False, False, 300, 1e-3, args.seed, args.n_turns, args.dim, args.cold_start
+        )[4],
     }
 
     text = json.dumps(payload, indent=2)
