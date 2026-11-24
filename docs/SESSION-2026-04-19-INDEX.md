@@ -93,7 +93,7 @@ Navigation master des livrables de la session. Organisé par type d'artefact, pa
 
 | Mécanisme | Metric | Value | Verdict |
 |-----------|--------|-------|---------|
-| Centering (synthetic) | MRR D | 0.413 → 0.498 (+22%) | Strong [2026-11-08: null == predictive (0.498 = 0.498), exploratory, see note] |
+| Centering (synthetic) | MRR D | 0.413 → 0.498 (+22%) | Strong [2026-11-08: null == predictive (0.498 = 0.498), exploratory, see note] [2026-11-24: the 0.498 depends on query order (0.410–0.430 with shuffled queries) and is reproduced without the predictor, see E-2026-11-24-01] |
 | LayerNorm(δ) (synthetic) | win_stack L2 | 59% (300 ep, lr=5e-3) | Strong [2026-11-24: not established; the null is an all-zero stack input never seen in training and LayerNorm(δ) is not part of training, see E-2026-11-24-01] |
 | Text-JEPA compression | VQC acc | 0.900 @128d vs 0.925 @384d (97% retention, 3×) | Strong  [retracted, E-2026-11-08-01] |
 | Real-data soft-domain | recall@5 interleaved | 11% → 31% (+181%, 4× MRR) | Strong ✅ [2026-11-08: negative vs null, see note] |

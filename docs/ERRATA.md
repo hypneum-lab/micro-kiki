@@ -294,9 +294,12 @@ line 20). The other pointers of PR #46 ("null == predictive" for
 condition D, "negative vs null" for the soft interleaved run, in
 `docs/SESSION-2026-04-19-INDEX.md` and the same drafts) stand.
 
-**What is wrong.** Found by an independent review on 2026-11-24 (items
-1-6) and during the revision (items 7-9); each was checked against the
-code at commit `ba5b1f5` and the result files.
+**What is wrong.** Same numbering as the "Changes from version 1"
+section of the note. Items 1-6: independent review of 2026-11-24.
+Items 7-9: found while preparing version 2. Items 10-11 and the parts
+marked "(second review)": second review, of the draft of version 2
+(PR #48). Each item was checked against the code at commit `ba5b1f5`,
+the result files or the cited source.
 
 1. Centering was never run on real data. The four files
    `results/aeon-realdata.json`, `-within-topic`, `-soft-interleaved`,
@@ -316,9 +319,17 @@ code at commit `ba5b1f5` and the result files.
    `h_hat = x + delta` without either (lines 184-186), and
    `_ln_gamma` / `_ln_beta` are never updated: neither mechanism enters
    training. `final_train_loss` is identical across C, D, F1, L1, L3
-   (0.5667058005928993) and across F2, L2 (0.5203294903039932).
-5. Null predictor misdescribed as "random" / "wrong" / "arbitrary"
-   stack id. It is `stack_id = -1`
+   (0.5667058005928993) and across F2, L2 (0.5203294903039932). The
+   targets are fixed vectors, so the collapse that such devices guard
+   against in joint-embedding training cannot occur here; "anti-collapse"
+   was a misnomer. (Second review:) "stateless (no EMA teacher)" and
+   "inspired by DINO/DINOv3 self-distillation": the running mean is an
+   exponential-moving-average state, and DINO (arXiv:2104.14294, section
+   3.1) centers and sharpens the teacher output inside the training
+   loss. "Trained online": in these runs training is in batch, 50 or
+   300 epochs after ingestion.
+5. Null predictor misdescribed as "random" / "wrong" / "incorrect" /
+   "arbitrary" stack id, in six places. It is `stack_id = -1`
    (`scripts/eval_aeon_predictor.py:201-202`,
    `scripts/eval_aeon_realdata.py:283-284`), an all-zero stack input
    (`aeon_predictor.py:408-409`) that never occurs in training. With
@@ -329,64 +340,104 @@ code at commit `ba5b1f5` and the result files.
 6. Real-data protocol misdescribed. The stream is made of the first
    user message of each of 100 records per domain, shuffled, then
    interleaved or concatenated (`scripts/eval_aeon_realdata.py:101-150`);
-   consecutive items are independent draws, not conversation turns.
-   Exact-match MRR below 0.005 is the chance level, not a sign that
-   "the latent palace is too sparse". The soft within-topic baseline of
-   0.99 follows from the construction. All 1 000 items, queries
-   included, are ingested and trained on (lines 226-235), although the
-   docstring says "train on first 80%".
-7. F2 and L2 used a learning rate of 5e-3, not only more epochs. The
-   JSON files record neither; a re-run on 2026-11-24 (seed 0; 50 epochs
-   at 1e-3, or 300 epochs at 5e-3) reproduces all seven synthetic files
-   to the last digit.
+   consecutive items are not conversation turns. Exact-match MRR below
+   0.005 is the chance level, not a sign that "the latent palace is too
+   sparse". The soft within-topic baseline of 0.99 follows from the
+   construction. All 1 000 items, queries included, are ingested and
+   trained on (lines 226-235), although the docstring says "train on
+   first 80%". (Second review:) the recommendation "N >= 10,000 turns"
+   rested on that misreading; the next-domain baseline is "stay on the
+   current domain" and is 0.00 because all 100 evaluated transitions
+   change domain, not because "raw retrieval cannot classify
+   next-domain by design".
+7. Learning rate of F2 and L2 omitted: 5e-3, not only 300 epochs. The
+   April drafts say so (`docs/papers/paper-a-draft-v1.md`, Table 2);
+   the JSON files record neither. A re-run on 2026-11-24 (seed 0; 50
+   epochs at 1e-3, or 300 epochs at 5e-3) reproduces all seven
+   synthetic files to the last digit; 300 epochs at 1e-3 does not
+   (`results/2026-11-24-aeon-centering-query-order.json`, key
+   `training_settings_check`).
 8. In the synthetic stream the stack id stored with turn i is the stack
    of the transition that produced turn i
    (`scripts/eval_aeon_predictor.py:150-156`), not of the transition to
    be predicted, which is drawn independently. The statement that
    condition L2 "genuinely uses stack information" is withdrawn.
-9. Smaller points: "~2 MB in float64" (weights are float32, about
-   1 MB); "HNSW store" (the index is `src/memory/atlas.py`); the
-   std-ratio rollback lives in `AeonSleep.sleep_cycle` and is not run by
-   the evaluation scripts; the power statement of section 7.1 had no
-   calculation behind it; internal references a reader could not
-   resolve.
+9. The query turn is stored in the index and raw retrieval returns it
+   first (100 of 100 queries), so the gold turn ranks second at best
+   and the baseline MRR cannot exceed 0.5. The scores 0.413 and 0.498
+   are readings on that scale: gold turn second on 48 queries (raw
+   retrieval) and on 99 (condition D).
+10. The gain of condition D comes from state updated during evaluation.
+    Diagnostic `scripts/diag_aeon_centering_query_order.py`, output
+    `results/2026-11-24-aeon-centering-query-order.json` (seed 0, same
+    weights): predictive / null MRR is 0.498 / 0.498 as run, 0.410-0.430
+    / 0.412-0.417 with the queries shuffled (five orders), 0.162 / 0.152
+    in reverse order, 0.423 / 0.417 with the running mean frozen at its
+    post-training value. Without any predictor, the raw query minus an
+    exponential moving average of the previous queries gives 0.498.
+    Per-stack centering (F1, F2): the null's 0.495 and 0.498 fall to
+    0.410-0.425 under the same changes. The explanation given in
+    version 1 ("a regime effect where the centred embedding space
+    saturates") is withdrawn.
+11. "Module 7" is not a numbering of LeCun (2022), which describes six
+    unnumbered modules; it comes from
+    `docs/papers/paper-a-reframe-aeon-ami.md`.
+12. Smaller points: "~2 MB in float64" (weights are float32, about
+    1 MB); "HNSW store" (the index is `src/memory/atlas.py`, exhaustive
+    search); the std-ratio rollback lives in `AeonSleep.sleep_cycle`, is
+    not run by the evaluation scripts, and compares the output with the
+    targets, not with h_t (second review); +20.6 % is relative to raw
+    retrieval in the same run, not to a "no-centering baseline"; the
+    power statement of section 7.1 had no calculation behind it;
+    internal references a reader could not resolve; the bullet "The
+    null predictor is a meaningful upper bound"; the header cited the
+    unrelated erratum E-2026-10-25-02 (second review).
 
 **What is true.** In synthetic condition D, `predictive_mrr` equals
 `null_stack_mrr` (0.4983 = 0.4983) and `win_rate_stack_vs_null` is 0.0:
 the +20.6 % over raw retrieval (0.4133) is not attributable to stack
-conditioning. In the four real-data pilots, which test the
-LayerNorm(delta) variant only, the conditioned predictor shows no
-benefit over the null (soft interleaved: 0.1628 vs 0.1765). All runs
-are single-seed and exploratory. Whether the synthetic centering gain
-transfers to real data was not tested.
+conditioning, and item 10 attributes it to a running mean updated by
+the queries in stream order. In the four real-data pilots, which test
+the LayerNorm(delta) variant only, the conditioned predictor shows no
+benefit over the null that survives the limits of the protocol: the
+null scores higher in the soft interleaved run (0.1765 vs 0.1628); the
+conditioned predictor scores higher in the soft within-topic run
+(0.1093 vs 0.0687), where both are far below a baseline of 0.99 that
+the construction makes trivial. All runs are single-seed and
+exploratory. Whether the synthetic centering gain transfers to real
+data was not tested.
 
-**Root cause (as far as known).** PR #45 states that the numbers were
-copied from the JSON keys, with no code change and no re-run. The
-metric values are indeed correct; the configuration flags in the same
-files, the forward and backward passes of `LatentMLP` and the two
-evaluation scripts were not compared with the text, which took its
-description of the mechanisms and of the protocol from the April
-documents. The two citations were not checked against arXiv. The JSON
-files record neither seed, epochs nor learning rate, which hid item 7.
+**Root cause (as far as recorded).** The metric values of version 1
+match the JSON files; the errors are in what the text says about them.
+Recorded facts: PR #45 states that the numbers were copied from the
+JSON keys, with no code change and no re-run; it was merged on
+2026-11-08 with no review and no comment on GitHub; the JSON files
+record neither seed, epochs nor learning rate; the evaluation-time
+update of the running mean leaves no trace in any output. How the text
+of version 1 was drafted and checked is not recorded in the repository.
+[To be completed by the PI if he wishes.]
 
 **Correction.** The note is replaced in place by version 2
 (2026-11-24), which carries a "Changes from version 1" section, a new
 title and abstract, and code-based descriptions of the mechanisms and
-protocols. The numbers of its two tables are unchanged. Dated
-annotations are appended, nothing deleted: two in
-`docs/SESSION-2026-04-19-INDEX.md` (real-data runs; L2 row) and one
-after each of the six pointers listed under "Where". No result file,
-script or source file is modified.
+protocols. The values carried over in its Tables 1 and 2 are unchanged.
+One diagnostic script and its JSON output are added (item 10); it
+re-scores existing conditions with the April training settings, plus
+one training at 300 epochs and 1e-3 for the settings check of item 7. Dated annotations are appended, nothing deleted: three in
+`docs/SESSION-2026-04-19-INDEX.md` (real-data runs; centering row; L2
+row) and one after each of the six pointers listed under "Where". No
+existing result file, script or source file is modified.
 
-**Open.** (a) Zenodo: record 10.5281/zenodo.24496729 still carries
-version 1; depositing version 2 as a new version is for the PI.
-(b) Catalogue v3 (hypneum-lab/.github) labels MK-11 "réfuté (données
-réelles)" on the basis of `results/aeon-realdata.json`, a run without
-centering; whether to relabel is a PI decision. (c) The docstrings of
-`scripts/eval_aeon_realdata.py` ("train on first 80%") and
+**Open.** (a) Zenodo: record 10.5281/zenodo.24496729 still carries the
+files of version 1; its description was edited on 2026-11-24 and lists
+three known errors (items 1-3). Depositing version 2 as a new version
+is for the PI. (b) Catalogue v3 (hypneum-lab/.github) labels MK-11
+"réfuté (données réelles)" on the basis of `results/aeon-realdata.json`,
+a run without centering; whether to relabel is a PI decision. (c) The
+docstrings of `scripts/eval_aeon_realdata.py` ("train on first 80%") and
 `scripts/eval_aeon_predictor.py` ("held-out indices", stack id of the
 transition) do not match the code; not edited here. (d) The paper
 drafts under `docs/papers/` still describe centering and
-LayerNorm(delta) as training-time anti-collapse mechanisms; not edited
-here. (e) No valid test of either mechanism exists; requirements are
-listed in section 8 of the note.
+LayerNorm(delta) as training-time anti-collapse mechanisms and number
+LeCun's modules; not edited here. (e) No valid test of either transform
+exists; requirements are listed in section 8 of the note.
