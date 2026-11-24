@@ -4,9 +4,10 @@
 **Version:** 2 (2026-11-24)
 **Supersedes** the text deposited as 10.5281/zenodo.24496729; see erratum E-2026-11-24-01 (`docs/ERRATA.md`).
 **Status:** Negative note — single seed throughout; all findings are exploratory
-**File path:** kept from version 1 so that the history shows the change, although
-`docs/CLAUDE.md` prefers a new dated note for a revision. The slug ("anti-collapse")
-no longer matches the content (§2).
+**File path:** kept from version 1, although `docs/CLAUDE.md` prefers a new dated note
+for a revision: the erratum, `docs/SESSION-2026-04-19-INDEX.md` and the paper drafts
+cite this path, and the history then shows the change. The slug ("anti-collapse") no
+longer matches the content (§2).
 **Hypothesis catalogue:** hypneum-lab/.github `docs/research/2026-11-06-refresh-hypotheses/catalogue-v3.md` (row MK-11)
 **Related issues:** hypneum-lab/micro-kiki #13 (NH-85, Aeon vs raw RAG baseline, deferred)
 **Errata:** E-2026-11-24-01 (this note, version 1), E-2026-11-08-01 (MK-20, Text-JEPA retracted)
@@ -21,31 +22,37 @@ no longer matches the content (§2).
 > du prédicteur : la soustraction d'une moyenne glissante (« centrage ») et la
 > standardisation du résidu prédit (« LayerNorm(δ) »). Aucune n'entre dans la perte
 > d'entraînement. Sur un flux synthétique à dérive, le centrage fait passer le MRR@5
-> du véritable élément suivant de 0,413 (recherche brute) à 0,498 (+20,6 %). Un
-> contrôle nul, qui retire l'identifiant de pile, obtient le même 0,498 et n'est battu
-> sur aucune des 100 requêtes : le gain n'est pas attribuable au conditionnement par
-> l'identifiant de pile. Un diagnostic ajouté dans cette version montre que le gain
-> tient à la mise à jour de la moyenne glissante par les requêtes elles-mêmes, prises
-> dans l'ordre du flux : avec les requêtes mélangées (cinq ordres) le MRR vaut 0,410 à
-> 0,430, avec la moyenne figée après l'entraînement 0,423, et la soustraction d'une
-> moyenne mobile des requêtes récentes à la requête brute, sans aucun prédicteur,
-> redonne 0,498. Quatre pilotes sur texte réel (premiers messages utilisateur de
-> 10 domaines techniques, 1 000 éléments, 100 requêtes) n'ont utilisé que la
-> normalisation du résidu : le centrage n'a jamais été lancé sur données réelles, et
-> l'on ignore si son gain synthétique s'y transfère. Dans ces pilotes, le prédicteur
-> conditionné ne montre sur le nul aucun avantage qui résiste aux limites du
-> protocole : en évaluation souple au niveau du domaine sur le flux entrelacé, le nul
-> fait mieux (MRR 0,1765 contre 0,1628) ; dans le seul essai où le prédicteur
-> conditionné fait mieux (évaluation souple, flux par domaine, 0,1093 contre 0,0687),
-> les deux sont très loin d'une recherche brute à 0,99 que la construction rend
+> du véritable élément suivant de 0,413 (recherche brute) à 0,498 (+20,6 %) ; la
+> requête étant elle-même indexée et retrouvée en premier, le plafond est 0,5, et le
+> gain fait passer l'élément suivant de la troisième à la deuxième place (deuxième sur
+> 48 requêtes sur 100 en recherche brute, sur 99 avec centrage). Un contrôle nul, qui
+> retire l'identifiant de pile, obtient le même 0,498 et n'est battu sur aucune des
+> 100 requêtes : le gain n'est pas attribuable au conditionnement par l'identifiant de
+> pile. Un diagnostic ajouté dans cette version montre que le gain tient à la mise à
+> jour de la moyenne glissante par les requêtes elles-mêmes, prises dans l'ordre du
+> flux : avec les requêtes mélangées (cinq ordres) le MRR vaut 0,410 à 0,430, avec la
+> moyenne figée après l'entraînement 0,423, et la soustraction d'une moyenne mobile
+> des requêtes récentes à la requête brute, sans aucun prédicteur, redonne 0,498.
+> Avec LayerNorm(δ), la recherche synthétique échoue après 50 époques (recall@5 de
+> 0,03 contre 1,00 en recherche brute) ; après 300 époques à un taux d'apprentissage
+> plus élevé, le prédicteur conditionné bat le nul sur 59 % des requêtes, mais ce nul
+> est une entrée jamais vue à l'entraînement. Quatre pilotes sur texte réel (premiers
+> messages utilisateur de 10 domaines techniques, 1 000 éléments, 100 requêtes) n'ont
+> utilisé que la normalisation du résidu : le centrage n'a jamais été lancé sur
+> données réelles, et l'on ignore si son gain synthétique s'y transfère. Dans ces
+> pilotes, le prédicteur conditionné ne montre, face au nul, aucun avantage qui résiste
+> aux limites du protocole : en évaluation souple au niveau du domaine sur le flux
+> entrelacé, le nul fait mieux (MRR 0,177 contre 0,163) ; dans le seul essai où le
+> prédicteur conditionné fait mieux (évaluation souple, flux par domaine, 0,109 contre
+> 0,069), les deux sont très loin d'une recherche brute à 0,99 que la construction rend
 > triviale. Les éléments sont des premiers messages d'enregistrements distincts, en
 > ordre mélangé, et non des tours consécutifs de conversation ; les requêtes font
 > partie des données d'entraînement ; l'entrée du nul n'apparaît jamais à
-> l'entraînement. Tous les essais
-> sont à graine unique et exploratoires ; aucune des deux transformations n'a été
-> testée valablement. Cette version corrige les erreurs de la version 1 (erratum
-> E-2026-11-24-01), qui concluait à tort que le gain du centrage ne se transférait
-> pas aux données réelles.
+> l'entraînement. Tous les essais sont à graine unique et exploratoires ; aucune des
+> deux transformations n'a été testée dans des conditions qui permettraient de montrer
+> un apport du prédicteur. Cette version corrige la version 1, qui concluait à tort
+> que le gain du centrage ne se transférait pas aux données réelles (erratum
+> E-2026-11-24-01).
 
 ---
 
@@ -55,9 +62,9 @@ Version 1 (2026-11-08, commit `3bf44c1`, deposited unchanged on Zenodo as
 10.5281/zenodo.24496729) contained the errors below. The numbering is the same as in
 erratum E-2026-11-24-01. Items 1 to 6 were reported by an independent review on
 2026-11-24. Items 7 to 9 were found while preparing this version. Items 10 and 11, and
-the additions marked "(second review)" in items 4, 6 and 12, come from a second review,
-of the draft of this version. Every item was checked against the code, the result
-files or the cited source before being written here.
+the additions marked "(later review)" in items 4, 6 and 12, come from two further
+reviews, of drafts of this version. Every item was checked against the code, the
+result files or the cited source before being written here.
 
 1. **Centering was never run on real data.** All four real-data result files record
    `"use_centering": false, "use_layernorm_delta": true`. The title, the abstract and
@@ -71,15 +78,17 @@ files or the cited source before being written here.
 3. **Wrong authors for LeJEPA.** arXiv:2511.08544 is by Balestriero and LeCun, not
    "Xiong et al.".
 4. **Mechanisms misdescribed.** Centering is subtracted from the predictor's output, not
-   from its input. LayerNorm(δ) normalises the residual predicted by the MLP, not the
+   from its input. LayerNorm(δ) normalizes the residual predicted by the MLP, not the
    observed difference h\_{t+1} − h\_t. Neither enters the training loss, so version 1
-   was wrong to present them as anti-collapse choices of training (§2). (Second review:)
+   was wrong to present them as anti-collapse choices of training (§2). (Later review:)
    version 1 called centering "stateless (no EMA teacher)" and "inspired by DINO/DINOv3
-   self-distillation". The running mean is itself an exponential-moving-average state,
-   and in DINO (Caron et al., arXiv:2104.14294, its Section 3.1) centering is applied, together
-   with sharpening, to the teacher's output inside the training loss; the analogy is
-   dropped. Version 1 also said the MLP is "trained online"; in these runs it is trained
-   in batch, for 50 or 300 epochs, after the whole stream has been ingested.
+   self-distillation". The running mean is itself an exponential-moving-average state.
+   In DINO (arXiv:2104.14294, Section 3.1 of Caron et al.) centering is applied,
+   together with sharpening, to the teacher's output inside the training loss, and
+   never to the features that are evaluated; here it is applied only at evaluation.
+   The analogy is dropped. Version 1 also said the MLP is "trained online"; in these
+   runs it is trained in batch, for 50 or 300 epochs, after the whole stream has been
+   ingested.
 5. **Null predictor misdescribed.** The null predictor uses `stack_id = -1`, an all-zero
    stack input that never occurs in training. Version 1 called it "random", "wrong",
    "incorrect" or "arbitrary" in six places.
@@ -88,7 +97,7 @@ files or the cited source before being written here.
    conversations. Version 1 read exact-match MRR below 0.005 as a sign that "the latent
    palace is too sparse"; it is the level expected by chance. The soft within-topic
    baseline of 0.99 follows from the construction. The query turns are part of the
-   training data. (Second review:) the recommendation of version 1 to test at
+   training data. (Later review:) the recommendation of version 1 to test at
    "N ≥ 10,000 turns" rested on that misreading and is withdrawn. Version 1 also said
    that in the next-domain run "raw retrieval cannot classify next-domain by design";
    the baseline there is "stay on the current domain", and it scores 0.00 because all
@@ -116,18 +125,20 @@ files or the cited source before being written here.
 12. **Smaller corrections.** The weights are float32 (about 1 MB), not float64. The
     vector index is the page-clustered Atlas index with exhaustive search, not HNSW.
     The std-ratio rollback is not exercised by the evaluation scripts, and it compares
-    the predictor's output with the targets, not with h\_t (second review). The +20.6 %
+    the predictor's output with the targets, not with h\_t (later review). The +20.6 %
     is relative to raw retrieval in the same run, not to a "no-centering baseline" run.
-    The power statement of §7 of version 1 ("power ≥ 80 % … requires at least 5 seeds") had no
-    calculation behind it and is removed. Internal references a reader could not
-    resolve are replaced by file paths or removed. The bullet "The null predictor is a
-    meaningful upper bound" is removed. The header cited an unrelated erratum
-    (E-2026-10-25-02) (second review).
+    The power statement in §7, item 1, of version 1 ("power ≥ 80 % … requires at least
+    5 seeds") had no calculation behind it and is removed. Internal references a reader
+    could not resolve are replaced by file paths or removed. The bullet "The null
+    predictor is a meaningful upper bound" is removed. The header cited an unrelated
+    erratum (E-2026-10-25-02) (later review).
 
 The values carried over from version 1 in Tables 1 and 2 are unchanged; they were
 re-read from the JSON files. The null recall@5 columns were added from the same files,
 and the epochs / learning-rate column from the re-run described in §3.1. Table 3 and the
-file behind it are new.
+file behind it are new. The real-data scores are given to four decimals in Table 2 and
+§4.3 and to three in the abstract and the French summary; 0.1765 is the value in the
+file and is written 0.177 there.
 
 ---
 
@@ -139,28 +150,34 @@ for memory retrieval in a conversational assistant (micro-kiki). A numpy MLP wit
 the real-text runs), together with a one-hot "stack" (domain) identifier, to a predicted
 successor ĥ\_{t+1}; retrieval then uses ĥ\_{t+1} instead of h\_t. Two transforms were
 applied to the predictor's output: subtraction of a running mean ("centering") and
-standardisation of the predicted residual ("LayerNorm(δ)"). Neither enters the training
+standardization of the predicted residual ("LayerNorm(δ)"). Neither enters the training
 loss. On a synthetic drift stream, centering raised the MRR@5 of the true next item from
-0.413 (raw retrieval) to 0.498 (+20.6 %). A null control that removes the domain
-identifier obtains the same 0.498 and is beaten on none of the 100 queries, so the gain
-is not attributable to domain conditioning. A diagnostic added in this version shows
-that the gain depends on the running mean being updated by the queries themselves, in
-stream order: with the queries shuffled (five orders) the MRR is 0.410 to 0.430, with
-the running mean frozen after training it is 0.423, and subtracting a moving average of
-the recent queries from the raw query, without any predictor, gives the same 0.498.
-Four pilots on real text (first user messages from 10 technical domains, 1,000 items,
-100 queries) used the residual normalisation only: centering was never run on real
-data, so whether its synthetic gain transfers is unknown. In these pilots the
-conditioned predictor shows no benefit over the null that survives the protocol's
-limits: with domain-level scoring on the interleaved stream the null scores higher (MRR
-0.1765 vs 0.1628), and in the one run where the conditioned predictor scores higher
-(domain-level scoring, within-topic stream, 0.1093 vs 0.0687) both are far below a
-raw-retrieval baseline of 0.99 that the construction makes trivial. The items are first
-messages of separate records in shuffled order rather than consecutive conversation
-turns, queries are part of the training data, and the null input never occurs in
-training. All runs are single-seed and exploratory; neither transform has been validly
-tested. This version corrects errors in version 1 (erratum E-2026-11-24-01), which
-wrongly concluded that the centering gain does not transfer to real data.
+0.413 (raw retrieval) to 0.498 (+20.6 %); because the query is itself stored in the
+index and retrieved first, 0.5 is the ceiling, and the gain moves the true next item
+from third to second place (second on 48 of 100 queries with raw retrieval, on 99 with
+centering). A null control that removes the domain identifier obtains the same 0.498
+and is beaten on none of the 100 queries, so the gain is not attributable to domain
+conditioning. A diagnostic added in this version shows that the gain depends on the
+running mean being updated by the queries themselves, in stream order: with the queries
+shuffled (five orders) the MRR is 0.410 to 0.430, with the running mean frozen after
+training it is 0.423, and subtracting a moving average of the recent queries from the
+raw query, without any predictor, gives the same 0.498. With LayerNorm(δ), synthetic
+retrieval fails after 50 epochs (recall@5 0.03, against 1.00 for raw retrieval); after
+300 epochs at a higher learning rate the conditioned predictor beats the null on 59 %
+of queries, but that null is an input never seen in training. Four pilots on real text
+(first user messages from 10 technical domains, 1,000 items, 100 queries) used the
+residual normalization only: centering was never run on real data, so whether its
+synthetic gain transfers is unknown. In these pilots the conditioned predictor shows no
+benefit over the null that survives the protocol's limits: with domain-level scoring on
+the interleaved stream the null scores higher (MRR 0.177 vs 0.163), and in the one run
+where the conditioned predictor scores higher (domain-level scoring, within-topic
+stream, 0.109 vs 0.069) both are far below a raw-retrieval baseline of 0.99 that the
+construction makes trivial. The items are first messages of separate records in
+shuffled order rather than consecutive conversation turns, queries are part of the
+training data, and the null input never occurs in training. All runs are single-seed
+and exploratory; neither transform has been tested in a setting that could show a
+benefit of the predictor. This version corrects version 1, which wrongly concluded that
+the centering gain does not transfer to real data (erratum E-2026-11-24-01).
 
 ---
 
@@ -197,7 +214,8 @@ arXiv:2511.08544) as context for latent prediction. That framing is not tested h
 
 ### 1.2 The April 2026 claims
 
-The reframing plan listed three "strong" empirical findings (its §4):
+The reframing plan rated as "Strong", among others, three empirical findings (its
+"Empirical scorecard", the second section numbered 4):
 
 1. Shared centering gives +20.6 % MRR on structured streams (MK-11, condition D;
    originally reported as "+22 %").
@@ -223,9 +241,9 @@ output (lines 157–162). The input to the MLP is not centered.
 running mean per stack id, plus a separate slot for `stack_id = -1` (lines 144–154).
 
 **LayerNorm(δ)** (`use_layernorm_delta=True`). The residual predicted by the MLP is
-standardised across its 384 components for each sample, then added to the input (lines
+standardized across its 384 components for each sample, then added to the input (lines
 136–141). The gain and bias (`_ln_gamma`, `_ln_beta`) are fixed at 1 and 0 and are never
-updated. A standardised 384-dimensional residual has norm √384 ≈ 19.6, while the inputs
+updated. A standardized 384-dimensional residual has norm √384 ≈ 19.6, while the inputs
 are unit vectors, so with this flag the direction of the output is set almost entirely
 by the residual.
 
@@ -234,14 +252,15 @@ cached activations without LayerNorm and without centering (lines 184–186), an
 loss and gradients are taken on that quantity. For a given seed, number of epochs and
 learning rate, the trained weights are therefore the same whichever flag is set. The
 result files agree: `final_train_loss` is 0.5667058005928993 in conditions C, D, F1, L1
-and L3, and 0.5203294903039932 in F2 and L2. The conditions of Table 1 differ only in
-the transform applied to the output when the predictor is queried.
+and L3, and 0.5203294903039932 in F2 and L2. Within each training setting (50 epochs
+at 1e-3: C, D, F1, L1, L3; 300 epochs at 5e-3: F2, L2), the conditions of Table 1
+differ only in the transform applied to the output when the predictor is queried.
 
 **"Anti-collapse" does not apply.** The targets are fixed vectors (embeddings from a
 frozen encoder, or fixed synthetic vectors), not the output of a second trained
 network. The trivial solution that anti-collapse devices guard against in
 joint-embedding training, where both sides of the loss can converge to the same
-constant, does not exist here: a constant output is not a minimiser of a cosine loss to
+constant, does not exist here: a constant output is not a minimizer of a cosine loss to
 fixed, varied targets. Version 1 was wrong to describe these transforms as anti-collapse
 choices; they are transforms of the query vector at retrieval time.
 
@@ -311,14 +330,14 @@ seven committed files (elapsed time excepted), `final_train_loss` included, to t
 digit.
 
 ```bash
-E="uv run python scripts/eval_aeon_predictor.py --stream stack-structured"
-$E                                                             # C
-$E --use-centering                                             # D
-$E --use-centering --per-stack-centering                       # F1
-$E --use-centering --per-stack-centering --epochs 300 --lr 5e-3  # F2
-$E --use-layernorm-delta                                       # L1
-$E --use-layernorm-delta --epochs 300 --lr 5e-3                # L2
-$E --use-layernorm-delta --use-centering                       # L3
+E() { uv run python scripts/eval_aeon_predictor.py --stream stack-structured "$@"; }
+E                                                               # C
+E --use-centering                                               # D
+E --use-centering --per-stack-centering                         # F1
+E --use-centering --per-stack-centering --epochs 300 --lr 5e-3  # F2
+E --use-layernorm-delta                                         # L1
+E --use-layernorm-delta --epochs 300 --lr 5e-3                  # L2
+E --use-layernorm-delta --use-centering                         # L3
 ```
 
 The settings agree with the April draft (`docs/papers/paper-a-draft-v1.md`, Table 2:
@@ -326,7 +345,8 @@ The settings agree with the April draft (`docs/papers/paper-a-draft-v1.md`, Tabl
 epochs at 1e-3 the committed loss is not reproduced
 (`results/2026-11-24-aeon-centering-query-order.json`, key `training_settings_check`).
 The outputs of the re-run of L1, L2 and L3 are not committed; C, D, F1 and F2 are
-re-scored by the diagnostic of §3.4, whose output file records that they match.
+re-scored by the diagnostic of §3.4, whose output file records that they match. The
+command block was run as written under zsh, with `--out` added to each line.
 
 ### 3.2 What the protocol can and cannot show
 
@@ -339,7 +359,8 @@ These points follow from the script and bear on every row of Table 1.
   turn is also ranked first in all 100 predictive retrievals (not checked for L1 to
   L3). A baseline of 0.413 and a predictive MRR of 0.498 are both readings on this
   compressed scale: for raw retrieval the gold turn is second on 48 queries and third
-  on 52; in condition D it is second on 99 and third on 1 (same diagnostic file).
+  on 52, behind turn i−1; in condition D it is second on 99 and third on 1
+  (`results/2026-11-24-aeon-centering-query-order.json`).
 - **No held-out data.** The query turns and their successors are part of the training
   pairs. The script comment "held-out indices" (line 173) does not match the code.
 - **The stack id describes the previous transition.** The stream is ingested with
@@ -357,7 +378,8 @@ These points follow from the script and bear on every row of Table 1.
 - **With per-stack centering the null uses different statistics.** `stack_id = -1`
   selects a running-mean slot that training never updates; it is still zero when
   evaluation starts and is then updated only by the successive null queries.
-- **With centering, the score depends on the order of the queries** (§3.4).
+- **With centering, the score depends on the order of the queries** (§3.4; shown for
+  D, F1 and F2; L3 was not re-scored).
 
 ### 3.3 Observations
 
@@ -374,7 +396,9 @@ from.
 comparison does not isolate the stack input: the null's running-mean slot is filled
 only by the successive null queries, and §3.4 shows that the null's advantage comes
 from that. These runs do not show that per-stack centering is harmful in general. They
-show that, as implemented and evaluated, it gave the conditioned predictor no gain.
+show that, as implemented and evaluated, it gave the conditioned predictor little or no
+gain (0.413 and 0.433, against 0.413 for raw retrieval), while the null gained more for
+the reason given in §3.4.
 
 **Conditions L1, L2, L3.** With LayerNorm(δ) at 50 epochs (L1) and with both transforms
 (L3), retrieval fails almost entirely (recall@5 of 0.03 and 0.01, against 1.00 for the
@@ -411,8 +435,14 @@ fields `predictive_mrr` and `null_stack_mrr`. Shuffle seeds 1 to 5.
 A control without any predictor (key `conditions.D.no_mlp_ema`): the raw query minus an
 exponential moving average (momentum 0.9) of the raw queries seen so far, in stream
 order, is used for retrieval. MRR is 0.498 with one or two updates per query, starting
-from zero or from the post-training running mean; in each of the four settings the gold
-turn is second on 99 queries and third on 1, as in condition D.
+from zero or from the post-training running mean; in each of the four settings the rank
+of the gold turn is the same as in condition D for every one of the 100 queries (key
+`gold_ranks_identical_to_as_run_predictive`).
+
+The file also records, for each query, which turn holds second place (keys
+`*_per_query.second_place`). With raw retrieval it is turn i−1 on 52 queries and the
+gold turn i+1 on 48. In condition D as run it is turn i−1 on 1 query and the gold turn
+on 99; with the running mean frozen, 46 and 54; in reverse order, turn i−1 on 99.
 
 **What this shows.**
 
@@ -422,21 +452,25 @@ turn is second on 99 queries and third on 1, as in condition D.
   order with the running mean updated along the way. With the queries shuffled the
   predictive MRR is 0.410 to 0.430, and with the running mean frozen at its
   post-training value it is 0.423, against 0.413 for raw retrieval and 0.415 for
-  condition C. In reverse order it falls to 0.162, below raw retrieval.
+  condition C. In reverse order it falls to 0.162, below raw retrieval: the running
+  mean is then built from turns i+1, i+2, …, so subtracting it demotes the gold turn
+  itself.
 - The predictor is not needed to obtain 0.498: subtracting a moving average of the
-  recent queries from the raw query gives the same score and the same ranks.
+  recent queries from the raw query gives the same score and the same rank of the gold
+  turn on every query.
 - In F1 and F2 the same holds for the null: its 0.495 and 0.498 fall to 0.410–0.425
-  when the queries are shuffled or the state is frozen, where it no longer differs
-  from the conditioned predictor by more than 0.014.
+  when the queries are shuffled or the state is frozen, and the null then no longer
+  differs from the conditioned predictor by more than 0.013.
 
-**Reading (interpretation, not tested further).** During evaluation the running mean is
-an average of the last few queries, which are the turns just before the current one on
-the drift path. Subtracting it pushes the query away from where the stream has just
-been, which demotes turn i−1 and leaves turn i+1 in second place. This is a property of
+**Reading.** During evaluation the running mean is an average of the last few queries,
+which are the turns just before the current one on the drift path. Subtracting it
+pushes the query away from where the stream has just been, which demotes turn i−1 (the
+second-place counts above) and leaves turn i+1 in second place. This is a property of
 scoring consecutive turns of a drift process in order with a state that the scoring
 itself updates. It is not a property of the trained predictor, of the stack input, or
 of centering as a remedy for collapse. Whether such a moving-average query transform
-would help on a real conversation was not tested.
+would help on a real conversation was not tested. Only momentum 0.9 was run; condition
+L3, which also uses centering, was not re-scored.
 
 ---
 
@@ -492,11 +526,13 @@ are deterministic), scored two ways in separate runs.
 `scripts/eval_aeon_next_domain.py`, interleaved stream, LayerNorm(δ), no centering
 option in the script). The predicted vector is assigned to the nearest domain centroid.
 Accuracy is 0.10 for 10 domains and top-3 accuracy 0.33; with ten equally frequent
-domains, guessing gives 0.10 and 0.30. All 100 evaluated transitions are domain
+domains, guessing gives 0.10 and 0.30, and guessing among the nine domains other than
+the current one about 0.11 and 0.33. All 100 evaluated transitions are domain
 switches, so the "stay on the current domain" baseline scores 0.00 and the
 switch-detection rate of 1.00 only says that the predicted domain always differed from
-the current one. Unlike the two scripts above, this one trains only on the turns before
-the query window.
+the current one. Unlike `scripts/eval_aeon_predictor.py` and
+`scripts/eval_aeon_realdata.py`, this script trains only on the turns before the query
+window.
 
 ### 4.2 What the protocol can and cannot show
 
@@ -550,7 +586,7 @@ structure beyond the domain.
 ## 5. Why the synthetic and real-data results cannot be compared
 
 Version 1 set the +20.6 % of condition D against the real-data pilots and offered three
-hypotheses for the "gap". Two of them (H2, H3) explained it by the behaviour of
+hypotheses for the "gap". Two of them (H2, H3) explained it by the behavior of
 centering on real embeddings. They are withdrawn: no real-data run used centering. The
 third (H1, saturation of the synthetic stream) is replaced by the description of the
 protocol in §3.2 and by the diagnostic of §3.4.
@@ -564,10 +600,11 @@ difference between them cannot be assigned to any one of these.
 
 ## 6. What this note does not claim
 
-- It does not claim that centering or LayerNorm(δ) is useless or harmful as a query
-  transform. Neither was validly tested: they are not part of training, the synthetic
-  null is confounded, the synthetic centering score depends on query order, and
-  centering was never run on real data.
+- It does not claim that centering or LayerNorm(δ) is useless as a query transform in
+  general. As implemented, on the synthetic stream, LayerNorm(δ) at 50 epochs made
+  retrieval fail (Table 1, L1 and L3) and the centering gain is reproduced without the
+  predictor (§3.4); neither was tested on real conversations, and centering was never
+  run on real data.
 - It does not claim that the synthetic gain of condition D fails to transfer to real
   data. That transfer was not tested.
 - It does not claim that the predictor code is faulty as software. Its 33 unit tests
@@ -681,7 +718,7 @@ Commits that added the result files (`git log --diff-filter=A --format='%h %ad'`
 | `results/2026-11-24-aeon-centering-query-order.json` | added with version 2 | 2026-11-24 |
 
 The last file is produced by `scripts/diag_aeon_centering_query_order.py` (added with
-version 2); two consecutive runs gave byte-identical output.
+version 2); three consecutive runs gave byte-identical output.
 
 Code read for this revision, at commit `ba5b1f5`: `src/memory/aeon_predictor.py`,
 `src/memory/aeonsleep.py`, `src/memory/atlas.py`, `scripts/eval_aeon_predictor.py`,
